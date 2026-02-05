@@ -6,13 +6,15 @@
  * 通信使用的消息类型和响应类型。
  *
  * 消息流向：
- * - Popup → Background: 配置更新、翻译开关控制、连接测试
+ * - Popup → Background: 配置更新、翻译开关控制、连接测试、难度分析
  * - Content → Background: 翻译请求
- * - Background → Content: 翻译结果、状态变更
+ * - Background → Content: 翻译结果、状态变更、文本提取请求
  *
  * @author Lingride Team
  * @since 1.0.0
  */
+
+import { DifficultyResult } from "./difficulty";
 
 /**
  * 消息类型枚举
@@ -39,6 +41,12 @@ export enum MessageType {
   // ====== 连接测试 ======
   /** 测试 API 连接 */
   TEST_CONNECTION = "TEST_CONNECTION",
+
+  // ====== 难度分析 ======
+  /** 分析页面难度 */
+  ANALYZE_DIFFICULTY = "ANALYZE_DIFFICULTY",
+  /** 提取页面文本（Background → Content） */
+  EXTRACT_PAGE_TEXT = "EXTRACT_PAGE_TEXT",
 }
 
 /**
@@ -103,6 +111,20 @@ export interface TestConnectionMessage {
 }
 
 /**
+ * 难度分析消息
+ */
+export interface AnalyzeDifficultyMessage {
+  type: MessageType.ANALYZE_DIFFICULTY;
+}
+
+/**
+ * 提取页面文本消息
+ */
+export interface ExtractPageTextMessage {
+  type: MessageType.EXTRACT_PAGE_TEXT;
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -111,7 +133,9 @@ export type Message =
   | ToggleTranslationMessage
   | GetTranslationStateMessage
   | TranslateMessage
-  | TestConnectionMessage;
+  | TestConnectionMessage
+  | AnalyzeDifficultyMessage
+  | ExtractPageTextMessage;
 
 // ====== 响应类型定义 ======
 
@@ -180,6 +204,27 @@ export interface TestConnectionResponse extends BaseResponse {
 }
 
 /**
+ * 提取页面文本响应
+ */
+export interface ExtractPageTextResponse extends BaseResponse {
+  data?: {
+    /** 提取的文本内容 */
+    text: string;
+    /** 单词数量 */
+    wordCount: number;
+    /** 是否为选中文本 */
+    isSelection: boolean;
+  };
+}
+
+/**
+ * 难度分析响应
+ */
+export interface AnalyzeDifficultyResponse extends BaseResponse {
+  data?: DifficultyResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -187,4 +232,6 @@ export type Response =
   | SaveConfigResponse
   | GetTranslationStateResponse
   | TranslateResponse
-  | TestConnectionResponse;
+  | TestConnectionResponse
+  | ExtractPageTextResponse
+  | AnalyzeDifficultyResponse;

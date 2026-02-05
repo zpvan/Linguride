@@ -15,6 +15,8 @@
  * @since 1.0.0
  */
 
+import { DifficultyPromptConfig } from "./difficulty";
+
 /**
  * 翻译服务提供者配置
  *
@@ -67,8 +69,11 @@ export interface LingridConfig {
   /** 模型名称 */
   model: string;
 
-  /** 自定义 Prompt 配置 */
+  /** 翻译 Prompt 配置 */
   prompts: PromptConfig;
+
+  /** 难度分析 Prompt 配置（可选，使用默认值） */
+  difficulty_prompts?: DifficultyPromptConfig;
 }
 
 /**

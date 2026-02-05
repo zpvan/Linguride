@@ -14,9 +14,15 @@
  */
 
 import {
+  DEFAULT_DIFFICULTY_SYSTEM_PROMPT,
+  DEFAULT_DIFFICULTY_USER_PROMPT,
+} from "../constants/difficultyPrompts";
+import {
+  AnalyzeDifficultyResponse,
   DEFAULT_CONFIG,
   DEFAULT_SYSTEM_PROMPT,
   DEFAULT_USER_PROMPT_TEMPLATE,
+  DifficultyResult,
   LingridConfig,
   MessageType,
 } from "../types";
@@ -71,6 +77,39 @@ const resetDefaultsBtn = document.getElementById(
 const saveSettingsBtn = document.getElementById(
   "saveSettingsBtn"
 ) as HTMLButtonElement;
+
+// 难度分析
+const analyzeDifficultyBtn = document.getElementById(
+  "analyzeDifficultyBtn"
+) as HTMLButtonElement;
+const difficultyStatus = document.getElementById(
+  "difficultyStatus"
+) as HTMLElement;
+const difficultyResult = document.getElementById(
+  "difficultyResult"
+) as HTMLElement;
+const difficultyBadge = document.getElementById(
+  "difficultyBadge"
+) as HTMLElement;
+const cefrBadge = document.getElementById("cefrBadge") as HTMLElement;
+const scoreProgress = document.getElementById("scoreProgress") as HTMLElement;
+const scoreValue = document.getElementById("scoreValue") as HTMLElement;
+const vocabMetric = document.getElementById("vocabMetric") as HTMLElement;
+const sentenceMetric = document.getElementById("sentenceMetric") as HTMLElement;
+const readingTime = document.getElementById("readingTime") as HTMLElement;
+const wordCount = document.getElementById("wordCount") as HTMLElement;
+const suggestionsList = document.getElementById(
+  "suggestionsList"
+) as HTMLElement;
+const selectionHint = document.getElementById("selectionHint") as HTMLElement;
+
+// 难度分析 Prompt
+const difficultySystemPromptTextarea = document.getElementById(
+  "difficultySystemPrompt"
+) as HTMLTextAreaElement;
+const difficultyUserPromptTextarea = document.getElementById(
+  "difficultyUserPrompt"
+) as HTMLTextAreaElement;
 
 // ====== 状态 ======
 
@@ -137,11 +176,19 @@ function updateFormFromConfig(): void {
     customModelInput.style.display = "block";
   }
 
-  // Prompt 配置
+  // 翻译 Prompt 配置
   systemPromptTextarea.value =
     currentConfig.prompts?.system_prompt || DEFAULT_SYSTEM_PROMPT;
   userPromptTextarea.value =
     currentConfig.prompts?.user_prompt_template || DEFAULT_USER_PROMPT_TEMPLATE;
+
+  // 难度分析 Prompt 配置
+  difficultySystemPromptTextarea.value =
+    currentConfig.difficulty_prompts?.system_prompt ||
+    DEFAULT_DIFFICULTY_SYSTEM_PROMPT;
+  difficultyUserPromptTextarea.value =
+    currentConfig.difficulty_prompts?.user_prompt_template ||
+    DEFAULT_DIFFICULTY_USER_PROMPT;
 }
 
 /**
@@ -234,6 +281,9 @@ function bindEvents(): void {
 
   // 保存设置
   saveSettingsBtn.addEventListener("click", () => saveSettings());
+
+  // 难度分析
+  analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
 }
 
 // ====== 功能实现 ======
@@ -275,9 +325,15 @@ async function testConnection(): Promise<void> {
  * 重置为默认值
  */
 function resetDefaults(): void {
+  // 翻译 Prompt
   systemPromptTextarea.value = DEFAULT_SYSTEM_PROMPT;
   userPromptTextarea.value = DEFAULT_USER_PROMPT_TEMPLATE;
-  showStatus(connectionStatus, "Prompt 已重置为默认值", "success");
+
+  // 难度分析 Prompt
+  difficultySystemPromptTextarea.value = DEFAULT_DIFFICULTY_SYSTEM_PROMPT;
+  difficultyUserPromptTextarea.value = DEFAULT_DIFFICULTY_USER_PROMPT;
+
+  showStatus(connectionStatus, "所有 Prompt 已重置为默认值", "success");
 }
 
 /**
@@ -295,6 +351,10 @@ async function saveSettings(showMessage = true): Promise<void> {
     prompts: {
       system_prompt: systemPromptTextarea.value,
       user_prompt_template: userPromptTextarea.value,
+    },
+    difficulty_prompts: {
+      system_prompt: difficultySystemPromptTextarea.value,
+      user_prompt_template: difficultyUserPromptTextarea.value,
     },
   };
 
@@ -341,5 +401,91 @@ function showStatus(
     setTimeout(() => {
       element.style.display = "none";
     }, 3000);
+  }
+}
+
+// ====== 难度分析 ======
+
+/**
+ * 处理难度分析按钮点击
+ */
+async function handleAnalyzeDifficulty(): Promise<void> {
+  // 禁用按钮，显示加载状态
+  analyzeDifficultyBtn.disabled = true;
+  analyzeDifficultyBtn.innerHTML = '<span class="btn-icon">⏳</span> 分析中...';
+  difficultyResult.style.display = "none";
+  showStatus(difficultyStatus, "正在分析页面难度...", "loading");
+
+  try {
+    const response: AnalyzeDifficultyResponse =
+      await chrome.runtime.sendMessage({
+        type: MessageType.ANALYZE_DIFFICULTY,
+      });
+
+    if (response.success && response.data) {
+      difficultyStatus.style.display = "none";
+      renderDifficultyResult(response.data);
+    } else {
+      showStatus(difficultyStatus, response.error || "分析失败", "error");
+    }
+  } catch (error) {
+    console.error("[Lingride] 难度分析失败:", error);
+    showStatus(difficultyStatus, "分析请求失败", "error");
+  } finally {
+    analyzeDifficultyBtn.disabled = false;
+    analyzeDifficultyBtn.innerHTML =
+      '<span class="btn-icon">📊</span> 分析当前页面';
+  }
+}
+
+/**
+ * 渲染难度分析结果
+ */
+function renderDifficultyResult(result: DifficultyResult): void {
+  // 显示结果卡片
+  difficultyResult.style.display = "block";
+
+  // 难度等级徽章
+  const levelClass = result.difficultyLevel.toLowerCase();
+  difficultyBadge.textContent = result.difficultyLevel;
+  difficultyBadge.className = `difficulty-badge ${levelClass}`;
+
+  // CEFR 徽章
+  cefrBadge.textContent = result.cefrLevel;
+
+  // 分数进度条
+  scoreProgress.style.width = `${result.score}%`;
+  scoreValue.textContent = result.score.toString();
+
+  // 词汇复杂度
+  const vocab = result.vocabularyComplexity;
+  vocabMetric.textContent = `${vocab.rareWordCount} 罕见词 / ${vocab.academicWordCount} 学术词`;
+
+  // 句子复杂度
+  const sentence = result.sentenceComplexity;
+  const complexRatio = Math.round(sentence.complexSentenceRatio * 100);
+  sentenceMetric.textContent = `平均 ${sentence.avgSentenceLength.toFixed(
+    1
+  )} 词/句 (${complexRatio}% 复杂)`;
+
+  // 阅读时间
+  readingTime.textContent = `${result.estimatedReadingTime} 分钟`;
+
+  // 采样词数
+  wordCount.textContent = `${result.sampleWordCount} 词`;
+
+  // 建议列表
+  suggestionsList.innerHTML = "";
+  for (const suggestion of result.suggestions) {
+    const li = document.createElement("li");
+    li.textContent = suggestion;
+    suggestionsList.appendChild(li);
+  }
+
+  // 选中文本提示
+  if (result.isSelection) {
+    selectionHint.style.display = "block";
+  } else {
+    selectionHint.style.display = "none";
   }
 }

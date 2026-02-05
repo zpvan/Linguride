@@ -20,8 +20,12 @@
  * @since 1.0.0
  */
 
+import { DEFAULT_DIFFICULTY_PROMPTS } from "../constants/difficultyPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
+  AnalyzeDifficultyResponse,
+  DifficultyResult,
+  ExtractPageTextResponse,
   GetConfigResponse,
   GetTranslationStateResponse,
   LingridConfig,
@@ -269,6 +273,136 @@ async function handleTestConnection(): Promise<TestConnectionResponse> {
   }
 }
 
+/**
+ * 处理 ANALYZE_DIFFICULTY 消息
+ *
+ * 分析当前页面的英文难度级别。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 获取当前 Tab
+ * 3. 向 Content Script 发送提取文本请求
+ * 4. 调用 AI 进行难度分析
+ * 5. 解析并返回结果
+ */
+async function handleAnalyzeDifficulty(): Promise<AnalyzeDifficultyResponse> {
+  try {
+    // 1. 获取配置并验证
+    const config = await getConfig();
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 获取当前活动 Tab
+    const [activeTab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    if (!activeTab?.id) {
+      return {
+        success: false,
+        error: "无法获取当前 Tab",
+      };
+    }
+
+    const tabId = activeTab.id;
+
+    // 3. 向 Content Script 发送提取文本请求
+    let extractResponse: ExtractPageTextResponse;
+
+    try {
+      extractResponse = await chrome.tabs.sendMessage(tabId, {
+        type: MessageType.EXTRACT_PAGE_TEXT,
+      });
+    } catch (e) {
+      // Content Script 未加载，尝试注入
+      console.warn("[Lingride] Content Script 未加载，尝试注入...");
+
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ["src/content/index.js"],
+        });
+        await chrome.scripting.insertCSS({
+          target: { tabId },
+          files: ["src/content/styles.css"],
+        });
+
+        // 等待脚本加载后重新发送消息
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        extractResponse = await chrome.tabs.sendMessage(tabId, {
+          type: MessageType.EXTRACT_PAGE_TEXT,
+        });
+      } catch (injectError) {
+        console.error("[Lingride] 注入 Content Script 失败:", injectError);
+        return {
+          success: false,
+          error: "无法在此页面分析难度（可能是浏览器内置页面）",
+        };
+      }
+    }
+
+    if (!extractResponse.success || !extractResponse.data) {
+      return {
+        success: false,
+        error: extractResponse.error || "无法提取页面文本",
+      };
+    }
+
+    const { text, wordCount, isSelection } = extractResponse.data;
+    console.log(
+      `[Lingride] 提取文本成功: ${wordCount} 词, 选中文本: ${isSelection}`
+    );
+
+    // 4. 获取 Prompt 配置（用户自定义或默认）
+    const prompts = config.difficulty_prompts || DEFAULT_DIFFICULTY_PROMPTS;
+    const userPrompt = prompts.user_prompt_template.replace("{text}", text);
+
+    // 5. 调用 AI 进行分析
+    console.log("[Lingride] 开始难度分析...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
+
+    // 6. 解析 JSON 响应
+    let result: DifficultyResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 添加额外信息
+    result.sampleWordCount = wordCount;
+    result.isSelection = isSelection;
+
+    console.log("[Lingride] 难度分析完成:", result.difficultyLevel);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 难度分析失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "难度分析失败",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -345,6 +479,10 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TEST_CONNECTION:
           response = await handleTestConnection();
+          break;
+
+        case MessageType.ANALYZE_DIFFICULTY:
+          response = await handleAnalyzeDifficulty();
           break;
 
         default:

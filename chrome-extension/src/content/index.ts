@@ -19,7 +19,7 @@
  * @since 1.0.0
  */
 
-import { MessageType, TranslatableElement } from "../types";
+import { ExtractPageTextResponse, MessageType, TranslatableElement } from "../types";
 import { BatchManager } from "./batchManager";
 import {
     clearProcessedMarks,
@@ -269,6 +269,93 @@ function stopTranslation(): void {
   // 注意：不清空缓存，以便重新开启时使用
 }
 
+// ====== 难度分析辅助函数 ======
+
+/**
+ * 统计文本中的单词数量
+ */
+function countWords(text: string): number {
+  return text.split(/\s+/).filter((word) => word.length > 0).length;
+}
+
+/**
+ * 采样页面文本
+ *
+ * 从可翻译元素中采样文本，限制最大字符数。
+ *
+ * @param elements - 可翻译元素数组
+ * @param maxChars - 最大字符数
+ * @returns 采样后的文本
+ */
+function samplePageText(
+  elements: TranslatableElement[],
+  maxChars: number
+): string {
+  let result = "";
+
+  for (const element of elements) {
+    if (result.length + element.originalText.length > maxChars) {
+      // 如果添加这段会超过限制，尝试截取
+      const remaining = maxChars - result.length;
+      if (remaining > 100) {
+        result += element.originalText.substring(0, remaining) + "...";
+      }
+      break;
+    }
+    result += element.originalText + "\n\n";
+  }
+
+  return result.trim();
+}
+
+/**
+ * 处理页面文本提取请求
+ *
+ * 优先返回选中文本，否则采样整页内容。
+ */
+function handleExtractPageText(): ExtractPageTextResponse {
+  // 1. 检查是否有选中文本
+  const selection = window.getSelection()?.toString().trim();
+  if (selection && selection.length >= 50) {
+    console.log(`[Lingride] 使用选中文本，长度: ${selection.length}`);
+    return {
+      success: true,
+      data: {
+        text: selection,
+        wordCount: countWords(selection),
+        isSelection: true,
+      },
+    };
+  }
+
+  // 2. 无选中文本，采样整页
+  // 临时清除处理标记以便重新提取
+  clearProcessedMarks();
+  const elements = extractTranslatableElements();
+  clearProcessedMarks(); // 清除刚添加的标记，不影响翻译功能
+
+  if (elements.length === 0) {
+    return {
+      success: false,
+      error: "页面中未找到英文内容",
+    };
+  }
+
+  const sampledText = samplePageText(elements, 2000);
+  console.log(
+    `[Lingride] 采样页面文本，元素数: ${elements.length}，字符数: ${sampledText.length}`
+  );
+
+  return {
+    success: true,
+    data: {
+      text: sampledText,
+      wordCount: countWords(sampledText),
+      isSelection: false,
+    },
+  };
+}
+
 // ====== 消息处理 ======
 
 /**
@@ -288,6 +375,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         stopTranslation();
       }
       sendResponse({ success: true });
+      break;
+
+    case MessageType.EXTRACT_PAGE_TEXT:
+      const extractResult = handleExtractPageText();
+      sendResponse(extractResult);
       break;
 
     default:

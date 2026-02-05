@@ -352,3 +352,209 @@ body {
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+
+/* ====== 区块描述 ====== */
+.section-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+/* ====== 分析按钮 ====== */
+.btn-analyze {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.btn-analyze:hover {
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+}
+
+.btn-analyze:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* ====== 难度结果卡片 ====== */
+.difficulty-result {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.result-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* ====== 难度徽章 ====== */
+.difficulty-badge,
+.cefr-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.difficulty-badge.beginner {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.difficulty-badge.intermediate {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.difficulty-badge.advanced {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
+.difficulty-badge.expert {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.cefr-badge {
+  background: rgba(0, 217, 255, 0.2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+/* ====== 分数进度条 ====== */
+.result-score {
+  margin-bottom: 16px;
+}
+
+.score-bar {
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.score-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #ffc107, #ff9800, #f44336);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.score-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.score-value {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ====== 指标网格 ====== */
+.result-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background: var(--bg-input);
+  border-radius: 6px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.metric-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ====== 建议列表 ====== */
+.result-suggestions {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.result-suggestions h4 {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.result-suggestions ul {
+  list-style: none;
+  padding: 0;
+}
+
+.result-suggestions li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.result-suggestions li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* ====== 选中文本提示 ====== */
+.selection-hint {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(0, 217, 255, 0.1);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ====== Prompt 分组标题 ====== */
+.prompt-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.prompt-group-title:first-child {
+  margin-top: 0;
+}

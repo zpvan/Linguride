@@ -54,12 +54,74 @@
       <div id="connectionStatus" class="status-message"></div>
     </section>
 
+    <!-- 难度分析 -->
+    <section class="section">
+      <h2 class="section-title">页面难度分析</h2>
+      <p class="section-desc">快速评估当前页面的英文难度级别</p>
+      
+      <button id="analyzeDifficultyBtn" class="btn btn-analyze">
+        <span class="btn-icon">📊</span>
+        分析当前页面
+      </button>
+      
+      <div id="difficultyStatus" class="status-message"></div>
+      
+      <!-- 分析结果卡片（初始隐藏） -->
+      <div id="difficultyResult" class="difficulty-result" style="display: none;">
+        <div class="result-header">
+          <span id="difficultyBadge" class="difficulty-badge"></span>
+          <span id="cefrBadge" class="cefr-badge"></span>
+        </div>
+        
+        <div class="result-score">
+          <div class="score-bar">
+            <div id="scoreProgress" class="score-progress"></div>
+          </div>
+          <div class="score-labels">
+            <span>简单</span>
+            <span id="scoreValue" class="score-value">0</span>
+            <span>困难</span>
+          </div>
+        </div>
+        
+        <div class="result-metrics">
+          <div class="metric">
+            <span class="metric-label">词汇复杂度</span>
+            <span id="vocabMetric" class="metric-value">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">句子复杂度</span>
+            <span id="sentenceMetric" class="metric-value">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">阅读时间</span>
+            <span id="readingTime" class="metric-value">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">采样词数</span>
+            <span id="wordCount" class="metric-value">-</span>
+          </div>
+        </div>
+        
+        <div class="result-suggestions">
+          <h4>📝 学习建议</h4>
+          <ul id="suggestionsList"></ul>
+        </div>
+        
+        <div id="selectionHint" class="selection-hint" style="display: none;">
+          💡 分析基于选中文本
+        </div>
+      </div>
+    </section>
+
     <!-- 高级设置 -->
     <div class="advanced-section">
       <button type="button" id="advancedToggle" class="advanced-toggle">
         <span class="toggle-icon">▶</span> 高级设置
       </button>
       <div id="advancedContent" class="advanced-content collapsed">
+        <!-- 翻译 Prompt 配置 -->
+        <h3 class="prompt-group-title">翻译 Prompt</h3>
         <div class="form-group">
           <label for="systemPrompt">System Prompt</label>
           <textarea id="systemPrompt" rows="5" placeholder="你是专业的英中翻译专家..."></textarea>
@@ -69,6 +131,19 @@
           <label for="userPrompt">User Prompt 模板</label>
           <textarea id="userPrompt" rows="4" placeholder="请翻译以下英文文本..."></textarea>
           <p class="hint">💡 使用 <code>{{texts}}</code> 表示待翻译文本</p>
+        </div>
+
+        <!-- 难度分析 Prompt 配置 -->
+        <h3 class="prompt-group-title">难度分析 Prompt</h3>
+        <div class="form-group">
+          <label for="difficultySystemPrompt">System Prompt</label>
+          <textarea id="difficultySystemPrompt" rows="4" placeholder="你是一个专业的英文语言评估专家..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="difficultyUserPrompt">User Prompt 模板</label>
+          <textarea id="difficultyUserPrompt" rows="4" placeholder="请分析以下英文文本的难度..."></textarea>
+          <p class="hint">💡 使用 <code>{text}</code> 表示待分析文本</p>
         </div>
       </div>
     </div>

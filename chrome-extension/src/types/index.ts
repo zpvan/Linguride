@@ -26,7 +26,11 @@ export type { LingridConfig, PromptConfig, ProviderConfig } from "./config";
 // 消息类型
 export { MessageType } from "./messages";
 export type {
+  AnalyzeDifficultyMessage,
+  AnalyzeDifficultyResponse,
   BaseResponse,
+  ExtractPageTextMessage,
+  ExtractPageTextResponse,
   GetConfigMessage,
   GetConfigResponse,
   GetTranslationStateMessage,
@@ -57,3 +61,13 @@ export type {
   TranslationBatch,
   TranslationCache,
 } from "./translation";
+
+// 难度分析类型
+export type {
+  CEFRLevel,
+  DifficultyLevel,
+  DifficultyPromptConfig,
+  DifficultyResult,
+  SentenceComplexity,
+  VocabularyComplexity,
+} from "./difficulty";

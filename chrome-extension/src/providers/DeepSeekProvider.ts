@@ -338,4 +338,40 @@ export class DeepSeekProvider extends BaseTranslateProvider {
       };
     }
   }
+
+  /**
+   * 通用聊天方法
+   *
+   * 用于难度分析等非翻译场景，接受自定义 Prompt。
+   * 不使用配置中的 Prompt，直接使用传入的参数。
+   *
+   * @param systemPrompt - 系统提示词
+   * @param userPrompt - 用户提示词
+   * @returns Promise 解析为 AI 响应的原始字符串
+   *
+   * @example
+   * ```typescript
+   * const response = await provider.chat(
+   *   '你是一个英语难度分析专家...',
+   *   '请分析以下文本的难度...'
+   * );
+   * ```
+   */
+  async chat(systemPrompt: string, userPrompt: string): Promise<string> {
+    const messages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ];
+
+    console.log("[Lingride] 发送 chat 请求");
+    const response = await this.sendRequestWithRetry(messages);
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("API 返回空响应");
+    }
+
+    console.log("[Lingride] chat 请求成功");
+    return content;
+  }
 }

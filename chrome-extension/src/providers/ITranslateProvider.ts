@@ -70,6 +70,17 @@ export interface ITranslateProvider {
     latency: number;
     error?: string;
   }>;
+
+  /**
+   * 通用聊天方法
+   *
+   * 用于难度分析等非翻译场景，接受自定义 Prompt。
+   *
+   * @param systemPrompt - 系统提示词
+   * @param userPrompt - 用户提示词
+   * @returns Promise 解析为 AI 响应的原始字符串
+   */
+  chat(systemPrompt: string, userPrompt: string): Promise<string>;
 }
 
 /**
@@ -186,4 +197,5 @@ export abstract class BaseTranslateProvider implements ITranslateProvider {
     latency: number;
     error?: string;
   }>;
+  abstract chat(systemPrompt: string, userPrompt: string): Promise<string>;
 }
