@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingride 设置</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <header class="header">
+      <h1 class="title">🌐 Lingride</h1>
+      <label class="toggle-switch">
+        <input type="checkbox" id="translationToggle">
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <!-- 配置未完成提示 -->
+    <div id="configWarning" class="warning" style="display: none;">
+      ⚠️ 请先配置 API Key 才能使用翻译功能
+    </div>
+
+    <!-- 翻译服务配置 -->
+    <section class="section">
+      <h2 class="section-title">翻译服务配置</h2>
+      
+      <div class="form-group">
+        <label for="apiBaseUrl">API 端点 (Base URL)</label>
+        <input type="text" id="apiBaseUrl" placeholder="https://api.deepseek.com">
+      </div>
+
+      <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <div class="password-input">
+          <input type="password" id="apiKey" placeholder="sk-...">
+          <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="modelSelect">模型</label>
+        <select id="modelSelect">
+          <option value="deepseek-chat">DeepSeek Chat</option>
+          <option value="deepseek-coder">DeepSeek Coder</option>
+          <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+          <option value="custom">自定义模型...</option>
+        </select>
+        <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
+      </div>
+
+      <button id="testConnectionBtn" class="btn btn-secondary">测试连接</button>
+      <div id="connectionStatus" class="status-message"></div>
+    </section>
+
+    <!-- 高级设置 -->
+    <div class="advanced-section">
+      <button type="button" id="advancedToggle" class="advanced-toggle">
+        <span class="toggle-icon">▶</span> 高级设置
+      </button>
+      <div id="advancedContent" class="advanced-content collapsed">
+        <div class="form-group">
+          <label for="systemPrompt">System Prompt</label>
+          <textarea id="systemPrompt" rows="5" placeholder="你是专业的英中翻译专家..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="userPrompt">User Prompt 模板</label>
+          <textarea id="userPrompt" rows="4" placeholder="请翻译以下英文文本..."></textarea>
+          <p class="hint">💡 使用 <code>{{texts}}</code> 表示待翻译文本</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="actions">
+      <button id="resetDefaultsBtn" class="btn btn-text">恢复默认</button>
+      <button id="saveSettingsBtn" class="btn btn-primary">保存设置</button>
+    </div>
+  </div>
+
+  <script type="module" src="popup.ts"></script>
+</body>
+</html>

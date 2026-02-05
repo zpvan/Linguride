@@ -1,0 +1,19 @@
+{
+  "name": "lingride",
+  "displayName": "Lingride - 双语翻译",
+  "version": "1.0.0",
+  "description": "英文网页双语对照翻译扩展，使用 DeepSeek API",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "install:mac": "bash scripts/install-mac.sh"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.0",
+    "vite-plugin-web-extension": "^4.5.0"
+  }
+}
