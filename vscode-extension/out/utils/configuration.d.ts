@@ -7,6 +7,13 @@ import { ExtensionConfig, ProviderConfig } from '../types';
 export declare class ConfigurationManager {
     private static readonly SECTION;
     /**
+     * 验证和标准化prompt模板配置
+     * @param templates 原始模板配置
+     * @param defaultTemplates 默认模板（可选）
+     * @returns 验证后的模板配置或undefined
+     */
+    private static validatePromptTemplates;
+    /**
      * 获取完整的扩展配置
      * @returns 扩展配置对象
      */
@@ -24,6 +31,13 @@ export declare class ConfigurationManager {
      * @returns 更新是否成功
      */
     static updateConfig(updates: Partial<ExtensionConfig>, target?: vscode.ConfigurationTarget): Promise<boolean>;
+    /**
+     * 扁平化配置更新对象
+     * 将嵌套对象转换为点号表示法，用于VS Code配置API
+     * @param updates 配置更新对象
+     * @returns 扁平化的配置键值对
+     */
+    private static flattenConfigUpdates;
     /**
      * 更新提供商配置
      * @param providerId 提供商ID

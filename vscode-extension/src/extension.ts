@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { DifficultyAnalyzer } from './analysis/DifficultyAnalyzer';
-import { createProvider } from './providers/providerFactory';
+import { createProvider, ProviderFactory } from './providers/providerFactory';
 import { AnalysisPanel } from './ui/AnalysisPanel';
 
 let analysisPanel: AnalysisPanel | undefined;
@@ -96,7 +96,14 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	// 将命令和提供者添加到订阅列表，以便在停用时清理
-	context.subscriptions.push(analyzeCommand, configureCommand, panelProvider);
+	context.subscriptions.push(
+		analyzeCommand,
+		configureCommand,
+		panelProvider,
+		{
+			dispose: () => ProviderFactory.dispose()
+		}
+	);
 }
 
 /**

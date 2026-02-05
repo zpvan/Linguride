@@ -108,7 +108,9 @@ function activate(context) {
         }
     });
     // 将命令和提供者添加到订阅列表，以便在停用时清理
-    context.subscriptions.push(analyzeCommand, configureCommand, panelProvider);
+    context.subscriptions.push(analyzeCommand, configureCommand, panelProvider, {
+        dispose: () => providerFactory_1.ProviderFactory.dispose()
+    });
 }
 /**
  * 停用扩展时调用

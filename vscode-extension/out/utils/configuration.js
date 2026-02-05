@@ -42,18 +42,41 @@ const defaults_1 = require("../constants/defaults");
  */
 class ConfigurationManager {
     /**
+     * 验证和标准化prompt模板配置
+     * @param templates 原始模板配置
+     * @param defaultTemplates 默认模板（可选）
+     * @returns 验证后的模板配置或undefined
+     */
+    static validatePromptTemplates(templates, defaultTemplates) {
+        if (!templates || typeof templates !== 'object') {
+            return defaultTemplates ? {
+                system: defaultTemplates.system || defaults_1.DEFAULT_PROMPT_TEMPLATES.system,
+                user: defaultTemplates.user || defaults_1.DEFAULT_PROMPT_TEMPLATES.user
+            } : undefined;
+        }
+        const system = templates.system?.trim();
+        const user = templates.user?.trim();
+        // 只有当system或user至少有一个非空字符串时才视为有效
+        if (!system && !user) {
+            return defaultTemplates ? {
+                system: defaultTemplates.system || defaults_1.DEFAULT_PROMPT_TEMPLATES.system,
+                user: defaultTemplates.user || defaults_1.DEFAULT_PROMPT_TEMPLATES.user
+            } : undefined;
+        }
+        return {
+            system: system || defaultTemplates?.system || defaults_1.DEFAULT_PROMPT_TEMPLATES.system,
+            user: user || defaultTemplates?.user || defaults_1.DEFAULT_PROMPT_TEMPLATES.user
+        };
+    }
+    /**
      * 获取完整的扩展配置
      * @returns 扩展配置对象
      */
     static getConfig() {
         const config = vscode.workspace.getConfiguration(this.SECTION);
-        // 获取prompt模板配置，使用空对象作为默认值
+        // 获取并验证全局prompt模板配置
         const globalPromptTemplates = config.get('analysis.promptTemplates', {});
-        // 确保promptTemplates对象完整，使用配置常量作为最终保障
-        const validatedPromptTemplates = {
-            system: globalPromptTemplates?.system || defaults_1.DEFAULT_PROMPT_TEMPLATES.system,
-            user: globalPromptTemplates?.user || defaults_1.DEFAULT_PROMPT_TEMPLATES.user
-        };
+        const validatedPromptTemplates = this.validatePromptTemplates(globalPromptTemplates, defaults_1.DEFAULT_PROMPT_TEMPLATES);
         // 构建配置对象，提供合理的默认值
         const extensionConfig = {
             defaultProvider: config.get('defaultProvider', 'deepseek'),
@@ -84,6 +107,8 @@ class ConfigurationManager {
         }
         // 确保返回的对象包含所有必需的字段
         const typedConfig = providerConfig;
+        // 验证提供商特定的prompt模板配置
+        const finalPromptTemplates = this.validatePromptTemplates(typedConfig.promptTemplates);
         return {
             apiKey: typedConfig.apiKey || '',
             model: typedConfig.model || this.getDefaultModel(providerId),
@@ -91,8 +116,7 @@ class ConfigurationManager {
             maxTokens: typedConfig.maxTokens || 2000,
             temperature: typedConfig.temperature || 0.3,
             timeout: typedConfig.timeout || 30000,
-            // 新增：prompt模板配置
-            promptTemplates: typedConfig.promptTemplates || undefined
+            promptTemplates: finalPromptTemplates
         };
     }
     /**
@@ -104,8 +128,14 @@ class ConfigurationManager {
     static async updateConfig(updates, target = vscode.ConfigurationTarget.Global) {
         try {
             const config = vscode.workspace.getConfiguration(this.SECTION);
-            // 递归更新配置对象
-            for (const [key, value] of Object.entries(updates)) {
+            // 验证更新请求，防止意外数据丢失
+            if (updates.providers) {
+                throw new Error('不能直接更新providers对象，请使用updateProviderConfig方法更新特定提供商配置');
+            }
+            // 扁平化更新对象，将嵌套属性转换为点号表示法
+            const flattenedUpdates = this.flattenConfigUpdates(updates);
+            // 应用更新
+            for (const [key, value] of Object.entries(flattenedUpdates)) {
                 await config.update(key, value, target);
             }
             return true;
@@ -114,6 +144,32 @@ class ConfigurationManager {
             console.error('更新配置失败:', error);
             return false;
         }
+    }
+    /**
+     * 扁平化配置更新对象
+     * 将嵌套对象转换为点号表示法，用于VS Code配置API
+     * @param updates 配置更新对象
+     * @returns 扁平化的配置键值对
+     */
+    static flattenConfigUpdates(updates) {
+        const result = {};
+        const flatten = (obj, prefix = '') => {
+            for (const [key, value] of Object.entries(obj)) {
+                const fullKey = prefix ? `${prefix}.${key}` : key;
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                    // 递归展平嵌套对象，但跳过providers（已被禁止）
+                    if (key !== 'providers') {
+                        flatten(value, fullKey);
+                    }
+                }
+                else {
+                    // 基本类型或数组，直接添加
+                    result[fullKey] = value;
+                }
+            }
+        };
+        flatten(updates);
+        return result;
     }
     /**
      * 更新提供商配置

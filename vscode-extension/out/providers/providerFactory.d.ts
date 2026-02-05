@@ -5,6 +5,7 @@ import { ILLMProvider } from './ILLMProvider';
  */
 export declare class ProviderFactory {
     private static instances;
+    private static configChangeDisposable;
     /**
      * 根据提供商ID创建或获取提供商实例
      * @param providerId 提供商ID ('openai', 'claude', 'deepseek')
@@ -27,10 +28,20 @@ export declare class ProviderFactory {
      */
     static clearCache(providerId?: string): void;
     /**
+     * 初始化配置变更监听器
+     * 当VS Code配置变更时自动清除缓存
+     */
+    private static initializeConfigListener;
+    /**
      * 获取当前活跃的提供商ID
      * @returns 当前活跃的提供商ID
      */
     static getActiveProviderId(): string;
+    /**
+     * 清理工厂资源
+     * 扩展停用时调用此方法释放所有资源
+     */
+    static dispose(): void;
 }
 /**
  * 便捷函数：创建默认提供商

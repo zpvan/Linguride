@@ -9,6 +9,7 @@ import { ConfigurationManager } from '../utils/configuration';
  */
 export class ProviderFactory {
 	private static instances: Map<string, ILLMProvider> = new Map();
+	private static configChangeDisposable: vscode.Disposable | undefined;
 
 	/**
 	 * 根据提供商ID创建或获取提供商实例
@@ -17,13 +18,17 @@ export class ProviderFactory {
 	 */
 	static async createProvider(providerId?: string): Promise<ILLMProvider | null> {
 		try {
+			// 确保配置监听器已初始化
+			this.initializeConfigListener();
+
 			// 如果没有指定提供商，使用默认配置
 			const config = ConfigurationManager.getConfig();
 			const targetProviderId = providerId || config.defaultProvider;
 
-			// 检查是否已有实例
-			if (this.instances.has(targetProviderId)) {
-				return this.instances.get(targetProviderId)!;
+			// 检查是否已有实例（使用安全获取避免竞态条件）
+			const cachedInstance = this.instances.get(targetProviderId);
+			if (cachedInstance) {
+				return cachedInstance;
 			}
 
 			// 获取提供商配置
@@ -131,10 +136,52 @@ export class ProviderFactory {
 	 */
 	static clearCache(providerId?: string): void {
 		if (providerId) {
-			this.instances.delete(providerId);
+			const instance = this.instances.get(providerId);
+			if (instance) {
+				// 如果实例有dispose方法，调用它以清理资源
+				if (typeof (instance as any).dispose === 'function') {
+					try {
+						(instance as any).dispose();
+					} catch (error) {
+						console.error(`清理提供商 ${providerId} 资源时出错:`, error);
+					}
+				}
+				this.instances.delete(providerId);
+			}
 		} else {
+			// 清理所有实例
+			for (const [id, instance] of this.instances.entries()) {
+				if (instance && typeof (instance as any).dispose === 'function') {
+					try {
+						(instance as any).dispose();
+					} catch (error) {
+						console.error(`清理提供商 ${id} 资源时出错:`, error);
+					}
+				}
+			}
 			this.instances.clear();
 		}
+	}
+
+	/**
+	 * 初始化配置变更监听器
+	 * 当VS Code配置变更时自动清除缓存
+	 */
+	private static initializeConfigListener(): void {
+		if (this.configChangeDisposable) {
+			return;
+		}
+
+		this.configChangeDisposable = ConfigurationManager.onDidChangeConfiguration((event) => {
+			try {
+				if (event.affectsConfiguration('linguride')) {
+					this.clearCache();
+					console.log(`[Linguride] 配置已变更，清除${this.instances.size}个缓存实例`);
+				}
+			} catch (error) {
+				console.error('[Linguride] 配置变更处理失败:', error);
+			}
+		});
 	}
 
 	/**
@@ -144,6 +191,18 @@ export class ProviderFactory {
 	static getActiveProviderId(): string {
 		const config = ConfigurationManager.getConfig();
 		return config.defaultProvider;
+	}
+
+	/**
+	 * 清理工厂资源
+	 * 扩展停用时调用此方法释放所有资源
+	 */
+	static dispose(): void {
+		if (this.configChangeDisposable) {
+			this.configChangeDisposable.dispose();
+			this.configChangeDisposable = undefined;
+		}
+		this.clearCache();
 	}
 }
 
