@@ -18,6 +18,10 @@ import {
   DEFAULT_DIFFICULTY_USER_PROMPT,
 } from "../constants/difficultyPrompts";
 import {
+  DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT,
+  DEFAULT_MIXED_TRANSLATE_USER_PROMPT,
+} from "../constants/mixedTranslatePrompts";
+import {
   DEFAULT_PARAPHRASE_SYSTEM_PROMPT,
   DEFAULT_PARAPHRASE_USER_PROMPT,
 } from "../constants/paraphrasePrompts";
@@ -30,6 +34,7 @@ import {
   DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
   DifficultyResult,
+  getRetentionPercent,
   LingridConfig,
   MessageType,
 } from "../types";
@@ -140,11 +145,28 @@ const paraphraseUserPromptTextarea = document.getElementById(
   "paraphraseUserPrompt"
 ) as HTMLTextAreaElement;
 
+// 混杂中英开关
+const mixedTranslateToggle = document.getElementById(
+  "mixedTranslateToggle"
+) as HTMLInputElement;
+const mixedTranslateStatus = document.getElementById(
+  "mixedTranslateStatus"
+) as HTMLElement;
+
+// 混杂中英 Prompt
+const mixedTranslateSystemPromptTextarea = document.getElementById(
+  "mixedTranslateSystemPrompt"
+) as HTMLTextAreaElement;
+const mixedTranslateUserPromptTextarea = document.getElementById(
+  "mixedTranslateUserPrompt"
+) as HTMLTextAreaElement;
+
 // ====== 状态 ======
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
 let isTranslationEnabled = false;
 let isParaphraseEnabled = false;
+let isMixedTranslateEnabled = false;
 
 // ====== 初始化 ======
 
@@ -154,8 +176,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 加载配置
   await loadConfig();
 
-  // 加载翻译和释义状态
-  await Promise.all([loadTranslationState(), loadParaphraseState()]);
+  // 加载翻译、释义和混杂中英状态
+  await Promise.all([
+    loadTranslationState(),
+    loadParaphraseState(),
+    loadMixedTranslateState(),
+  ]);
 
   // 绑定事件
   bindEvents();
@@ -233,6 +259,14 @@ function updateFormFromConfig(): void {
   paraphraseUserPromptTextarea.value =
     currentConfig.paraphrase_prompts?.user_prompt_template ||
     DEFAULT_PARAPHRASE_USER_PROMPT;
+
+  // 混杂中英 Prompt 配置
+  mixedTranslateSystemPromptTextarea.value =
+    currentConfig.mixed_translate_prompts?.system_prompt ||
+    DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT;
+  mixedTranslateUserPromptTextarea.value =
+    currentConfig.mixed_translate_prompts?.user_prompt_template ||
+    DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
 }
 
 /**
@@ -280,10 +314,14 @@ async function toggleTranslation(): Promise<void> {
     if (response.success) {
       isTranslationEnabled = enabled;
 
-      // 互斥：开启翻译时关闭释义
+      // 互斥：开启翻译时关闭释义和混杂中英
       if (enabled && isParaphraseEnabled) {
         isParaphraseEnabled = false;
         paraphraseToggle.checked = false;
+      }
+      if (enabled && isMixedTranslateEnabled) {
+        isMixedTranslateEnabled = false;
+        mixedTranslateToggle.checked = false;
       }
     } else {
       // 恢复开关状态
@@ -304,6 +342,9 @@ function bindEvents(): void {
 
   // 释义开关
   paraphraseToggle.addEventListener("change", toggleParaphrase);
+
+  // 混杂中英开关
+  mixedTranslateToggle.addEventListener("change", toggleMixedTranslate);
 
   // 英文水平选择（立即保存）
   englishLevelSelect.addEventListener("change", handleEnglishLevelChange);
@@ -395,6 +436,11 @@ function resetDefaults(): void {
   paraphraseSystemPromptTextarea.value = DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
   paraphraseUserPromptTextarea.value = DEFAULT_PARAPHRASE_USER_PROMPT;
 
+  // 混杂中英 Prompt
+  mixedTranslateSystemPromptTextarea.value =
+    DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT;
+  mixedTranslateUserPromptTextarea.value = DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
+
   showStatus(connectionStatus, "所有 Prompt 已重置为默认值", "success");
 }
 
@@ -422,6 +468,10 @@ async function saveSettings(showMessage = true): Promise<void> {
     paraphrase_prompts: {
       system_prompt: paraphraseSystemPromptTextarea.value,
       user_prompt_template: paraphraseUserPromptTextarea.value,
+    },
+    mixed_translate_prompts: {
+      system_prompt: mixedTranslateSystemPromptTextarea.value,
+      user_prompt_template: mixedTranslateUserPromptTextarea.value,
     },
   };
 
@@ -594,10 +644,14 @@ async function toggleParaphrase(): Promise<void> {
     if (response.success) {
       isParaphraseEnabled = enabled;
 
-      // 互斥：开启释义时关闭翻译
+      // 互斥：开启释义时关闭翻译和混杂中英
       if (enabled && isTranslationEnabled) {
         isTranslationEnabled = false;
         toggleSwitch.checked = false;
+      }
+      if (enabled && isMixedTranslateEnabled) {
+        isMixedTranslateEnabled = false;
+        mixedTranslateToggle.checked = false;
       }
     } else {
       // 恢复开关状态
@@ -644,6 +698,18 @@ async function handleEnglishLevelChange(): Promise<void> {
           payload: { enabled: true },
         });
       }
+
+      // 如果混杂中英已开启，需要重新开始（清除旧内容）
+      if (isMixedTranslateEnabled) {
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_MIXED_TRANSLATE,
+          payload: { enabled: false },
+        });
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_MIXED_TRANSLATE,
+          payload: { enabled: true },
+        });
+      }
     }
   } catch (error) {
     console.error("[Lingride] 保存英文水平失败:", error);
@@ -652,8 +718,80 @@ async function handleEnglishLevelChange(): Promise<void> {
 
 /**
  * 更新水平提示
+ *
+ * 根据当前活跃模式显示不同的提示：
+ * - 混杂中英开启时：显示英文保留百分比
+ * - 释义开启时：显示目标等级
+ * - 默认：显示目标等级
  */
 function updateLevelHint(userLevel: CEFRLevel): void {
-  const targetLevel = calculateTargetLevel(userLevel);
-  levelHint.innerHTML = `💡 内容将改写为 <strong>${targetLevel}</strong> 水平（略高于您的水平）`;
+  if (isMixedTranslateEnabled) {
+    const percent = getRetentionPercent(userLevel);
+    levelHint.innerHTML = `💡 将保留约 <strong>${percent}%</strong> 英文内容，其余用中文表达`;
+  } else {
+    const targetLevel = calculateTargetLevel(userLevel);
+    levelHint.innerHTML = `💡 内容将改写为 <strong>${targetLevel}</strong> 水平（略高于您的水平）`;
+  }
+}
+
+// ====== 混杂中英翻译功能 ======
+
+/**
+ * 加载混杂中英翻译状态
+ */
+async function loadMixedTranslateState(): Promise<void> {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.GET_MIXED_TRANSLATE_STATE,
+    });
+
+    if (response.success && response.data) {
+      isMixedTranslateEnabled = response.data.enabled;
+      mixedTranslateToggle.checked = isMixedTranslateEnabled;
+    }
+  } catch (error) {
+    console.error("[Lingride] 加载混杂中英翻译状态失败:", error);
+  }
+}
+
+/**
+ * 切换混杂中英翻译状态
+ *
+ * 三模式互斥：开启混杂中英时自动关闭翻译和释义
+ */
+async function toggleMixedTranslate(): Promise<void> {
+  const enabled = mixedTranslateToggle.checked;
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.TOGGLE_MIXED_TRANSLATE,
+      payload: { enabled },
+    });
+
+    if (response.success) {
+      isMixedTranslateEnabled = enabled;
+
+      // 互斥：开启混杂中英时关闭翻译和释义
+      if (enabled && isTranslationEnabled) {
+        isTranslationEnabled = false;
+        toggleSwitch.checked = false;
+      }
+      if (enabled && isParaphraseEnabled) {
+        isParaphraseEnabled = false;
+        paraphraseToggle.checked = false;
+      }
+
+      // 更新水平提示以反映当前模式
+      const userLevel =
+        currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
+      updateLevelHint(userLevel as CEFRLevel);
+    } else {
+      // 恢复开关状态
+      mixedTranslateToggle.checked = isMixedTranslateEnabled;
+      showStatus(mixedTranslateStatus, response.error || "切换失败", "error");
+    }
+  } catch (error) {
+    mixedTranslateToggle.checked = isMixedTranslateEnabled;
+    showStatus(mixedTranslateStatus, "切换混杂中英翻译状态失败", "error");
+  }
 }

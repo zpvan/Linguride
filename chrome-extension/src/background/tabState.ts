@@ -2,12 +2,12 @@
  * @file tabState.ts
  * @description Tab 状态管理
  *
- * 管理每个 Tab 的翻译和释义开关状态。
+ * 管理每个 Tab 的翻译、释义和混杂中英翻译开关状态。
  * 使用内存存储（非持久化），Tab 关闭或刷新后状态重置。
  *
  * 设计说明：
- * - 每个 Tab 独立维护翻译和释义状态
- * - 翻译和释义互斥（开启一个自动关闭另一个）
+ * - 每个 Tab 独立维护三种模式状态
+ * - 三种模式互斥（开启一个自动关闭其他两个）
  * - 状态仅在 Service Worker 生命周期内有效
  * - Tab 关闭时自动清理状态
  *
@@ -23,6 +23,8 @@ interface TabState {
   translationEnabled: boolean;
   /** 释义是否启用 */
   paraphraseEnabled: boolean;
+  /** 混杂中英翻译是否启用 */
+  mixedTranslateEnabled: boolean;
   /** 状态更新时间戳 */
   updatedAt: number;
 }
@@ -67,9 +69,20 @@ export function getParaphraseState(tabId: number): boolean {
 }
 
 /**
+ * 获取 Tab 的混杂中英翻译状态
+ *
+ * @param tabId - Chrome Tab ID
+ * @returns 混杂中英翻译是否启用，默认为 false
+ */
+export function getMixedTranslateState(tabId: number): boolean {
+  const state = tabStates.get(tabId);
+  return state?.mixedTranslateEnabled ?? false;
+}
+
+/**
  * 设置 Tab 的翻译状态
  *
- * 翻译与释义互斥：开启翻译时自动关闭释义
+ * 三模式互斥：开启翻译时自动关闭释义和混杂中英
  *
  * @param tabId - Chrome Tab ID
  * @param enabled - 是否启用翻译
@@ -78,10 +91,13 @@ export function setTabState(tabId: number, enabled: boolean): void {
   const currentState = tabStates.get(tabId);
   tabStates.set(tabId, {
     translationEnabled: enabled,
-    // 互斥：开启翻译时关闭释义
+    // 互斥：开启翻译时关闭释义和混杂
     paraphraseEnabled: enabled
       ? false
       : currentState?.paraphraseEnabled ?? false,
+    mixedTranslateEnabled: enabled
+      ? false
+      : currentState?.mixedTranslateEnabled ?? false,
     updatedAt: Date.now(),
   });
   console.log(`[Lingride] Tab ${tabId} 翻译状态: ${enabled ? "开启" : "关闭"}`);
@@ -90,7 +106,7 @@ export function setTabState(tabId: number, enabled: boolean): void {
 /**
  * 设置 Tab 的释义状态
  *
- * 释义与翻译互斥：开启释义时自动关闭翻译
+ * 三模式互斥：开启释义时自动关闭翻译和混杂中英
  *
  * @param tabId - Chrome Tab ID
  * @param enabled - 是否启用释义
@@ -98,14 +114,43 @@ export function setTabState(tabId: number, enabled: boolean): void {
 export function setParaphraseState(tabId: number, enabled: boolean): void {
   const currentState = tabStates.get(tabId);
   tabStates.set(tabId, {
-    // 互斥：开启释义时关闭翻译
+    // 互斥：开启释义时关闭翻译和混杂
     translationEnabled: enabled
       ? false
       : currentState?.translationEnabled ?? false,
     paraphraseEnabled: enabled,
+    mixedTranslateEnabled: enabled
+      ? false
+      : currentState?.mixedTranslateEnabled ?? false,
     updatedAt: Date.now(),
   });
   console.log(`[Lingride] Tab ${tabId} 释义状态: ${enabled ? "开启" : "关闭"}`);
+}
+
+/**
+ * 设置 Tab 的混杂中英翻译状态
+ *
+ * 三模式互斥：开启混杂中英时自动关闭翻译和释义
+ *
+ * @param tabId - Chrome Tab ID
+ * @param enabled - 是否启用混杂中英翻译
+ */
+export function setMixedTranslateState(tabId: number, enabled: boolean): void {
+  const currentState = tabStates.get(tabId);
+  tabStates.set(tabId, {
+    // 互斥：开启混杂时关闭翻译和释义
+    translationEnabled: enabled
+      ? false
+      : currentState?.translationEnabled ?? false,
+    paraphraseEnabled: enabled
+      ? false
+      : currentState?.paraphraseEnabled ?? false,
+    mixedTranslateEnabled: enabled,
+    updatedAt: Date.now(),
+  });
+  console.log(
+    `[Lingride] Tab ${tabId} 混杂中英状态: ${enabled ? "开启" : "关闭"}`
+  );
 }
 
 /**

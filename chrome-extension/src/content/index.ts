@@ -35,10 +35,14 @@ import {
   setCachedTranslations,
 } from "./translationCache";
 import {
+  removeAllMixedTranslations,
   removeAllParaphrases,
   removeAllTranslations,
   showError,
   showLoading,
+  showMixedTranslateError,
+  showMixedTranslateLoading,
+  showMixedTranslation,
   showParaphrase,
   showParaphraseError,
   showParaphraseLoading,
@@ -54,6 +58,9 @@ let isTranslationEnabled = false;
 /** 当前释义是否启用 */
 let isParaphraseEnabled = false;
 
+/** 当前混杂中英翻译是否启用 */
+let isMixedTranslateEnabled = false;
+
 /** 当前页面的可翻译元素 */
 let translatableElements: Map<string, TranslatableElement> = new Map();
 
@@ -66,11 +73,17 @@ let viewportObserver: ViewportObserver | null = null;
 /** 视口观察器实例（释义用） */
 let paraphraseViewportObserver: ViewportObserver | null = null;
 
+/** 视口观察器实例（混杂中英翻译用） */
+let mixedTranslateViewportObserver: ViewportObserver | null = null;
+
 /** 正在翻译的批次 ID 集合 */
 const pendingBatches: Set<string> = new Set();
 
 /** 正在释义的批次 ID 集合 */
 const pendingParaphraseBatches: Set<string> = new Set();
+
+/** 正在混杂中英翻译的批次 ID 集合 */
+const pendingMixedTranslateBatches: Set<string> = new Set();
 
 // ====== 初始化 ======
 
@@ -445,6 +458,167 @@ function stopParaphrase(): void {
   pendingParaphraseBatches.clear();
 }
 
+// ====== 混杂中英翻译功能 ======
+
+/**
+ * 开始混杂中英翻译
+ *
+ * 提取页面元素，设置视口观察器，按需生成中英混杂文本。
+ * 不使用缓存（输出依赖用户 CEFR 等级，等级变化后需重新生成）。
+ */
+async function startMixedTranslate(): Promise<void> {
+  console.log("[Lingride] 开始混杂中英翻译...");
+
+  try {
+    // 1. 提取可翻译元素
+    const elements = extractTranslatableElements();
+
+    if (elements.length === 0) {
+      console.log("[Lingride] 未找到可翻译内容");
+      return;
+    }
+
+    // 存储到 Map 以便后续查找
+    translatableElements.clear();
+    for (const element of elements) {
+      translatableElements.set(element.id, element);
+    }
+
+    console.log(`[Lingride] 找到 ${elements.length} 个可翻译元素`);
+
+    // 2. 创建视口观察器，按需翻译
+    if (mixedTranslateViewportObserver) {
+      mixedTranslateViewportObserver.destroy();
+    }
+
+    mixedTranslateViewportObserver = new ViewportObserver((visibleElements) => {
+      // 当元素进入视口时触发混杂翻译
+      mixedTranslateVisibleElements(visibleElements);
+    });
+
+    // 3. 开始观察所有元素
+    mixedTranslateViewportObserver.observe(elements);
+  } catch (error) {
+    console.error("[Lingride] 混杂中英翻译过程出错:", error);
+  }
+}
+
+/**
+ * 混杂中英翻译进入视口的元素
+ */
+async function mixedTranslateVisibleElements(
+  elements: TranslatableElement[]
+): Promise<void> {
+  // 过滤掉已经在处理中的元素
+  const toTranslate = elements.filter(
+    (el) => !pendingMixedTranslateBatches.has(el.id)
+  );
+
+  if (toTranslate.length === 0) return;
+
+  // 显示加载状态
+  for (const element of toTranslate) {
+    showMixedTranslateLoading(element);
+  }
+
+  // 创建批次并翻译
+  const batches = batchManager.createBatches(toTranslate);
+
+  // 并行发送所有批次请求（限制并发数）
+  const concurrencyLimit = 3;
+  for (let i = 0; i < batches.length; i += concurrencyLimit) {
+    const batchSlice = batches.slice(i, i + concurrencyLimit);
+    await Promise.all(
+      batchSlice.map((batch) =>
+        mixedTranslateBatch(batch.batchId, batch.texts, batch.elementIds)
+      )
+    );
+  }
+
+  console.log("[Lingride] 混杂中英翻译批次完成");
+}
+
+/**
+ * 混杂中英翻译单个批次
+ */
+async function mixedTranslateBatch(
+  batchId: string,
+  texts: string[],
+  elementIds: string[]
+): Promise<void> {
+  // 避免重复请求
+  if (pendingMixedTranslateBatches.has(batchId)) return;
+  pendingMixedTranslateBatches.add(batchId);
+
+  try {
+    // 发送混杂翻译请求到 Background
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.MIXED_TRANSLATE,
+      payload: { texts, batchId },
+    });
+
+    if (response.success && response.data) {
+      // 处理混杂翻译结果
+      const { mixedTexts } = response.data;
+
+      // 更新页面显示
+      for (let i = 0; i < elementIds.length; i++) {
+        const element = translatableElements.get(elementIds[i]);
+        if (element && mixedTexts[i]) {
+          showMixedTranslation(element, mixedTexts[i]);
+        }
+      }
+    } else {
+      // 显示错误
+      const errorMessage = response.error || "混杂中英翻译失败";
+      for (const elementId of elementIds) {
+        const element = translatableElements.get(elementId);
+        if (element) {
+          showMixedTranslateError(element, errorMessage);
+        }
+      }
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "请求失败";
+    console.error("[Lingride] 批次混杂中英翻译失败:", errorMessage);
+
+    // 显示错误
+    for (const elementId of elementIds) {
+      const element = translatableElements.get(elementId);
+      if (element) {
+        showMixedTranslateError(element, errorMessage);
+      }
+    }
+  } finally {
+    pendingMixedTranslateBatches.delete(batchId);
+  }
+}
+
+/**
+ * 停止混杂中英翻译
+ *
+ * 移除所有混杂翻译显示，清理状态。
+ */
+function stopMixedTranslate(): void {
+  console.log("[Lingride] 停止混杂中英翻译");
+
+  // 停止视口观察
+  if (mixedTranslateViewportObserver) {
+    mixedTranslateViewportObserver.destroy();
+    mixedTranslateViewportObserver = null;
+  }
+
+  // 移除所有混杂翻译显示
+  removeAllMixedTranslations();
+
+  // 清除处理标记
+  clearProcessedMarks();
+
+  // 清空元素记录
+  translatableElements.clear();
+  pendingMixedTranslateBatches.clear();
+}
+
 // ====== 难度分析辅助函数 ======
 
 /**
@@ -546,10 +720,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       isTranslationEnabled = enabled;
 
       if (enabled) {
-        // 互斥：开启翻译时关闭释义
+        // 互斥：开启翻译时关闭释义和混杂中英
         if (isParaphraseEnabled) {
           stopParaphrase();
           isParaphraseEnabled = false;
+        }
+        if (isMixedTranslateEnabled) {
+          stopMixedTranslate();
+          isMixedTranslateEnabled = false;
         }
         startTranslation();
       } else {
@@ -564,14 +742,40 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       isParaphraseEnabled = enabled;
 
       if (enabled) {
-        // 互斥：开启释义时关闭翻译
+        // 互斥：开启释义时关闭翻译和混杂中英
         if (isTranslationEnabled) {
           stopTranslation();
           isTranslationEnabled = false;
         }
+        if (isMixedTranslateEnabled) {
+          stopMixedTranslate();
+          isMixedTranslateEnabled = false;
+        }
         startParaphrase();
       } else {
         stopParaphrase();
+      }
+      sendResponse({ success: true });
+      break;
+    }
+
+    case "MIXED_TRANSLATE_STATE_CHANGED": {
+      const { enabled } = message.payload;
+      isMixedTranslateEnabled = enabled;
+
+      if (enabled) {
+        // 互斥：开启混杂中英时关闭翻译和释义
+        if (isTranslationEnabled) {
+          stopTranslation();
+          isTranslationEnabled = false;
+        }
+        if (isParaphraseEnabled) {
+          stopParaphrase();
+          isParaphraseEnabled = false;
+        }
+        startMixedTranslate();
+      } else {
+        stopMixedTranslate();
       }
       sendResponse({ success: true });
       break;
@@ -602,6 +806,8 @@ document.addEventListener("visibilitychange", () => {
         startTranslation();
       } else if (isParaphraseEnabled) {
         startParaphrase();
+      } else if (isMixedTranslateEnabled) {
+        startMixedTranslate();
       }
     }, 500);
   }

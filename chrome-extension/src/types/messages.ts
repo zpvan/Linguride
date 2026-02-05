@@ -57,6 +57,16 @@ export enum MessageType {
   // ====== 释义请求 ======
   /** 请求释义文本 */
   PARAPHRASE = "PARAPHRASE",
+
+  // ====== 混杂中英控制 ======
+  /** 开启/关闭混杂中英翻译 */
+  TOGGLE_MIXED_TRANSLATE = "TOGGLE_MIXED_TRANSLATE",
+  /** 获取当前 Tab 的混杂中英翻译状态 */
+  GET_MIXED_TRANSLATE_STATE = "GET_MIXED_TRANSLATE_STATE",
+
+  // ====== 混杂中英请求 ======
+  /** 请求混杂中英翻译 */
+  MIXED_TRANSLATE = "MIXED_TRANSLATE",
 }
 
 /**
@@ -166,6 +176,37 @@ export interface ParaphraseMessage {
 }
 
 /**
+ * 切换混杂中英翻译状态消息
+ */
+export interface ToggleMixedTranslateMessage {
+  type: MessageType.TOGGLE_MIXED_TRANSLATE;
+  payload: {
+    /** 是否启用混杂中英翻译 */
+    enabled: boolean;
+  };
+}
+
+/**
+ * 获取混杂中英翻译状态消息
+ */
+export interface GetMixedTranslateStateMessage {
+  type: MessageType.GET_MIXED_TRANSLATE_STATE;
+}
+
+/**
+ * 混杂中英翻译请求消息
+ */
+export interface MixedTranslateMessage {
+  type: MessageType.MIXED_TRANSLATE;
+  payload: {
+    /** 待翻译的文本数组 */
+    texts: string[];
+    /** 批次 ID，用于匹配响应 */
+    batchId: string;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -179,7 +220,10 @@ export type Message =
   | ExtractPageTextMessage
   | ToggleParaphraseMessage
   | GetParaphraseStateMessage
-  | ParaphraseMessage;
+  | ParaphraseMessage
+  | ToggleMixedTranslateMessage
+  | GetMixedTranslateStateMessage
+  | MixedTranslateMessage;
 
 // ====== 响应类型定义 ======
 
@@ -291,6 +335,28 @@ export interface ParaphraseResponse extends BaseResponse {
 }
 
 /**
+ * 混杂中英翻译状态响应
+ */
+export interface GetMixedTranslateStateResponse extends BaseResponse {
+  data?: {
+    /** 当前 Tab 混杂中英翻译是否启用 */
+    enabled: boolean;
+  };
+}
+
+/**
+ * 混杂中英翻译结果响应
+ */
+export interface MixedTranslateResponse extends BaseResponse {
+  data?: {
+    /** 批次 ID */
+    batchId: string;
+    /** 混杂翻译结果数组，与请求的 texts 数组一一对应 */
+    mixedTexts: string[];
+  };
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -302,4 +368,6 @@ export type Response =
   | ExtractPageTextResponse
   | AnalyzeDifficultyResponse
   | GetParaphraseStateResponse
-  | ParaphraseResponse;
+  | ParaphraseResponse
+  | GetMixedTranslateStateResponse
+  | MixedTranslateResponse;

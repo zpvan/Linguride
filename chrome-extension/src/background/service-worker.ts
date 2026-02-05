@@ -9,18 +9,19 @@
  * - Tab 状态管理：维护每个 Tab 的翻译状态
  *
  * 消息类型：
- * - GET_CONFIG: 获取配置
- * - SAVE_CONFIG: 保存配置
- * - TOGGLE_TRANSLATION: 开关翻译
- * - GET_TRANSLATION_STATE: 获取翻译状态
- * - TRANSLATE: 翻译请求
+ * - GET_CONFIG / SAVE_CONFIG: 配置读写
+ * - TOGGLE_TRANSLATION / GET_TRANSLATION_STATE / TRANSLATE: 双语翻译
+ * - TOGGLE_PARAPHRASE / GET_PARAPHRASE_STATE / PARAPHRASE: 英文释义
+ * - TOGGLE_MIXED_TRANSLATE / GET_MIXED_TRANSLATE_STATE / MIXED_TRANSLATE: 混杂中英翻译
  * - TEST_CONNECTION: 测试连接
+ * - ANALYZE_DIFFICULTY / EXTRACT_PAGE_TEXT: 难度分析
  *
  * @author Lingride Team
  * @since 1.0.0
  */
 
 import { DEFAULT_DIFFICULTY_PROMPTS } from "../constants/difficultyPrompts";
+import { DEFAULT_MIXED_TRANSLATE_PROMPTS } from "../constants/mixedTranslatePrompts";
 import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
 import { DeepSeekProvider } from "../providers";
 import {
@@ -29,11 +30,14 @@ import {
   DifficultyResult,
   ExtractPageTextResponse,
   GetConfigResponse,
+  GetMixedTranslateStateResponse,
   GetParaphraseStateResponse,
+  getRetentionPercent,
   GetTranslationStateResponse,
   LingridConfig,
   Message,
   MessageType,
+  MixedTranslateResponse,
   ParaphraseResponse,
   SaveConfigResponse,
   TestConnectionResponse,
@@ -46,9 +50,11 @@ import {
   saveConfig,
 } from "./configManager";
 import {
+  getMixedTranslateState,
   getParaphraseState,
   getTabState,
   initTabStateListeners,
+  setMixedTranslateState,
   setParaphraseState,
   setTabState,
 } from "./tabState";
@@ -618,6 +624,176 @@ function parseNumberedResponse(
   });
 }
 
+// ====== 混杂中英翻译功能 ======
+
+/**
+ * 处理 TOGGLE_MIXED_TRANSLATE 消息
+ *
+ * 切换指定 Tab 的混杂中英翻译状态，并通知 Content Script。
+ * 混杂中英与翻译、释义三者互斥。
+ */
+async function handleToggleMixedTranslate(
+  tabId: number,
+  enabled: boolean
+): Promise<GetMixedTranslateStateResponse> {
+  try {
+    // 检查配置是否有效
+    const config = await getConfig();
+    if (enabled && !isConfigValid(config)) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 更新状态（TabState 内部处理互斥逻辑）
+    setMixedTranslateState(tabId, enabled);
+
+    // 通知 Content Script
+    try {
+      await chrome.tabs.sendMessage(tabId, {
+        type: "MIXED_TRANSLATE_STATE_CHANGED",
+        payload: { enabled },
+      });
+      console.log(
+        "[Lingride] 已通知 Content Script 混杂中英状态, enabled:",
+        enabled
+      );
+    } catch (e) {
+      // Content Script 可能未加载，尝试注入
+      console.warn("[Lingride] Content Script 未加载，尝试注入...");
+
+      try {
+        // 尝试注入 Content Script
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ["src/content/index.js"],
+        });
+        await chrome.scripting.insertCSS({
+          target: { tabId },
+          files: ["src/content/styles.css"],
+        });
+
+        // 等待脚本加载后重新发送消息
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await chrome.tabs.sendMessage(tabId, {
+          type: "MIXED_TRANSLATE_STATE_CHANGED",
+          payload: { enabled },
+        });
+        console.log("[Lingride] 注入并通知 Content Script 成功");
+      } catch (injectError) {
+        console.error("[Lingride] 注入 Content Script 失败:", injectError);
+        return {
+          success: false,
+          error: "无法在此页面启用混杂中英翻译，请刷新页面后重试",
+        };
+      }
+    }
+
+    return {
+      success: true,
+      data: { enabled },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "切换混杂中英翻译状态失败",
+    };
+  }
+}
+
+/**
+ * 处理 GET_MIXED_TRANSLATE_STATE 消息
+ *
+ * 返回指定 Tab 的混杂中英翻译状态。
+ */
+function handleGetMixedTranslateState(
+  tabId: number
+): GetMixedTranslateStateResponse {
+  const enabled = getMixedTranslateState(tabId);
+  return {
+    success: true,
+    data: { enabled },
+  };
+}
+
+/**
+ * 处理 MIXED_TRANSLATE 消息
+ *
+ * 调用 AI 将英文文本转换为中英混杂文本。
+ * 根据用户 CEFR 等级动态调整英文保留比例。
+ * 使用批量处理模式，与翻译/释义功能类似。
+ */
+async function handleMixedTranslate(
+  texts: string[],
+  batchId: string
+): Promise<MixedTranslateResponse> {
+  console.log(
+    `[Lingride] 收到混杂中英翻译请求: batchId=${batchId}, texts=${texts.length}条`
+  );
+
+  try {
+    // 获取配置
+    const config = await getConfig();
+    const providerConfig = await getProviderConfig();
+
+    // 验证配置
+    if (!providerConfig.apiKey) {
+      console.error("[Lingride] API Key 未配置");
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 获取用户水平和保留比例
+    const userLevel = config.user_english_level || "A2";
+    const retentionPercent = getRetentionPercent(userLevel);
+    console.log(
+      `[Lingride] 用户水平: ${userLevel}, 英文保留比例: ${retentionPercent}%`
+    );
+
+    // 获取 Prompt 配置
+    const prompts =
+      config.mixed_translate_prompts || DEFAULT_MIXED_TRANSLATE_PROMPTS;
+
+    // 构建批量文本（编号格式）
+    const numberedTexts = texts
+      .map((text, index) => `${index + 1}---\n${text}\n---`)
+      .join("\n\n");
+
+    // 构建 User Prompt
+    const userPrompt = prompts.user_prompt_template
+      .replace("{{texts}}", numberedTexts)
+      .replace(/\{\{user_level\}\}/g, userLevel)
+      .replace(/\{\{retention_percent\}\}/g, retentionPercent.toString());
+
+    // 调用 AI
+    console.log("[Lingride] 开始调用混杂中英翻译 API...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
+
+    // 解析响应（编号格式）
+    const mixedTexts = parseNumberedResponse(aiResponse, texts.length);
+    console.log(`[Lingride] 混杂中英翻译完成: ${mixedTexts.length}条`);
+
+    return {
+      success: true,
+      data: {
+        batchId,
+        mixedTexts,
+      },
+    };
+  } catch (error) {
+    console.error("[Lingride] 混杂中英翻译失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "混杂中英翻译失败",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -741,6 +917,52 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.PARAPHRASE:
           response = await handleParaphrase(
+            message.payload.texts,
+            message.payload.batchId
+          );
+          break;
+
+        case MessageType.TOGGLE_MIXED_TRANSLATE:
+          if (tabId === undefined) {
+            // 如果是从 Popup 发来的，获取当前活动 Tab
+            const [activeTab] = await chrome.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            if (activeTab?.id) {
+              response = await handleToggleMixedTranslate(
+                activeTab.id,
+                message.payload.enabled
+              );
+            } else {
+              response = { success: false, error: "无法获取当前 Tab" };
+            }
+          } else {
+            response = await handleToggleMixedTranslate(
+              tabId,
+              message.payload.enabled
+            );
+          }
+          break;
+
+        case MessageType.GET_MIXED_TRANSLATE_STATE:
+          if (tabId === undefined) {
+            const [activeTab] = await chrome.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            if (activeTab?.id) {
+              response = handleGetMixedTranslateState(activeTab.id);
+            } else {
+              response = { success: false, error: "无法获取当前 Tab" };
+            }
+          } else {
+            response = handleGetMixedTranslateState(tabId);
+          }
+          break;
+
+        case MessageType.MIXED_TRANSLATE:
+          response = await handleMixedTranslate(
             message.payload.texts,
             message.payload.batchId
           );

@@ -26,6 +26,10 @@ const CSS_CLASSES = {
   paraphrase: "lingride-paraphrase",
   paraphraseError: "lingride-paraphrase-error",
   paraphraseLoading: "lingride-paraphrase-loading",
+  // 混杂中英相关
+  mixedTranslate: "lingride-mixed-translate",
+  mixedTranslateError: "lingride-mixed-translate-error",
+  mixedTranslateLoading: "lingride-mixed-translate-loading",
 };
 
 /**
@@ -205,6 +209,9 @@ const PARAPHRASE_ID_ATTR = "data-lingride-paraphrase-id";
 
 /**
  * 获取元素对应的释义容器
+ *
+ * @param elementId - 原文元素 ID
+ * @returns 释义容器元素，如果不存在返回 null
  */
 function getParaphraseContainer(elementId: string): HTMLElement | null {
   return document.querySelector(`[${PARAPHRASE_ID_ATTR}="${elementId}"]`);
@@ -212,6 +219,10 @@ function getParaphraseContainer(elementId: string): HTMLElement | null {
 
 /**
  * 创建释义容器元素
+ *
+ * @param elementId - 原文元素 ID
+ * @param className - CSS 类名
+ * @returns 新创建的容器元素
  */
 function createParaphraseContainer(
   elementId: string,
@@ -225,6 +236,10 @@ function createParaphraseContainer(
 
 /**
  * 显示释义加载状态
+ *
+ * 在原文下方显示「Simplifying...」提示。
+ *
+ * @param element - 可翻译元素对象
  */
 export function showParaphraseLoading(element: TranslatableElement): void {
   // 移除已有的释义容器
@@ -243,6 +258,11 @@ export function showParaphraseLoading(element: TranslatableElement): void {
 
 /**
  * 显示释义结果
+ *
+ * 在原文下方显示改写后的英文。
+ *
+ * @param element - 可翻译元素对象
+ * @param paraphrase - 释义后的英文文本
  */
 export function showParaphrase(
   element: TranslatableElement,
@@ -264,6 +284,11 @@ export function showParaphrase(
 
 /**
  * 显示释义错误
+ *
+ * 在原文下方显示释义错误提示。
+ *
+ * @param element - 可翻译元素对象
+ * @param errorMessage - 错误信息
  */
 export function showParaphraseError(
   element: TranslatableElement,
@@ -285,6 +310,10 @@ export function showParaphraseError(
 
 /**
  * 移除释义显示
+ *
+ * 移除指定元素的释义容器。
+ *
+ * @param elementId - 原文元素 ID
  */
 export function removeParaphrase(elementId: string): void {
   const container = getParaphraseContainer(elementId);
@@ -295,6 +324,8 @@ export function removeParaphrase(elementId: string): void {
 
 /**
  * 移除所有释义
+ *
+ * 清除页面上所有的释义显示。
  */
 export function removeAllParaphrases(): void {
   const containers = document.querySelectorAll(
@@ -306,4 +337,171 @@ export function removeAllParaphrases(): void {
   }
 
   console.log(`[Lingride] 已移除 ${containers.length} 个释义元素`);
+}
+
+// ====== 混杂中英翻译功能 ======
+
+/**
+ * 混杂中英数据属性，关联混杂翻译元素和原文元素
+ */
+const MIXED_TRANSLATE_ID_ATTR = "data-lingride-mixed-id";
+
+/**
+ * 获取元素对应的混杂翻译容器
+ *
+ * @param elementId - 原文元素 ID
+ * @returns 混杂翻译容器元素，如果不存在返回 null
+ */
+function getMixedTranslateContainer(elementId: string): HTMLElement | null {
+  return document.querySelector(`[${MIXED_TRANSLATE_ID_ATTR}="${elementId}"]`);
+}
+
+/**
+ * 创建混杂翻译容器元素
+ *
+ * @param elementId - 原文元素 ID
+ * @param className - CSS 类名
+ * @returns 新创建的容器元素
+ */
+function createMixedTranslateContainer(
+  elementId: string,
+  className: string
+): HTMLElement {
+  const container = document.createElement("div");
+  container.setAttribute(MIXED_TRANSLATE_ID_ATTR, elementId);
+  container.className = className;
+  return container;
+}
+
+/**
+ * 高亮混杂文本中的英文部分
+ *
+ * 安全流程：先转义 HTML 防止 XSS，再用正则包裹英文序列。
+ * 英文序列会被包裹在 <span class="lingride-en-highlight"> 中，
+ * 以不同颜色和字重展示，帮助学习者辨识。
+ *
+ * @param text - AI 返回的混杂中英文本（纯文本）
+ * @returns 包含高亮 HTML 标签的字符串
+ */
+function highlightEnglishParts(text: string): string {
+  // 1. 转义 HTML 实体，防止 XSS
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  // 2. 匹配连续的英文单词序列（含单词间空格和常见标点）
+  // 起始字符：字母或数字
+  // 中间字符：字母、数字、空格、逗号、句号、撇号、连字符
+  // 结束字符：字母或数字
+  return escaped.replace(
+    /([a-zA-Z0-9](?:[a-zA-Z0-9\s,.'\u2019\-]*[a-zA-Z0-9])?)/g,
+    '<span class="lingride-en-highlight">$1</span>'
+  );
+}
+
+/**
+ * 显示混杂中英翻译加载状态
+ *
+ * 在原文下方显示「混杂翻译中...」提示。
+ *
+ * @param element - 可翻译元素对象
+ */
+export function showMixedTranslateLoading(element: TranslatableElement): void {
+  // 移除已有的混杂翻译容器
+  removeMixedTranslation(element.id);
+
+  // 创建加载状态容器
+  const container = createMixedTranslateContainer(
+    element.id,
+    CSS_CLASSES.mixedTranslateLoading
+  );
+  container.textContent = "混杂翻译中";
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 显示混杂中英翻译结果
+ *
+ * 使用 innerHTML 注入以支持英文高亮。
+ * 文本在高亮处理前已经过 HTML 转义，安全可控。
+ */
+export function showMixedTranslation(
+  element: TranslatableElement,
+  mixedText: string
+): void {
+  // 移除加载状态
+  removeMixedTranslation(element.id);
+
+  // 创建混杂翻译容器
+  const container = createMixedTranslateContainer(
+    element.id,
+    CSS_CLASSES.mixedTranslate
+  );
+
+  // 高亮英文部分后用 innerHTML 注入
+  container.innerHTML = highlightEnglishParts(mixedText);
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 显示混杂中英翻译错误
+ *
+ * 在原文下方显示混杂翻译错误提示。
+ *
+ * @param element - 可翻译元素对象
+ * @param errorMessage - 错误信息
+ */
+export function showMixedTranslateError(
+  element: TranslatableElement,
+  errorMessage: string
+): void {
+  // 移除加载状态
+  removeMixedTranslation(element.id);
+
+  // 创建错误容器
+  const container = createMixedTranslateContainer(
+    element.id,
+    CSS_CLASSES.mixedTranslateError
+  );
+  container.textContent = `混杂翻译失败: ${errorMessage}`;
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 移除混杂翻译显示
+ *
+ * 移除指定元素的混杂翻译容器。
+ *
+ * @param elementId - 原文元素 ID
+ */
+function removeMixedTranslation(elementId: string): void {
+  const container = getMixedTranslateContainer(elementId);
+  if (container) {
+    container.remove();
+  }
+}
+
+/**
+ * 移除所有混杂翻译
+ *
+ * 清除页面上所有的混杂翻译显示。
+ */
+export function removeAllMixedTranslations(): void {
+  const containers = document.querySelectorAll(
+    `.${CSS_CLASSES.mixedTranslate}, .${CSS_CLASSES.mixedTranslateError}, .${CSS_CLASSES.mixedTranslateLoading}`
+  );
+
+  for (const container of containers) {
+    container.remove();
+  }
+
+  console.log(`[Lingride] 已移除 ${containers.length} 个混杂翻译元素`);
 }

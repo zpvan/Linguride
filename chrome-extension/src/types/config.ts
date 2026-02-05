@@ -77,6 +77,26 @@ export interface ParaphrasePromptConfig {
 }
 
 /**
+ * 混杂中英翻译 Prompt 配置
+ *
+ * 存储用户自定义的混杂中英翻译 Prompt 设置。
+ * 用于将英文内容转换为中英混杂文本，遵循 i+1 原理。
+ */
+export interface MixedTranslatePromptConfig {
+  /** 系统提示词，定义 AI 的角色和混杂翻译规则 */
+  system_prompt: string;
+
+  /**
+   * 用户提示词模板
+   * 可用占位符：
+   * - {{texts}}: 待处理的文本（编号格式）
+   * - {{user_level}}: 用户当前 CEFR 等级
+   * - {{retention_percent}}: 英文保留百分比
+   */
+  user_prompt_template: string;
+}
+
+/**
  * Lingride 扩展完整配置
  *
  * 存储在 chrome.storage.local 中的配置对象，
@@ -103,6 +123,9 @@ export interface LingridConfig {
 
   /** 释义 Prompt 配置（可选，使用默认值） */
   paraphrase_prompts?: ParaphrasePromptConfig;
+
+  /** 混杂中英翻译 Prompt 配置（可选，使用默认值） */
+  mixed_translate_prompts?: MixedTranslatePromptConfig;
 }
 
 /**
@@ -197,4 +220,32 @@ export function calculateTargetLevel(userLevel: CEFRLevel): CEFRLevel {
   // i+1: 目标等级比用户水平高一级，最高 C2
   const targetIndex = Math.min(currentIndex + 1, CEFR_LEVELS.length - 1);
   return CEFR_LEVELS[targetIndex];
+}
+
+/**
+ * 英文保留比例映射
+ *
+ * 根据用户 CEFR 等级确定混杂中英翻译中应保留的英文比例。
+ * 等级越高，保留的英文越多。
+ */
+const RETENTION_MAP: Record<CEFRLevel, number> = {
+  A1: 20,
+  A2: 35,
+  B1: 50,
+  B2: 65,
+  C1: 80,
+  C2: 95,
+};
+
+/**
+ * 获取英文保留百分比
+ *
+ * 根据用户 CEFR 等级返回混杂中英翻译中应保留的英文比例。
+ * 用于混杂中英翻译功能的 Prompt 构建。
+ *
+ * @param level - 用户当前 CEFR 等级
+ * @returns 英文保留百分比（0-100）
+ */
+export function getRetentionPercent(level: CEFRLevel): number {
+  return RETENTION_MAP[level];
 }

@@ -50,6 +50,17 @@
       <p class="section-desc toggle-desc">将页面英文改写为适合您水平的版本</p>
       
       <div id="paraphraseStatus" class="status-message"></div>
+
+      <div class="paraphrase-toggle-row" style="margin-top: 0.8em;">
+        <span class="toggle-label">混杂中英</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="mixedTranslateToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p class="section-desc toggle-desc">保留您能理解的英文，用中文替换超纲部分</p>
+      
+      <div id="mixedTranslateStatus" class="status-message"></div>
     </section>
 
     <!-- 翻译服务配置 -->
@@ -187,6 +198,19 @@
           <label for="paraphraseUserPrompt">User Prompt 模板</label>
           <textarea id="paraphraseUserPrompt" rows="4" placeholder="Rewrite the following English paragraphs..."></textarea>
           <p class="hint">💡 使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code> 占位符</p>
+        </div>
+
+        <!-- 混杂中英翻译 Prompt 配置 -->
+        <h3 class="prompt-group-title">混杂中英 Prompt</h3>
+        <div class="form-group">
+          <label for="mixedTranslateSystemPrompt">System Prompt</label>
+          <textarea id="mixedTranslateSystemPrompt" rows="5" placeholder="You are an expert at creating Chinese-English code-mixed text..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="mixedTranslateUserPrompt">User Prompt 模板</label>
+          <textarea id="mixedTranslateUserPrompt" rows="4" placeholder="Convert the following English paragraphs into Chinese-English mixed text..."></textarea>
+          <p class="hint">💡 使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code> 占位符</p>
         </div>
       </div>
     </div>
