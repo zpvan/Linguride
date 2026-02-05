@@ -22,6 +22,36 @@
       ⚠️ 请先配置 API Key 才能使用翻译功能
     </div>
 
+    <!-- 我的英文水平 -->
+    <section class="section level-section">
+      <h2 class="section-title">📚 我的英文水平</h2>
+      <p class="section-desc">设置您当前的英文水平，系统将自动调整内容难度</p>
+      
+      <div class="form-group">
+        <label for="englishLevel">CEFR 等级</label>
+        <select id="englishLevel">
+          <option value="A1">A1 - 入门 (Beginner)</option>
+          <option value="A2">A2 - 初级 (Elementary)</option>
+          <option value="B1">B1 - 中级 (Intermediate)</option>
+          <option value="B2">B2 - 中高级 (Upper-Intermediate)</option>
+          <option value="C1">C1 - 高级 (Advanced)</option>
+          <option value="C2">C2 - 精通 (Proficient)</option>
+        </select>
+        <p class="hint level-hint" id="levelHint">💡 内容将改写为 <strong>B1</strong> 水平（略高于您的水平）</p>
+      </div>
+
+      <div class="paraphrase-toggle-row">
+        <span class="toggle-label">英文释义</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="paraphraseToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p class="section-desc toggle-desc">将页面英文改写为适合您水平的版本</p>
+      
+      <div id="paraphraseStatus" class="status-message"></div>
+    </section>
+
     <!-- 翻译服务配置 -->
     <section class="section">
       <h2 class="section-title">翻译服务配置</h2>
@@ -144,6 +174,19 @@
           <label for="difficultyUserPrompt">User Prompt 模板</label>
           <textarea id="difficultyUserPrompt" rows="4" placeholder="请分析以下英文文本的难度..."></textarea>
           <p class="hint">💡 使用 <code>{text}</code> 表示待分析文本</p>
+        </div>
+
+        <!-- 释义 Prompt 配置 -->
+        <h3 class="prompt-group-title">英文释义 Prompt</h3>
+        <div class="form-group">
+          <label for="paraphraseSystemPrompt">System Prompt</label>
+          <textarea id="paraphraseSystemPrompt" rows="5" placeholder="You are an expert English language teacher..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="paraphraseUserPrompt">User Prompt 模板</label>
+          <textarea id="paraphraseUserPrompt" rows="4" placeholder="Rewrite the following English paragraphs..."></textarea>
+          <p class="hint">💡 使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code> 占位符</p>
         </div>
       </div>
     </div>

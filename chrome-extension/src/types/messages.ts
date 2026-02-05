@@ -47,6 +47,16 @@ export enum MessageType {
   ANALYZE_DIFFICULTY = "ANALYZE_DIFFICULTY",
   /** 提取页面文本（Background → Content） */
   EXTRACT_PAGE_TEXT = "EXTRACT_PAGE_TEXT",
+
+  // ====== 释义控制 ======
+  /** 开启/关闭释义 */
+  TOGGLE_PARAPHRASE = "TOGGLE_PARAPHRASE",
+  /** 获取当前 Tab 的释义状态 */
+  GET_PARAPHRASE_STATE = "GET_PARAPHRASE_STATE",
+
+  // ====== 释义请求 ======
+  /** 请求释义文本 */
+  PARAPHRASE = "PARAPHRASE",
 }
 
 /**
@@ -125,6 +135,37 @@ export interface ExtractPageTextMessage {
 }
 
 /**
+ * 切换释义状态消息
+ */
+export interface ToggleParaphraseMessage {
+  type: MessageType.TOGGLE_PARAPHRASE;
+  payload: {
+    /** 是否启用释义 */
+    enabled: boolean;
+  };
+}
+
+/**
+ * 获取释义状态消息
+ */
+export interface GetParaphraseStateMessage {
+  type: MessageType.GET_PARAPHRASE_STATE;
+}
+
+/**
+ * 释义请求消息
+ */
+export interface ParaphraseMessage {
+  type: MessageType.PARAPHRASE;
+  payload: {
+    /** 待释义的文本数组 */
+    texts: string[];
+    /** 批次 ID，用于匹配响应 */
+    batchId: string;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -135,7 +176,10 @@ export type Message =
   | TranslateMessage
   | TestConnectionMessage
   | AnalyzeDifficultyMessage
-  | ExtractPageTextMessage;
+  | ExtractPageTextMessage
+  | ToggleParaphraseMessage
+  | GetParaphraseStateMessage
+  | ParaphraseMessage;
 
 // ====== 响应类型定义 ======
 
@@ -225,6 +269,28 @@ export interface AnalyzeDifficultyResponse extends BaseResponse {
 }
 
 /**
+ * 释义状态响应
+ */
+export interface GetParaphraseStateResponse extends BaseResponse {
+  data?: {
+    /** 当前 Tab 释义是否启用 */
+    enabled: boolean;
+  };
+}
+
+/**
+ * 释义结果响应
+ */
+export interface ParaphraseResponse extends BaseResponse {
+  data?: {
+    /** 批次 ID */
+    batchId: string;
+    /** 释义结果数组，与请求的 texts 数组一一对应 */
+    paraphrases: string[];
+  };
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -234,4 +300,6 @@ export type Response =
   | TranslateResponse
   | TestConnectionResponse
   | ExtractPageTextResponse
-  | AnalyzeDifficultyResponse;
+  | AnalyzeDifficultyResponse
+  | GetParaphraseStateResponse
+  | ParaphraseResponse;

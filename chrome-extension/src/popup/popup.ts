@@ -18,9 +18,16 @@ import {
   DEFAULT_DIFFICULTY_USER_PROMPT,
 } from "../constants/difficultyPrompts";
 import {
+  DEFAULT_PARAPHRASE_SYSTEM_PROMPT,
+  DEFAULT_PARAPHRASE_USER_PROMPT,
+} from "../constants/paraphrasePrompts";
+import {
   AnalyzeDifficultyResponse,
+  calculateTargetLevel,
+  CEFRLevel,
   DEFAULT_CONFIG,
   DEFAULT_SYSTEM_PROMPT,
+  DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
   DifficultyResult,
   LingridConfig,
@@ -111,10 +118,33 @@ const difficultyUserPromptTextarea = document.getElementById(
   "difficultyUserPrompt"
 ) as HTMLTextAreaElement;
 
+// 英文水平
+const englishLevelSelect = document.getElementById(
+  "englishLevel"
+) as HTMLSelectElement;
+const levelHint = document.getElementById("levelHint") as HTMLElement;
+
+// 释义开关
+const paraphraseToggle = document.getElementById(
+  "paraphraseToggle"
+) as HTMLInputElement;
+const paraphraseStatus = document.getElementById(
+  "paraphraseStatus"
+) as HTMLElement;
+
+// 释义 Prompt
+const paraphraseSystemPromptTextarea = document.getElementById(
+  "paraphraseSystemPrompt"
+) as HTMLTextAreaElement;
+const paraphraseUserPromptTextarea = document.getElementById(
+  "paraphraseUserPrompt"
+) as HTMLTextAreaElement;
+
 // ====== 状态 ======
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
 let isTranslationEnabled = false;
+let isParaphraseEnabled = false;
 
 // ====== 初始化 ======
 
@@ -124,8 +154,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 加载配置
   await loadConfig();
 
-  // 加载翻译状态
-  await loadTranslationState();
+  // 加载翻译和释义状态
+  await Promise.all([loadTranslationState(), loadParaphraseState()]);
 
   // 绑定事件
   bindEvents();
@@ -189,6 +219,20 @@ function updateFormFromConfig(): void {
   difficultyUserPromptTextarea.value =
     currentConfig.difficulty_prompts?.user_prompt_template ||
     DEFAULT_DIFFICULTY_USER_PROMPT;
+
+  // 英文水平配置
+  const userLevel =
+    currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
+  englishLevelSelect.value = userLevel;
+  updateLevelHint(userLevel);
+
+  // 释义 Prompt 配置
+  paraphraseSystemPromptTextarea.value =
+    currentConfig.paraphrase_prompts?.system_prompt ||
+    DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
+  paraphraseUserPromptTextarea.value =
+    currentConfig.paraphrase_prompts?.user_prompt_template ||
+    DEFAULT_PARAPHRASE_USER_PROMPT;
 }
 
 /**
@@ -221,6 +265,8 @@ async function loadTranslationState(): Promise<void> {
 
 /**
  * 切换翻译状态
+ *
+ * 翻译与释义互斥：开启翻译时自动关闭释义
  */
 async function toggleTranslation(): Promise<void> {
   const enabled = toggleSwitch.checked;
@@ -233,6 +279,12 @@ async function toggleTranslation(): Promise<void> {
 
     if (response.success) {
       isTranslationEnabled = enabled;
+
+      // 互斥：开启翻译时关闭释义
+      if (enabled && isParaphraseEnabled) {
+        isParaphraseEnabled = false;
+        paraphraseToggle.checked = false;
+      }
     } else {
       // 恢复开关状态
       toggleSwitch.checked = isTranslationEnabled;
@@ -249,6 +301,12 @@ async function toggleTranslation(): Promise<void> {
 function bindEvents(): void {
   // 翻译开关
   toggleSwitch.addEventListener("change", toggleTranslation);
+
+  // 释义开关
+  paraphraseToggle.addEventListener("change", toggleParaphrase);
+
+  // 英文水平选择（立即保存）
+  englishLevelSelect.addEventListener("change", handleEnglishLevelChange);
 
   // 显示/隐藏 API Key
   showKeyBtn.addEventListener("click", () => {
@@ -333,6 +391,10 @@ function resetDefaults(): void {
   difficultySystemPromptTextarea.value = DEFAULT_DIFFICULTY_SYSTEM_PROMPT;
   difficultyUserPromptTextarea.value = DEFAULT_DIFFICULTY_USER_PROMPT;
 
+  // 释义 Prompt
+  paraphraseSystemPromptTextarea.value = DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
+  paraphraseUserPromptTextarea.value = DEFAULT_PARAPHRASE_USER_PROMPT;
+
   showStatus(connectionStatus, "所有 Prompt 已重置为默认值", "success");
 }
 
@@ -355,6 +417,11 @@ async function saveSettings(showMessage = true): Promise<void> {
     difficulty_prompts: {
       system_prompt: difficultySystemPromptTextarea.value,
       user_prompt_template: difficultyUserPromptTextarea.value,
+    },
+    user_english_level: englishLevelSelect.value as CEFRLevel,
+    paraphrase_prompts: {
+      system_prompt: paraphraseSystemPromptTextarea.value,
+      user_prompt_template: paraphraseUserPromptTextarea.value,
     },
   };
 
@@ -488,4 +555,105 @@ function renderDifficultyResult(result: DifficultyResult): void {
   } else {
     selectionHint.style.display = "none";
   }
+}
+
+// ====== 释义功能 ======
+
+/**
+ * 加载释义状态
+ */
+async function loadParaphraseState(): Promise<void> {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.GET_PARAPHRASE_STATE,
+    });
+
+    if (response.success && response.data) {
+      isParaphraseEnabled = response.data.enabled;
+      paraphraseToggle.checked = isParaphraseEnabled;
+    }
+  } catch (error) {
+    console.error("[Lingride] 加载释义状态失败:", error);
+  }
+}
+
+/**
+ * 切换释义状态
+ *
+ * 释义与翻译互斥：开启释义时自动关闭翻译
+ */
+async function toggleParaphrase(): Promise<void> {
+  const enabled = paraphraseToggle.checked;
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.TOGGLE_PARAPHRASE,
+      payload: { enabled },
+    });
+
+    if (response.success) {
+      isParaphraseEnabled = enabled;
+
+      // 互斥：开启释义时关闭翻译
+      if (enabled && isTranslationEnabled) {
+        isTranslationEnabled = false;
+        toggleSwitch.checked = false;
+      }
+    } else {
+      // 恢复开关状态
+      paraphraseToggle.checked = isParaphraseEnabled;
+      showStatus(paraphraseStatus, response.error || "切换失败", "error");
+    }
+  } catch (error) {
+    paraphraseToggle.checked = isParaphraseEnabled;
+    showStatus(paraphraseStatus, "切换释义状态失败", "error");
+  }
+}
+
+/**
+ * 处理英文水平变化
+ *
+ * 立即保存配置，更新提示，如果释义已开启则触发重新释义
+ */
+async function handleEnglishLevelChange(): Promise<void> {
+  const newLevel = englishLevelSelect.value as CEFRLevel;
+
+  // 更新提示
+  updateLevelHint(newLevel);
+
+  // 更新配置
+  currentConfig.user_english_level = newLevel;
+
+  // 立即保存
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.SAVE_CONFIG,
+      payload: currentConfig,
+    });
+
+    if (response.success) {
+      // 如果释义已开启，需要重新开始释义（清除旧内容）
+      if (isParaphraseEnabled) {
+        // 先关闭再开启，触发清理和重新释义
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_PARAPHRASE,
+          payload: { enabled: false },
+        });
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_PARAPHRASE,
+          payload: { enabled: true },
+        });
+      }
+    }
+  } catch (error) {
+    console.error("[Lingride] 保存英文水平失败:", error);
+  }
+}
+
+/**
+ * 更新水平提示
+ */
+function updateLevelHint(userLevel: CEFRLevel): void {
+  const targetLevel = calculateTargetLevel(userLevel);
+  levelHint.innerHTML = `💡 内容将改写为 <strong>${targetLevel}</strong> 水平（略高于您的水平）`;
 }

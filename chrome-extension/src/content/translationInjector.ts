@@ -22,6 +22,10 @@ const CSS_CLASSES = {
   translation: "lingride-translation",
   error: "lingride-error",
   loading: "lingride-loading",
+  // 释义相关
+  paraphrase: "lingride-paraphrase",
+  paraphraseError: "lingride-paraphrase-error",
+  paraphraseLoading: "lingride-paraphrase-loading",
 };
 
 /**
@@ -190,4 +194,116 @@ export function updateDisplay(element: TranslatableElement): void {
       removeTranslation(element.id);
       break;
   }
+}
+
+// ====== 释义功能 ======
+
+/**
+ * 释义数据属性，关联释义元素和原文元素
+ */
+const PARAPHRASE_ID_ATTR = "data-lingride-paraphrase-id";
+
+/**
+ * 获取元素对应的释义容器
+ */
+function getParaphraseContainer(elementId: string): HTMLElement | null {
+  return document.querySelector(`[${PARAPHRASE_ID_ATTR}="${elementId}"]`);
+}
+
+/**
+ * 创建释义容器元素
+ */
+function createParaphraseContainer(
+  elementId: string,
+  className: string
+): HTMLElement {
+  const container = document.createElement("div");
+  container.setAttribute(PARAPHRASE_ID_ATTR, elementId);
+  container.className = className;
+  return container;
+}
+
+/**
+ * 显示释义加载状态
+ */
+export function showParaphraseLoading(element: TranslatableElement): void {
+  // 移除已有的释义容器
+  removeParaphrase(element.id);
+
+  // 创建加载状态容器
+  const container = createParaphraseContainer(
+    element.id,
+    CSS_CLASSES.paraphraseLoading
+  );
+  container.textContent = "Simplifying";
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 显示释义结果
+ */
+export function showParaphrase(
+  element: TranslatableElement,
+  paraphrase: string
+): void {
+  // 移除加载状态
+  removeParaphrase(element.id);
+
+  // 创建释义容器
+  const container = createParaphraseContainer(
+    element.id,
+    CSS_CLASSES.paraphrase
+  );
+  container.textContent = paraphrase;
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 显示释义错误
+ */
+export function showParaphraseError(
+  element: TranslatableElement,
+  errorMessage: string
+): void {
+  // 移除加载状态
+  removeParaphrase(element.id);
+
+  // 创建错误容器
+  const container = createParaphraseContainer(
+    element.id,
+    CSS_CLASSES.paraphraseError
+  );
+  container.textContent = `Paraphrase failed: ${errorMessage}`;
+
+  // 插入到原文后面
+  element.element.insertAdjacentElement("afterend", container);
+}
+
+/**
+ * 移除释义显示
+ */
+export function removeParaphrase(elementId: string): void {
+  const container = getParaphraseContainer(elementId);
+  if (container) {
+    container.remove();
+  }
+}
+
+/**
+ * 移除所有释义
+ */
+export function removeAllParaphrases(): void {
+  const containers = document.querySelectorAll(
+    `.${CSS_CLASSES.paraphrase}, .${CSS_CLASSES.paraphraseError}, .${CSS_CLASSES.paraphraseLoading}`
+  );
+
+  for (const container of containers) {
+    container.remove();
+  }
+
+  console.log(`[Lingride] 已移除 ${containers.length} 个释义元素`);
 }

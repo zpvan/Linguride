@@ -53,3 +53,51 @@
   40% { content: '..'; }
   60%, 100% { content: '...'; }
 }
+
+/* ====== 释义样式 ====== */
+
+/* 释义成功样式 - 使用绿色边框区分 */
+.lingride-paraphrase {
+  color: #2e7d32;
+  font-style: normal;
+  margin: 0.5em 0;
+  padding: 0.5em 0.75em;
+  border-left: 3px solid #4caf50;
+  background: rgba(76, 175, 80, 0.05);
+  font-size: 0.95em;
+  line-height: 1.6;
+  border-radius: 0 4px 4px 0;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .lingride-paraphrase {
+    color: #81c784;
+    border-left-color: #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+  }
+}
+
+/* 释义错误样式 */
+.lingride-paraphrase-error {
+  color: #f44336;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+  padding: 0.3em 0.5em;
+  background: rgba(244, 67, 54, 0.1);
+  border-left: 3px solid #f44336;
+  border-radius: 0 2px 2px 0;
+}
+
+/* 释义加载中状态 */
+.lingride-paraphrase-loading {
+  color: #4caf50;
+  font-style: italic;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+}
+
+.lingride-paraphrase-loading::after {
+  content: '...';
+  animation: lingride-dots 1.5s infinite;
+}

@@ -15,13 +15,22 @@
 
 // 配置类型
 export {
+  calculateTargetLevel,
+  CEFR_LEVELS,
   DEFAULT_CONFIG,
   DEFAULT_SYSTEM_PROMPT,
+  DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
   STORAGE_KEY,
   toProviderConfig,
 } from "./config";
-export type { LingridConfig, PromptConfig, ProviderConfig } from "./config";
+export type {
+  CEFRLevel,
+  LingridConfig,
+  ParaphrasePromptConfig,
+  PromptConfig,
+  ProviderConfig,
+} from "./config";
 
 // 消息类型
 export { MessageType } from "./messages";
@@ -33,14 +42,19 @@ export type {
   ExtractPageTextResponse,
   GetConfigMessage,
   GetConfigResponse,
+  GetParaphraseStateMessage,
+  GetParaphraseStateResponse,
   GetTranslationStateMessage,
   GetTranslationStateResponse,
   Message,
+  ParaphraseMessage,
+  ParaphraseResponse,
   Response,
   SaveConfigMessage,
   SaveConfigResponse,
   TestConnectionMessage,
   TestConnectionResponse,
+  ToggleParaphraseMessage,
   ToggleTranslationMessage,
   TranslateMessage,
   TranslateResponse,
@@ -49,9 +63,9 @@ export type {
 // 翻译类型
 export {
   DEFAULT_BATCH_CONFIG,
-  TranslationStatus,
   estimateTokens,
   simpleHash,
+  TranslationStatus,
 } from "./translation";
 export type {
   BatchManagerConfig,
@@ -62,9 +76,8 @@ export type {
   TranslationCache,
 } from "./translation";
 
-// 难度分析类型
+// 难度分析类型（CEFRLevel 已从 config.ts 导出）
 export type {
-  CEFRLevel,
   DifficultyLevel,
   DifficultyPromptConfig,
   DifficultyResult,

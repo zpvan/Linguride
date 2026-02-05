@@ -558,3 +558,40 @@ body {
 .prompt-group-title:first-child {
   margin-top: 0;
 }
+
+/* ====== 英文水平区块 ====== */
+.level-section {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.level-hint {
+  color: var(--accent);
+}
+
+.level-hint strong {
+  color: var(--success);
+}
+
+/* ====== 释义开关行 ====== */
+.paraphrase-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  margin-top: 8px;
+  margin-bottom: 0;
+}

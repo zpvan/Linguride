@@ -19,22 +19,30 @@
  * @since 1.0.0
  */
 
-import { ExtractPageTextResponse, MessageType, TranslatableElement } from "../types";
+import {
+  ExtractPageTextResponse,
+  MessageType,
+  TranslatableElement,
+} from "../types";
 import { BatchManager } from "./batchManager";
 import {
-    clearProcessedMarks,
-    extractTranslatableElements,
+  clearProcessedMarks,
+  extractTranslatableElements,
 } from "./textExtractor";
 import {
-    getCachedTranslation,
-    getCacheStats,
-    setCachedTranslations,
+  getCachedTranslation,
+  getCacheStats,
+  setCachedTranslations,
 } from "./translationCache";
 import {
-    removeAllTranslations,
-    showError,
-    showLoading,
-    showTranslation,
+  removeAllParaphrases,
+  removeAllTranslations,
+  showError,
+  showLoading,
+  showParaphrase,
+  showParaphraseError,
+  showParaphraseLoading,
+  showTranslation,
 } from "./translationInjector";
 import { ViewportObserver } from "./viewportObserver";
 
@@ -43,17 +51,26 @@ import { ViewportObserver } from "./viewportObserver";
 /** 当前翻译是否启用 */
 let isTranslationEnabled = false;
 
+/** 当前释义是否启用 */
+let isParaphraseEnabled = false;
+
 /** 当前页面的可翻译元素 */
 let translatableElements: Map<string, TranslatableElement> = new Map();
 
 /** 批量管理器实例 */
 const batchManager = new BatchManager();
 
-/** 视口观察器实例 */
+/** 视口观察器实例（翻译用） */
 let viewportObserver: ViewportObserver | null = null;
+
+/** 视口观察器实例（释义用） */
+let paraphraseViewportObserver: ViewportObserver | null = null;
 
 /** 正在翻译的批次 ID 集合 */
 const pendingBatches: Set<string> = new Set();
+
+/** 正在释义的批次 ID 集合 */
+const pendingParaphraseBatches: Set<string> = new Set();
 
 // ====== 初始化 ======
 
@@ -123,7 +140,6 @@ async function startTranslation(): Promise<void> {
 
     // 5. 开始观察所有需要翻译的元素
     viewportObserver.observe(needsTranslation);
-
   } catch (error) {
     console.error("[Lingride] 翻译过程出错:", error);
   }
@@ -269,6 +285,166 @@ function stopTranslation(): void {
   // 注意：不清空缓存，以便重新开启时使用
 }
 
+// ====== 释义功能 ======
+
+/**
+ * 开始释义页面
+ *
+ * 提取页面元素，设置视口观察器，按需释义。
+ */
+async function startParaphrase(): Promise<void> {
+  console.log("[Lingride] 开始释义页面...");
+
+  try {
+    // 1. 提取可释义元素
+    const elements = extractTranslatableElements();
+
+    if (elements.length === 0) {
+      console.log("[Lingride] 未找到可释义内容");
+      return;
+    }
+
+    // 存储到 Map 以便后续查找
+    translatableElements.clear();
+    for (const element of elements) {
+      translatableElements.set(element.id, element);
+    }
+
+    console.log(`[Lingride] 找到 ${elements.length} 个可释义元素`);
+
+    // 2. 创建视口观察器，按需释义
+    if (paraphraseViewportObserver) {
+      paraphraseViewportObserver.destroy();
+    }
+
+    paraphraseViewportObserver = new ViewportObserver((visibleElements) => {
+      // 当元素进入视口时触发释义
+      paraphraseVisibleElements(visibleElements);
+    });
+
+    // 3. 开始观察所有元素
+    paraphraseViewportObserver.observe(elements);
+  } catch (error) {
+    console.error("[Lingride] 释义过程出错:", error);
+  }
+}
+
+/**
+ * 释义进入视口的元素
+ */
+async function paraphraseVisibleElements(
+  elements: TranslatableElement[]
+): Promise<void> {
+  // 过滤掉已经在处理中的元素
+  const toParaphrase = elements.filter(
+    (el) => !pendingParaphraseBatches.has(el.id)
+  );
+
+  if (toParaphrase.length === 0) return;
+
+  // 显示加载状态
+  for (const element of toParaphrase) {
+    showParaphraseLoading(element);
+  }
+
+  // 创建批次并释义
+  const batches = batchManager.createBatches(toParaphrase);
+
+  // 并行发送所有批次请求（限制并发数）
+  const concurrencyLimit = 3;
+  for (let i = 0; i < batches.length; i += concurrencyLimit) {
+    const batchSlice = batches.slice(i, i + concurrencyLimit);
+    await Promise.all(
+      batchSlice.map((batch) =>
+        paraphraseBatch(batch.batchId, batch.texts, batch.elementIds)
+      )
+    );
+  }
+
+  console.log("[Lingride] 释义批次完成");
+}
+
+/**
+ * 释义单个批次
+ */
+async function paraphraseBatch(
+  batchId: string,
+  texts: string[],
+  elementIds: string[]
+): Promise<void> {
+  // 避免重复请求
+  if (pendingParaphraseBatches.has(batchId)) return;
+  pendingParaphraseBatches.add(batchId);
+
+  try {
+    // 发送释义请求到 Background
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.PARAPHRASE,
+      payload: { texts, batchId },
+    });
+
+    if (response.success && response.data) {
+      // 处理释义结果
+      const { paraphrases } = response.data;
+
+      // 更新页面显示
+      for (let i = 0; i < elementIds.length; i++) {
+        const element = translatableElements.get(elementIds[i]);
+        if (element && paraphrases[i]) {
+          showParaphrase(element, paraphrases[i]);
+        }
+      }
+    } else {
+      // 显示错误
+      const errorMessage = response.error || "释义失败";
+      for (const elementId of elementIds) {
+        const element = translatableElements.get(elementId);
+        if (element) {
+          showParaphraseError(element, errorMessage);
+        }
+      }
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "请求失败";
+    console.error("[Lingride] 批次释义失败:", errorMessage);
+
+    // 显示错误
+    for (const elementId of elementIds) {
+      const element = translatableElements.get(elementId);
+      if (element) {
+        showParaphraseError(element, errorMessage);
+      }
+    }
+  } finally {
+    pendingParaphraseBatches.delete(batchId);
+  }
+}
+
+/**
+ * 停止释义
+ *
+ * 移除所有释义显示，清理状态。
+ */
+function stopParaphrase(): void {
+  console.log("[Lingride] 停止释义");
+
+  // 停止视口观察
+  if (paraphraseViewportObserver) {
+    paraphraseViewportObserver.destroy();
+    paraphraseViewportObserver = null;
+  }
+
+  // 移除所有释义显示
+  removeAllParaphrases();
+
+  // 清除处理标记
+  clearProcessedMarks();
+
+  // 清空元素记录
+  translatableElements.clear();
+  pendingParaphraseBatches.clear();
+}
+
 // ====== 难度分析辅助函数 ======
 
 /**
@@ -365,22 +541,47 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log("[Lingride] Content Script 收到消息:", message.type);
 
   switch (message.type) {
-    case "TRANSLATION_STATE_CHANGED":
+    case "TRANSLATION_STATE_CHANGED": {
       const { enabled } = message.payload;
       isTranslationEnabled = enabled;
 
       if (enabled) {
+        // 互斥：开启翻译时关闭释义
+        if (isParaphraseEnabled) {
+          stopParaphrase();
+          isParaphraseEnabled = false;
+        }
         startTranslation();
       } else {
         stopTranslation();
       }
       sendResponse({ success: true });
       break;
+    }
 
-    case MessageType.EXTRACT_PAGE_TEXT:
+    case "PARAPHRASE_STATE_CHANGED": {
+      const { enabled } = message.payload;
+      isParaphraseEnabled = enabled;
+
+      if (enabled) {
+        // 互斥：开启释义时关闭翻译
+        if (isTranslationEnabled) {
+          stopTranslation();
+          isTranslationEnabled = false;
+        }
+        startParaphrase();
+      } else {
+        stopParaphrase();
+      }
+      sendResponse({ success: true });
+      break;
+    }
+
+    case MessageType.EXTRACT_PAGE_TEXT: {
       const extractResult = handleExtractPageText();
       sendResponse(extractResult);
       break;
+    }
 
     default:
       sendResponse({ success: false, error: "未知消息类型" });
@@ -391,14 +592,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 // ====== 页面可见性监听 ======
 
-// 当页面变为可见时，如果翻译已启用，重新扫描新增内容
+// 当页面变为可见时，如果翻译或释义已启用，重新扫描新增内容
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && isTranslationEnabled) {
+  if (document.visibilityState === "visible") {
     console.log("[Lingride] 页面重新可见，检查新内容...");
     // 延迟执行，等待动态内容加载
     setTimeout(() => {
       if (isTranslationEnabled) {
         startTranslation();
+      } else if (isParaphraseEnabled) {
+        startParaphrase();
       }
     }, 500);
   }

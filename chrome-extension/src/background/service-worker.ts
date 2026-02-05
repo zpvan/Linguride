@@ -21,16 +21,20 @@
  */
 
 import { DEFAULT_DIFFICULTY_PROMPTS } from "../constants/difficultyPrompts";
+import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
 import { DeepSeekProvider } from "../providers";
 import {
   AnalyzeDifficultyResponse,
+  calculateTargetLevel,
   DifficultyResult,
   ExtractPageTextResponse,
   GetConfigResponse,
+  GetParaphraseStateResponse,
   GetTranslationStateResponse,
   LingridConfig,
   Message,
   MessageType,
+  ParaphraseResponse,
   SaveConfigResponse,
   TestConnectionResponse,
   TranslateResponse,
@@ -41,7 +45,13 @@ import {
   isConfigValid,
   saveConfig,
 } from "./configManager";
-import { getTabState, initTabStateListeners, setTabState } from "./tabState";
+import {
+  getParaphraseState,
+  getTabState,
+  initTabStateListeners,
+  setParaphraseState,
+  setTabState,
+} from "./tabState";
 
 // ====== 初始化 ======
 
@@ -403,6 +413,211 @@ async function handleAnalyzeDifficulty(): Promise<AnalyzeDifficultyResponse> {
   }
 }
 
+// ====== 释义功能 ======
+
+/**
+ * 处理 TOGGLE_PARAPHRASE 消息
+ *
+ * 切换指定 Tab 的释义状态，并通知 Content Script。
+ * 释义与翻译互斥。
+ */
+async function handleToggleParaphrase(
+  tabId: number,
+  enabled: boolean
+): Promise<GetParaphraseStateResponse> {
+  try {
+    // 检查配置是否有效
+    const config = await getConfig();
+    if (enabled && !isConfigValid(config)) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 更新状态（TabState 内部处理互斥逻辑）
+    setParaphraseState(tabId, enabled);
+
+    // 通知 Content Script
+    try {
+      await chrome.tabs.sendMessage(tabId, {
+        type: "PARAPHRASE_STATE_CHANGED",
+        payload: { enabled },
+      });
+      console.log(
+        "[Lingride] 已通知 Content Script 释义状态, enabled:",
+        enabled
+      );
+    } catch (e) {
+      // Content Script 可能未加载，尝试注入
+      console.warn("[Lingride] Content Script 未加载，尝试注入...");
+
+      try {
+        // 尝试注入 Content Script
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ["src/content/index.js"],
+        });
+        await chrome.scripting.insertCSS({
+          target: { tabId },
+          files: ["src/content/styles.css"],
+        });
+
+        // 等待脚本加载后重新发送消息
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await chrome.tabs.sendMessage(tabId, {
+          type: "PARAPHRASE_STATE_CHANGED",
+          payload: { enabled },
+        });
+        console.log("[Lingride] 注入并通知 Content Script 成功");
+      } catch (injectError) {
+        console.error("[Lingride] 注入 Content Script 失败:", injectError);
+        return {
+          success: false,
+          error: "无法在此页面启用释义，请刷新页面后重试",
+        };
+      }
+    }
+
+    return {
+      success: true,
+      data: { enabled },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "切换释义状态失败",
+    };
+  }
+}
+
+/**
+ * 处理 GET_PARAPHRASE_STATE 消息
+ *
+ * 返回指定 Tab 的释义状态。
+ */
+function handleGetParaphraseState(tabId: number): GetParaphraseStateResponse {
+  const enabled = getParaphraseState(tabId);
+  return {
+    success: true,
+    data: { enabled },
+  };
+}
+
+/**
+ * 处理 PARAPHRASE 消息
+ *
+ * 调用 AI 将英文文本改写为适合用户水平的版本。
+ * 使用批量处理模式，与翻译功能类似。
+ */
+async function handleParaphrase(
+  texts: string[],
+  batchId: string
+): Promise<ParaphraseResponse> {
+  console.log(
+    `[Lingride] 收到释义请求: batchId=${batchId}, texts=${texts.length}条`
+  );
+
+  try {
+    // 获取配置
+    const config = await getConfig();
+    const providerConfig = await getProviderConfig();
+
+    // 验证配置
+    if (!providerConfig.apiKey) {
+      console.error("[Lingride] API Key 未配置");
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 获取用户水平和目标水平
+    const userLevel = config.user_english_level || "A2";
+    const targetLevel = calculateTargetLevel(userLevel);
+    console.log(`[Lingride] 用户水平: ${userLevel}, 目标水平: ${targetLevel}`);
+
+    // 获取 Prompt 配置
+    const prompts = config.paraphrase_prompts || DEFAULT_PARAPHRASE_PROMPTS;
+
+    // 构建批量文本（编号格式）
+    const numberedTexts = texts
+      .map((text, index) => `${index + 1}---\n${text}\n---`)
+      .join("\n\n");
+
+    // 构建 User Prompt
+    const userPrompt = prompts.user_prompt_template
+      .replace("{{texts}}", numberedTexts)
+      .replace(/\{\{user_level\}\}/g, userLevel)
+      .replace(/\{\{target_level\}\}/g, targetLevel);
+
+    // 调用 AI
+    console.log("[Lingride] 开始调用释义 API...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
+
+    // 解析响应（编号格式）
+    const paraphrases = parseNumberedResponse(aiResponse, texts.length);
+    console.log(`[Lingride] 释义完成: ${paraphrases.length}条`);
+
+    return {
+      success: true,
+      data: {
+        batchId,
+        paraphrases,
+      },
+    };
+  } catch (error) {
+    console.error("[Lingride] 释义失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "释义失败",
+    };
+  }
+}
+
+/**
+ * 解析编号格式的响应
+ *
+ * 响应格式：NUMBER---content---
+ */
+function parseNumberedResponse(
+  response: string,
+  expectedCount: number
+): string[] {
+  const results: string[] = [];
+
+  // 尝试匹配编号格式
+  const pattern = /(\d+)---\s*([\s\S]*?)\s*---/g;
+  let match;
+
+  while ((match = pattern.exec(response)) !== null) {
+    const index = parseInt(match[1], 10) - 1;
+    const content = match[2].trim();
+    if (index >= 0 && index < expectedCount) {
+      results[index] = content;
+    }
+  }
+
+  // 检查是否所有条目都已解析
+  if (results.filter(Boolean).length === expectedCount) {
+    return results;
+  }
+
+  // 备用方案：按段落分割
+  console.warn("[Lingride] 编号格式解析失败，尝试按段落分割");
+  const paragraphs = response
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  // 清理可能的序号前缀
+  return paragraphs.slice(0, expectedCount).map((p) => {
+    // 移除可能的序号前缀，如 "1. " 或 "1) " 或 "1---"
+    return p.replace(/^\d+[\.\)\-]+\s*/, "").trim();
+  });
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -483,6 +698,52 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.ANALYZE_DIFFICULTY:
           response = await handleAnalyzeDifficulty();
+          break;
+
+        case MessageType.TOGGLE_PARAPHRASE:
+          if (tabId === undefined) {
+            // 如果是从 Popup 发来的，获取当前活动 Tab
+            const [activeTab] = await chrome.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            if (activeTab?.id) {
+              response = await handleToggleParaphrase(
+                activeTab.id,
+                message.payload.enabled
+              );
+            } else {
+              response = { success: false, error: "无法获取当前 Tab" };
+            }
+          } else {
+            response = await handleToggleParaphrase(
+              tabId,
+              message.payload.enabled
+            );
+          }
+          break;
+
+        case MessageType.GET_PARAPHRASE_STATE:
+          if (tabId === undefined) {
+            const [activeTab] = await chrome.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            if (activeTab?.id) {
+              response = handleGetParaphraseState(activeTab.id);
+            } else {
+              response = { success: false, error: "无法获取当前 Tab" };
+            }
+          } else {
+            response = handleGetParaphraseState(tabId);
+          }
+          break;
+
+        case MessageType.PARAPHRASE:
+          response = await handleParaphrase(
+            message.payload.texts,
+            message.payload.batchId
+          );
           break;
 
         default:

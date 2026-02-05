@@ -15,7 +15,10 @@
  * @since 1.0.0
  */
 
-import { DifficultyPromptConfig } from "./difficulty";
+import { CEFRLevel, DifficultyPromptConfig } from "./difficulty";
+
+// 重新导出 CEFRLevel 供其他模块使用
+export type { CEFRLevel } from "./difficulty";
 
 /**
  * 翻译服务提供者配置
@@ -54,6 +57,26 @@ export interface PromptConfig {
 }
 
 /**
+ * 释义 Prompt 配置
+ *
+ * 存储用户自定义的英文释义 Prompt 设置。
+ * 用于将高难度英文改写为适合用户水平的版本。
+ */
+export interface ParaphrasePromptConfig {
+  /** 系统提示词，定义 AI 的角色和释义规则 */
+  system_prompt: string;
+
+  /**
+   * 用户提示词模板
+   * 可用占位符：
+   * - {{texts}}: 待释义的文本（编号格式）
+   * - {{user_level}}: 用户当前 CEFR 等级
+   * - {{target_level}}: 目标 CEFR 等级（用户等级 + 1）
+   */
+  user_prompt_template: string;
+}
+
+/**
  * Lingride 扩展完整配置
  *
  * 存储在 chrome.storage.local 中的配置对象，
@@ -74,6 +97,12 @@ export interface LingridConfig {
 
   /** 难度分析 Prompt 配置（可选，使用默认值） */
   difficulty_prompts?: DifficultyPromptConfig;
+
+  /** 用户当前英文水平（CEFR 等级） */
+  user_english_level?: CEFRLevel;
+
+  /** 释义 Prompt 配置（可选，使用默认值） */
+  paraphrase_prompts?: ParaphrasePromptConfig;
 }
 
 /**
@@ -102,6 +131,13 @@ export const DEFAULT_USER_PROMPT_TEMPLATE = `请翻译以下英文段落，每�
 请按照上述格式（序号---翻译内容）输出每段的翻译。`;
 
 /**
+ * 默认用户英文水平
+ *
+ * A2 是一个较为保守的起点，适合大多数初中级学习者。
+ */
+export const DEFAULT_USER_ENGLISH_LEVEL: CEFRLevel = "A2";
+
+/**
  * 默认配置
  *
  * 用于初始化扩展或重置配置时使用。
@@ -114,6 +150,7 @@ export const DEFAULT_CONFIG: LingridConfig = {
     system_prompt: DEFAULT_SYSTEM_PROMPT,
     user_prompt_template: DEFAULT_USER_PROMPT_TEMPLATE,
   },
+  user_english_level: DEFAULT_USER_ENGLISH_LEVEL,
 };
 
 /**
@@ -139,4 +176,25 @@ export function toProviderConfig(config: LingridConfig): ProviderConfig {
     systemPrompt: config.prompts.system_prompt,
     userPromptTemplate: config.prompts.user_prompt_template,
   };
+}
+
+/**
+ * CEFR 等级数组，按难度递增排序
+ */
+export const CEFR_LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+/**
+ * 计算目标等级（i+1 原则）
+ *
+ * 根据用户当前水平计算释义的目标等级。
+ * 目标等级比用户水平高一级，最高为 C2。
+ *
+ * @param userLevel - 用户当前 CEFR 等级
+ * @returns 目标 CEFR 等级
+ */
+export function calculateTargetLevel(userLevel: CEFRLevel): CEFRLevel {
+  const currentIndex = CEFR_LEVELS.indexOf(userLevel);
+  // i+1: 目标等级比用户水平高一级，最高 C2
+  const targetIndex = Math.min(currentIndex + 1, CEFR_LEVELS.length - 1);
+  return CEFR_LEVELS[targetIndex];
 }
