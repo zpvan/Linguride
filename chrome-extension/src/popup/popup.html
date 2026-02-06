@@ -3,222 +3,252 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingride 设置</title>
+  <title>Lingride</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <!-- 头部 -->
-    <header class="header">
-      <h1 class="title">🌐 Lingride</h1>
-      <label class="toggle-switch">
-        <input type="checkbox" id="translationToggle">
-        <span class="slider"></span>
-      </label>
-    </header>
+  <div class="viewport">
+    <!-- ====== Main View - 学习控制中心 ====== -->
+    <div id="mainView" class="view main-view active">
+      <!-- Header -->
+      <header class="header">
+        <h1 class="brand">Lingride</h1>
+        <button id="settingsBtn" class="icon-btn" aria-label="设置">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16.18 12.32a1.25 1.25 0 00.25 1.38l.04.05a1.52 1.52 0 11-2.15 2.14l-.04-.04a1.26 1.26 0 00-2.13.89v.11a1.52 1.52 0 01-3.03 0v-.06a1.25 1.25 0 00-.82-1.15 1.25 1.25 0 00-1.38.25l-.05.04a1.52 1.52 0 11-2.14-2.15l.04-.04a1.26 1.26 0 00-.89-2.13h-.11a1.52 1.52 0 010-3.03h.06a1.25 1.25 0 001.15-.82 1.25 1.25 0 00-.25-1.38l-.04-.05A1.52 1.52 0 116.83 4.98l.04.04a1.25 1.25 0 001.38.25h.06a1.25 1.25 0 00.76-1.15v-.11a1.52 1.52 0 013.03 0v.06a1.26 1.26 0 002.13.89l.05-.04a1.52 1.52 0 112.14 2.15l-.04.04a1.25 1.25 0 00-.25 1.38v.06a1.25 1.25 0 001.15.76h.11a1.52 1.52 0 010 3.03h-.06a1.25 1.25 0 00-1.15.76z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span id="settingsBadge" class="badge" style="display: none;"></span>
+        </button>
+      </header>
 
-    <!-- 配置未完成提示 -->
-    <div id="configWarning" class="warning" style="display: none;">
-      ⚠️ 请先配置 API Key 才能使用翻译功能
+      <!-- 模式选择器 -->
+      <section class="card">
+        <h2 class="section-label">阅读模式</h2>
+        <div class="segmented-control" id="modeSelector">
+          <div class="segment-indicator" id="segmentIndicator"></div>
+          <button class="segment" data-mode="paraphrase">释义</button>
+          <button class="segment" data-mode="mixed">混杂</button>
+          <button class="segment" data-mode="translate">翻译</button>
+        </div>
+        <p class="mode-desc" id="modeDesc">选择一种阅读模式开始学习</p>
+        <!-- API Key 未配置提示 -->
+        <div id="configHint" class="config-hint" style="display: none;">
+          <span>需要先配置 API 服务</span>
+          <button id="configHintBtn" class="link-btn">前往设置</button>
+        </div>
+      </section>
+
+      <!-- 我的水平 -->
+      <section class="card">
+        <h2 class="section-label">我的水平</h2>
+        <div class="pill-group" id="levelSelector">
+          <button class="pill" data-level="A1">A1</button>
+          <button class="pill" data-level="A2">A2</button>
+          <button class="pill" data-level="B1">B1</button>
+          <button class="pill" data-level="B2">B2</button>
+          <button class="pill" data-level="C1">C1</button>
+          <button class="pill" data-level="C2">C2</button>
+        </div>
+        <p class="level-hint" id="levelHint"></p>
+      </section>
+
+      <!-- 页面洞察 -->
+      <section class="card">
+        <h2 class="section-label">页面洞察</h2>
+        <button id="analyzeDifficultyBtn" class="btn-analyze">
+          分析当前页面
+        </button>
+        <div id="difficultyStatus" class="status-message"></div>
+
+        <!-- 分析结果（初始隐藏） -->
+        <div id="difficultyResult" class="difficulty-result" style="display: none;">
+          <div class="result-header">
+            <span id="difficultyBadge" class="difficulty-badge"></span>
+            <span id="cefrBadge" class="cefr-badge"></span>
+          </div>
+          <div class="result-score">
+            <div class="score-bar">
+              <div id="scoreProgress" class="score-progress"></div>
+            </div>
+            <div class="score-labels">
+              <span>简单</span>
+              <span id="scoreValue" class="score-value">0</span>
+              <span>困难</span>
+            </div>
+          </div>
+          <div class="result-metrics">
+            <div class="metric">
+              <span class="metric-label">词汇复杂度</span>
+              <span id="vocabMetric" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">句子复杂度</span>
+              <span id="sentenceMetric" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">阅读时间</span>
+              <span id="readingTime" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">采样词数</span>
+              <span id="wordCount" class="metric-value">-</span>
+            </div>
+          </div>
+          <div class="result-suggestions">
+            <h4>学习建议</h4>
+            <ul id="suggestionsList"></ul>
+          </div>
+          <div id="selectionHint" class="selection-hint" style="display: none;">
+            分析基于选中文本
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- 我的英文水平 -->
-    <section class="section level-section">
-      <h2 class="section-title">📚 我的英文水平</h2>
-      <p class="section-desc">设置您当前的英文水平，系统将自动调整内容难度</p>
-      
-      <div class="form-group">
-        <label for="englishLevel">CEFR 等级</label>
-        <select id="englishLevel">
-          <option value="A1">A1 - 入门 (Beginner)</option>
-          <option value="A2">A2 - 初级 (Elementary)</option>
-          <option value="B1">B1 - 中级 (Intermediate)</option>
-          <option value="B2">B2 - 中高级 (Upper-Intermediate)</option>
-          <option value="C1">C1 - 高级 (Advanced)</option>
-          <option value="C2">C2 - 精通 (Proficient)</option>
-        </select>
-        <p class="hint level-hint" id="levelHint">💡 内容将改写为 <strong>B1</strong> 水平（略高于您的水平）</p>
-      </div>
+    <!-- ====== Settings View - 配置面板 ====== -->
+    <div id="settingsView" class="view settings-view">
+      <!-- Settings Header -->
+      <header class="header">
+        <button id="backBtn" class="icon-btn back-btn" aria-label="返回">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="header-title">设置</h1>
+        <div class="header-spacer"></div>
+      </header>
 
-      <div class="paraphrase-toggle-row">
-        <span class="toggle-label">英文释义</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="paraphraseToggle">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <p class="section-desc toggle-desc">将页面英文改写为适合您水平的版本</p>
-      
-      <div id="paraphraseStatus" class="status-message"></div>
-
-      <div class="paraphrase-toggle-row" style="margin-top: 0.8em;">
-        <span class="toggle-label">混杂中英</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="mixedTranslateToggle">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <p class="section-desc toggle-desc">保留您能理解的英文，用中文替换超纲部分</p>
-      
-      <div id="mixedTranslateStatus" class="status-message"></div>
-    </section>
-
-    <!-- 翻译服务配置 -->
-    <section class="section">
-      <h2 class="section-title">翻译服务配置</h2>
-      
-      <div class="form-group">
-        <label for="apiBaseUrl">API 端点 (Base URL)</label>
-        <input type="text" id="apiBaseUrl" placeholder="https://api.deepseek.com">
-      </div>
-
-      <div class="form-group">
-        <label for="apiKey">API Key</label>
-        <div class="password-input">
-          <input type="password" id="apiKey" placeholder="sk-...">
-          <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+      <!-- API 服务配置 -->
+      <section class="card settings-group">
+        <h2 class="section-label">API 服务</h2>
+        <div class="settings-row">
+          <label class="settings-label" for="apiBaseUrl">端点</label>
+          <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="modelSelect">模型</label>
-        <select id="modelSelect">
-          <option value="deepseek-chat">DeepSeek Chat</option>
-          <option value="deepseek-coder">DeepSeek Coder</option>
-          <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-          <option value="custom">自定义模型...</option>
-        </select>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <label class="settings-label" for="apiKey">密钥</label>
+          <div class="password-input">
+            <input type="password" id="apiKey" class="settings-input" placeholder="sk-...">
+            <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+          </div>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <label class="settings-label" for="modelSelect">模型</label>
+          <select id="modelSelect" class="settings-select">
+            <option value="deepseek-chat">DeepSeek Chat</option>
+            <option value="deepseek-coder">DeepSeek Coder</option>
+            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+            <option value="custom">自定义...</option>
+          </select>
+        </div>
         <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
-      </div>
+        <div class="settings-divider"></div>
+        <button id="testConnectionBtn" class="settings-action-btn">测试连接</button>
+        <div id="connectionStatus" class="status-message"></div>
+      </section>
 
-      <button id="testConnectionBtn" class="btn btn-secondary">测试连接</button>
-      <div id="connectionStatus" class="status-message"></div>
-    </section>
+      <!-- Prompt 配置 (Accordion) -->
+      <section class="card settings-group">
+        <h2 class="section-label">Prompt 配置</h2>
 
-    <!-- 难度分析 -->
-    <section class="section">
-      <h2 class="section-title">页面难度分析</h2>
-      <p class="section-desc">快速评估当前页面的英文难度级别</p>
-      
-      <button id="analyzeDifficultyBtn" class="btn btn-analyze">
-        <span class="btn-icon">📊</span>
-        分析当前页面
-      </button>
-      
-      <div id="difficultyStatus" class="status-message"></div>
-      
-      <!-- 分析结果卡片（初始隐藏） -->
-      <div id="difficultyResult" class="difficulty-result" style="display: none;">
-        <div class="result-header">
-          <span id="difficultyBadge" class="difficulty-badge"></span>
-          <span id="cefrBadge" class="cefr-badge"></span>
-        </div>
-        
-        <div class="result-score">
-          <div class="score-bar">
-            <div id="scoreProgress" class="score-progress"></div>
-          </div>
-          <div class="score-labels">
-            <span>简单</span>
-            <span id="scoreValue" class="score-value">0</span>
-            <span>困难</span>
+        <!-- 翻译 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="translate-prompt">
+            <span>翻译 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="translate-prompt">
+            <div class="form-group">
+              <label for="systemPrompt">System Prompt</label>
+              <textarea id="systemPrompt" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="userPrompt">User Prompt</label>
+              <textarea id="userPrompt" rows="3"></textarea>
+              <p class="hint">使用 <code>{{texts}}</code> 表示待翻译文本</p>
+            </div>
           </div>
         </div>
-        
-        <div class="result-metrics">
-          <div class="metric">
-            <span class="metric-label">词汇复杂度</span>
-            <span id="vocabMetric" class="metric-value">-</span>
+
+        <div class="settings-divider"></div>
+
+        <!-- 难度分析 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="difficulty-prompt">
+            <span>难度分析 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="difficulty-prompt">
+            <div class="form-group">
+              <label for="difficultySystemPrompt">System Prompt</label>
+              <textarea id="difficultySystemPrompt" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="difficultyUserPrompt">User Prompt</label>
+              <textarea id="difficultyUserPrompt" rows="3"></textarea>
+              <p class="hint">使用 <code>{text}</code> 表示待分析文本</p>
+            </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">句子复杂度</span>
-            <span id="sentenceMetric" class="metric-value">-</span>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 释义 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="paraphrase-prompt">
+            <span>释义 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="paraphrase-prompt">
+            <div class="form-group">
+              <label for="paraphraseSystemPrompt">System Prompt</label>
+              <textarea id="paraphraseSystemPrompt" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="paraphraseUserPrompt">User Prompt</label>
+              <textarea id="paraphraseUserPrompt" rows="3"></textarea>
+              <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code></p>
+            </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">阅读时间</span>
-            <span id="readingTime" class="metric-value">-</span>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 混杂中英 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="mixed-prompt">
+            <span>混杂中英 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="mixed-prompt">
+            <div class="form-group">
+              <label for="mixedTranslateSystemPrompt">System Prompt</label>
+              <textarea id="mixedTranslateSystemPrompt" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="mixedTranslateUserPrompt">User Prompt</label>
+              <textarea id="mixedTranslateUserPrompt" rows="3"></textarea>
+              <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code></p>
+            </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">采样词数</span>
-            <span id="wordCount" class="metric-value">-</span>
-          </div>
         </div>
-        
-        <div class="result-suggestions">
-          <h4>📝 学习建议</h4>
-          <ul id="suggestionsList"></ul>
-        </div>
-        
-        <div id="selectionHint" class="selection-hint" style="display: none;">
-          💡 分析基于选中文本
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 高级设置 -->
-    <div class="advanced-section">
-      <button type="button" id="advancedToggle" class="advanced-toggle">
-        <span class="toggle-icon">▶</span> 高级设置
-      </button>
-      <div id="advancedContent" class="advanced-content collapsed">
-        <!-- 翻译 Prompt 配置 -->
-        <h3 class="prompt-group-title">翻译 Prompt</h3>
-        <div class="form-group">
-          <label for="systemPrompt">System Prompt</label>
-          <textarea id="systemPrompt" rows="5" placeholder="你是专业的英中翻译专家..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="userPrompt">User Prompt 模板</label>
-          <textarea id="userPrompt" rows="4" placeholder="请翻译以下英文文本..."></textarea>
-          <p class="hint">💡 使用 <code>{{texts}}</code> 表示待翻译文本</p>
-        </div>
-
-        <!-- 难度分析 Prompt 配置 -->
-        <h3 class="prompt-group-title">难度分析 Prompt</h3>
-        <div class="form-group">
-          <label for="difficultySystemPrompt">System Prompt</label>
-          <textarea id="difficultySystemPrompt" rows="4" placeholder="你是一个专业的英文语言评估专家..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="difficultyUserPrompt">User Prompt 模板</label>
-          <textarea id="difficultyUserPrompt" rows="4" placeholder="请分析以下英文文本的难度..."></textarea>
-          <p class="hint">💡 使用 <code>{text}</code> 表示待分析文本</p>
-        </div>
-
-        <!-- 释义 Prompt 配置 -->
-        <h3 class="prompt-group-title">英文释义 Prompt</h3>
-        <div class="form-group">
-          <label for="paraphraseSystemPrompt">System Prompt</label>
-          <textarea id="paraphraseSystemPrompt" rows="5" placeholder="You are an expert English language teacher..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="paraphraseUserPrompt">User Prompt 模板</label>
-          <textarea id="paraphraseUserPrompt" rows="4" placeholder="Rewrite the following English paragraphs..."></textarea>
-          <p class="hint">💡 使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code> 占位符</p>
-        </div>
-
-        <!-- 混杂中英翻译 Prompt 配置 -->
-        <h3 class="prompt-group-title">混杂中英 Prompt</h3>
-        <div class="form-group">
-          <label for="mixedTranslateSystemPrompt">System Prompt</label>
-          <textarea id="mixedTranslateSystemPrompt" rows="5" placeholder="You are an expert at creating Chinese-English code-mixed text..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="mixedTranslateUserPrompt">User Prompt 模板</label>
-          <textarea id="mixedTranslateUserPrompt" rows="4" placeholder="Convert the following English paragraphs into Chinese-English mixed text..."></textarea>
-          <p class="hint">💡 使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code> 占位符</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 操作按钮 -->
-    <div class="actions">
-      <button id="resetDefaultsBtn" class="btn btn-text">恢复默认</button>
-      <button id="saveSettingsBtn" class="btn btn-primary">保存设置</button>
+      <!-- 恢复默认 -->
+      <section class="card">
+        <button id="resetDefaultsBtn" class="reset-btn">恢复所有默认设置</button>
+      </section>
     </div>
   </div>
 

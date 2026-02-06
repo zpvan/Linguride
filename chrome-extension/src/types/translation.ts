@@ -51,6 +51,9 @@ export interface TranslatableElement {
 
   /** 错误信息（失败时填充） */
   error?: string;
+
+  /** 原文中 <code> 标签内的词汇（用于译文格式保留） */
+  codeWords?: string[];
 }
 
 /**

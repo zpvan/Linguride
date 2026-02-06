@@ -1,16 +1,14 @@
 /**
  * @file popup.ts
- * @description Popup 逻辑
+ * @description Popup 逻辑 — Apple 风格学习控制中心
  *
- * 负责：
- * - 加载和显示配置
- * - 处理用户输入
- * - 保存配置到 Chrome Storage
- * - 测试 API 连接
- * - 控制翻译开关
+ * 设计哲学："自如 (Natural Flow)"
+ * - 双视图：Main View（学习控制） + Settings View（配置面板）
+ * - Segmented Control：3 段可取消选择的模式选择器
+ * - 自动保存：配置变更即时生效，无需保存按钮
  *
  * @author Lingride Team
- * @since 1.0.0
+ * @since 2.0.0
  */
 
 import {
@@ -39,56 +37,44 @@ import {
   MessageType,
 } from "../types";
 
+// ====== 类型定义 ======
+
+/** 阅读模式 */
+type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
+
+/** 模式描述映射 */
+const MODE_DESCRIPTIONS: Record<string, string> = {
+  paraphrase: "将英文改写为适合您水平的版本",
+  mixed: "保留能理解的英文，用中文替换超纲部分",
+  translate: "在原文下方显示中文翻译",
+};
+
+const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
+
 // ====== DOM 元素引用 ======
 
-// 翻译开关
-const toggleSwitch = document.getElementById(
-  "translationToggle"
-) as HTMLInputElement;
+// 视图
+const viewport = document.querySelector(".viewport") as HTMLElement;
 
-// 配置警告
-const configWarning = document.getElementById("configWarning") as HTMLElement;
+// Header
+const settingsBtn = document.getElementById("settingsBtn") as HTMLButtonElement;
+const settingsBadge = document.getElementById("settingsBadge") as HTMLElement;
+const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
 
-// API 配置表单
-const apiBaseUrlInput = document.getElementById(
-  "apiBaseUrl"
-) as HTMLInputElement;
-const apiKeyInput = document.getElementById("apiKey") as HTMLInputElement;
-const showKeyBtn = document.getElementById("showKeyBtn") as HTMLButtonElement;
-const modelSelect = document.getElementById("modelSelect") as HTMLSelectElement;
-const customModelInput = document.getElementById(
-  "customModel"
-) as HTMLInputElement;
-
-// 测试连接
-const testConnectionBtn = document.getElementById(
-  "testConnectionBtn"
-) as HTMLButtonElement;
-const connectionStatus = document.getElementById(
-  "connectionStatus"
+// 模式选择器
+const modeSelector = document.getElementById("modeSelector") as HTMLElement;
+const segmentIndicator = document.getElementById(
+  "segmentIndicator"
 ) as HTMLElement;
+const modeDesc = document.getElementById("modeDesc") as HTMLElement;
+const configHint = document.getElementById("configHint") as HTMLElement;
+const configHintBtn = document.getElementById(
+  "configHintBtn"
+) as HTMLButtonElement;
 
-// 高级设置
-const advancedToggle = document.getElementById(
-  "advancedToggle"
-) as HTMLButtonElement;
-const advancedContent = document.getElementById(
-  "advancedContent"
-) as HTMLElement;
-const systemPromptTextarea = document.getElementById(
-  "systemPrompt"
-) as HTMLTextAreaElement;
-const userPromptTextarea = document.getElementById(
-  "userPrompt"
-) as HTMLTextAreaElement;
-
-// 操作按钮
-const resetDefaultsBtn = document.getElementById(
-  "resetDefaultsBtn"
-) as HTMLButtonElement;
-const saveSettingsBtn = document.getElementById(
-  "saveSettingsBtn"
-) as HTMLButtonElement;
+// 水平选择器
+const levelSelector = document.getElementById("levelSelector") as HTMLElement;
+const levelHint = document.getElementById("levelHint") as HTMLElement;
 
 // 难度分析
 const analyzeDifficultyBtn = document.getElementById(
@@ -115,45 +101,42 @@ const suggestionsList = document.getElementById(
 ) as HTMLElement;
 const selectionHint = document.getElementById("selectionHint") as HTMLElement;
 
-// 难度分析 Prompt
+// Settings - API 配置
+const apiBaseUrlInput = document.getElementById(
+  "apiBaseUrl"
+) as HTMLInputElement;
+const apiKeyInput = document.getElementById("apiKey") as HTMLInputElement;
+const showKeyBtn = document.getElementById("showKeyBtn") as HTMLButtonElement;
+const modelSelect = document.getElementById("modelSelect") as HTMLSelectElement;
+const customModelInput = document.getElementById(
+  "customModel"
+) as HTMLInputElement;
+const testConnectionBtn = document.getElementById(
+  "testConnectionBtn"
+) as HTMLButtonElement;
+const connectionStatus = document.getElementById(
+  "connectionStatus"
+) as HTMLElement;
+
+// Settings - Prompt 配置
+const systemPromptTextarea = document.getElementById(
+  "systemPrompt"
+) as HTMLTextAreaElement;
+const userPromptTextarea = document.getElementById(
+  "userPrompt"
+) as HTMLTextAreaElement;
 const difficultySystemPromptTextarea = document.getElementById(
   "difficultySystemPrompt"
 ) as HTMLTextAreaElement;
 const difficultyUserPromptTextarea = document.getElementById(
   "difficultyUserPrompt"
 ) as HTMLTextAreaElement;
-
-// 英文水平
-const englishLevelSelect = document.getElementById(
-  "englishLevel"
-) as HTMLSelectElement;
-const levelHint = document.getElementById("levelHint") as HTMLElement;
-
-// 释义开关
-const paraphraseToggle = document.getElementById(
-  "paraphraseToggle"
-) as HTMLInputElement;
-const paraphraseStatus = document.getElementById(
-  "paraphraseStatus"
-) as HTMLElement;
-
-// 释义 Prompt
 const paraphraseSystemPromptTextarea = document.getElementById(
   "paraphraseSystemPrompt"
 ) as HTMLTextAreaElement;
 const paraphraseUserPromptTextarea = document.getElementById(
   "paraphraseUserPrompt"
 ) as HTMLTextAreaElement;
-
-// 混杂中英开关
-const mixedTranslateToggle = document.getElementById(
-  "mixedTranslateToggle"
-) as HTMLInputElement;
-const mixedTranslateStatus = document.getElementById(
-  "mixedTranslateStatus"
-) as HTMLElement;
-
-// 混杂中英 Prompt
 const mixedTranslateSystemPromptTextarea = document.getElementById(
   "mixedTranslateSystemPrompt"
 ) as HTMLTextAreaElement;
@@ -161,37 +144,30 @@ const mixedTranslateUserPromptTextarea = document.getElementById(
   "mixedTranslateUserPrompt"
 ) as HTMLTextAreaElement;
 
+// Settings - 操作
+const resetDefaultsBtn = document.getElementById(
+  "resetDefaultsBtn"
+) as HTMLButtonElement;
+
 // ====== 状态 ======
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
-let isTranslationEnabled = false;
-let isParaphraseEnabled = false;
-let isMixedTranslateEnabled = false;
+let currentMode: ReadingMode = null;
 
 // ====== 初始化 ======
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Lingride] Popup 已加载");
 
-  // 加载配置
   await loadConfig();
+  await loadModeState();
 
-  // 加载翻译、释义和混杂中英状态
-  await Promise.all([
-    loadTranslationState(),
-    loadParaphraseState(),
-    loadMixedTranslateState(),
-  ]);
-
-  // 绑定事件
   bindEvents();
+  updateBadge();
 });
 
 // ====== 配置加载 ======
 
-/**
- * 从 Background 加载配置
- */
 async function loadConfig(): Promise<void> {
   try {
     const response = await chrome.runtime.sendMessage({
@@ -200,24 +176,356 @@ async function loadConfig(): Promise<void> {
 
     if (response.success && response.data) {
       currentConfig = response.data;
-      updateFormFromConfig();
-      updateConfigWarning();
+      updateSettingsForm();
+      updateLevelSelector();
     }
   } catch (error) {
     console.error("[Lingride] 加载配置失败:", error);
-    showStatus(connectionStatus, "加载配置失败", "error");
   }
 }
 
 /**
- * 从配置更新表单
+ * 加载当前激活的模式状态
+ * 从三个独立状态中确定当前 segmented control 的选中项
  */
-function updateFormFromConfig(): void {
+async function loadModeState(): Promise<void> {
+  try {
+    const [translationRes, paraphraseRes, mixedRes] = await Promise.all([
+      chrome.runtime.sendMessage({ type: MessageType.GET_TRANSLATION_STATE }),
+      chrome.runtime.sendMessage({ type: MessageType.GET_PARAPHRASE_STATE }),
+      chrome.runtime.sendMessage({
+        type: MessageType.GET_MIXED_TRANSLATE_STATE,
+      }),
+    ]);
+
+    if (paraphraseRes.success && paraphraseRes.data?.enabled) {
+      currentMode = "paraphrase";
+    } else if (mixedRes.success && mixedRes.data?.enabled) {
+      currentMode = "mixed";
+    } else if (translationRes.success && translationRes.data?.enabled) {
+      currentMode = "translate";
+    } else {
+      currentMode = null;
+    }
+
+    updateSegmentedControl();
+    updateModeDesc();
+    updateLevelHint();
+  } catch (error) {
+    console.error("[Lingride] 加载模式状态失败:", error);
+  }
+}
+
+// ====== 事件绑定 ======
+
+function bindEvents(): void {
+  // 视图切换
+  settingsBtn.addEventListener("click", showSettings);
+  backBtn.addEventListener("click", showMain);
+  configHintBtn.addEventListener("click", showSettings);
+
+  // 模式选择器（事件委托）
+  modeSelector.addEventListener("click", handleModeClick);
+
+  // 水平选择器（事件委托）
+  levelSelector.addEventListener("click", handleLevelClick);
+
+  // 难度分析
+  analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
+
+  // Settings - API 配置自动保存
+  apiBaseUrlInput.addEventListener("blur", autoSave);
+  apiKeyInput.addEventListener("blur", autoSave);
+  modelSelect.addEventListener("change", handleModelChange);
+  customModelInput.addEventListener("blur", autoSave);
+
+  // Settings - 显示/隐藏 API Key
+  showKeyBtn.addEventListener("click", () => {
+    const isPassword = apiKeyInput.type === "password";
+    apiKeyInput.type = isPassword ? "text" : "password";
+    showKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 测试连接
+  testConnectionBtn.addEventListener("click", testConnection);
+
+  // Settings - Accordion
+  document.querySelectorAll(".accordion-header").forEach((header) => {
+    header.addEventListener("click", handleAccordionClick);
+  });
+
+  // Settings - Prompt 自动保存
+  const promptTextareas = [
+    systemPromptTextarea,
+    userPromptTextarea,
+    difficultySystemPromptTextarea,
+    difficultyUserPromptTextarea,
+    paraphraseSystemPromptTextarea,
+    paraphraseUserPromptTextarea,
+    mixedTranslateSystemPromptTextarea,
+    mixedTranslateUserPromptTextarea,
+  ];
+  promptTextareas.forEach((textarea) => {
+    textarea.addEventListener("blur", autoSave);
+  });
+
+  // Settings - 恢复默认
+  resetDefaultsBtn.addEventListener("click", resetDefaults);
+}
+
+// ====== 视图切换 ======
+
+function showSettings(): void {
+  viewport.classList.add("show-settings");
+}
+
+function showMain(): void {
+  viewport.classList.remove("show-settings");
+  updateBadge();
+}
+
+// ====== 模式选择器 ======
+
+function handleModeClick(e: Event): void {
+  const target = (e.target as HTMLElement).closest(".segment") as HTMLElement;
+  if (!target) return;
+
+  const mode = target.dataset.mode as ReadingMode;
+
+  // 可取消选择：点击已选中的段则取消
+  if (mode === currentMode) {
+    deactivateMode(currentMode);
+    currentMode = null;
+  } else {
+    // 先关闭旧模式，再开启新模式
+    if (currentMode) {
+      deactivateMode(currentMode);
+    }
+
+    // 检查 API Key
+    if (!currentConfig.api_key) {
+      configHint.style.display = "flex";
+      setTimeout(() => {
+        configHint.style.display = "none";
+      }, 4000);
+      currentMode = null;
+      updateSegmentedControl();
+      updateModeDesc();
+      return;
+    }
+
+    activateMode(mode);
+    currentMode = mode;
+  }
+
+  updateSegmentedControl();
+  updateModeDesc();
+  updateLevelHint();
+}
+
+function activateMode(mode: ReadingMode): void {
+  if (!mode) return;
+
+  const messageMap: Record<string, string> = {
+    paraphrase: MessageType.TOGGLE_PARAPHRASE,
+    mixed: MessageType.TOGGLE_MIXED_TRANSLATE,
+    translate: MessageType.TOGGLE_TRANSLATION,
+  };
+
+  chrome.runtime.sendMessage({
+    type: messageMap[mode],
+    payload: { enabled: true },
+  });
+}
+
+function deactivateMode(mode: ReadingMode): void {
+  if (!mode) return;
+
+  const messageMap: Record<string, string> = {
+    paraphrase: MessageType.TOGGLE_PARAPHRASE,
+    mixed: MessageType.TOGGLE_MIXED_TRANSLATE,
+    translate: MessageType.TOGGLE_TRANSLATION,
+  };
+
+  chrome.runtime.sendMessage({
+    type: messageMap[mode],
+    payload: { enabled: false },
+  });
+}
+
+function updateSegmentedControl(): void {
+  const segments = modeSelector.querySelectorAll(".segment");
+  const modeIndex: Record<string, number> = {
+    paraphrase: 0,
+    mixed: 1,
+    translate: 2,
+  };
+
+  // 更新 segment active 状态
+  segments.forEach((seg) => {
+    const segMode = (seg as HTMLElement).dataset.mode;
+    seg.classList.toggle("active", segMode === currentMode);
+  });
+
+  // 更新滑动指示器
+  if (currentMode) {
+    const idx = modeIndex[currentMode];
+    segmentIndicator.className = `segment-indicator active pos-${idx}`;
+  } else {
+    segmentIndicator.className = "segment-indicator";
+  }
+}
+
+function updateModeDesc(): void {
+  if (currentMode && MODE_DESCRIPTIONS[currentMode]) {
+    modeDesc.textContent = MODE_DESCRIPTIONS[currentMode];
+  } else {
+    modeDesc.textContent = MODE_DEFAULT_DESC;
+  }
+}
+
+// ====== 水平选择器 ======
+
+function handleLevelClick(e: Event): void {
+  const target = (e.target as HTMLElement).closest(".pill") as HTMLElement;
+  if (!target) return;
+
+  const level = target.dataset.level as CEFRLevel;
+  if (!level) return;
+
+  // 更新 UI
+  setActiveLevel(level);
+
+  // 更新配置
+  currentConfig.user_english_level = level;
+  updateLevelHint();
+
+  // 立即保存并刷新模式
+  handleEnglishLevelChange(level);
+}
+
+function setActiveLevel(level: CEFRLevel): void {
+  levelSelector.querySelectorAll(".pill").forEach((pill) => {
+    const pillLevel = (pill as HTMLElement).dataset.level;
+    pill.classList.toggle("active", pillLevel === level);
+  });
+}
+
+function updateLevelSelector(): void {
+  const level = currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
+  setActiveLevel(level);
+  updateLevelHint();
+}
+
+function updateLevelHint(): void {
+  const userLevel = (currentConfig.user_english_level ||
+    DEFAULT_USER_ENGLISH_LEVEL) as CEFRLevel;
+
+  if (currentMode === "mixed") {
+    const percent = getRetentionPercent(userLevel);
+    levelHint.innerHTML = `将保留约 <strong>${percent}%</strong> 英文内容，其余用中文表达`;
+  } else {
+    const targetLevel = calculateTargetLevel(userLevel);
+    levelHint.innerHTML = `目标水平: <strong>${targetLevel}</strong>（略高于您的水平）`;
+  }
+}
+
+async function handleEnglishLevelChange(_newLevel: CEFRLevel): Promise<void> {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.SAVE_CONFIG,
+      payload: currentConfig,
+    });
+
+    if (response.success) {
+      // 如果释义已开启，重新触发
+      if (currentMode === "paraphrase") {
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_PARAPHRASE,
+          payload: { enabled: false },
+        });
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_PARAPHRASE,
+          payload: { enabled: true },
+        });
+      }
+
+      // 如果混杂中英已开启，重新触发
+      if (currentMode === "mixed") {
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_MIXED_TRANSLATE,
+          payload: { enabled: false },
+        });
+        await chrome.runtime.sendMessage({
+          type: MessageType.TOGGLE_MIXED_TRANSLATE,
+          payload: { enabled: true },
+        });
+      }
+    }
+  } catch (error) {
+    console.error("[Lingride] 保存英文水平失败:", error);
+  }
+}
+
+// ====== Badge 控制 ======
+
+function updateBadge(): void {
+  const hasApiKey = !!currentConfig.api_key;
+  settingsBadge.style.display = hasApiKey ? "none" : "";
+}
+
+// ====== 自动保存 ======
+
+async function autoSave(): Promise<void> {
+  collectFormData();
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: MessageType.SAVE_CONFIG,
+      payload: currentConfig,
+    });
+
+    if (response.success) {
+      updateBadge();
+    }
+  } catch (error) {
+    console.error("[Lingride] 自动保存失败:", error);
+  }
+}
+
+function collectFormData(): void {
+  const model =
+    modelSelect.value === "custom" ? customModelInput.value : modelSelect.value;
+
+  currentConfig.api_base_url = apiBaseUrlInput.value.trim();
+  currentConfig.api_key = apiKeyInput.value.trim();
+  currentConfig.model = model.trim();
+  currentConfig.prompts = {
+    system_prompt: systemPromptTextarea.value,
+    user_prompt_template: userPromptTextarea.value,
+  };
+  currentConfig.difficulty_prompts = {
+    system_prompt: difficultySystemPromptTextarea.value,
+    user_prompt_template: difficultyUserPromptTextarea.value,
+  };
+  currentConfig.paraphrase_prompts = {
+    system_prompt: paraphraseSystemPromptTextarea.value,
+    user_prompt_template: paraphraseUserPromptTextarea.value,
+  };
+  currentConfig.mixed_translate_prompts = {
+    system_prompt: mixedTranslateSystemPromptTextarea.value,
+    user_prompt_template: mixedTranslateUserPromptTextarea.value,
+  };
+}
+
+// ====== Settings 表单更新 ======
+
+function updateSettingsForm(): void {
   // API 配置
   apiBaseUrlInput.value = currentConfig.api_base_url || "";
   apiKeyInput.value = currentConfig.api_key || "";
 
-  // 模型选择
+  // 模型
   const modelValue = currentConfig.model || "deepseek-chat";
   const modelOption = Array.from(modelSelect.options).find(
     (opt) => opt.value === modelValue
@@ -232,13 +540,13 @@ function updateFormFromConfig(): void {
     customModelInput.style.display = "block";
   }
 
-  // 翻译 Prompt 配置
+  // 翻译 Prompt
   systemPromptTextarea.value =
     currentConfig.prompts?.system_prompt || DEFAULT_SYSTEM_PROMPT;
   userPromptTextarea.value =
     currentConfig.prompts?.user_prompt_template || DEFAULT_USER_PROMPT_TEMPLATE;
 
-  // 难度分析 Prompt 配置
+  // 难度分析 Prompt
   difficultySystemPromptTextarea.value =
     currentConfig.difficulty_prompts?.system_prompt ||
     DEFAULT_DIFFICULTY_SYSTEM_PROMPT;
@@ -246,13 +554,7 @@ function updateFormFromConfig(): void {
     currentConfig.difficulty_prompts?.user_prompt_template ||
     DEFAULT_DIFFICULTY_USER_PROMPT;
 
-  // 英文水平配置
-  const userLevel =
-    currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
-  englishLevelSelect.value = userLevel;
-  updateLevelHint(userLevel);
-
-  // 释义 Prompt 配置
+  // 释义 Prompt
   paraphraseSystemPromptTextarea.value =
     currentConfig.paraphrase_prompts?.system_prompt ||
     DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
@@ -260,7 +562,7 @@ function updateFormFromConfig(): void {
     currentConfig.paraphrase_prompts?.user_prompt_template ||
     DEFAULT_PARAPHRASE_USER_PROMPT;
 
-  // 混杂中英 Prompt 配置
+  // 混杂中英 Prompt
   mixedTranslateSystemPromptTextarea.value =
     currentConfig.mixed_translate_prompts?.system_prompt ||
     DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT;
@@ -269,135 +571,27 @@ function updateFormFromConfig(): void {
     DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
 }
 
-/**
- * 更新配置警告显示
- */
-function updateConfigWarning(): void {
-  const hasApiKey = !!currentConfig.api_key;
-  configWarning.style.display = hasApiKey ? "none" : "flex";
-}
+// ====== 模型选择 ======
 
-// ====== 翻译状态 ======
-
-/**
- * 加载翻译状态
- */
-async function loadTranslationState(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.GET_TRANSLATION_STATE,
-    });
-
-    if (response.success && response.data) {
-      isTranslationEnabled = response.data.enabled;
-      toggleSwitch.checked = isTranslationEnabled;
-    }
-  } catch (error) {
-    console.error("[Lingride] 加载翻译状态失败:", error);
+function handleModelChange(): void {
+  if (modelSelect.value === "custom") {
+    customModelInput.style.display = "block";
+    customModelInput.focus();
+  } else {
+    customModelInput.style.display = "none";
+    autoSave();
   }
 }
 
-/**
- * 切换翻译状态
- *
- * 翻译与释义互斥：开启翻译时自动关闭释义
- */
-async function toggleTranslation(): Promise<void> {
-  const enabled = toggleSwitch.checked;
+// ====== 测试连接 ======
 
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.TOGGLE_TRANSLATION,
-      payload: { enabled },
-    });
-
-    if (response.success) {
-      isTranslationEnabled = enabled;
-
-      // 互斥：开启翻译时关闭释义和混杂中英
-      if (enabled && isParaphraseEnabled) {
-        isParaphraseEnabled = false;
-        paraphraseToggle.checked = false;
-      }
-      if (enabled && isMixedTranslateEnabled) {
-        isMixedTranslateEnabled = false;
-        mixedTranslateToggle.checked = false;
-      }
-    } else {
-      // 恢复开关状态
-      toggleSwitch.checked = isTranslationEnabled;
-      showStatus(connectionStatus, response.error || "切换失败", "error");
-    }
-  } catch (error) {
-    toggleSwitch.checked = isTranslationEnabled;
-    showStatus(connectionStatus, "切换翻译状态失败", "error");
-  }
-}
-
-// ====== 事件绑定 ======
-
-function bindEvents(): void {
-  // 翻译开关
-  toggleSwitch.addEventListener("change", toggleTranslation);
-
-  // 释义开关
-  paraphraseToggle.addEventListener("change", toggleParaphrase);
-
-  // 混杂中英开关
-  mixedTranslateToggle.addEventListener("change", toggleMixedTranslate);
-
-  // 英文水平选择（立即保存）
-  englishLevelSelect.addEventListener("change", handleEnglishLevelChange);
-
-  // 显示/隐藏 API Key
-  showKeyBtn.addEventListener("click", () => {
-    const isPassword = apiKeyInput.type === "password";
-    apiKeyInput.type = isPassword ? "text" : "password";
-    showKeyBtn.textContent = isPassword ? "隐藏" : "显示";
-  });
-
-  // 模型选择
-  modelSelect.addEventListener("change", () => {
-    if (modelSelect.value === "custom") {
-      customModelInput.style.display = "block";
-      customModelInput.focus();
-    } else {
-      customModelInput.style.display = "none";
-    }
-  });
-
-  // 测试连接
-  testConnectionBtn.addEventListener("click", testConnection);
-
-  // 高级设置折叠
-  advancedToggle.addEventListener("click", () => {
-    const isCollapsed = advancedContent.classList.toggle("collapsed");
-    advancedToggle.classList.toggle("expanded", !isCollapsed);
-  });
-
-  // 重置默认值
-  resetDefaultsBtn.addEventListener("click", resetDefaults);
-
-  // 保存设置
-  saveSettingsBtn.addEventListener("click", () => saveSettings());
-
-  // 难度分析
-  analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
-}
-
-// ====== 功能实现 ======
-
-/**
- * 测试 API 连接
- */
 async function testConnection(): Promise<void> {
-  testConnectionBtn.disabled = true;
   testConnectionBtn.textContent = "测试中...";
+  testConnectionBtn.style.pointerEvents = "none";
   showStatus(connectionStatus, "正在测试...", "loading");
 
   try {
-    // 先保存当前表单配置
-    await saveSettings(false);
+    await autoSave();
 
     const response = await chrome.runtime.sendMessage({
       type: MessageType.TEST_CONNECTION,
@@ -415,14 +609,40 @@ async function testConnection(): Promise<void> {
   } catch (error) {
     showStatus(connectionStatus, "测试请求失败", "error");
   } finally {
-    testConnectionBtn.disabled = false;
     testConnectionBtn.textContent = "测试连接";
+    testConnectionBtn.style.pointerEvents = "";
   }
 }
 
-/**
- * 重置为默认值
- */
+// ====== Accordion ======
+
+function handleAccordionClick(e: Event): void {
+  const header = e.currentTarget as HTMLElement;
+  const targetId = header.dataset.accordion;
+  if (!targetId) return;
+
+  const body = document.getElementById(targetId);
+  if (!body) return;
+
+  const isOpen = body.classList.contains("open");
+
+  // Accordion 模式：关闭所有其他
+  document.querySelectorAll(".accordion-body.open").forEach((openBody) => {
+    openBody.classList.remove("open");
+  });
+  document.querySelectorAll(".accordion-header.expanded").forEach((h) => {
+    h.classList.remove("expanded");
+  });
+
+  // 切换当前项
+  if (!isOpen) {
+    body.classList.add("open");
+    header.classList.add("expanded");
+  }
+}
+
+// ====== 恢复默认 ======
+
 function resetDefaults(): void {
   // 翻译 Prompt
   systemPromptTextarea.value = DEFAULT_SYSTEM_PROMPT;
@@ -441,95 +661,17 @@ function resetDefaults(): void {
     DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT;
   mixedTranslateUserPromptTextarea.value = DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
 
-  showStatus(connectionStatus, "所有 Prompt 已重置为默认值", "success");
-}
+  // 自动保存
+  autoSave();
 
-/**
- * 保存设置
- */
-async function saveSettings(showMessage = true): Promise<void> {
-  // 收集表单数据
-  const model =
-    modelSelect.value === "custom" ? customModelInput.value : modelSelect.value;
-
-  const config: LingridConfig = {
-    api_base_url: apiBaseUrlInput.value.trim(),
-    api_key: apiKeyInput.value.trim(),
-    model: model.trim(),
-    prompts: {
-      system_prompt: systemPromptTextarea.value,
-      user_prompt_template: userPromptTextarea.value,
-    },
-    difficulty_prompts: {
-      system_prompt: difficultySystemPromptTextarea.value,
-      user_prompt_template: difficultyUserPromptTextarea.value,
-    },
-    user_english_level: englishLevelSelect.value as CEFRLevel,
-    paraphrase_prompts: {
-      system_prompt: paraphraseSystemPromptTextarea.value,
-      user_prompt_template: paraphraseUserPromptTextarea.value,
-    },
-    mixed_translate_prompts: {
-      system_prompt: mixedTranslateSystemPromptTextarea.value,
-      user_prompt_template: mixedTranslateUserPromptTextarea.value,
-    },
-  };
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.SAVE_CONFIG,
-      payload: config,
-    });
-
-    if (response.success) {
-      currentConfig = config;
-      updateConfigWarning();
-      if (showMessage) {
-        showStatus(connectionStatus, "设置已保存", "success");
-      }
-    } else {
-      if (showMessage) {
-        showStatus(connectionStatus, response.error || "保存失败", "error");
-      }
-    }
-  } catch (error) {
-    if (showMessage) {
-      showStatus(connectionStatus, "保存设置失败", "error");
-    }
-  }
-}
-
-// ====== 辅助函数 ======
-
-/**
- * 显示状态消息
- */
-function showStatus(
-  element: HTMLElement,
-  message: string,
-  type: "success" | "error" | "loading"
-): void {
-  element.textContent = message;
-  element.className = `status-message ${type}`;
-  element.style.display = "block";
-
-  // 成功消息 3 秒后自动隐藏
-  if (type === "success") {
-    setTimeout(() => {
-      element.style.display = "none";
-    }, 3000);
-  }
+  showStatus(connectionStatus, "已恢复默认设置", "success");
 }
 
 // ====== 难度分析 ======
 
-/**
- * 处理难度分析按钮点击
- */
 async function handleAnalyzeDifficulty(): Promise<void> {
-  // 禁用按钮，显示加载状态
   analyzeDifficultyBtn.disabled = true;
-  analyzeDifficultyBtn.innerHTML = '<span class="btn-icon">⏳</span> 分析中...';
+  analyzeDifficultyBtn.textContent = "分析中...";
   difficultyResult.style.display = "none";
   showStatus(difficultyStatus, "正在分析页面难度...", "loading");
 
@@ -550,16 +692,11 @@ async function handleAnalyzeDifficulty(): Promise<void> {
     showStatus(difficultyStatus, "分析请求失败", "error");
   } finally {
     analyzeDifficultyBtn.disabled = false;
-    analyzeDifficultyBtn.innerHTML =
-      '<span class="btn-icon">📊</span> 分析当前页面';
+    analyzeDifficultyBtn.textContent = "分析当前页面";
   }
 }
 
-/**
- * 渲染难度分析结果
- */
 function renderDifficultyResult(result: DifficultyResult): void {
-  // 显示结果卡片
   difficultyResult.style.display = "block";
 
   // 难度等级徽章
@@ -600,198 +737,23 @@ function renderDifficultyResult(result: DifficultyResult): void {
   }
 
   // 选中文本提示
-  if (result.isSelection) {
-    selectionHint.style.display = "block";
-  } else {
-    selectionHint.style.display = "none";
-  }
+  selectionHint.style.display = result.isSelection ? "block" : "none";
 }
 
-// ====== 释义功能 ======
+// ====== 辅助函数 ======
 
-/**
- * 加载释义状态
- */
-async function loadParaphraseState(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.GET_PARAPHRASE_STATE,
-    });
+function showStatus(
+  element: HTMLElement,
+  message: string,
+  type: "success" | "error" | "loading"
+): void {
+  element.textContent = message;
+  element.className = `status-message ${type}`;
+  element.style.display = "block";
 
-    if (response.success && response.data) {
-      isParaphraseEnabled = response.data.enabled;
-      paraphraseToggle.checked = isParaphraseEnabled;
-    }
-  } catch (error) {
-    console.error("[Lingride] 加载释义状态失败:", error);
-  }
-}
-
-/**
- * 切换释义状态
- *
- * 释义与翻译互斥：开启释义时自动关闭翻译
- */
-async function toggleParaphrase(): Promise<void> {
-  const enabled = paraphraseToggle.checked;
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.TOGGLE_PARAPHRASE,
-      payload: { enabled },
-    });
-
-    if (response.success) {
-      isParaphraseEnabled = enabled;
-
-      // 互斥：开启释义时关闭翻译和混杂中英
-      if (enabled && isTranslationEnabled) {
-        isTranslationEnabled = false;
-        toggleSwitch.checked = false;
-      }
-      if (enabled && isMixedTranslateEnabled) {
-        isMixedTranslateEnabled = false;
-        mixedTranslateToggle.checked = false;
-      }
-    } else {
-      // 恢复开关状态
-      paraphraseToggle.checked = isParaphraseEnabled;
-      showStatus(paraphraseStatus, response.error || "切换失败", "error");
-    }
-  } catch (error) {
-    paraphraseToggle.checked = isParaphraseEnabled;
-    showStatus(paraphraseStatus, "切换释义状态失败", "error");
-  }
-}
-
-/**
- * 处理英文水平变化
- *
- * 立即保存配置，更新提示，如果释义已开启则触发重新释义
- */
-async function handleEnglishLevelChange(): Promise<void> {
-  const newLevel = englishLevelSelect.value as CEFRLevel;
-
-  // 更新提示
-  updateLevelHint(newLevel);
-
-  // 更新配置
-  currentConfig.user_english_level = newLevel;
-
-  // 立即保存
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.SAVE_CONFIG,
-      payload: currentConfig,
-    });
-
-    if (response.success) {
-      // 如果释义已开启，需要重新开始释义（清除旧内容）
-      if (isParaphraseEnabled) {
-        // 先关闭再开启，触发清理和重新释义
-        await chrome.runtime.sendMessage({
-          type: MessageType.TOGGLE_PARAPHRASE,
-          payload: { enabled: false },
-        });
-        await chrome.runtime.sendMessage({
-          type: MessageType.TOGGLE_PARAPHRASE,
-          payload: { enabled: true },
-        });
-      }
-
-      // 如果混杂中英已开启，需要重新开始（清除旧内容）
-      if (isMixedTranslateEnabled) {
-        await chrome.runtime.sendMessage({
-          type: MessageType.TOGGLE_MIXED_TRANSLATE,
-          payload: { enabled: false },
-        });
-        await chrome.runtime.sendMessage({
-          type: MessageType.TOGGLE_MIXED_TRANSLATE,
-          payload: { enabled: true },
-        });
-      }
-    }
-  } catch (error) {
-    console.error("[Lingride] 保存英文水平失败:", error);
-  }
-}
-
-/**
- * 更新水平提示
- *
- * 根据当前活跃模式显示不同的提示：
- * - 混杂中英开启时：显示英文保留百分比
- * - 释义开启时：显示目标等级
- * - 默认：显示目标等级
- */
-function updateLevelHint(userLevel: CEFRLevel): void {
-  if (isMixedTranslateEnabled) {
-    const percent = getRetentionPercent(userLevel);
-    levelHint.innerHTML = `💡 将保留约 <strong>${percent}%</strong> 英文内容，其余用中文表达`;
-  } else {
-    const targetLevel = calculateTargetLevel(userLevel);
-    levelHint.innerHTML = `💡 内容将改写为 <strong>${targetLevel}</strong> 水平（略高于您的水平）`;
-  }
-}
-
-// ====== 混杂中英翻译功能 ======
-
-/**
- * 加载混杂中英翻译状态
- */
-async function loadMixedTranslateState(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.GET_MIXED_TRANSLATE_STATE,
-    });
-
-    if (response.success && response.data) {
-      isMixedTranslateEnabled = response.data.enabled;
-      mixedTranslateToggle.checked = isMixedTranslateEnabled;
-    }
-  } catch (error) {
-    console.error("[Lingride] 加载混杂中英翻译状态失败:", error);
-  }
-}
-
-/**
- * 切换混杂中英翻译状态
- *
- * 三模式互斥：开启混杂中英时自动关闭翻译和释义
- */
-async function toggleMixedTranslate(): Promise<void> {
-  const enabled = mixedTranslateToggle.checked;
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.TOGGLE_MIXED_TRANSLATE,
-      payload: { enabled },
-    });
-
-    if (response.success) {
-      isMixedTranslateEnabled = enabled;
-
-      // 互斥：开启混杂中英时关闭翻译和释义
-      if (enabled && isTranslationEnabled) {
-        isTranslationEnabled = false;
-        toggleSwitch.checked = false;
-      }
-      if (enabled && isParaphraseEnabled) {
-        isParaphraseEnabled = false;
-        paraphraseToggle.checked = false;
-      }
-
-      // 更新水平提示以反映当前模式
-      const userLevel =
-        currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
-      updateLevelHint(userLevel as CEFRLevel);
-    } else {
-      // 恢复开关状态
-      mixedTranslateToggle.checked = isMixedTranslateEnabled;
-      showStatus(mixedTranslateStatus, response.error || "切换失败", "error");
-    }
-  } catch (error) {
-    mixedTranslateToggle.checked = isMixedTranslateEnabled;
-    showStatus(mixedTranslateStatus, "切换混杂中英翻译状态失败", "error");
+  if (type === "success") {
+    setTimeout(() => {
+      element.style.display = "none";
+    }, 3000);
   }
 }

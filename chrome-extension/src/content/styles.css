@@ -164,3 +164,14 @@
   content: '...';
   animation: lingride-dots 1.5s infinite;
 }
+
+/* ====== 内联代码格式保留 ====== */
+
+/* 译文中保留的 <code> 词汇样式 */
+.lingride-inline-code {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: rgba(127, 127, 127, 0.15);
+  border-radius: 3px;
+}

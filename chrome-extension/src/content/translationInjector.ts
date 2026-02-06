@@ -32,6 +32,96 @@ const CSS_CLASSES = {
   mixedTranslateLoading: "lingride-mixed-translate-loading",
 };
 
+// ====== 内联代码格式保留 ======
+
+/**
+ * HTML 转义
+ *
+ * 将特殊字符转义为 HTML 实体，防止 XSS。
+ *
+ * @param text - 原始文本
+ * @returns 转义后的安全 HTML 字符串
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * 正则特殊字符转义
+ *
+ * 将字符串中的正则特殊字符转义，使其可安全用于 RegExp 构造。
+ *
+ * @param str - 原始字符串
+ * @returns 转义后的正则安全字符串
+ */
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * 将译文中的 code 词汇包裹为 <code> 标签
+ *
+ * 安全流程：
+ * 1. 先 HTML 转义全文（防 XSS）
+ * 2. 对 codeWords 中的每个词进行 HTML 转义 + 正则转义
+ * 3. 在已转义的文本中匹配并包裹 <code class="lingride-inline-code">
+ * 4. 未匹配到的词不做处理（退化为纯文本）
+ *
+ * @param text - 译文纯文本
+ * @param codeWords - 原文中 <code> 标签内的词汇
+ * @returns 包含 <code> 标签的 HTML 字符串
+ */
+function applyCodeWrapping(text: string, codeWords: string[]): string {
+  let html = escapeHtml(text);
+
+  for (const word of codeWords) {
+    const escapedWord = escapeHtml(word);
+    const pattern = new RegExp(escapeRegExp(escapedWord), "g");
+    html = html.replace(
+      pattern,
+      `<code class="lingride-inline-code">${escapedWord}</code>`
+    );
+  }
+
+  return html;
+}
+
+/**
+ * 在已高亮的 HTML 中嵌套 <code> 标签包裹 codeWords
+ *
+ * 用于 showMixedTranslation：先 highlightEnglishParts 产出高亮 HTML，
+ * 后在结果上为 codeWords 嵌套 <code> 标签。
+ * 因为 highlightEnglishParts 内部已做 HTML 转义，此函数直接操作已转义的文本。
+ *
+ * @param html - highlightEnglishParts 产出的 HTML
+ * @param codeWords - 原文中 <code> 标签内的词汇
+ * @returns 嵌套了 <code> 标签的 HTML
+ */
+function nestCodeWrappingInHighlightedHtml(
+  html: string,
+  codeWords: string[]
+): string {
+  let result = html;
+
+  for (const word of codeWords) {
+    // codeWords 在 highlightEnglishParts 中已被 HTML 转义
+    const escapedWord = escapeHtml(word);
+    const pattern = new RegExp(escapeRegExp(escapedWord), "g");
+    result = result.replace(
+      pattern,
+      `<code class="lingride-inline-code">${escapedWord}</code>`
+    );
+  }
+
+  return result;
+}
+
+// ====== 翻译注入 ======
+
 /**
  * 数据属性，关联翻译元素和原文元素
  */
@@ -106,7 +196,13 @@ export function showTranslation(
     element.id,
     CSS_CLASSES.translation
   );
-  container.textContent = translation;
+
+  // 如果有 codeWords，用 innerHTML 保留 code 格式；否则用 textContent
+  if (element.codeWords && element.codeWords.length > 0) {
+    container.innerHTML = applyCodeWrapping(translation, element.codeWords);
+  } else {
+    container.textContent = translation;
+  }
 
   // 插入到原文后面
   element.element.insertAdjacentElement("afterend", container);
@@ -276,7 +372,13 @@ export function showParaphrase(
     element.id,
     CSS_CLASSES.paraphrase
   );
-  container.textContent = paraphrase;
+
+  // 如果有 codeWords，用 innerHTML 保留 code 格式；否则用 textContent
+  if (element.codeWords && element.codeWords.length > 0) {
+    container.innerHTML = applyCodeWrapping(paraphrase, element.codeWords);
+  } else {
+    container.textContent = paraphrase;
+  }
 
   // 插入到原文后面
   element.element.insertAdjacentElement("afterend", container);
@@ -442,8 +544,15 @@ export function showMixedTranslation(
     CSS_CLASSES.mixedTranslate
   );
 
-  // 高亮英文部分后用 innerHTML 注入
-  container.innerHTML = highlightEnglishParts(mixedText);
+  // 先高亮英文部分
+  let html = highlightEnglishParts(mixedText);
+
+  // 后嵌套 code 标签包裹 codeWords
+  if (element.codeWords && element.codeWords.length > 0) {
+    html = nestCodeWrappingInHighlightedHtml(html, element.codeWords);
+  }
+
+  container.innerHTML = html;
 
   // 插入到原文后面
   element.element.insertAdjacentElement("afterend", container);

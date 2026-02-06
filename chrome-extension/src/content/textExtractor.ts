@@ -70,9 +70,80 @@ const EXCLUDED_SELECTORS = [
 ].join(", ");
 
 /**
+ * 内联元素标签白名单
+ *
+ * 这些元素是段落内的行内格式化元素，其文本内容应被视为
+ * 父段落文本的一部分。提取文本时需要包含这些元素的内容，
+ * 而非跳过它们。
+ */
+const INLINE_TAGS = new Set([
+  "code",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "a",
+  "span",
+  "mark",
+  "sub",
+  "sup",
+  "abbr",
+  "small",
+  "time",
+  "kbd",
+  "samp",
+  "var",
+  "cite",
+  "q",
+]);
+
+/**
+ * 块级子元素选择器
+ *
+ * 如果一个元素包含这些块级子元素，说明它是容器而非叶子内容元素，
+ * 应跳过以避免合并多个段落的文本。
+ */
+const BLOCK_CHILD_SELECTORS = [
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "li",
+  "ul",
+  "ol",
+  "blockquote",
+  "table",
+  "figure",
+  "pre",
+  "div",
+  "section",
+  "article",
+  "aside",
+  "nav",
+  "header",
+  "footer",
+].join(", ");
+
+/**
  * 数据属性名，用于标记已处理的元素
  */
 const PROCESSED_ATTR = "data-lingride-processed";
+
+/**
+ * 检查元素是否包含块级子元素
+ *
+ * 如果元素包含 p、div、h1-h6 等块级子元素，说明它是容器元素，
+ * 其子元素会被单独提取，无需重复提取容器本身。
+ *
+ * @param element - DOM 元素
+ * @returns 是否包含块级子元素
+ */
+function hasBlockChildren(element: HTMLElement): boolean {
+  return element.querySelector(BLOCK_CHILD_SELECTORS) !== null;
+}
 
 /**
  * 判断文本是否主要为英文
@@ -134,7 +205,8 @@ function shouldExclude(element: HTMLElement): boolean {
 /**
  * 获取元素的直接文本内容
  *
- * 只获取元素自身的文本，不包括子元素的文本。
+ * 获取元素自身的文本及内联子元素（如 <code>、<strong>、<em> 等）的文本，
+ * 但不包括块级子元素的文本（避免与单独提取的段落重复）。
  *
  * @param element - DOM 元素
  * @returns 直接文本内容
@@ -145,11 +217,17 @@ function getDirectText(element: HTMLElement): string {
     return element.textContent?.trim() || "";
   }
 
-  // 对于有子元素的情况，获取直接子文本节点
+  // 对于有子元素的情况，获取直接子文本节点 + 内联元素文本
   let text = "";
   for (const node of element.childNodes) {
     if (node.nodeType === Node.TEXT_NODE) {
       text += node.textContent || "";
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      const tag = el.tagName.toLowerCase();
+      if (INLINE_TAGS.has(tag)) {
+        text += el.textContent || "";
+      }
     }
   }
 
@@ -159,6 +237,30 @@ function getDirectText(element: HTMLElement): string {
   }
 
   return text.trim();
+}
+
+/**
+ * 提取元素中 <code> 子元素的文本内容
+ *
+ * 收集段落中所有内联 <code> 标签的文本，用于后续在译文中
+ * 恢复 code 格式包裹。
+ *
+ * @param element - DOM 元素
+ * @returns code 标签内的词汇数组（去重）
+ */
+function extractInlineCodeWords(element: HTMLElement): string[] {
+  const codeElements = element.querySelectorAll("code");
+  if (codeElements.length === 0) return [];
+
+  const words = new Set<string>();
+  for (const code of codeElements) {
+    const word = code.textContent?.trim();
+    if (word) {
+      words.add(word);
+    }
+  }
+
+  return Array.from(words);
 }
 
 /**
@@ -203,6 +305,11 @@ export function extractTranslatableElements(): TranslatableElement[] {
       continue;
     }
 
+    // 跳过容器元素（含块级子元素），只提取最细粒度的叶子段落
+    if (hasBlockChildren(element)) {
+      continue;
+    }
+
     // 获取文本内容
     const text = getDirectText(element);
 
@@ -215,6 +322,9 @@ export function extractTranslatableElements(): TranslatableElement[] {
     processedTexts.add(text);
     element.setAttribute(PROCESSED_ATTR, "true");
 
+    // 提取 code 标签内的词汇（用于译文格式保留）
+    const codeWords = extractInlineCodeWords(element);
+
     // 创建可翻译元素对象
     const id = generateElementId(element, text);
     elements.push({
@@ -222,6 +332,7 @@ export function extractTranslatableElements(): TranslatableElement[] {
       element,
       originalText: text,
       status: TranslationStatus.PENDING,
+      codeWords: codeWords.length > 0 ? codeWords : undefined,
     });
   }
 
