@@ -51,6 +51,16 @@ export async function getConfig(): Promise<LingridConfig> {
           stored.prompts?.user_prompt_template ||
           DEFAULT_CONFIG.prompts.user_prompt_template,
       },
+      // 可选字段：用户水平 & 各模式 Prompt 配置
+      user_english_level:
+        stored.user_english_level || DEFAULT_CONFIG.user_english_level,
+      difficulty_prompts:
+        stored.difficulty_prompts || DEFAULT_CONFIG.difficulty_prompts,
+      paraphrase_prompts:
+        stored.paraphrase_prompts || DEFAULT_CONFIG.paraphrase_prompts,
+      mixed_translate_prompts:
+        stored.mixed_translate_prompts ||
+        DEFAULT_CONFIG.mixed_translate_prompts,
     };
 
     return config;

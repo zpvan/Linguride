@@ -45,7 +45,7 @@ const TEXT_SELECTORS = [
   '[role="main"] p',
   '[role="main"] div',
   "div > p",
-  "span",
+  // "span" 已移除 —— span 在 p 内部时通过 INLINE_TAGS 自然覆盖
 ].join(", ");
 
 /**
@@ -86,6 +86,20 @@ const EXCLUDED_SELECTORS = [
   // 排除注入容器内部的子元素
   ".lingride-en-highlight",
   ".lingride-inline-code",
+  // ---- 元数据 & 导航区域排除 ----
+  "nav",
+  // 注意：不添加通用 "header"/"footer"，因为文章级 <header>/<footer> 可能包含合法正文
+  // 仅通过 ARIA role 排除页面级 header/footer
+  '[role="navigation"]',
+  '[role="toolbar"]',
+  '[role="menubar"]',
+  '[role="banner"]', // 页面级 header
+  '[role="contentinfo"]', // 页面级 footer
+  '[role="menu"]',
+  // 常见时间戳元素
+  "time",
+  // 常见 UI 元素
+  "label",
 ].join(", ");
 
 /**
@@ -222,6 +236,57 @@ function shouldExclude(element: HTMLElement): boolean {
 }
 
 /**
+ * 内容型元素标签集合
+ *
+ * 这些标签的语义表明它们大概率包含正文内容，
+ * 因此对短文本使用更宽松的阈值。
+ */
+const CONTENT_TAGS = new Set([
+  "p",
+  "blockquote",
+  "li",
+  "td",
+  "th",
+  "figcaption",
+]);
+
+/**
+ * 启发式检测元素是否为元数据/UI 文本
+ *
+ * 在 shouldExclude() 之后执行，处理"标签/区域上合法但语义上是元数据"的情况。
+ *
+ * 检查维度：
+ * 1. 短文本 + 标签类型分层判断
+ * 2. 极小视觉尺寸兜底（放在最后，避免不必要的 reflow）
+ *
+ * @param element - DOM 元素
+ * @param text - 元素的直接文本内容
+ * @returns 是否应视为元数据并跳过翻译
+ */
+function isMetadataLike(element: HTMLElement, text: string): boolean {
+  const words = text.trim().split(/\s+/);
+  const tag = element.tagName.toLowerCase();
+
+  // 1. 标题元素：全部豁免
+  if (/^h[1-6]$/.test(tag)) return false;
+
+  // 2. 内容型标签（p/blockquote/li/td/th）：>= 2 词即保留
+  if (CONTENT_TAGS.has(tag)) {
+    if (words.length < 2) return true;
+    // 通过词数检查，继续后续判断
+  } else {
+    // 3. 容器型标签（div/article/section 等）：< 4 词视为元数据
+    if (words.length < 4) return true;
+  }
+
+  // 4. 兜底：极小视觉尺寸（< 10px 高度）大概率是辅助 UI 文本
+  const rect = element.getBoundingClientRect();
+  if (rect.width > 0 && rect.height > 0 && rect.height < 10) return true;
+
+  return false;
+}
+
+/**
  * 获取元素的直接文本内容
  *
  * 获取元素自身的文本及内联子元素（如 <code>、<strong>、<em> 等）的文本，
@@ -349,6 +414,11 @@ export function extractTranslatableElements(): TranslatableElement[] {
 
     // 跳过非英文或重复的文本
     if (!isEnglishText(text) || processedTexts.has(text)) {
+      continue;
+    }
+
+    // 跳过元数据/UI 文本
+    if (isMetadataLike(element, text)) {
       continue;
     }
 
