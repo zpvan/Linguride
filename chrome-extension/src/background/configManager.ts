@@ -61,6 +61,9 @@ export async function getConfig(): Promise<LingridConfig> {
       mixed_translate_prompts:
         stored.mixed_translate_prompts ||
         DEFAULT_CONFIG.mixed_translate_prompts,
+      sentence_analysis_prompts:
+        stored.sentence_analysis_prompts ||
+        DEFAULT_CONFIG.sentence_analysis_prompts,
     };
 
     return config;

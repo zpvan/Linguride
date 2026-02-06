@@ -15,14 +15,14 @@
 
 // 配置类型
 export {
-  calculateTargetLevel,
   CEFR_LEVELS,
   DEFAULT_CONFIG,
   DEFAULT_SYSTEM_PROMPT,
   DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
-  getRetentionPercent,
   STORAGE_KEY,
+  calculateTargetLevel,
+  getRetentionPercent,
   toProviderConfig,
 } from "./config";
 export type {
@@ -39,6 +39,8 @@ export { MessageType } from "./messages";
 export type {
   AnalyzeDifficultyMessage,
   AnalyzeDifficultyResponse,
+  AnalyzeSentenceMessage,
+  AnalyzeSentenceResponse,
   BaseResponse,
   ExtractPageTextMessage,
   ExtractPageTextResponse,
@@ -70,9 +72,9 @@ export type {
 // 翻译类型
 export {
   DEFAULT_BATCH_CONFIG,
+  TranslationStatus,
   estimateTokens,
   simpleHash,
-  TranslationStatus,
 } from "./translation";
 export type {
   BatchManagerConfig,
@@ -91,3 +93,12 @@ export type {
   SentenceComplexity,
   VocabularyComplexity,
 } from "./difficulty";
+
+// 长难句分析类型
+export type {
+  KeyPhrase,
+  SentenceAnalysisPromptConfig,
+  SentenceAnalysisResult,
+  SentenceClause,
+  SentenceStructure,
+} from "./sentenceAnalysis";

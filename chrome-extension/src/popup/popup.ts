@@ -24,7 +24,12 @@ import {
   DEFAULT_PARAPHRASE_USER_PROMPT,
 } from "../constants/paraphrasePrompts";
 import {
+  DEFAULT_SENTENCE_ANALYSIS_SYSTEM_PROMPT,
+  DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT,
+} from "../constants/sentenceAnalysisPrompts";
+import {
   AnalyzeDifficultyResponse,
+  AnalyzeSentenceResponse,
   calculateTargetLevel,
   CEFRLevel,
   DEFAULT_CONFIG,
@@ -35,6 +40,7 @@ import {
   getRetentionPercent,
   LingridConfig,
   MessageType,
+  SentenceAnalysisResult,
 } from "../types";
 
 // ====== 类型定义 ======
@@ -101,6 +107,40 @@ const suggestionsList = document.getElementById(
 ) as HTMLElement;
 const selectionHint = document.getElementById("selectionHint") as HTMLElement;
 
+// 长难句分析
+const sentenceInput = document.getElementById(
+  "sentenceInput"
+) as HTMLTextAreaElement;
+const sentenceCharCount = document.getElementById(
+  "sentenceCharCount"
+) as HTMLElement;
+const analyzeSentenceBtn = document.getElementById(
+  "analyzeSentenceBtn"
+) as HTMLButtonElement;
+const sentenceStatus = document.getElementById("sentenceStatus") as HTMLElement;
+const sentenceResultEl = document.getElementById(
+  "sentenceResult"
+) as HTMLElement;
+const sentenceTranslation = document.getElementById(
+  "sentenceTranslation"
+) as HTMLElement;
+const sentenceStructure = document.getElementById(
+  "sentenceStructure"
+) as HTMLElement;
+const clausesSection = document.getElementById("clausesSection") as HTMLElement;
+const sentenceClauses = document.getElementById(
+  "sentenceClauses"
+) as HTMLElement;
+const sentenceKeyPhrases = document.getElementById(
+  "sentenceKeyPhrases"
+) as HTMLElement;
+const sentenceGrammarPoints = document.getElementById(
+  "sentenceGrammarPoints"
+) as HTMLElement;
+const sentenceSimplified = document.getElementById(
+  "sentenceSimplified"
+) as HTMLElement;
+
 // Settings - API 配置
 const apiBaseUrlInput = document.getElementById(
   "apiBaseUrl"
@@ -142,6 +182,12 @@ const mixedTranslateSystemPromptTextarea = document.getElementById(
 ) as HTMLTextAreaElement;
 const mixedTranslateUserPromptTextarea = document.getElementById(
   "mixedTranslateUserPrompt"
+) as HTMLTextAreaElement;
+const sentenceAnalysisSystemPromptTextarea = document.getElementById(
+  "sentenceAnalysisSystemPrompt"
+) as HTMLTextAreaElement;
+const sentenceAnalysisUserPromptTextarea = document.getElementById(
+  "sentenceAnalysisUserPrompt"
 ) as HTMLTextAreaElement;
 
 // Settings - 操作
@@ -233,6 +279,10 @@ function bindEvents(): void {
   // 难度分析
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
 
+  // 长难句分析
+  analyzeSentenceBtn.addEventListener("click", handleAnalyzeSentence);
+  sentenceInput.addEventListener("input", handleSentenceInput);
+
   // Settings - API 配置自动保存
   apiBaseUrlInput.addEventListener("blur", autoSave);
   apiKeyInput.addEventListener("blur", autoSave);
@@ -264,6 +314,8 @@ function bindEvents(): void {
     paraphraseUserPromptTextarea,
     mixedTranslateSystemPromptTextarea,
     mixedTranslateUserPromptTextarea,
+    sentenceAnalysisSystemPromptTextarea,
+    sentenceAnalysisUserPromptTextarea,
   ];
   promptTextareas.forEach((textarea) => {
     textarea.addEventListener("blur", autoSave);
@@ -516,6 +568,10 @@ function collectFormData(): void {
     system_prompt: mixedTranslateSystemPromptTextarea.value,
     user_prompt_template: mixedTranslateUserPromptTextarea.value,
   };
+  currentConfig.sentence_analysis_prompts = {
+    system_prompt: sentenceAnalysisSystemPromptTextarea.value,
+    user_prompt_template: sentenceAnalysisUserPromptTextarea.value,
+  };
 }
 
 // ====== Settings 表单更新 ======
@@ -569,6 +625,14 @@ function updateSettingsForm(): void {
   mixedTranslateUserPromptTextarea.value =
     currentConfig.mixed_translate_prompts?.user_prompt_template ||
     DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
+
+  // 长难句分析 Prompt
+  sentenceAnalysisSystemPromptTextarea.value =
+    currentConfig.sentence_analysis_prompts?.system_prompt ||
+    DEFAULT_SENTENCE_ANALYSIS_SYSTEM_PROMPT;
+  sentenceAnalysisUserPromptTextarea.value =
+    currentConfig.sentence_analysis_prompts?.user_prompt_template ||
+    DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT;
 }
 
 // ====== 模型选择 ======
@@ -661,6 +725,12 @@ function resetDefaults(): void {
     DEFAULT_MIXED_TRANSLATE_SYSTEM_PROMPT;
   mixedTranslateUserPromptTextarea.value = DEFAULT_MIXED_TRANSLATE_USER_PROMPT;
 
+  // 长难句分析 Prompt
+  sentenceAnalysisSystemPromptTextarea.value =
+    DEFAULT_SENTENCE_ANALYSIS_SYSTEM_PROMPT;
+  sentenceAnalysisUserPromptTextarea.value =
+    DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT;
+
   // 自动保存
   autoSave();
 
@@ -738,6 +808,129 @@ function renderDifficultyResult(result: DifficultyResult): void {
 
   // 选中文本提示
   selectionHint.style.display = result.isSelection ? "block" : "none";
+}
+
+// ====== 长难句分析 ======
+
+/**
+ * 处理输入框的 input 事件
+ *
+ * 更新字符计数器和按钮 disabled 状态。
+ */
+function handleSentenceInput(): void {
+  const length = sentenceInput.value.length;
+  sentenceCharCount.textContent = `${length}/500`;
+  analyzeSentenceBtn.disabled = length === 0;
+}
+
+/**
+ * 处理长难句分析
+ *
+ * 空输入校验 -> 禁用按钮 + 显示"分析中..." -> 发送消息 -> 处理结果 -> 恢复按钮
+ */
+async function handleAnalyzeSentence(): Promise<void> {
+  const sentence = sentenceInput.value.trim();
+  if (!sentence) return;
+
+  analyzeSentenceBtn.disabled = true;
+  analyzeSentenceBtn.textContent = "分析中...";
+  sentenceResultEl.style.display = "none";
+  showStatus(sentenceStatus, "正在分析句子结构...", "loading");
+
+  try {
+    const response: AnalyzeSentenceResponse = await chrome.runtime.sendMessage({
+      type: MessageType.ANALYZE_SENTENCE,
+      payload: { sentence },
+    });
+
+    if (response.success && response.data) {
+      sentenceStatus.style.display = "none";
+      renderSentenceAnalysisResult(response.data);
+    } else {
+      showStatus(sentenceStatus, response.error || "分析失败", "error");
+    }
+  } catch (error) {
+    console.error("[Lingride] 长难句分析失败:", error);
+    showStatus(sentenceStatus, "分析请求失败", "error");
+  } finally {
+    analyzeSentenceBtn.disabled = false;
+    analyzeSentenceBtn.textContent = "分析句子";
+  }
+}
+
+/**
+ * 渲染长难句分析结果
+ */
+function renderSentenceAnalysisResult(result: SentenceAnalysisResult): void {
+  sentenceResultEl.style.display = "block";
+
+  // 翻译
+  sentenceTranslation.textContent = result.translation;
+
+  // 主干结构（彩色标签）
+  sentenceStructure.innerHTML = "";
+  const structureParts: Array<{ label: string; value: string; cls: string }> = [
+    { label: "S", value: result.structure.subject, cls: "tag-subject" },
+    { label: "V", value: result.structure.predicate, cls: "tag-predicate" },
+  ];
+  if (result.structure.object) {
+    structureParts.push({
+      label: "O",
+      value: result.structure.object,
+      cls: "tag-object",
+    });
+  }
+  if (result.structure.complement) {
+    structureParts.push({
+      label: "C",
+      value: result.structure.complement,
+      cls: "tag-complement",
+    });
+  }
+  for (const part of structureParts) {
+    const tag = document.createElement("div");
+    tag.className = `structure-tag ${part.cls}`;
+    tag.innerHTML = `<span class="tag-label">${part.label}</span><span class="tag-value">${part.value}</span>`;
+    sentenceStructure.appendChild(tag);
+  }
+
+  // 从句拆解（有从句时显示，无从句时隐藏）
+  if (result.clauses && result.clauses.length > 0) {
+    clausesSection.style.display = "block";
+    sentenceClauses.innerHTML = "";
+    for (const clause of result.clauses) {
+      const item = document.createElement("div");
+      item.className = "clause-item";
+      item.innerHTML = `<span class="clause-type">${clause.type}</span><p class="clause-content">${clause.content}</p><p class="clause-function">${clause.function}</p>`;
+      sentenceClauses.appendChild(item);
+    }
+  } else {
+    clausesSection.style.display = "none";
+  }
+
+  // 重点短语
+  sentenceKeyPhrases.innerHTML = "";
+  if (result.keyPhrases) {
+    for (const kp of result.keyPhrases) {
+      const item = document.createElement("div");
+      item.className = "phrase-item";
+      item.innerHTML = `<span class="phrase-text">${kp.phrase}</span><span class="phrase-meaning">${kp.meaning}</span>`;
+      sentenceKeyPhrases.appendChild(item);
+    }
+  }
+
+  // 语法要点
+  sentenceGrammarPoints.innerHTML = "";
+  if (result.grammarPoints) {
+    for (const point of result.grammarPoints) {
+      const li = document.createElement("li");
+      li.textContent = point;
+      sentenceGrammarPoints.appendChild(li);
+    }
+  }
+
+  // 简化改写
+  sentenceSimplified.textContent = result.simplifiedVersion;
 }
 
 // ====== 辅助函数 ======

@@ -6,7 +6,7 @@
  * 通信使用的消息类型和响应类型。
  *
  * 消息流向：
- * - Popup → Background: 配置更新、翻译开关控制、连接测试、难度分析
+ * - Popup → Background: 配置更新、翻译开关控制、连接测试、难度分析、长难句分析
  * - Content → Background: 翻译请求
  * - Background → Content: 翻译结果、状态变更、文本提取请求
  *
@@ -20,6 +20,10 @@ import {
   DifficultyPromptConfig,
   DifficultyResult,
 } from "./difficulty";
+import {
+  SentenceAnalysisPromptConfig,
+  SentenceAnalysisResult,
+} from "./sentenceAnalysis";
 
 /**
  * 消息类型枚举
@@ -72,6 +76,10 @@ export enum MessageType {
   // ====== 混杂中英请求 ======
   /** 请求混杂中英翻译 */
   MIXED_TRANSLATE = "MIXED_TRANSLATE",
+
+  // ====== 长难句分析 ======
+  /** 分析英文长难句 */
+  ANALYZE_SENTENCE = "ANALYZE_SENTENCE",
 }
 
 /**
@@ -212,6 +220,17 @@ export interface MixedTranslateMessage {
 }
 
 /**
+ * 长难句分析消息
+ */
+export interface AnalyzeSentenceMessage {
+  type: MessageType.ANALYZE_SENTENCE;
+  payload: {
+    /** 待分析的英文句子 */
+    sentence: string;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -228,7 +247,8 @@ export type Message =
   | ParaphraseMessage
   | ToggleMixedTranslateMessage
   | GetMixedTranslateStateMessage
-  | MixedTranslateMessage;
+  | MixedTranslateMessage
+  | AnalyzeSentenceMessage;
 
 // ====== 响应类型定义 ======
 
@@ -260,6 +280,7 @@ export interface GetConfigResponse extends BaseResponse {
     difficulty_prompts?: DifficultyPromptConfig;
     paraphrase_prompts?: ParaphrasePromptConfig;
     mixed_translate_prompts?: MixedTranslatePromptConfig;
+    sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
   };
 }
 
@@ -368,6 +389,13 @@ export interface MixedTranslateResponse extends BaseResponse {
 }
 
 /**
+ * 长难句分析响应
+ */
+export interface AnalyzeSentenceResponse extends BaseResponse {
+  data?: SentenceAnalysisResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -381,4 +409,5 @@ export type Response =
   | GetParaphraseStateResponse
   | ParaphraseResponse
   | GetMixedTranslateStateResponse
-  | MixedTranslateResponse;
+  | MixedTranslateResponse
+  | AnalyzeSentenceResponse;

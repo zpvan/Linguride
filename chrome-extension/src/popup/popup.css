@@ -852,3 +852,235 @@ body {
 .reset-btn:active {
   background: rgba(255, 69, 58, 0.15);
 }
+
+/* ====== 长难句分析 ====== */
+
+/* 输入区域 */
+.sentence-input-wrapper {
+  position: relative;
+  margin-bottom: var(--space-sm);
+}
+
+.sentence-input {
+  width: 100%;
+  padding: var(--space-md);
+  padding-bottom: calc(var(--space-md) + 16px);
+  background: var(--bg-tertiary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sentence-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.sentence-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.char-count {
+  position: absolute;
+  bottom: var(--space-sm);
+  right: var(--space-md);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* 分析结果容器 */
+.sentence-result {
+  margin-top: var(--space-md);
+}
+
+.result-section {
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--separator);
+}
+
+.result-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.result-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.result-section p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* 主干结构标签 */
+.structure-tags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.structure-tag {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+}
+
+.tag-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tag-value {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  padding-top: 1px;
+}
+
+/* 标签颜色 */
+.tag-subject .tag-label {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00D4FF;
+}
+
+.tag-predicate .tag-label {
+  background: rgba(48, 209, 88, 0.2);
+  color: #30D158;
+}
+
+.tag-object .tag-label {
+  background: rgba(255, 159, 10, 0.2);
+  color: #FF9F0A;
+}
+
+.tag-complement .tag-label {
+  background: rgba(191, 90, 242, 0.2);
+  color: #BF5AF2;
+}
+
+/* 从句拆解 */
+.clause-item {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.clause-item:last-child {
+  margin-bottom: 0;
+}
+
+.clause-type {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: var(--space-xs);
+}
+
+.clause-content {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.clause-function {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* 重点短语 */
+.phrase-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.phrase-item:last-child {
+  margin-bottom: 0;
+}
+
+.phrase-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.phrase-meaning {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* 语法要点 */
+.result-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.result-section ul li {
+  position: relative;
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.result-section ul li:last-child {
+  margin-bottom: 0;
+}
+
+.result-section ul li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 简化改写 */
+.simplified-text {
+  font-style: italic;
+  color: var(--text-secondary) !important;
+  background: var(--bg-tertiary);
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+}

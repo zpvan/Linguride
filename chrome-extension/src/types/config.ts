@@ -16,6 +16,7 @@
  */
 
 import { CEFRLevel, DifficultyPromptConfig } from "./difficulty";
+import { SentenceAnalysisPromptConfig } from "./sentenceAnalysis";
 
 // 重新导出 CEFRLevel 供其他模块使用
 export type { CEFRLevel } from "./difficulty";
@@ -126,6 +127,9 @@ export interface LingridConfig {
 
   /** 混杂中英翻译 Prompt 配置（可选，使用默认值） */
   mixed_translate_prompts?: MixedTranslatePromptConfig;
+
+  /** 长难句分析 Prompt 配置（可选，使用默认值） */
+  sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
 }
 
 /**

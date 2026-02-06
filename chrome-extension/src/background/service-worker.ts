@@ -15,6 +15,7 @@
  * - TOGGLE_MIXED_TRANSLATE / GET_MIXED_TRANSLATE_STATE / MIXED_TRANSLATE: 混杂中英翻译
  * - TEST_CONNECTION: 测试连接
  * - ANALYZE_DIFFICULTY / EXTRACT_PAGE_TEXT: 难度分析
+ * - ANALYZE_SENTENCE: 长难句分析
  *
  * @author Lingride Team
  * @since 1.0.0
@@ -23,9 +24,11 @@
 import { DEFAULT_DIFFICULTY_PROMPTS } from "../constants/difficultyPrompts";
 import { DEFAULT_MIXED_TRANSLATE_PROMPTS } from "../constants/mixedTranslatePrompts";
 import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
+import { DEFAULT_SENTENCE_ANALYSIS_PROMPTS } from "../constants/sentenceAnalysisPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
   AnalyzeDifficultyResponse,
+  AnalyzeSentenceResponse,
   calculateTargetLevel,
   DifficultyResult,
   ExtractPageTextResponse,
@@ -40,6 +43,7 @@ import {
   MixedTranslateResponse,
   ParaphraseResponse,
   SaveConfigResponse,
+  SentenceAnalysisResult,
   TestConnectionResponse,
   TranslateResponse,
 } from "../types";
@@ -87,6 +91,7 @@ async function handleGetConfig(): Promise<GetConfigResponse> {
         difficulty_prompts: config.difficulty_prompts,
         paraphrase_prompts: config.paraphrase_prompts,
         mixed_translate_prompts: config.mixed_translate_prompts,
+        sentence_analysis_prompts: config.sentence_analysis_prompts,
       },
     };
   } catch (error) {
@@ -798,6 +803,78 @@ async function handleMixedTranslate(
   }
 }
 
+// ====== 长难句分析功能 ======
+
+/**
+ * 处理 ANALYZE_SENTENCE 消息
+ *
+ * 对用户输入的英文长难句进行结构化分析。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 获取 Prompt 配置（用户自定义或默认）
+ * 3. 替换 {{sentence}} 占位符
+ * 4. 调用 AI 进行分析
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleAnalyzeSentence(
+  sentence: string
+): Promise<AnalyzeSentenceResponse> {
+  try {
+    // 1. 获取配置并验证
+    const config = await getConfig();
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 获取 Prompt 配置（用户自定义或默认）
+    const prompts =
+      config.sentence_analysis_prompts || DEFAULT_SENTENCE_ANALYSIS_PROMPTS;
+    const userPrompt = prompts.user_prompt_template.replace(
+      "{{sentence}}",
+      sentence
+    );
+
+    // 3. 调用 AI 进行分析
+    console.log("[Lingride] 开始长难句分析...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
+
+    // 4. 解析 JSON 响应（三级 fallback 策略）
+    let result: SentenceAnalysisResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    console.log("[Lingride] 长难句分析完成");
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 长难句分析失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "长难句分析失败",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -970,6 +1047,10 @@ chrome.runtime.onMessage.addListener(
             message.payload.texts,
             message.payload.batchId
           );
+          break;
+
+        case MessageType.ANALYZE_SENTENCE:
+          response = await handleAnalyzeSentence(message.payload.sentence);
           break;
 
         default:

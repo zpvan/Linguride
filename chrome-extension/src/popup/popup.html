@@ -104,6 +104,52 @@
           </div>
         </div>
       </section>
+
+      <!-- 长难句分析 -->
+      <section class="card">
+        <h2 class="section-label">长难句分析</h2>
+        <div class="sentence-input-wrapper">
+          <textarea id="sentenceInput" class="sentence-input"
+            placeholder="输入英文长难句，点击分析..." rows="3" maxlength="500"></textarea>
+          <span id="sentenceCharCount" class="char-count">0/500</span>
+        </div>
+        <button id="analyzeSentenceBtn" class="btn-analyze" disabled>分析句子</button>
+        <div id="sentenceStatus" class="status-message"></div>
+
+        <!-- 分析结果（初始隐藏） -->
+        <div id="sentenceResult" class="sentence-result" style="display: none;">
+          <!-- 翻译 -->
+          <div class="result-section">
+            <h4>中文翻译</h4>
+            <p id="sentenceTranslation"></p>
+          </div>
+          <!-- 主干结构 -->
+          <div class="result-section">
+            <h4>句子主干</h4>
+            <div id="sentenceStructure" class="structure-tags"></div>
+          </div>
+          <!-- 从句拆解 -->
+          <div class="result-section" id="clausesSection" style="display: none;">
+            <h4>从句拆解</h4>
+            <div id="sentenceClauses"></div>
+          </div>
+          <!-- 重点短语 -->
+          <div class="result-section">
+            <h4>重点短语</h4>
+            <div id="sentenceKeyPhrases"></div>
+          </div>
+          <!-- 语法要点 -->
+          <div class="result-section">
+            <h4>语法要点</h4>
+            <ul id="sentenceGrammarPoints"></ul>
+          </div>
+          <!-- 简化版 -->
+          <div class="result-section">
+            <h4>简化改写</h4>
+            <p id="sentenceSimplified" class="simplified-text"></p>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ====== Settings View - 配置面板 ====== -->
@@ -240,6 +286,29 @@
               <label for="mixedTranslateUserPrompt">User Prompt</label>
               <textarea id="mixedTranslateUserPrompt" rows="3"></textarea>
               <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 长难句分析 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="sentence-analysis-prompt">
+            <span>长难句分析 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="sentence-analysis-prompt">
+            <div class="form-group">
+              <label for="sentenceAnalysisSystemPrompt">System Prompt</label>
+              <textarea id="sentenceAnalysisSystemPrompt" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="sentenceAnalysisUserPrompt">User Prompt</label>
+              <textarea id="sentenceAnalysisUserPrompt" rows="3"></textarea>
+              <p class="hint">使用 <code>{{sentence}}</code> 表示待分析句子</p>
             </div>
           </div>
         </div>
