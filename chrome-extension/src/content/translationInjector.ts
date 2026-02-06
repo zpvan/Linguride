@@ -271,6 +271,60 @@ export function removeAllTranslations(): void {
 }
 
 /**
+ * 移除过期的翻译容器（仅 error 和 loading 状态）
+ *
+ * 智能清理：保留已成功的翻译容器，仅移除错误和加载状态的容器。
+ * 用于 startTranslation() 重启时避免视觉闪烁。
+ */
+export function removeStaleTranslations(): void {
+  const stale = document.querySelectorAll(
+    `.${CSS_CLASSES.error}, .${CSS_CLASSES.loading}`
+  );
+  for (const el of stale) {
+    el.remove();
+  }
+  if (stale.length > 0) {
+    console.log(`[Lingride] 已移除 ${stale.length} 个过期翻译容器`);
+  }
+}
+
+/**
+ * 移除过期的释义容器（仅 error 和 loading 状态）
+ *
+ * 智能清理：保留已成功的释义容器，仅移除错误和加载状态的容器。
+ * 用于 startParaphrase() 重启时避免视觉闪烁。
+ */
+export function removeStaleParaphrases(): void {
+  const stale = document.querySelectorAll(
+    `.${CSS_CLASSES.paraphraseError}, .${CSS_CLASSES.paraphraseLoading}`
+  );
+  for (const el of stale) {
+    el.remove();
+  }
+  if (stale.length > 0) {
+    console.log(`[Lingride] 已移除 ${stale.length} 个过期释义容器`);
+  }
+}
+
+/**
+ * 移除过期的混杂翻译容器（仅 error 和 loading 状态）
+ *
+ * 智能清理：保留已成功的混杂翻译容器，仅移除错误和加载状态的容器。
+ * 用于 startMixedTranslate() 重启时避免视觉闪烁。
+ */
+export function removeStaleMixedTranslations(): void {
+  const stale = document.querySelectorAll(
+    `.${CSS_CLASSES.mixedTranslateError}, .${CSS_CLASSES.mixedTranslateLoading}`
+  );
+  for (const el of stale) {
+    el.remove();
+  }
+  if (stale.length > 0) {
+    console.log(`[Lingride] 已移除 ${stale.length} 个过期混杂翻译容器`);
+  }
+}
+
+/**
  * 更新元素的翻译显示
  *
  * 根据元素状态显示对应的内容。

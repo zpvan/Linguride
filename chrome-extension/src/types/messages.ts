@@ -14,7 +14,12 @@
  * @since 1.0.0
  */
 
-import { DifficultyResult } from "./difficulty";
+import { MixedTranslatePromptConfig, ParaphrasePromptConfig } from "./config";
+import {
+  CEFRLevel,
+  DifficultyPromptConfig,
+  DifficultyResult,
+} from "./difficulty";
 
 /**
  * 消息类型枚举
@@ -239,6 +244,8 @@ export interface BaseResponse {
 
 /**
  * 获取配置响应
+ *
+ * 返回完整的用户配置，包括 API 配置、Prompt 配置和用户英文水平。
  */
 export interface GetConfigResponse extends BaseResponse {
   data?: {
@@ -249,6 +256,10 @@ export interface GetConfigResponse extends BaseResponse {
       system_prompt: string;
       user_prompt_template: string;
     };
+    user_english_level?: CEFRLevel;
+    difficulty_prompts?: DifficultyPromptConfig;
+    paraphrase_prompts?: ParaphrasePromptConfig;
+    mixed_translate_prompts?: MixedTranslatePromptConfig;
   };
 }
 

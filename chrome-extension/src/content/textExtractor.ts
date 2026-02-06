@@ -50,6 +50,9 @@ const TEXT_SELECTORS = [
 
 /**
  * 需要排除的元素选择器
+ *
+ * 包含所有 Lingride 注入的 DOM 元素（翻译/释义/混杂翻译），
+ * 防止注入的翻译容器及其子元素被二次提取导致嵌套翻译。
  */
 const EXCLUDED_SELECTORS = [
   "script",
@@ -64,9 +67,25 @@ const EXCLUDED_SELECTORS = [
   "pre",
   "svg",
   '[contenteditable="true"]',
+  // 排除所有 Lingride 注入的容器（通过 data 属性，最可靠）
+  "[data-lingride-id]",
+  "[data-lingride-paraphrase-id]",
+  "[data-lingride-mixed-id]",
+  // 排除翻译相关类名
   ".lingride-translation",
   ".lingride-error",
   ".lingride-loading",
+  // 排除释义相关类名
+  ".lingride-paraphrase",
+  ".lingride-paraphrase-error",
+  ".lingride-paraphrase-loading",
+  // 排除混杂中英相关类名
+  ".lingride-mixed-translate",
+  ".lingride-mixed-translate-error",
+  ".lingride-mixed-translate-loading",
+  // 排除注入容器内部的子元素
+  ".lingride-en-highlight",
+  ".lingride-inline-code",
 ].join(", ");
 
 /**
@@ -267,17 +286,32 @@ function extractInlineCodeWords(element: HTMLElement): string[] {
  * 生成元素的唯一 ID
  *
  * 基于元素位置和内容生成稳定的 ID。
+ * 计算 sibling index 时跳过 Lingride 注入的翻译容器，
+ * 确保无论 DOM 中存在多少注入容器，原始元素的 ID 始终一致。
  *
  * @param element - DOM 元素
  * @param text - 元素文本内容
  * @returns 唯一 ID
  */
 function generateElementId(element: HTMLElement, text: string): string {
-  // 获取元素在 DOM 中的路径作为一部分
   const tagName = element.tagName.toLowerCase();
-  const index = element.parentElement
-    ? Array.from(element.parentElement.children).indexOf(element)
-    : 0;
+
+  // 计算稳定的 sibling index：跳过 Lingride 注入的容器元素
+  let index = 0;
+  if (element.parentElement) {
+    for (const sibling of element.parentElement.children) {
+      if (sibling === element) break;
+      // 跳过 Lingride 注入的容器，保证 index 不受注入影响
+      if (
+        sibling.hasAttribute("data-lingride-id") ||
+        sibling.hasAttribute("data-lingride-paraphrase-id") ||
+        sibling.hasAttribute("data-lingride-mixed-id")
+      ) {
+        continue;
+      }
+      index++;
+    }
+  }
 
   // 结合文本内容哈希
   const textHash = simpleHash(text.substring(0, 100));

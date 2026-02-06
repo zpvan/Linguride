@@ -38,6 +38,9 @@ import {
   removeAllMixedTranslations,
   removeAllParaphrases,
   removeAllTranslations,
+  removeStaleMixedTranslations,
+  removeStaleParaphrases,
+  removeStaleTranslations,
   showError,
   showLoading,
   showMixedTranslateError,
@@ -60,6 +63,29 @@ let isParaphraseEnabled = false;
 
 /** 当前混杂中英翻译是否启用 */
 let isMixedTranslateEnabled = false;
+
+/** 翻译是否正在运行中（重入保护） */
+let isTranslationRunning = false;
+
+/** 释义是否正在运行中（重入保护） */
+let isParaphraseRunning = false;
+
+/** 混杂中英翻译是否正在运行中（重入保护） */
+let isMixedTranslateRunning = false;
+
+/**
+ * Epoch 计数器（翻译）
+ *
+ * 每次 startTranslation() 调用时递增。
+ * 用于丢弃过期的 in-flight API 回调，防止旧结果写入已清理/重建的 DOM。
+ */
+let translationEpoch = 0;
+
+/** Epoch 计数器（释义） */
+let paraphraseEpoch = 0;
+
+/** Epoch 计数器（混杂中英翻译） */
+let mixedTranslateEpoch = 0;
 
 /** 当前页面的可翻译元素 */
 let translatableElements: Map<string, TranslatableElement> = new Map();
@@ -85,9 +111,25 @@ const pendingParaphraseBatches: Set<string> = new Set();
 /** 正在混杂中英翻译的批次 ID 集合 */
 const pendingMixedTranslateBatches: Set<string> = new Set();
 
+// ====== 注入去重 ======
+
+/**
+ * 防止 Service Worker 通过 chrome.scripting.executeScript() 重复注入。
+ * 重复注入会创建多套独立的消息监听器和状态，导致翻译重复执行。
+ * 若已加载，跳过后续所有副作用注册（消息监听器、事件监听器）。
+ */
+const __lingride_already_loaded__ = !!(
+  window as unknown as Record<string, boolean>
+).__lingride_loaded__;
+(window as unknown as Record<string, boolean>).__lingride_loaded__ = true;
+
 // ====== 初始化 ======
 
-console.log("[Lingride] Content Script 已加载");
+if (__lingride_already_loaded__) {
+  console.log("[Lingride] Content Script 已加载，跳过重复注入");
+} else {
+  console.log("[Lingride] Content Script 已加载");
+}
 
 // ====== 核心功能 ======
 
@@ -95,11 +137,33 @@ console.log("[Lingride] Content Script 已加载");
  * 开始翻译页面
  *
  * 提取页面元素，设置视口观察器，按需翻译。
+ * 包含重入保护和 epoch 机制，防止重复翻译和过期回调写入。
  */
 async function startTranslation(): Promise<void> {
+  if (isTranslationRunning) {
+    console.log("[Lingride] 翻译已在运行中，跳过");
+    return;
+  }
+  isTranslationRunning = true;
+
+  // 递增 epoch，使所有 in-flight 回调失效
+  const currentEpoch = ++translationEpoch;
+
   console.log("[Lingride] 开始翻译页面...");
 
   try {
+    // 0. 智能清理：仅移除 error/loading 容器，保留已成功的翻译
+    removeStaleTranslations();
+    clearProcessedMarks();
+    translatableElements.clear();
+    pendingBatches.clear();
+
+    // 销毁旧的视口观察器
+    if (viewportObserver) {
+      viewportObserver.destroy();
+      viewportObserver = null;
+    }
+
     // 1. 提取可翻译元素
     const elements = extractTranslatableElements();
 
@@ -109,7 +173,6 @@ async function startTranslation(): Promise<void> {
     }
 
     // 存储到 Map 以便后续查找
-    translatableElements.clear();
     for (const element of elements) {
       translatableElements.set(element.id, element);
     }
@@ -142,19 +205,17 @@ async function startTranslation(): Promise<void> {
     }
 
     // 4. 创建视口观察器，按需翻译
-    if (viewportObserver) {
-      viewportObserver.destroy();
-    }
-
     viewportObserver = new ViewportObserver((visibleElements) => {
-      // 当元素进入视口时触发翻译
-      translateVisibleElements(visibleElements);
+      // 当元素进入视口时触发翻译，传递当前 epoch
+      translateVisibleElements(visibleElements, currentEpoch);
     });
 
     // 5. 开始观察所有需要翻译的元素
     viewportObserver.observe(needsTranslation);
   } catch (error) {
     console.error("[Lingride] 翻译过程出错:", error);
+  } finally {
+    isTranslationRunning = false;
   }
 }
 
@@ -162,10 +223,15 @@ async function startTranslation(): Promise<void> {
  * 翻译进入视口的元素
  *
  * @param elements - 进入视口的元素数组
+ * @param epoch - 当前翻译 epoch，用于丢弃过期回调
  */
 async function translateVisibleElements(
-  elements: TranslatableElement[]
+  elements: TranslatableElement[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：如果已过期，丢弃
+  if (epoch !== translationEpoch) return;
+
   // 过滤掉已经在处理中或已完成的元素
   const toTranslate = elements.filter((el) => {
     const cached = getCachedTranslation(el.originalText);
@@ -192,7 +258,7 @@ async function translateVisibleElements(
     const batchSlice = batches.slice(i, i + concurrencyLimit);
     await Promise.all(
       batchSlice.map((batch) =>
-        translateBatch(batch.batchId, batch.texts, batch.elementIds)
+        translateBatch(batch.batchId, batch.texts, batch.elementIds, epoch)
       )
     );
   }
@@ -210,12 +276,17 @@ async function translateVisibleElements(
  * @param batchId - 批次 ID
  * @param texts - 待翻译文本数组
  * @param elementIds - 对应的元素 ID 数组
+ * @param epoch - 当前翻译 epoch，用于丢弃过期回调
  */
 async function translateBatch(
   batchId: string,
   texts: string[],
-  elementIds: string[]
+  elementIds: string[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：发送前确认未过期
+  if (epoch !== translationEpoch) return;
+
   // 避免重复请求
   if (pendingBatches.has(batchId)) return;
   pendingBatches.add(batchId);
@@ -227,11 +298,14 @@ async function translateBatch(
       payload: { texts, batchId },
     });
 
+    // epoch 检查：响应返回后再次确认未过期
+    if (epoch !== translationEpoch) return;
+
     if (response.success && response.data) {
       // 处理翻译结果
       const { translations } = response.data;
 
-      // 缓存翻译结果
+      // 缓存翻译结果（即使 epoch 过期，缓存仍有价值）
       const pairs = texts.map((text, i) => ({
         original: text,
         translation: translations[i],
@@ -256,6 +330,9 @@ async function translateBatch(
       }
     }
   } catch (error) {
+    // epoch 检查：异常时也确认是否过期
+    if (epoch !== translationEpoch) return;
+
     const errorMessage = error instanceof Error ? error.message : "请求失败";
     console.error("[Lingride] 批次翻译失败:", errorMessage);
 
@@ -304,11 +381,33 @@ function stopTranslation(): void {
  * 开始释义页面
  *
  * 提取页面元素，设置视口观察器，按需释义。
+ * 包含重入保护和 epoch 机制，防止重复释义和过期回调写入。
  */
 async function startParaphrase(): Promise<void> {
+  if (isParaphraseRunning) {
+    console.log("[Lingride] 释义已在运行中，跳过");
+    return;
+  }
+  isParaphraseRunning = true;
+
+  // 递增 epoch，使所有 in-flight 回调失效
+  const currentEpoch = ++paraphraseEpoch;
+
   console.log("[Lingride] 开始释义页面...");
 
   try {
+    // 0. 智能清理：仅移除 error/loading 容器，保留已成功的释义
+    removeStaleParaphrases();
+    clearProcessedMarks();
+    translatableElements.clear();
+    pendingParaphraseBatches.clear();
+
+    // 销毁旧的视口观察器
+    if (paraphraseViewportObserver) {
+      paraphraseViewportObserver.destroy();
+      paraphraseViewportObserver = null;
+    }
+
     // 1. 提取可释义元素
     const elements = extractTranslatableElements();
 
@@ -318,7 +417,6 @@ async function startParaphrase(): Promise<void> {
     }
 
     // 存储到 Map 以便后续查找
-    translatableElements.clear();
     for (const element of elements) {
       translatableElements.set(element.id, element);
     }
@@ -326,28 +424,33 @@ async function startParaphrase(): Promise<void> {
     console.log(`[Lingride] 找到 ${elements.length} 个可释义元素`);
 
     // 2. 创建视口观察器，按需释义
-    if (paraphraseViewportObserver) {
-      paraphraseViewportObserver.destroy();
-    }
-
     paraphraseViewportObserver = new ViewportObserver((visibleElements) => {
-      // 当元素进入视口时触发释义
-      paraphraseVisibleElements(visibleElements);
+      // 当元素进入视口时触发释义，传递当前 epoch
+      paraphraseVisibleElements(visibleElements, currentEpoch);
     });
 
     // 3. 开始观察所有元素
     paraphraseViewportObserver.observe(elements);
   } catch (error) {
     console.error("[Lingride] 释义过程出错:", error);
+  } finally {
+    isParaphraseRunning = false;
   }
 }
 
 /**
  * 释义进入视口的元素
+ *
+ * @param elements - 进入视口的元素数组
+ * @param epoch - 当前释义 epoch，用于丢弃过期回调
  */
 async function paraphraseVisibleElements(
-  elements: TranslatableElement[]
+  elements: TranslatableElement[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：如果已过期，丢弃
+  if (epoch !== paraphraseEpoch) return;
+
   // 过滤掉已经在处理中的元素
   const toParaphrase = elements.filter(
     (el) => !pendingParaphraseBatches.has(el.id)
@@ -369,7 +472,7 @@ async function paraphraseVisibleElements(
     const batchSlice = batches.slice(i, i + concurrencyLimit);
     await Promise.all(
       batchSlice.map((batch) =>
-        paraphraseBatch(batch.batchId, batch.texts, batch.elementIds)
+        paraphraseBatch(batch.batchId, batch.texts, batch.elementIds, epoch)
       )
     );
   }
@@ -379,12 +482,21 @@ async function paraphraseVisibleElements(
 
 /**
  * 释义单个批次
+ *
+ * @param batchId - 批次 ID
+ * @param texts - 待释义文本数组
+ * @param elementIds - 对应的元素 ID 数组
+ * @param epoch - 当前释义 epoch，用于丢弃过期回调
  */
 async function paraphraseBatch(
   batchId: string,
   texts: string[],
-  elementIds: string[]
+  elementIds: string[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：发送前确认未过期
+  if (epoch !== paraphraseEpoch) return;
+
   // 避免重复请求
   if (pendingParaphraseBatches.has(batchId)) return;
   pendingParaphraseBatches.add(batchId);
@@ -395,6 +507,9 @@ async function paraphraseBatch(
       type: MessageType.PARAPHRASE,
       payload: { texts, batchId },
     });
+
+    // epoch 检查：响应返回后再次确认未过期
+    if (epoch !== paraphraseEpoch) return;
 
     if (response.success && response.data) {
       // 处理释义结果
@@ -418,6 +533,9 @@ async function paraphraseBatch(
       }
     }
   } catch (error) {
+    // epoch 检查：异常时也确认是否过期
+    if (epoch !== paraphraseEpoch) return;
+
     const errorMessage = error instanceof Error ? error.message : "请求失败";
     console.error("[Lingride] 批次释义失败:", errorMessage);
 
@@ -465,11 +583,33 @@ function stopParaphrase(): void {
  *
  * 提取页面元素，设置视口观察器，按需生成中英混杂文本。
  * 不使用缓存（输出依赖用户 CEFR 等级，等级变化后需重新生成）。
+ * 包含重入保护和 epoch 机制，防止重复翻译和过期回调写入。
  */
 async function startMixedTranslate(): Promise<void> {
+  if (isMixedTranslateRunning) {
+    console.log("[Lingride] 混杂中英翻译已在运行中，跳过");
+    return;
+  }
+  isMixedTranslateRunning = true;
+
+  // 递增 epoch，使所有 in-flight 回调失效
+  const currentEpoch = ++mixedTranslateEpoch;
+
   console.log("[Lingride] 开始混杂中英翻译...");
 
   try {
+    // 0. 智能清理：仅移除 error/loading 容器，保留已成功的混杂翻译
+    removeStaleMixedTranslations();
+    clearProcessedMarks();
+    translatableElements.clear();
+    pendingMixedTranslateBatches.clear();
+
+    // 销毁旧的视口观察器
+    if (mixedTranslateViewportObserver) {
+      mixedTranslateViewportObserver.destroy();
+      mixedTranslateViewportObserver = null;
+    }
+
     // 1. 提取可翻译元素
     const elements = extractTranslatableElements();
 
@@ -479,7 +619,6 @@ async function startMixedTranslate(): Promise<void> {
     }
 
     // 存储到 Map 以便后续查找
-    translatableElements.clear();
     for (const element of elements) {
       translatableElements.set(element.id, element);
     }
@@ -487,28 +626,33 @@ async function startMixedTranslate(): Promise<void> {
     console.log(`[Lingride] 找到 ${elements.length} 个可翻译元素`);
 
     // 2. 创建视口观察器，按需翻译
-    if (mixedTranslateViewportObserver) {
-      mixedTranslateViewportObserver.destroy();
-    }
-
     mixedTranslateViewportObserver = new ViewportObserver((visibleElements) => {
-      // 当元素进入视口时触发混杂翻译
-      mixedTranslateVisibleElements(visibleElements);
+      // 当元素进入视口时触发混杂翻译，传递当前 epoch
+      mixedTranslateVisibleElements(visibleElements, currentEpoch);
     });
 
     // 3. 开始观察所有元素
     mixedTranslateViewportObserver.observe(elements);
   } catch (error) {
     console.error("[Lingride] 混杂中英翻译过程出错:", error);
+  } finally {
+    isMixedTranslateRunning = false;
   }
 }
 
 /**
  * 混杂中英翻译进入视口的元素
+ *
+ * @param elements - 进入视口的元素数组
+ * @param epoch - 当前混杂翻译 epoch，用于丢弃过期回调
  */
 async function mixedTranslateVisibleElements(
-  elements: TranslatableElement[]
+  elements: TranslatableElement[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：如果已过期，丢弃
+  if (epoch !== mixedTranslateEpoch) return;
+
   // 过滤掉已经在处理中的元素
   const toTranslate = elements.filter(
     (el) => !pendingMixedTranslateBatches.has(el.id)
@@ -530,7 +674,7 @@ async function mixedTranslateVisibleElements(
     const batchSlice = batches.slice(i, i + concurrencyLimit);
     await Promise.all(
       batchSlice.map((batch) =>
-        mixedTranslateBatch(batch.batchId, batch.texts, batch.elementIds)
+        mixedTranslateBatch(batch.batchId, batch.texts, batch.elementIds, epoch)
       )
     );
   }
@@ -540,12 +684,21 @@ async function mixedTranslateVisibleElements(
 
 /**
  * 混杂中英翻译单个批次
+ *
+ * @param batchId - 批次 ID
+ * @param texts - 待翻译文本数组
+ * @param elementIds - 对应的元素 ID 数组
+ * @param epoch - 当前混杂翻译 epoch，用于丢弃过期回调
  */
 async function mixedTranslateBatch(
   batchId: string,
   texts: string[],
-  elementIds: string[]
+  elementIds: string[],
+  epoch: number
 ): Promise<void> {
+  // epoch 检查：发送前确认未过期
+  if (epoch !== mixedTranslateEpoch) return;
+
   // 避免重复请求
   if (pendingMixedTranslateBatches.has(batchId)) return;
   pendingMixedTranslateBatches.add(batchId);
@@ -556,6 +709,9 @@ async function mixedTranslateBatch(
       type: MessageType.MIXED_TRANSLATE,
       payload: { texts, batchId },
     });
+
+    // epoch 检查：响应返回后再次确认未过期
+    if (epoch !== mixedTranslateEpoch) return;
 
     if (response.success && response.data) {
       // 处理混杂翻译结果
@@ -579,6 +735,9 @@ async function mixedTranslateBatch(
       }
     }
   } catch (error) {
+    // epoch 检查：异常时也确认是否过期
+    if (epoch !== mixedTranslateEpoch) return;
+
     const errorMessage = error instanceof Error ? error.message : "请求失败";
     console.error("[Lingride] 批次混杂中英翻译失败:", errorMessage);
 
@@ -706,109 +865,157 @@ function handleExtractPageText(): ExtractPageTextResponse {
   };
 }
 
-// ====== 消息处理 ======
+// ====== 消息处理与事件监听（仅首次注入时注册） ======
 
-/**
- * 处理来自 Background 的消息
- */
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  console.log("[Lingride] Content Script 收到消息:", message.type);
+if (!__lingride_already_loaded__) {
+  /**
+   * 处理来自 Background 的消息
+   */
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    console.log("[Lingride] Content Script 收到消息:", message.type);
 
-  switch (message.type) {
-    case "TRANSLATION_STATE_CHANGED": {
-      const { enabled } = message.payload;
-      isTranslationEnabled = enabled;
+    switch (message.type) {
+      case "TRANSLATION_STATE_CHANGED": {
+        const { enabled } = message.payload;
 
-      if (enabled) {
-        // 互斥：开启翻译时关闭释义和混杂中英
-        if (isParaphraseEnabled) {
-          stopParaphrase();
-          isParaphraseEnabled = false;
-        }
-        if (isMixedTranslateEnabled) {
-          stopMixedTranslate();
-          isMixedTranslateEnabled = false;
-        }
-        startTranslation();
-      } else {
-        stopTranslation();
-      }
-      sendResponse({ success: true });
-      break;
-    }
+        if (enabled) {
+          // 先完整停止当前翻译（如果已启用），确保干净重启
+          // 全量清理后立即 startTranslation()，缓存命中的翻译会同步恢复，
+          // 浏览器在同一帧内完成 remove + re-insert，用户不会感知闪烁
+          if (isTranslationEnabled) {
+            stopTranslation();
+          }
+          isTranslationEnabled = true;
 
-    case "PARAPHRASE_STATE_CHANGED": {
-      const { enabled } = message.payload;
-      isParaphraseEnabled = enabled;
-
-      if (enabled) {
-        // 互斥：开启释义时关闭翻译和混杂中英
-        if (isTranslationEnabled) {
-          stopTranslation();
+          // 互斥：开启翻译时关闭释义和混杂中英
+          if (isParaphraseEnabled) {
+            stopParaphrase();
+            isParaphraseEnabled = false;
+          }
+          if (isMixedTranslateEnabled) {
+            stopMixedTranslate();
+            isMixedTranslateEnabled = false;
+          }
+          startTranslation();
+        } else {
           isTranslationEnabled = false;
-        }
-        if (isMixedTranslateEnabled) {
-          stopMixedTranslate();
-          isMixedTranslateEnabled = false;
-        }
-        startParaphrase();
-      } else {
-        stopParaphrase();
-      }
-      sendResponse({ success: true });
-      break;
-    }
-
-    case "MIXED_TRANSLATE_STATE_CHANGED": {
-      const { enabled } = message.payload;
-      isMixedTranslateEnabled = enabled;
-
-      if (enabled) {
-        // 互斥：开启混杂中英时关闭翻译和释义
-        if (isTranslationEnabled) {
           stopTranslation();
-          isTranslationEnabled = false;
         }
-        if (isParaphraseEnabled) {
-          stopParaphrase();
+        sendResponse({ success: true });
+        break;
+      }
+
+      case "PARAPHRASE_STATE_CHANGED": {
+        const { enabled } = message.payload;
+
+        if (enabled) {
+          // 先完整停止当前释义（如果已启用），确保干净重启
+          if (isParaphraseEnabled) {
+            stopParaphrase();
+          }
+          isParaphraseEnabled = true;
+
+          // 互斥：开启释义时关闭翻译和混杂中英
+          if (isTranslationEnabled) {
+            stopTranslation();
+            isTranslationEnabled = false;
+          }
+          if (isMixedTranslateEnabled) {
+            stopMixedTranslate();
+            isMixedTranslateEnabled = false;
+          }
+          startParaphrase();
+        } else {
           isParaphraseEnabled = false;
+          stopParaphrase();
         }
-        startMixedTranslate();
-      } else {
-        stopMixedTranslate();
+        sendResponse({ success: true });
+        break;
       }
-      sendResponse({ success: true });
-      break;
+
+      case "MIXED_TRANSLATE_STATE_CHANGED": {
+        const { enabled } = message.payload;
+
+        if (enabled) {
+          // 先完整停止当前混杂翻译（如果已启用），确保干净重启
+          if (isMixedTranslateEnabled) {
+            stopMixedTranslate();
+          }
+          isMixedTranslateEnabled = true;
+
+          // 互斥：开启混杂中英时关闭翻译和释义
+          if (isTranslationEnabled) {
+            stopTranslation();
+            isTranslationEnabled = false;
+          }
+          if (isParaphraseEnabled) {
+            stopParaphrase();
+            isParaphraseEnabled = false;
+          }
+          startMixedTranslate();
+        } else {
+          isMixedTranslateEnabled = false;
+          stopMixedTranslate();
+        }
+        sendResponse({ success: true });
+        break;
+      }
+
+      case MessageType.EXTRACT_PAGE_TEXT: {
+        const extractResult = handleExtractPageText();
+        sendResponse(extractResult);
+        break;
+      }
+
+      default:
+        sendResponse({ success: false, error: "未知消息类型" });
     }
 
-    case MessageType.EXTRACT_PAGE_TEXT: {
-      const extractResult = handleExtractPageText();
-      sendResponse(extractResult);
-      break;
-    }
+    return true;
+  });
 
-    default:
-      sendResponse({ success: false, error: "未知消息类型" });
-  }
+  // ====== 页面可见性监听 ======
 
-  return true;
-});
+  /** visibilitychange 去抖动定时器 */
+  let visibilityTimer: number | null = null;
 
-// ====== 页面可见性监听 ======
+  // 当页面变为可见时，如果翻译或释义已启用，重新扫描新增内容
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      console.log("[Lingride] 页面重新可见，检查新内容...");
 
-// 当页面变为可见时，如果翻译或释义已启用，重新扫描新增内容
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    console.log("[Lingride] 页面重新可见，检查新内容...");
-    // 延迟执行，等待动态内容加载
-    setTimeout(() => {
-      if (isTranslationEnabled) {
-        startTranslation();
-      } else if (isParaphraseEnabled) {
-        startParaphrase();
-      } else if (isMixedTranslateEnabled) {
-        startMixedTranslate();
+      // 去抖动：防止短时间内多次触发
+      if (visibilityTimer !== null) {
+        clearTimeout(visibilityTimer);
       }
-    }, 500);
-  }
-});
+
+      visibilityTimer = window.setTimeout(() => {
+        visibilityTimer = null;
+
+        // 检查运行状态，避免与正在执行的 start*() 冲突。
+        // 同时检查 translatableElements 是否为空：非空说明翻译已完成且仍有效，
+        // 无需重新执行（避免无谓的 DOM 移除+重插入循环）。
+        // 为空则说明从未翻译或已被 stop 清理，需要重新运行。
+        if (
+          isTranslationEnabled &&
+          !isTranslationRunning &&
+          translatableElements.size === 0
+        ) {
+          startTranslation();
+        } else if (
+          isParaphraseEnabled &&
+          !isParaphraseRunning &&
+          translatableElements.size === 0
+        ) {
+          startParaphrase();
+        } else if (
+          isMixedTranslateEnabled &&
+          !isMixedTranslateRunning &&
+          translatableElements.size === 0
+        ) {
+          startMixedTranslate();
+        }
+      }, 500);
+    }
+  });
+} // end of !__lingride_already_loaded__ guard

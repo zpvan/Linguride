@@ -71,7 +71,7 @@ initTabStateListeners();
 /**
  * 处理 GET_CONFIG 消息
  *
- * 返回当前存储的配置。
+ * 返回当前存储的完整配置。
  */
 async function handleGetConfig(): Promise<GetConfigResponse> {
   try {
@@ -83,6 +83,10 @@ async function handleGetConfig(): Promise<GetConfigResponse> {
         api_key: config.api_key,
         model: config.model,
         prompts: config.prompts,
+        user_english_level: config.user_english_level,
+        difficulty_prompts: config.difficulty_prompts,
+        paraphrase_prompts: config.paraphrase_prompts,
+        mixed_translate_prompts: config.mixed_translate_prompts,
       },
     };
   } catch (error) {
