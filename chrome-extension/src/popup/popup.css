@@ -10,46 +10,48 @@
 
 /* ====== Design Tokens ====== */
 :root {
-  /* Backgrounds */
+  /* Backgrounds - iOS System Grays */
   --bg-primary: #000000;
   --bg-secondary: #1C1C1E;
   --bg-tertiary: #2C2C2E;
   --bg-quaternary: #3A3A3C;
+  --bg-elevated: #2C2C2E;
 
-  /* Text */
+  /* Text - iOS System Colors */
   --text-primary: #FFFFFF;
   --text-secondary: #8E8E93;
   --text-tertiary: #636366;
 
-  /* Accent — Lingride brand cyan */
-  --accent: #00D4FF;
-  --accent-soft: rgba(0, 212, 255, 0.12);
-  --accent-hover: rgba(0, 212, 255, 0.18);
+  /* Accent — iOS System Blue */
+  --accent: #0A84FF;
+  --accent-soft: rgba(10, 132, 255, 0.12);
+  --accent-hover: rgba(10, 132, 255, 0.18);
 
-  /* Semantic */
+  /* Semantic - iOS System Colors */
   --success: #30D158;
   --error: #FF453A;
   --warning: #FFD60A;
-  --separator: rgba(84, 84, 88, 0.36);
+  --separator: rgba(84, 84, 88, 0.65);
 
-  /* Spacing */
+  /* Spacing - iOS Standard */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
   --space-lg: 16px;
   --space-xl: 20px;
 
-  /* Radii */
+  /* Radii - iOS Style */
   --radius-sm: 8px;
   --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-pill: 16px;
+  --radius-lg: 16px;
+  --radius-card: 16px;
+  --radius-pill: 20px;
   --radius-segment: 9px;
 
-  /* Typography */
+  /* Typography - SF Pro */
   --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 
-  /* Animation */
+  /* Animation - iOS Spring */
   --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
   --duration: 0.3s;
 }
@@ -184,13 +186,12 @@ body {
   border: 1.5px solid var(--bg-primary);
 }
 
-/* ====== Cards ====== */
+/* ====== Cards - iOS Grouped List Style ====== */
 .card {
   background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: var(--space-lg);
-  margin-bottom: var(--space-lg);
-  box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+  margin-bottom: var(--space-md);
 }
 
 /* ====== Section Label ====== */
@@ -203,11 +204,11 @@ body {
   margin-bottom: var(--space-md);
 }
 
-/* ====== Segmented Control ====== */
+/* ====== Segmented Control - iOS UISegmentedControl Style ====== */
 .segmented-control {
   position: relative;
   display: flex;
-  background: var(--bg-tertiary);
+  background: rgba(118, 118, 128, 0.24);
   border-radius: var(--radius-segment);
   padding: 2px;
   gap: 0;
@@ -219,11 +220,11 @@ body {
   left: 2px;
   width: calc(33.333% - 1.33px);
   height: calc(100% - 4px);
-  background: var(--bg-quaternary);
+  background: #636366;
   border-radius: calc(var(--radius-segment) - 1px);
   transition: transform var(--duration) var(--ease-out), opacity var(--duration) var(--ease-out);
   opacity: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04);
   pointer-events: none;
 }
 
@@ -245,10 +246,10 @@ body {
 
 .segment {
   flex: 1;
-  padding: 7px 0;
+  padding: 6px 0;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 13px;
   font-weight: 500;
@@ -309,17 +310,17 @@ body {
   text-decoration: underline;
 }
 
-/* ====== Pill Group (Level Selector) ====== */
+/* ====== Pill Group (Level Selector) - iOS Chip Style ====== */
 .pill-group {
   display: flex;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
 }
 
 .pill {
   flex: 1;
-  padding: 6px 0;
-  border: none;
-  background: var(--bg-tertiary);
+  padding: 8px 0;
+  border: 1.5px solid var(--bg-quaternary);
+  background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-family);
   font-size: 13px;
@@ -331,22 +332,15 @@ body {
   -webkit-user-select: none;
 }
 
-.pill:first-child {
-  border-radius: var(--radius-pill);
-}
-
-.pill:last-child {
-  border-radius: var(--radius-pill);
-}
-
 .pill:hover {
-  background: var(--bg-quaternary);
+  border-color: var(--text-tertiary);
   color: var(--text-primary);
 }
 
 .pill.active {
   background: var(--accent);
-  color: #000000;
+  border-color: var(--accent);
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -364,37 +358,38 @@ body {
   font-weight: 600;
 }
 
-/* ====== Analyze Button ====== */
+/* ====== Analyze Button - iOS Filled Button ====== */
 .btn-analyze {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 10px 0;
+  padding: 12px 0;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   color: #FFFFFF;
   font-family: var(--font-family);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   border-radius: var(--radius-md);
   transition: all 0.2s var(--ease-out);
 }
 
 .btn-analyze:hover {
-  filter: brightness(1.08);
+  opacity: 0.85;
 }
 
 .btn-analyze:active {
   transform: scale(0.98);
+  opacity: 0.7;
 }
 
 .btn-analyze:disabled {
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  filter: none;
+  opacity: 1;
   transform: none;
 }
 
@@ -408,16 +403,17 @@ body {
   flex: 1;
 }
 
-/* ====== Speak Button ====== */
+/* ====== Speak Button - iOS Filled Button ====== */
 .btn-speak {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   padding: 0;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   color: #FFFFFF;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -425,18 +421,19 @@ body {
 }
 
 .btn-speak:hover {
-  filter: brightness(1.08);
+  opacity: 0.85;
 }
 
 .btn-speak:active {
   transform: scale(0.98);
+  opacity: 0.7;
 }
 
 .btn-speak:disabled {
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  filter: none;
+  opacity: 1;
   transform: none;
 }
 
@@ -765,11 +762,12 @@ body {
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* Settings divider */
+/* Settings divider - iOS Inset Separator */
 .settings-divider {
   height: 0.5px;
   background: var(--separator);
   margin-left: var(--space-lg);
+  margin-right: 0;
 }
 
 /* Settings action button */
@@ -1029,8 +1027,8 @@ body {
 
 /* 标签颜色 */
 .tag-subject .tag-label {
-  background: rgba(0, 212, 255, 0.2);
-  color: #00D4FF;
+  background: rgba(10, 132, 255, 0.2);
+  color: #0A84FF;
 }
 
 .tag-predicate .tag-label {
@@ -1151,16 +1149,17 @@ body {
   border-left: 3px solid var(--accent);
 }
 
-/* ====== 录音按钮 ====== */
+/* ====== 录音按钮 - iOS Filled Button ====== */
 .btn-record {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   padding: 0;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   color: #FFFFFF;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -1168,18 +1167,19 @@ body {
 }
 
 .btn-record:hover {
-  filter: brightness(1.08);
+  opacity: 0.85;
 }
 
 .btn-record:active {
   transform: scale(0.98);
+  opacity: 0.7;
 }
 
 .btn-record:disabled {
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  filter: none;
+  opacity: 1;
   transform: none;
 }
 
