@@ -456,15 +456,20 @@ async function handleToggleParaphrase(
     // 更新状态（TabState 内部处理互斥逻辑）
     setParaphraseState(tabId, enabled);
 
-    // 通知 Content Script
+    // 获取用户等级（用于缓存键）
+    const userLevel = config.user_english_level || "A2";
+
+    // 通知 Content Script（附带用户等级）
     try {
       await chrome.tabs.sendMessage(tabId, {
         type: "PARAPHRASE_STATE_CHANGED",
-        payload: { enabled },
+        payload: { enabled, userLevel },
       });
       console.log(
         "[Lingride] 已通知 Content Script 释义状态, enabled:",
-        enabled
+        enabled,
+        ", userLevel:",
+        userLevel
       );
     } catch (e) {
       // Content Script 可能未加载，尝试注入
@@ -485,7 +490,7 @@ async function handleToggleParaphrase(
         await new Promise((resolve) => setTimeout(resolve, 100));
         await chrome.tabs.sendMessage(tabId, {
           type: "PARAPHRASE_STATE_CHANGED",
-          payload: { enabled },
+          payload: { enabled, userLevel },
         });
         console.log("[Lingride] 注入并通知 Content Script 成功");
       } catch (injectError) {
@@ -661,15 +666,20 @@ async function handleToggleMixedTranslate(
     // 更新状态（TabState 内部处理互斥逻辑）
     setMixedTranslateState(tabId, enabled);
 
-    // 通知 Content Script
+    // 获取用户等级（用于缓存键）
+    const userLevel = config.user_english_level || "A2";
+
+    // 通知 Content Script（附带用户等级）
     try {
       await chrome.tabs.sendMessage(tabId, {
         type: "MIXED_TRANSLATE_STATE_CHANGED",
-        payload: { enabled },
+        payload: { enabled, userLevel },
       });
       console.log(
         "[Lingride] 已通知 Content Script 混杂中英状态, enabled:",
-        enabled
+        enabled,
+        ", userLevel:",
+        userLevel
       );
     } catch (e) {
       // Content Script 可能未加载，尝试注入
@@ -690,7 +700,7 @@ async function handleToggleMixedTranslate(
         await new Promise((resolve) => setTimeout(resolve, 100));
         await chrome.tabs.sendMessage(tabId, {
           type: "MIXED_TRANSLATE_STATE_CHANGED",
-          payload: { enabled },
+          payload: { enabled, userLevel },
         });
         console.log("[Lingride] 注入并通知 Content Script 成功");
       } catch (injectError) {

@@ -30,12 +30,17 @@ import {
   extractTranslatableElements,
 } from "./textExtractor";
 import {
+  getCachedMixedTranslation,
+  getCachedParaphrase,
   getCachedTranslation,
   getCacheStats,
+  setCachedMixedTranslations,
+  setCachedParaphrases,
   setCachedTranslations,
 } from "./translationCache";
 import {
   removeAllMixedTranslations,
+  removeAllModeResults,
   removeAllParaphrases,
   removeAllTranslations,
   removeStaleMixedTranslations,
@@ -86,6 +91,12 @@ let paraphraseEpoch = 0;
 
 /** Epoch 计数器（混杂中英翻译） */
 let mixedTranslateEpoch = 0;
+
+/**
+ * 当前用户 CEFR 等级
+ * 从 Background 消息中获取，用于释义和混杂翻译的缓存键。
+ */
+let currentUserLevel = "A2";
 
 /** 当前页面的可翻译元素 */
 let translatableElements: Map<string, TranslatableElement> = new Map();
@@ -381,6 +392,7 @@ function stopTranslation(): void {
  * 开始释义页面
  *
  * 提取页面元素，设置视口观察器，按需释义。
+ * 支持缓存：缓存键 = 原文哈希 + 用户等级。
  * 包含重入保护和 epoch 机制，防止重复释义和过期回调写入。
  */
 async function startParaphrase(): Promise<void> {
@@ -421,16 +433,41 @@ async function startParaphrase(): Promise<void> {
       translatableElements.set(element.id, element);
     }
 
-    console.log(`[Lingride] 找到 ${elements.length} 个可释义元素`);
+    // 2. 分离已缓存和需要释义的元素
+    const needsParaphrase: TranslatableElement[] = [];
+    let cachedCount = 0;
 
-    // 2. 创建视口观察器，按需释义
+    for (const element of elements) {
+      const cached = getCachedParaphrase(element.originalText, currentUserLevel);
+      if (cached) {
+        // 直接显示缓存的释义
+        showParaphrase(element, cached);
+        cachedCount++;
+      } else {
+        needsParaphrase.push(element);
+      }
+    }
+
+    console.log(
+      `[Lingride] ${elements.length} 个元素中，` +
+        `${cachedCount} 个命中缓存，` +
+        `${needsParaphrase.length} 个需要释义 (等级: ${currentUserLevel})`
+    );
+
+    // 3. 如果没有需要释义的内容，直接返回
+    if (needsParaphrase.length === 0) {
+      console.log("[Lingride] 所有内容已缓存，无需释义");
+      return;
+    }
+
+    // 4. 创建视口观察器，按需释义
     paraphraseViewportObserver = new ViewportObserver((visibleElements) => {
       // 当元素进入视口时触发释义，传递当前 epoch
       paraphraseVisibleElements(visibleElements, currentEpoch);
     });
 
-    // 3. 开始观察所有元素
-    paraphraseViewportObserver.observe(elements);
+    // 5. 开始观察所有需要释义的元素
+    paraphraseViewportObserver.observe(needsParaphrase);
   } catch (error) {
     console.error("[Lingride] 释义过程出错:", error);
   } finally {
@@ -451,10 +488,19 @@ async function paraphraseVisibleElements(
   // epoch 检查：如果已过期，丢弃
   if (epoch !== paraphraseEpoch) return;
 
-  // 过滤掉已经在处理中的元素
-  const toParaphrase = elements.filter(
-    (el) => !pendingParaphraseBatches.has(el.id)
-  );
+  // 过滤掉已经在处理中或已缓存的元素
+  const toParaphrase = elements.filter((el) => {
+    // 检查是否在处理中
+    if (pendingParaphraseBatches.has(el.id)) return false;
+
+    // 检查缓存
+    const cached = getCachedParaphrase(el.originalText, currentUserLevel);
+    if (cached) {
+      showParaphrase(el, cached);
+      return false;
+    }
+    return true;
+  });
 
   if (toParaphrase.length === 0) return;
 
@@ -477,7 +523,11 @@ async function paraphraseVisibleElements(
     );
   }
 
-  console.log("[Lingride] 释义批次完成");
+  // 打印缓存统计
+  const stats = getCacheStats();
+  console.log(
+    `[Lingride] 释义完成，缓存: 释义=${stats.paraphraseSize}, 命中率=${stats.hitRate}`
+  );
 }
 
 /**
@@ -514,6 +564,13 @@ async function paraphraseBatch(
     if (response.success && response.data) {
       // 处理释义结果
       const { paraphrases } = response.data;
+
+      // 缓存释义结果（即使 epoch 过期，缓存仍有价值）
+      const pairs = texts.map((text, i) => ({
+        original: text,
+        paraphrase: paraphrases[i],
+      }));
+      setCachedParaphrases(pairs, currentUserLevel);
 
       // 更新页面显示
       for (let i = 0; i < elementIds.length; i++) {
@@ -582,7 +639,7 @@ function stopParaphrase(): void {
  * 开始混杂中英翻译
  *
  * 提取页面元素，设置视口观察器，按需生成中英混杂文本。
- * 不使用缓存（输出依赖用户 CEFR 等级，等级变化后需重新生成）。
+ * 支持缓存：缓存键 = 原文哈希 + 用户等级（等级变化后旧缓存自动失效）。
  * 包含重入保护和 epoch 机制，防止重复翻译和过期回调写入。
  */
 async function startMixedTranslate(): Promise<void> {
@@ -623,16 +680,44 @@ async function startMixedTranslate(): Promise<void> {
       translatableElements.set(element.id, element);
     }
 
-    console.log(`[Lingride] 找到 ${elements.length} 个可翻译元素`);
+    // 2. 分离已缓存和需要混杂翻译的元素
+    const needsMixedTranslate: TranslatableElement[] = [];
+    let cachedCount = 0;
 
-    // 2. 创建视口观察器，按需翻译
+    for (const element of elements) {
+      const cached = getCachedMixedTranslation(
+        element.originalText,
+        currentUserLevel
+      );
+      if (cached) {
+        // 直接显示缓存的混杂翻译
+        showMixedTranslation(element, cached);
+        cachedCount++;
+      } else {
+        needsMixedTranslate.push(element);
+      }
+    }
+
+    console.log(
+      `[Lingride] ${elements.length} 个元素中，` +
+        `${cachedCount} 个命中缓存，` +
+        `${needsMixedTranslate.length} 个需要混杂翻译 (等级: ${currentUserLevel})`
+    );
+
+    // 3. 如果没有需要混杂翻译的内容，直接返回
+    if (needsMixedTranslate.length === 0) {
+      console.log("[Lingride] 所有内容已缓存，无需混杂翻译");
+      return;
+    }
+
+    // 4. 创建视口观察器，按需翻译
     mixedTranslateViewportObserver = new ViewportObserver((visibleElements) => {
       // 当元素进入视口时触发混杂翻译，传递当前 epoch
       mixedTranslateVisibleElements(visibleElements, currentEpoch);
     });
 
-    // 3. 开始观察所有元素
-    mixedTranslateViewportObserver.observe(elements);
+    // 5. 开始观察所有需要混杂翻译的元素
+    mixedTranslateViewportObserver.observe(needsMixedTranslate);
   } catch (error) {
     console.error("[Lingride] 混杂中英翻译过程出错:", error);
   } finally {
@@ -653,10 +738,19 @@ async function mixedTranslateVisibleElements(
   // epoch 检查：如果已过期，丢弃
   if (epoch !== mixedTranslateEpoch) return;
 
-  // 过滤掉已经在处理中的元素
-  const toTranslate = elements.filter(
-    (el) => !pendingMixedTranslateBatches.has(el.id)
-  );
+  // 过滤掉已经在处理中或已缓存的元素
+  const toTranslate = elements.filter((el) => {
+    // 检查是否在处理中
+    if (pendingMixedTranslateBatches.has(el.id)) return false;
+
+    // 检查缓存
+    const cached = getCachedMixedTranslation(el.originalText, currentUserLevel);
+    if (cached) {
+      showMixedTranslation(el, cached);
+      return false;
+    }
+    return true;
+  });
 
   if (toTranslate.length === 0) return;
 
@@ -679,7 +773,11 @@ async function mixedTranslateVisibleElements(
     );
   }
 
-  console.log("[Lingride] 混杂中英翻译批次完成");
+  // 打印缓存统计
+  const stats = getCacheStats();
+  console.log(
+    `[Lingride] 混杂翻译完成，缓存: 混杂=${stats.mixedTranslateSize}, 命中率=${stats.hitRate}`
+  );
 }
 
 /**
@@ -716,6 +814,13 @@ async function mixedTranslateBatch(
     if (response.success && response.data) {
       // 处理混杂翻译结果
       const { mixedTexts } = response.data;
+
+      // 缓存混杂翻译结果（即使 epoch 过期，缓存仍有价值）
+      const pairs = texts.map((text, i) => ({
+        original: text,
+        mixedText: mixedTexts[i],
+      }));
+      setCachedMixedTranslations(pairs, currentUserLevel);
 
       // 更新页面显示
       for (let i = 0; i < elementIds.length; i++) {
@@ -879,23 +984,19 @@ if (!__lingride_already_loaded__) {
         const { enabled } = message.payload;
 
         if (enabled) {
-          // 先完整停止当前翻译（如果已启用），确保干净重启
-          // 全量清理后立即 startTranslation()，缓存命中的翻译会同步恢复，
-          // 浏览器在同一帧内完成 remove + re-insert，用户不会感知闪烁
-          if (isTranslationEnabled) {
-            stopTranslation();
-          }
+          // 统一清除所有模式结果，确保互斥
+          removeAllModeResults();
+
+          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+          translationEpoch++;
+          paraphraseEpoch++;
+          mixedTranslateEpoch++;
+
+          // 重置状态
+          isParaphraseEnabled = false;
+          isMixedTranslateEnabled = false;
           isTranslationEnabled = true;
 
-          // 互斥：开启翻译时关闭释义和混杂中英
-          if (isParaphraseEnabled) {
-            stopParaphrase();
-            isParaphraseEnabled = false;
-          }
-          if (isMixedTranslateEnabled) {
-            stopMixedTranslate();
-            isMixedTranslateEnabled = false;
-          }
           startTranslation();
         } else {
           isTranslationEnabled = false;
@@ -906,24 +1007,27 @@ if (!__lingride_already_loaded__) {
       }
 
       case "PARAPHRASE_STATE_CHANGED": {
-        const { enabled } = message.payload;
+        const { enabled, userLevel } = message.payload;
 
         if (enabled) {
-          // 先完整停止当前释义（如果已启用），确保干净重启
-          if (isParaphraseEnabled) {
-            stopParaphrase();
+          // 保存用户等级（用于缓存键）
+          if (userLevel) {
+            currentUserLevel = userLevel;
           }
+
+          // 统一清除所有模式结果，确保互斥
+          removeAllModeResults();
+
+          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+          translationEpoch++;
+          paraphraseEpoch++;
+          mixedTranslateEpoch++;
+
+          // 重置状态
+          isTranslationEnabled = false;
+          isMixedTranslateEnabled = false;
           isParaphraseEnabled = true;
 
-          // 互斥：开启释义时关闭翻译和混杂中英
-          if (isTranslationEnabled) {
-            stopTranslation();
-            isTranslationEnabled = false;
-          }
-          if (isMixedTranslateEnabled) {
-            stopMixedTranslate();
-            isMixedTranslateEnabled = false;
-          }
           startParaphrase();
         } else {
           isParaphraseEnabled = false;
@@ -934,24 +1038,27 @@ if (!__lingride_already_loaded__) {
       }
 
       case "MIXED_TRANSLATE_STATE_CHANGED": {
-        const { enabled } = message.payload;
+        const { enabled, userLevel } = message.payload;
 
         if (enabled) {
-          // 先完整停止当前混杂翻译（如果已启用），确保干净重启
-          if (isMixedTranslateEnabled) {
-            stopMixedTranslate();
+          // 保存用户等级（用于缓存键）
+          if (userLevel) {
+            currentUserLevel = userLevel;
           }
+
+          // 统一清除所有模式结果，确保互斥
+          removeAllModeResults();
+
+          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+          translationEpoch++;
+          paraphraseEpoch++;
+          mixedTranslateEpoch++;
+
+          // 重置状态
+          isTranslationEnabled = false;
+          isParaphraseEnabled = false;
           isMixedTranslateEnabled = true;
 
-          // 互斥：开启混杂中英时关闭翻译和释义
-          if (isTranslationEnabled) {
-            stopTranslation();
-            isTranslationEnabled = false;
-          }
-          if (isParaphraseEnabled) {
-            stopParaphrase();
-            isParaphraseEnabled = false;
-          }
           startMixedTranslate();
         } else {
           isMixedTranslateEnabled = false;

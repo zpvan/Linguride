@@ -668,3 +668,28 @@ export function removeAllMixedTranslations(): void {
 
   console.log(`[Lingride] 已移除 ${containers.length} 个混杂翻译元素`);
 }
+
+/**
+ * 移除所有模式的结果
+ *
+ * 统一清除页面上所有三种模式（翻译、释义、混杂中英）的显示结果。
+ * 用于模式切换时确保互斥显示。
+ */
+export function removeAllModeResults(): void {
+  const allSelectors = [
+    `.${CSS_CLASSES.translation}`,
+    `.${CSS_CLASSES.error}`,
+    `.${CSS_CLASSES.loading}`,
+    `.${CSS_CLASSES.paraphrase}`,
+    `.${CSS_CLASSES.paraphraseError}`,
+    `.${CSS_CLASSES.paraphraseLoading}`,
+    `.${CSS_CLASSES.mixedTranslate}`,
+    `.${CSS_CLASSES.mixedTranslateError}`,
+    `.${CSS_CLASSES.mixedTranslateLoading}`,
+  ];
+
+  const elements = document.querySelectorAll(allSelectors.join(", "));
+  elements.forEach((el) => el.remove());
+
+  console.log(`[Lingride] 模式切换：已清除 ${elements.length} 个旧模式元素`);
+}

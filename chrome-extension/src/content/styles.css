@@ -1,14 +1,16 @@
 /**
  * @file styles.css
- * @description Content Script 注入样式
+ * @description Content Script 注入样式 — iOS Style
  * 
  * 定义三种模式（翻译、释义、混杂中英）的结果展示样式，
  * 包括成功、错误和加载状态，以及暗色模式适配。
  * 
- * 颜色体系：
+ * 颜色体系（模式区分）：
  * - 翻译：灰色边框（#ddd）
- * - 释义：绿色边框（#4caf50）
- * - 混杂中英：蓝紫色边框（#6366f1），英文蓝色高亮（#2563eb）
+ * - 释义：绿色边框（#4caf50 / iOS Green）
+ * - 混杂中英：蓝紫色边框（#6366f1），英文蓝色高亮（#0A84FF / iOS Blue）
+ * 
+ * 与 popup.css 保持 iOS 设计语言一致性
  */
 
 /* ====== 翻译成功样式 ====== */
@@ -123,9 +125,9 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* 英文高亮 - 蓝色加粗显示 */
+/* 英文高亮 - iOS 系统蓝加粗显示 */
 .lingride-en-highlight {
-  color: #2563eb;
+  color: #0A84FF;
   font-weight: 500;
 }
 
@@ -137,7 +139,7 @@
     background: rgba(99, 102, 241, 0.1);
   }
   .lingride-en-highlight {
-    color: #60a5fa;
+    color: #0A84FF;
   }
 }
 
