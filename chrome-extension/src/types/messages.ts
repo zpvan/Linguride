@@ -24,6 +24,7 @@ import {
   SentenceAnalysisPromptConfig,
   SentenceAnalysisResult,
 } from "./sentenceAnalysis";
+import { PronunciationAssessmentResult } from "./pronunciationAssessment";
 
 /**
  * 消息类型枚举
@@ -80,6 +81,10 @@ export enum MessageType {
   // ====== 长难句分析 ======
   /** 分析英文长难句 */
   ANALYZE_SENTENCE = "ANALYZE_SENTENCE",
+
+  // ====== 发音评估 ======
+  /** 评估发音 */
+  ASSESS_PRONUNCIATION = "ASSESS_PRONUNCIATION",
 }
 
 /**
@@ -231,6 +236,19 @@ export interface AnalyzeSentenceMessage {
 }
 
 /**
+ * 发音评估消息
+ */
+export interface AssessPronunciationMessage {
+  type: MessageType.ASSESS_PRONUNCIATION;
+  payload: {
+    /** 原文（用户输入的练习句子） */
+    original: string;
+    /** 识别文本（用户朗读后的语音识别结果） */
+    recognized: string;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -248,7 +266,8 @@ export type Message =
   | ToggleMixedTranslateMessage
   | GetMixedTranslateStateMessage
   | MixedTranslateMessage
-  | AnalyzeSentenceMessage;
+  | AnalyzeSentenceMessage
+  | AssessPronunciationMessage;
 
 // ====== 响应类型定义 ======
 
@@ -396,6 +415,13 @@ export interface AnalyzeSentenceResponse extends BaseResponse {
 }
 
 /**
+ * 发音评估响应
+ */
+export interface AssessPronunciationResponse extends BaseResponse {
+  data?: PronunciationAssessmentResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -410,4 +436,5 @@ export type Response =
   | ParaphraseResponse
   | GetMixedTranslateStateResponse
   | MixedTranslateResponse
-  | AnalyzeSentenceResponse;
+  | AnalyzeSentenceResponse
+  | AssessPronunciationResponse;

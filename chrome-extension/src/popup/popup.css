@@ -1150,3 +1150,441 @@ body {
   border-radius: var(--radius-sm);
   border-left: 3px solid var(--accent);
 }
+
+/* ====== 录音按钮 ====== */
+.btn-record {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #FFFFFF;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s var(--ease-out);
+}
+
+.btn-record:hover {
+  filter: brightness(1.08);
+}
+
+.btn-record:active {
+  transform: scale(0.98);
+}
+
+.btn-record:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+/* Icon toggle: default shows mic */
+.btn-record .icon-record-stop,
+.btn-record .icon-loading {
+  display: none;
+}
+
+/* Recording state: red pulsing, show stop icon */
+.btn-record.recording {
+  background: #e74c3c;
+  animation: recordPulse 1.5s ease-in-out infinite;
+}
+
+.btn-record.recording .icon-mic {
+  display: none;
+}
+
+.btn-record.recording .icon-record-stop {
+  display: inline;
+}
+
+/* Processing state: gray, show loading icon */
+.btn-record.processing {
+  background: var(--bg-quaternary);
+  cursor: wait;
+}
+
+.btn-record.processing .icon-mic,
+.btn-record.processing .icon-record-stop {
+  display: none;
+}
+
+.btn-record.processing .icon-loading {
+  display: inline;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes recordPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ====== 录音状态指示 ====== */
+.recording-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #e74c3c;
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  background: #e74c3c;
+  border-radius: 50%;
+  animation: recordDotPulse 1s ease-in-out infinite;
+}
+
+@keyframes recordDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.recording-text {
+  flex: 1;
+}
+
+.recording-time {
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 12px;
+}
+
+/* ====== 实时识别预览 ====== */
+.recognition-preview {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.preview-label {
+  color: var(--text-secondary);
+  margin-right: var(--space-xs);
+}
+
+.preview-text {
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+/* ====== 发音评估结果 ====== */
+.pronunciation-result {
+  margin-top: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+/* 评分展示 */
+.score-section {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--separator);
+}
+
+.score-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.score-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.score-value-large {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.score-value-large.excellent {
+  color: var(--success);
+}
+
+.score-value-large.good {
+  color: #34c759;
+}
+
+.score-value-large.fair {
+  color: var(--warning);
+}
+
+.score-value-large.poor {
+  color: var(--error);
+}
+
+.score-details {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.score-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.score-item .score-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.score-bar-mini {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-primary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s var(--ease-out);
+}
+
+.score-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 24px;
+  text-align: right;
+}
+
+/* 文本对比 */
+.comparison-section {
+  margin-bottom: var(--space-lg);
+}
+
+.comparison-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.comparison-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.comparison-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  width: 28px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.comparison-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.comparison-text.recognized {
+  color: var(--accent);
+}
+
+.match-rate {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.match-rate-value {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* 问题列表 */
+.issues-section {
+  margin-bottom: var(--space-lg);
+}
+
+.issues-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.issue-item {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+  border-left: 3px solid var(--warning);
+}
+
+.issue-item.major {
+  border-left-color: var(--error);
+}
+
+.issue-item.minor {
+  border-left-color: var(--text-tertiary);
+}
+
+.issue-word {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.issue-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.issue-correction {
+  font-size: 12px;
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* 改进建议 */
+.suggestions-section {
+  margin-bottom: var(--space-lg);
+}
+
+.suggestions-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.suggestions-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestions-section li {
+  position: relative;
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.suggestions-section li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+/* 鼓励语 */
+.encouragement-section {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--separator);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.encouragement-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.btn-speak-feedback {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-family: var(--font-family);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-speak-feedback:hover {
+  background: var(--accent-soft);
+}
+
+.btn-speak-feedback:active {
+  transform: scale(0.98);
+}
+
+/* ====== 自由练习结果 ====== */
+.free-recognition-result {
+  margin-top: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.free-recognition-result h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.free-recognition-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.free-recognition-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 0;
+}

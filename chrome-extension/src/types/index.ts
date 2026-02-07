@@ -41,6 +41,8 @@ export type {
   AnalyzeDifficultyResponse,
   AnalyzeSentenceMessage,
   AnalyzeSentenceResponse,
+  AssessPronunciationMessage,
+  AssessPronunciationResponse,
   BaseResponse,
   ExtractPageTextMessage,
   ExtractPageTextResponse,
@@ -102,3 +104,13 @@ export type {
   SentenceClause,
   SentenceStructure,
 } from "./sentenceAnalysis";
+
+// 发音评估类型
+export type {
+  ISpeechRecognizer,
+  MismatchDetail,
+  PronunciationAssessmentResult,
+  PronunciationIssue,
+  PronunciationPromptConfig,
+  TextComparison,
+} from "./pronunciationAssessment";

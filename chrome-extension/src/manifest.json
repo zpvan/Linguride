@@ -38,5 +38,11 @@
   "host_permissions": [
     "https://api.deepseek.com/*",
     "https://*.openai.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/permissions/permissions.html"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }

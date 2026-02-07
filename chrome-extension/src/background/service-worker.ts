@@ -24,11 +24,13 @@
 import { DEFAULT_DIFFICULTY_PROMPTS } from "../constants/difficultyPrompts";
 import { DEFAULT_MIXED_TRANSLATE_PROMPTS } from "../constants/mixedTranslatePrompts";
 import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
+import { DEFAULT_PRONUNCIATION_PROMPTS } from "../constants/pronunciationPrompts";
 import { DEFAULT_SENTENCE_ANALYSIS_PROMPTS } from "../constants/sentenceAnalysisPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
   AnalyzeDifficultyResponse,
   AnalyzeSentenceResponse,
+  AssessPronunciationResponse,
   calculateTargetLevel,
   DifficultyResult,
   ExtractPageTextResponse,
@@ -42,6 +44,7 @@ import {
   MessageType,
   MixedTranslateResponse,
   ParaphraseResponse,
+  PronunciationAssessmentResult,
   SaveConfigResponse,
   SentenceAnalysisResult,
   TestConnectionResponse,
@@ -875,6 +878,76 @@ async function handleAnalyzeSentence(
   }
 }
 
+// ====== 发音评估功能 ======
+
+/**
+ * 处理 ASSESS_PRONUNCIATION 消息
+ *
+ * 对比用户的口语发音（语音识别文本）与原文，给出评估和改进建议。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 获取 Prompt 配置
+ * 3. 替换 {{original}} 和 {{recognized}} 占位符
+ * 4. 调用 AI 进行分析
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleAssessPronunciation(
+  original: string,
+  recognized: string
+): Promise<AssessPronunciationResponse> {
+  try {
+    // 1. 获取配置并验证
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 获取 Prompt 配置
+    const prompts = DEFAULT_PRONUNCIATION_PROMPTS;
+    const userPrompt = prompts.user_prompt_template
+      .replace("{{original}}", original)
+      .replace("{{recognized}}", recognized);
+
+    // 3. 调用 AI 进行分析
+    console.log("[Lingride] 开始发音评估...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
+
+    // 4. 解析 JSON 响应（三级 fallback 策略）
+    let result: PronunciationAssessmentResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    console.log("[Lingride] 发音评估完成, score:", result.score);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 发音评估失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "发音评估失败",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -1051,6 +1124,13 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.ANALYZE_SENTENCE:
           response = await handleAnalyzeSentence(message.payload.sentence);
+          break;
+
+        case MessageType.ASSESS_PRONUNCIATION:
+          response = await handleAssessPronunciation(
+            message.payload.original,
+            message.payload.recognized
+          );
           break;
 
         default:
