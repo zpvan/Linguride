@@ -141,6 +141,11 @@ const sentenceSimplified = document.getElementById(
   "sentenceSimplified"
 ) as HTMLElement;
 
+// 语音朗读
+const speakSentenceBtn = document.getElementById(
+  "speakSentenceBtn"
+) as HTMLButtonElement;
+
 // Settings - API 配置
 const apiBaseUrlInput = document.getElementById(
   "apiBaseUrl"
@@ -282,6 +287,19 @@ function bindEvents(): void {
   // 长难句分析
   analyzeSentenceBtn.addEventListener("click", handleAnalyzeSentence);
   sentenceInput.addEventListener("input", handleSentenceInput);
+
+  // 语音朗读
+  speakSentenceBtn.addEventListener("click", handleSpeakSentence);
+
+  // Popup 关闭时停止朗读（双重兜底）
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      speechSynthesis.cancel();
+    }
+  });
+  window.addEventListener("pagehide", () => {
+    speechSynthesis.cancel();
+  });
 
   // Settings - API 配置自动保存
   apiBaseUrlInput.addEventListener("blur", autoSave);
@@ -821,6 +839,41 @@ function handleSentenceInput(): void {
   const length = sentenceInput.value.length;
   sentenceCharCount.textContent = `${length}/500`;
   analyzeSentenceBtn.disabled = length === 0;
+  speakSentenceBtn.disabled = length === 0;
+
+  // 输入内容修改时停止正在进行的朗读
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speakSentenceBtn.classList.remove("speaking");
+  }
+}
+
+/**
+ * 处理语音朗读
+ *
+ * 使用浏览器原生 Web Speech API (speechSynthesis) 朗读输入框中的英文内容。
+ * 点击切换：未朗读 → 开始朗读；朗读中 → 停止朗读。
+ */
+function handleSpeakSentence(): void {
+  // 如果正在朗读，则停止
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speakSentenceBtn.classList.remove("speaking");
+    return;
+  }
+
+  const text = sentenceInput.value.trim();
+  if (!text) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 0.9; // 略慢，适合学习者
+
+  utterance.onstart = () => speakSentenceBtn.classList.add("speaking");
+  utterance.onend = () => speakSentenceBtn.classList.remove("speaking");
+  utterance.onerror = () => speakSentenceBtn.classList.remove("speaking");
+
+  speechSynthesis.speak(utterance);
 }
 
 /**
@@ -831,6 +884,12 @@ function handleSentenceInput(): void {
 async function handleAnalyzeSentence(): Promise<void> {
   const sentence = sentenceInput.value.trim();
   if (!sentence) return;
+
+  // D2: 分析与朗读互斥 — 停止正在进行的朗读
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speakSentenceBtn.classList.remove("speaking");
+  }
 
   analyzeSentenceBtn.disabled = true;
   analyzeSentenceBtn.textContent = "分析中...";
