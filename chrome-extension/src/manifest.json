@@ -41,7 +41,10 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/permissions/permissions.html"],
+      "resources": [
+        "src/permissions/permissions.html",
+        "src/tutor/tutor.html"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

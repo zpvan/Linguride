@@ -13,13 +13,25 @@
       <!-- Header -->
       <header class="header">
         <h1 class="brand">Lingride</h1>
-        <button id="settingsBtn" class="icon-btn" aria-label="设置">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M16.18 12.32a1.25 1.25 0 00.25 1.38l.04.05a1.52 1.52 0 11-2.15 2.14l-.04-.04a1.26 1.26 0 00-2.13.89v.11a1.52 1.52 0 01-3.03 0v-.06a1.25 1.25 0 00-.82-1.15 1.25 1.25 0 00-1.38.25l-.05.04a1.52 1.52 0 11-2.14-2.15l.04-.04a1.26 1.26 0 00-.89-2.13h-.11a1.52 1.52 0 010-3.03h.06a1.25 1.25 0 001.15-.82 1.25 1.25 0 00-.25-1.38l-.04-.05A1.52 1.52 0 116.83 4.98l.04.04a1.25 1.25 0 001.38.25h.06a1.25 1.25 0 00.76-1.15v-.11a1.52 1.52 0 013.03 0v.06a1.26 1.26 0 002.13.89l.05-.04a1.52 1.52 0 112.14 2.15l-.04.04a1.25 1.25 0 00-.25 1.38v.06a1.25 1.25 0 001.15.76h.11a1.52 1.52 0 010 3.03h-.06a1.25 1.25 0 00-1.15.76z" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          <span id="settingsBadge" class="badge" style="display: none;"></span>
-        </button>
+        <div class="header-actions">
+          <button id="tutorBtn" class="icon-btn tutor-btn" aria-label="外教" title="外教">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <!-- 毕业帽 -->
+              <path d="M10 3L2 7L10 11L18 7L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M5 8.5V13C5 13 7 15 10 15C13 15 15 13 15 13V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- 对话气泡（小） -->
+              <circle cx="16" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M14.5 6L15.5 7.5" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+          <button id="settingsBtn" class="icon-btn" aria-label="设置">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M16.18 12.32a1.25 1.25 0 00.25 1.38l.04.05a1.52 1.52 0 11-2.15 2.14l-.04-.04a1.26 1.26 0 00-2.13.89v.11a1.52 1.52 0 01-3.03 0v-.06a1.25 1.25 0 00-.82-1.15 1.25 1.25 0 00-1.38.25l-.05.04a1.52 1.52 0 11-2.14-2.15l.04-.04a1.26 1.26 0 00-.89-2.13h-.11a1.52 1.52 0 010-3.03h.06a1.25 1.25 0 001.15-.82 1.25 1.25 0 00-.25-1.38l-.04-.05A1.52 1.52 0 116.83 4.98l.04.04a1.25 1.25 0 001.38.25h.06a1.25 1.25 0 00.76-1.15v-.11a1.52 1.52 0 013.03 0v.06a1.26 1.26 0 002.13.89l.05-.04a1.52 1.52 0 112.14 2.15l-.04.04a1.25 1.25 0 00-.25 1.38v.06a1.25 1.25 0 001.15.76h.11a1.52 1.52 0 010 3.03h-.06a1.25 1.25 0 00-1.15.76z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span id="settingsBadge" class="badge" style="display: none;"></span>
+          </button>
+        </div>
       </header>
 
       <!-- 模式选择器 -->
@@ -105,172 +117,7 @@
         </div>
       </section>
 
-      <!-- 长难句分析 -->
-      <section class="card">
-        <h2 class="section-label">长难句分析</h2>
-        <div class="sentence-input-wrapper">
-          <textarea id="sentenceInput" class="sentence-input"
-            placeholder="输入英文长难句，点击分析..." rows="3" maxlength="500"></textarea>
-          <span id="sentenceCharCount" class="char-count">0/500</span>
-        </div>
-        <div class="sentence-actions">
-          <button id="analyzeSentenceBtn" class="btn-analyze" disabled>分析句子</button>
-          <button id="speakSentenceBtn" class="btn-speak" disabled title="朗读输入内容">
-            <!-- 扬声器图标（默认显示） -->
-            <svg class="icon-speak" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-            <!-- 停止图标（.speaking 时显示） -->
-            <svg class="icon-stop" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
-            </svg>
-          </button>
-          <button id="recordSentenceBtn" class="btn-record" title="录音练习口语">
-            <!-- 麦克风图标（默认显示） -->
-            <svg class="icon-mic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-              <line x1="12" y1="19" x2="12" y2="23"></line>
-              <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>
-            <!-- 停止图标（.recording 时显示） -->
-            <svg class="icon-record-stop" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <rect x="6" y="6" width="12" height="12" rx="2"></rect>
-            </svg>
-            <!-- 加载图标（.processing 时显示） -->
-            <svg class="icon-loading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="2" x2="12" y2="6"></line>
-              <line x1="12" y1="18" x2="12" y2="22"></line>
-              <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-              <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-              <line x1="2" y1="12" x2="6" y2="12"></line>
-              <line x1="18" y1="12" x2="22" y2="12"></line>
-              <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-              <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-            </svg>
-          </button>
-        </div>
-        <!-- 录音状态指示 -->
-        <div id="recordingStatus" class="recording-status" style="display: none;">
-          <span class="recording-dot"></span>
-          <span class="recording-text">正在录音...</span>
-          <span id="recordingTime" class="recording-time">00:00</span>
-        </div>
-        <!-- 实时识别预览 -->
-        <div id="recognitionPreview" class="recognition-preview" style="display: none;">
-          <span class="preview-label">识别中：</span>
-          <span id="recognitionText" class="preview-text"></span>
-        </div>
-        <div id="sentenceStatus" class="status-message"></div>
-        <div id="pronunciationStatus" class="status-message"></div>
-
-        <!-- 分析结果（初始隐藏） -->
-        <div id="sentenceResult" class="sentence-result" style="display: none;">
-          <!-- 翻译 -->
-          <div class="result-section">
-            <h4>中文翻译</h4>
-            <p id="sentenceTranslation"></p>
-          </div>
-          <!-- 主干结构 -->
-          <div class="result-section">
-            <h4>句子主干</h4>
-            <div id="sentenceStructure" class="structure-tags"></div>
-          </div>
-          <!-- 从句拆解 -->
-          <div class="result-section" id="clausesSection" style="display: none;">
-            <h4>从句拆解</h4>
-            <div id="sentenceClauses"></div>
-          </div>
-          <!-- 重点短语 -->
-          <div class="result-section">
-            <h4>重点短语</h4>
-            <div id="sentenceKeyPhrases"></div>
-          </div>
-          <!-- 语法要点 -->
-          <div class="result-section">
-            <h4>语法要点</h4>
-            <ul id="sentenceGrammarPoints"></ul>
-          </div>
-          <!-- 简化版 -->
-          <div class="result-section">
-            <h4>简化改写</h4>
-            <p id="sentenceSimplified" class="simplified-text"></p>
-          </div>
-        </div>
-
-        <!-- 发音评估结果（初始隐藏） -->
-        <div id="pronunciationResult" class="pronunciation-result" style="display: none;">
-          <!-- 评分展示 -->
-          <div class="score-section">
-            <div class="score-header">
-              <span class="score-title">发音评分</span>
-              <span id="pronunciationScore" class="score-value-large">--</span>
-            </div>
-            <div class="score-details">
-              <div class="score-item">
-                <span class="score-label">准确度</span>
-                <div class="score-bar-mini">
-                  <div id="accuracyBar" class="score-bar-fill"></div>
-                </div>
-                <span id="accuracyValue" class="score-num">--</span>
-              </div>
-              <div class="score-item">
-                <span class="score-label">流利度</span>
-                <div class="score-bar-mini">
-                  <div id="fluencyBar" class="score-bar-fill"></div>
-                </div>
-                <span id="fluencyValue" class="score-num">--</span>
-              </div>
-            </div>
-          </div>
-          <!-- 文本对比 -->
-          <div class="comparison-section">
-            <h4>对比结果</h4>
-            <div class="comparison-row">
-              <span class="comparison-label">原文</span>
-              <p id="comparisonOriginal" class="comparison-text"></p>
-            </div>
-            <div class="comparison-row">
-              <span class="comparison-label">识别</span>
-              <p id="comparisonRecognized" class="comparison-text recognized"></p>
-            </div>
-            <div class="match-rate">
-              <span>匹配率：</span>
-              <span id="matchRate" class="match-rate-value">--</span>
-            </div>
-          </div>
-          <!-- 问题列表 -->
-          <div class="issues-section" id="issuesSection" style="display: none;">
-            <h4>发音问题</h4>
-            <div id="issuesList"></div>
-          </div>
-          <!-- 改进建议 -->
-          <div class="suggestions-section" id="suggestionsSection" style="display: none;">
-            <h4>改进建议</h4>
-            <ul id="pronunciationSuggestionsList"></ul>
-          </div>
-          <!-- 鼓励语 -->
-          <div class="encouragement-section">
-            <p id="encouragementText" class="encouragement-text"></p>
-            <button id="speakFeedbackBtn" class="btn-speak-feedback" title="示范发音">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              </svg>
-              示范发音
-            </button>
-          </div>
-        </div>
-
-        <!-- 自由练习结果（无原文时显示） -->
-        <div id="freeRecognitionResult" class="free-recognition-result" style="display: none;">
-          <h4>识别结果</h4>
-          <p id="freeRecognitionText" class="free-recognition-text"></p>
-          <p class="free-recognition-hint">输入英文句子后录音可获得发音评估</p>
-        </div>
-      </section>
+    
     </div>
 
     <!-- ====== Settings View - 配置面板 ====== -->

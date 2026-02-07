@@ -16,7 +16,10 @@ export default defineConfig({
       // 使用 Manifest V3
       browser: "chrome",
       // 额外的 HTML 入口点
-      additionalInputs: ["src/permissions/permissions.html"],
+      additionalInputs: [
+        "src/permissions/permissions.html",
+        "src/tutor/tutor.html",
+      ],
     }),
   ],
   build: {

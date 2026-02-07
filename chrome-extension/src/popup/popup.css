@@ -141,6 +141,13 @@ body {
   width: 32px;
 }
 
+/* ====== Header Actions ====== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 /* ====== Icon Buttons ====== */
 .icon-btn {
   position: relative;
