@@ -114,6 +114,43 @@ body {
   margin-bottom: var(--space-lg);
 }
 
+/* ====== Mode Selector ====== */
+.mode-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s var(--ease-out);
+}
+
+.mode-btn:hover {
+  background: var(--accent-soft);
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: #FFFFFF;
+  border-color: var(--accent);
+}
+
+.mode-btn.active:hover {
+  opacity: 0.9;
+}
+
 /* ====== Sentence Input ====== */
 .sentence-input-wrapper {
   position: relative;
@@ -908,6 +945,138 @@ body {
   margin: 0;
 }
 
+/* ====== Translation Result ====== */
+.translation-result {
+  margin-top: 0;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.result-header h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.btn-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s var(--ease-out);
+}
+
+.btn-copy:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+.btn-copy:active {
+  transform: scale(0.95);
+}
+
+.btn-copy.copied {
+  background: var(--success);
+  color: #FFFFFF;
+}
+
+.translation-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ====== Definition Result ====== */
+.definition-result {
+  margin-top: 0;
+}
+
+.definition-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.definition-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0;
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+}
+
+.examples-section,
+.synonyms-section,
+.usage-section {
+  margin: 0;
+}
+
+.examples-section h5,
+.synonyms-section h5,
+.usage-section h5 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.examples-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.examples-section li {
+  position: relative;
+  padding-left: var(--space-lg);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.examples-section li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: var(--accent);
+}
+
+.synonyms-section p,
+.usage-section p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.synonyms-section p {
+  color: var(--accent);
+}
+
 /* ====== Responsive ====== */
 @media (max-width: 600px) {
   .tutor-container {
@@ -921,5 +1090,14 @@ body {
   .score-details {
     flex-direction: column;
     gap: var(--space-md);
+  }
+
+  .mode-selector {
+    flex-wrap: wrap;
+  }
+
+  .mode-btn {
+    min-width: calc(50% - 4px);
+    flex: none;
   }
 }

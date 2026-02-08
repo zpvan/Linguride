@@ -1,35 +1,105 @@
 /**
  * @file tutor.ts
- * @description 外教标签页逻辑 — 长难句分析 + 发音评估
+ * @description 外教标签页逻辑 — AI 助手多模式功能
  *
  * 从 popup.ts 迁移而来，提供更大的操作空间和更好的用户体验。
- * 功能：长难句分析、语音朗读、录音练习、发音评估。
+ * 功能：中译英、英译中、英英释义、长难句分析、语音朗读、录音练习、发音评估。
  *
  * @author Lingride Team
- * @since 2.1.0
+ * @since 2.2.0
  */
 
 import {
   AnalyzeSentenceResponse,
   AssessPronunciationResponse,
+  CEFRLevel,
+  ChineseToEnglishResponse,
+  EnglishDefinitionResponse,
+  EnglishToChineseResponse,
+  GetConfigResponse,
   ISpeechRecognizer,
   MessageType,
   PronunciationAssessmentResult,
   SentenceAnalysisResult,
 } from "../types";
 
+// ====== 类型定义 ======
+
+/** 外教助手模式 */
+type TutorMode = "cn2en" | "en2cn" | "definition" | "analyze";
+
+/** 模式配置 */
+interface ModeConfig {
+  placeholder: string;
+  btnText: string;
+}
+
+/** 模式配置映射 */
+const MODE_CONFIG: Record<TutorMode, ModeConfig> = {
+  cn2en: { placeholder: "输入中文，点击翻译成英文...", btnText: "翻译" },
+  en2cn: { placeholder: "输入英文，点击翻译成中文...", btnText: "翻译" },
+  definition: {
+    placeholder: "输入英文单词或句子，获取英英释义...",
+    btnText: "释义",
+  },
+  analyze: { placeholder: "输入英文长难句，点击分析...", btnText: "语法分析" },
+};
+
+// ====== 状态变量 ======
+
+/** 当前模式 */
+let currentMode: TutorMode = "cn2en";
+
+/** 用户 CEFR 水平 */
+let userLevel: CEFRLevel = "A2";
+
 // ====== DOM 元素引用 ======
 
-// 长难句分析
+// 模式选择器
+const modeSelector = document.getElementById("modeSelector") as HTMLElement;
+const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+
+// 输入区域
 const sentenceInput = document.getElementById(
   "sentenceInput"
 ) as HTMLTextAreaElement;
 const sentenceCharCount = document.getElementById(
   "sentenceCharCount"
 ) as HTMLElement;
-const analyzeSentenceBtn = document.getElementById(
-  "analyzeSentenceBtn"
+
+// 翻译结果
+const translationResult = document.getElementById(
+  "translationResult"
+) as HTMLElement;
+const translationText = document.getElementById(
+  "translationText"
+) as HTMLElement;
+const copyTranslationBtn = document.getElementById(
+  "copyTranslationBtn"
 ) as HTMLButtonElement;
+
+// 英英释义结果
+const definitionResult = document.getElementById(
+  "definitionResult"
+) as HTMLElement;
+const definitionText = document.getElementById(
+  "definitionText"
+) as HTMLElement;
+const examplesSection = document.getElementById(
+  "examplesSection"
+) as HTMLElement;
+const examplesList = document.getElementById("examplesList") as HTMLElement;
+const synonymsSection = document.getElementById(
+  "synonymsSection"
+) as HTMLElement;
+const synonymsText = document.getElementById("synonymsText") as HTMLElement;
+const usageSection = document.getElementById("usageSection") as HTMLElement;
+const usageText = document.getElementById("usageText") as HTMLElement;
+const copyDefinitionBtn = document.getElementById(
+  "copyDefinitionBtn"
+) as HTMLButtonElement;
+
+// 长难句分析结果（保留原有引用）
 const sentenceStatus = document.getElementById("sentenceStatus") as HTMLElement;
 const sentenceResultEl = document.getElementById(
   "sentenceResult"
@@ -237,17 +307,57 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
 
 // ====== 初始化 ======
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Lingride Tutor] 外教标签页已加载");
+
+  // 获取用户配置
+  await loadUserConfig();
+
+  // 绑定事件
   bindEvents();
+
+  // 初始化 UI
+  updateModeUI();
 });
+
+/**
+ * 加载用户配置
+ *
+ * 获取用户 CEFR 水平，用于英英释义功能。
+ */
+async function loadUserConfig(): Promise<void> {
+  try {
+    const response: GetConfigResponse = await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    });
+    if (response.success && response.data?.user_english_level) {
+      userLevel = response.data.user_english_level;
+      console.log(`[Lingride Tutor] 用户水平: ${userLevel}`);
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 获取用户配置失败:", error);
+  }
+}
 
 // ====== 事件绑定 ======
 
 function bindEvents(): void {
-  // 长难句分析
-  analyzeSentenceBtn.addEventListener("click", handleAnalyzeSentence);
+  // 模式选择器（事件委托）
+  modeSelector.addEventListener("click", handleModeClick);
+
+  // 提交按钮
+  submitBtn.addEventListener("click", handleSubmit);
+
+  // 输入框
   sentenceInput.addEventListener("input", handleSentenceInput);
+
+  // 复制按钮
+  copyTranslationBtn?.addEventListener("click", () =>
+    handleCopy(translationText.textContent || "", copyTranslationBtn)
+  );
+  copyDefinitionBtn?.addEventListener("click", () =>
+    handleCopy(getDefinitionCopyText(), copyDefinitionBtn)
+  );
 
   // 语音朗读
   speakSentenceBtn.addEventListener("click", handleSpeakSentence);
@@ -263,7 +373,283 @@ function bindEvents(): void {
   });
 }
 
+// ====== 模式切换 ======
+
+/**
+ * 处理模式按钮点击
+ */
+function handleModeClick(e: Event): void {
+  const target = e.target as HTMLElement;
+  if (!target.classList.contains("mode-btn")) return;
+
+  const mode = target.dataset.mode as TutorMode;
+  if (!mode || mode === currentMode) return;
+
+  currentMode = mode;
+  updateModeUI();
+  clearAllResults();
+}
+
+/**
+ * 更新模式 UI
+ *
+ * 更新模式按钮样式、placeholder 和提交按钮文本。
+ */
+function updateModeUI(): void {
+  // 更新模式按钮样式
+  modeSelector.querySelectorAll(".mode-btn").forEach((btn) => {
+    const btnMode = (btn as HTMLElement).dataset.mode;
+    btn.classList.toggle("active", btnMode === currentMode);
+  });
+
+  // 更新 placeholder 和按钮文本
+  const config = MODE_CONFIG[currentMode];
+  sentenceInput.placeholder = config.placeholder;
+  submitBtn.textContent = config.btnText;
+}
+
+/**
+ * 清除所有结果区域
+ */
+function clearAllResults(): void {
+  // 隐藏所有结果区域
+  translationResult.style.display = "none";
+  definitionResult.style.display = "none";
+  sentenceResultEl.style.display = "none";
+  pronunciationResult.style.display = "none";
+  freeRecognitionResult.style.display = "none";
+
+  // 清除状态消息
+  sentenceStatus.style.display = "none";
+  pronunciationStatus.style.display = "none";
+}
+
+// ====== 统一提交处理 ======
+
+/**
+ * 处理提交按钮点击
+ */
+async function handleSubmit(): Promise<void> {
+  const text = sentenceInput.value.trim();
+  if (!text) return;
+
+  // 停止正在进行的朗读
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speakSentenceBtn.classList.remove("speaking");
+  }
+
+  // 根据当前模式调用对应的处理函数
+  switch (currentMode) {
+    case "cn2en":
+      await handleChineseToEnglish(text);
+      break;
+    case "en2cn":
+      await handleEnglishToChinese(text);
+      break;
+    case "definition":
+      await handleEnglishDefinition(text);
+      break;
+    case "analyze":
+      await handleAnalyzeSentence();
+      break;
+  }
+}
+
+// ====== 中译英 ======
+
+/**
+ * 处理中译英
+ */
+async function handleChineseToEnglish(text: string): Promise<void> {
+  submitBtn.disabled = true;
+  submitBtn.textContent = "翻译中...";
+  clearAllResults();
+  showStatus(sentenceStatus, "正在翻译...", "loading");
+
+  try {
+    const response: ChineseToEnglishResponse = await chrome.runtime.sendMessage(
+      {
+        type: MessageType.CHINESE_TO_ENGLISH,
+        payload: { text },
+      }
+    );
+
+    if (response.success && response.data) {
+      sentenceStatus.style.display = "none";
+      renderTranslationResult(response.data.translation);
+    } else {
+      showStatus(sentenceStatus, response.error || "翻译失败", "error");
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 中译英失败:", error);
+    showStatus(sentenceStatus, "翻译请求失败", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = MODE_CONFIG[currentMode].btnText;
+  }
+}
+
+// ====== 英译中 ======
+
+/**
+ * 处理英译中
+ */
+async function handleEnglishToChinese(text: string): Promise<void> {
+  submitBtn.disabled = true;
+  submitBtn.textContent = "翻译中...";
+  clearAllResults();
+  showStatus(sentenceStatus, "正在翻译...", "loading");
+
+  try {
+    const response: EnglishToChineseResponse = await chrome.runtime.sendMessage(
+      {
+        type: MessageType.ENGLISH_TO_CHINESE,
+        payload: { text },
+      }
+    );
+
+    if (response.success && response.data) {
+      sentenceStatus.style.display = "none";
+      renderTranslationResult(response.data.translation);
+    } else {
+      showStatus(sentenceStatus, response.error || "翻译失败", "error");
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 英译中失败:", error);
+    showStatus(sentenceStatus, "翻译请求失败", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = MODE_CONFIG[currentMode].btnText;
+  }
+}
+
+/**
+ * 渲染翻译结果
+ */
+function renderTranslationResult(translation: string): void {
+  translationText.textContent = translation;
+  translationResult.style.display = "block";
+}
+
+// ====== 英英释义 ======
+
+/**
+ * 处理英英释义
+ */
+async function handleEnglishDefinition(text: string): Promise<void> {
+  submitBtn.disabled = true;
+  submitBtn.textContent = "释义中...";
+  clearAllResults();
+  showStatus(sentenceStatus, "正在获取释义...", "loading");
+
+  try {
+    const response: EnglishDefinitionResponse =
+      await chrome.runtime.sendMessage({
+        type: MessageType.ENGLISH_DEFINITION,
+        payload: { text, userLevel },
+      });
+
+    if (response.success && response.data) {
+      sentenceStatus.style.display = "none";
+      renderDefinitionResult(response.data);
+    } else {
+      showStatus(sentenceStatus, response.error || "获取释义失败", "error");
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 英英释义失败:", error);
+    showStatus(sentenceStatus, "释义请求失败", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = MODE_CONFIG[currentMode].btnText;
+  }
+}
+
+/**
+ * 渲染英英释义结果
+ */
+function renderDefinitionResult(
+  data: EnglishDefinitionResponse["data"]
+): void {
+  if (!data) return;
+
+  // 释义
+  definitionText.textContent = data.definition;
+
+  // 例句
+  if (data.examples && data.examples.length > 0) {
+    examplesList.innerHTML = data.examples
+      .map((ex) => `<li>${ex}</li>`)
+      .join("");
+    examplesSection.style.display = "block";
+  } else {
+    examplesSection.style.display = "none";
+  }
+
+  // 同义词
+  if (data.synonyms && data.synonyms.length > 0) {
+    synonymsText.textContent = data.synonyms.join(", ");
+    synonymsSection.style.display = "block";
+  } else {
+    synonymsSection.style.display = "none";
+  }
+
+  // 用法说明
+  if (data.usageNotes) {
+    usageText.textContent = data.usageNotes;
+    usageSection.style.display = "block";
+  } else {
+    usageSection.style.display = "none";
+  }
+
+  definitionResult.style.display = "block";
+}
+
+/**
+ * 获取英英释义的复制文本
+ */
+function getDefinitionCopyText(): string {
+  const parts = [definitionText.textContent || ""];
+
+  if (examplesSection.style.display !== "none") {
+    const examples = Array.from(examplesList.querySelectorAll("li"))
+      .map((li) => `• ${li.textContent}`)
+      .join("\n");
+    parts.push(`\nExamples:\n${examples}`);
+  }
+
+  if (synonymsSection.style.display !== "none") {
+    parts.push(`\nSynonyms: ${synonymsText.textContent}`);
+  }
+
+  if (usageSection.style.display !== "none") {
+    parts.push(`\nUsage: ${usageText.textContent}`);
+  }
+
+  return parts.join("");
+}
+
+// ====== 复制功能 ======
+
+/**
+ * 处理复制
+ */
+async function handleCopy(
+  text: string,
+  button: HTMLButtonElement
+): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    button.classList.add("copied");
+    setTimeout(() => button.classList.remove("copied"), 1500);
+  } catch (error) {
+    console.error("[Lingride Tutor] 复制失败:", error);
+  }
+}
+
 // ====== 长难句分析 ======
+
+// ====== 输入处理 ======
 
 /**
  * 处理输入框的 input 事件
@@ -273,7 +659,7 @@ function bindEvents(): void {
 function handleSentenceInput(): void {
   const length = sentenceInput.value.length;
   sentenceCharCount.textContent = `${length}/500`;
-  analyzeSentenceBtn.disabled = length === 0;
+  submitBtn.disabled = length === 0;
   speakSentenceBtn.disabled = length === 0;
 
   // 输入内容修改时停止正在进行的朗读
@@ -320,15 +706,9 @@ async function handleAnalyzeSentence(): Promise<void> {
   const sentence = sentenceInput.value.trim();
   if (!sentence) return;
 
-  // 分析与朗读互斥 — 停止正在进行的朗读
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
-    speakSentenceBtn.classList.remove("speaking");
-  }
-
-  analyzeSentenceBtn.disabled = true;
-  analyzeSentenceBtn.textContent = "分析中...";
-  sentenceResultEl.style.display = "none";
+  submitBtn.disabled = true;
+  submitBtn.textContent = "分析中...";
+  clearAllResults();
   showStatus(sentenceStatus, "正在分析句子结构...", "loading");
 
   try {
@@ -347,8 +727,8 @@ async function handleAnalyzeSentence(): Promise<void> {
     console.error("[Lingride Tutor] 长难句分析失败:", error);
     showStatus(sentenceStatus, "分析请求失败", "error");
   } finally {
-    analyzeSentenceBtn.disabled = false;
-    analyzeSentenceBtn.textContent = "分析句子";
+    submitBtn.disabled = false;
+    submitBtn.textContent = MODE_CONFIG[currentMode].btnText;
   }
 }
 

@@ -26,13 +26,23 @@ import { DEFAULT_MIXED_TRANSLATE_PROMPTS } from "../constants/mixedTranslateProm
 import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
 import { DEFAULT_PRONUNCIATION_PROMPTS } from "../constants/pronunciationPrompts";
 import { DEFAULT_SENTENCE_ANALYSIS_PROMPTS } from "../constants/sentenceAnalysisPrompts";
+import {
+  CHINESE_TO_ENGLISH_PROMPTS,
+  ENGLISH_DEFINITION_PROMPTS,
+  ENGLISH_TO_CHINESE_PROMPTS,
+} from "../constants/tutorPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
   AnalyzeDifficultyResponse,
   AnalyzeSentenceResponse,
   AssessPronunciationResponse,
   calculateTargetLevel,
+  CEFRLevel,
+  ChineseToEnglishResponse,
   DifficultyResult,
+  EnglishDefinitionResponse,
+  EnglishDefinitionResult,
+  EnglishToChineseResponse,
   ExtractPageTextResponse,
   GetConfigResponse,
   GetMixedTranslateStateResponse,
@@ -958,6 +968,175 @@ async function handleAssessPronunciation(
   }
 }
 
+// ====== 外教助手功能 ======
+
+/**
+ * 处理中译英请求
+ *
+ * 调用 AI 将中文文本翻译成英文。
+ */
+async function handleChineseToEnglish(
+  text: string
+): Promise<ChineseToEnglishResponse> {
+  try {
+    // 1. 获取 Provider 配置
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 构建 Prompt
+    const userPrompt = CHINESE_TO_ENGLISH_PROMPTS.user_prompt_template.replace(
+      "{{text}}",
+      text
+    );
+
+    // 3. 调用 AI
+    console.log("[Lingride] 开始中译英...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const translation = await provider.chat(
+      CHINESE_TO_ENGLISH_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    console.log("[Lingride] 中译英完成");
+
+    return {
+      success: true,
+      data: { translation: translation.trim() },
+    };
+  } catch (error) {
+    console.error("[Lingride] 中译英失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "中译英失败",
+    };
+  }
+}
+
+/**
+ * 处理英译中请求
+ *
+ * 调用 AI 将英文文本翻译成中文。
+ */
+async function handleEnglishToChinese(
+  text: string
+): Promise<EnglishToChineseResponse> {
+  try {
+    // 1. 获取 Provider 配置
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 构建 Prompt
+    const userPrompt = ENGLISH_TO_CHINESE_PROMPTS.user_prompt_template.replace(
+      "{{text}}",
+      text
+    );
+
+    // 3. 调用 AI
+    console.log("[Lingride] 开始英译中...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const translation = await provider.chat(
+      ENGLISH_TO_CHINESE_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    console.log("[Lingride] 英译中完成");
+
+    return {
+      success: true,
+      data: { translation: translation.trim() },
+    };
+  } catch (error) {
+    console.error("[Lingride] 英译中失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "英译中失败",
+    };
+  }
+}
+
+/**
+ * 处理英英释义请求
+ *
+ * 调用 AI 用英语解释英文词汇/句子，根据用户 CEFR 水平调整复杂度。
+ */
+async function handleEnglishDefinition(
+  text: string,
+  userLevel: CEFRLevel
+): Promise<EnglishDefinitionResponse> {
+  try {
+    // 1. 获取 Provider 配置
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 构建 Prompt
+    const userPrompt = ENGLISH_DEFINITION_PROMPTS.user_prompt_template
+      .replace(/\{\{text\}\}/g, text)
+      .replace(/\{\{user_level\}\}/g, userLevel);
+
+    // 3. 调用 AI
+    console.log(`[Lingride] 开始英英释义 (${userLevel})...`);
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(
+      ENGLISH_DEFINITION_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    // 4. 解析 JSON 响应（三级 fallback 策略）
+    let result: EnglishDefinitionResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 5. 确保字段完整性
+    result = {
+      definition: result.definition || "",
+      examples: result.examples || [],
+      synonyms: result.synonyms || [],
+      usageNotes: result.usageNotes || "",
+    };
+
+    console.log("[Lingride] 英英释义完成");
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 英英释义失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "英英释义失败",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -1140,6 +1319,21 @@ chrome.runtime.onMessage.addListener(
           response = await handleAssessPronunciation(
             message.payload.original,
             message.payload.recognized
+          );
+          break;
+
+        case MessageType.CHINESE_TO_ENGLISH:
+          response = await handleChineseToEnglish(message.payload.text);
+          break;
+
+        case MessageType.ENGLISH_TO_CHINESE:
+          response = await handleEnglishToChinese(message.payload.text);
+          break;
+
+        case MessageType.ENGLISH_DEFINITION:
+          response = await handleEnglishDefinition(
+            message.payload.text,
+            message.payload.userLevel
           );
           break;
 

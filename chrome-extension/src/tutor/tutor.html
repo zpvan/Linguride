@@ -13,16 +13,23 @@
       <h1 class="header-title">外教 - AI 英语学习助手</h1>
     </header>
 
-    <!-- 长难句输入 -->
+    <!-- AI 助手输入区 -->
     <section class="card">
-      <h2 class="section-label">长难句分析</h2>
+      <h2 class="section-label">AI 助手</h2>
+      <!-- 模式选择器 -->
+      <div class="mode-selector" id="modeSelector">
+        <button class="mode-btn active" data-mode="cn2en">中译英</button>
+        <button class="mode-btn" data-mode="en2cn">英译中</button>
+        <button class="mode-btn" data-mode="definition">英英释义</button>
+        <button class="mode-btn" data-mode="analyze">分析句子</button>
+      </div>
       <div class="sentence-input-wrapper">
         <textarea id="sentenceInput" class="sentence-input"
-          placeholder="输入英文长难句，点击分析..." rows="4" maxlength="500"></textarea>
+          placeholder="输入中文，点击翻译成英文..." rows="4" maxlength="500"></textarea>
         <span id="sentenceCharCount" class="char-count">0/500</span>
       </div>
       <div class="sentence-actions">
-        <button id="analyzeSentenceBtn" class="btn-analyze" disabled>分析句子</button>
+        <button id="submitBtn" class="btn-analyze" disabled>翻译</button>
         <button id="speakSentenceBtn" class="btn-speak" disabled title="朗读输入内容">
           <!-- 扬声器图标（默认显示） -->
           <svg class="icon-speak" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +80,48 @@
       </div>
       <div id="sentenceStatus" class="status-message"></div>
       <div id="pronunciationStatus" class="status-message"></div>
+    </section>
+
+    <!-- 翻译结果（中译英/英译中共用，初始隐藏） -->
+    <section id="translationResult" class="card translation-result" style="display: none;">
+      <div class="result-header">
+        <h4>翻译结果</h4>
+        <button id="copyTranslationBtn" class="btn-copy" title="复制">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
+      <p id="translationText" class="translation-text"></p>
+    </section>
+
+    <!-- 英英释义结果（初始隐藏） -->
+    <section id="definitionResult" class="card definition-result" style="display: none;">
+      <div class="result-header">
+        <h4>英英释义</h4>
+        <button id="copyDefinitionBtn" class="btn-copy" title="复制">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="definition-entry">
+        <p id="definitionText" class="definition-text"></p>
+        <div id="examplesSection" class="examples-section" style="display: none;">
+          <h5>Examples</h5>
+          <ul id="examplesList"></ul>
+        </div>
+        <div id="synonymsSection" class="synonyms-section" style="display: none;">
+          <h5>Synonyms</h5>
+          <p id="synonymsText"></p>
+        </div>
+        <div id="usageSection" class="usage-section" style="display: none;">
+          <h5>Usage Notes</h5>
+          <p id="usageText"></p>
+        </div>
+      </div>
     </section>
 
     <!-- 分析结果（初始隐藏） -->

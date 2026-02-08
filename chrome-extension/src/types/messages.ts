@@ -85,6 +85,14 @@ export enum MessageType {
   // ====== 发音评估 ======
   /** 评估发音 */
   ASSESS_PRONUNCIATION = "ASSESS_PRONUNCIATION",
+
+  // ====== 外教助手 ======
+  /** 中译英 */
+  CHINESE_TO_ENGLISH = "CHINESE_TO_ENGLISH",
+  /** 英译中 */
+  ENGLISH_TO_CHINESE = "ENGLISH_TO_CHINESE",
+  /** 英英释义 */
+  ENGLISH_DEFINITION = "ENGLISH_DEFINITION",
 }
 
 /**
@@ -249,6 +257,41 @@ export interface AssessPronunciationMessage {
 }
 
 /**
+ * 中译英消息
+ */
+export interface ChineseToEnglishMessage {
+  type: MessageType.CHINESE_TO_ENGLISH;
+  payload: {
+    /** 待翻译的中文文本 */
+    text: string;
+  };
+}
+
+/**
+ * 英译中消息
+ */
+export interface EnglishToChineseMessage {
+  type: MessageType.ENGLISH_TO_CHINESE;
+  payload: {
+    /** 待翻译的英文文本 */
+    text: string;
+  };
+}
+
+/**
+ * 英英释义消息
+ */
+export interface EnglishDefinitionMessage {
+  type: MessageType.ENGLISH_DEFINITION;
+  payload: {
+    /** 待释义的英文文本 */
+    text: string;
+    /** 用户 CEFR 水平 */
+    userLevel: CEFRLevel;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -267,7 +310,10 @@ export type Message =
   | GetMixedTranslateStateMessage
   | MixedTranslateMessage
   | AnalyzeSentenceMessage
-  | AssessPronunciationMessage;
+  | AssessPronunciationMessage
+  | ChineseToEnglishMessage
+  | EnglishToChineseMessage
+  | EnglishDefinitionMessage;
 
 // ====== 响应类型定义 ======
 
@@ -422,6 +468,47 @@ export interface AssessPronunciationResponse extends BaseResponse {
 }
 
 /**
+ * 中译英响应
+ */
+export interface ChineseToEnglishResponse extends BaseResponse {
+  data?: {
+    /** 翻译结果 */
+    translation: string;
+  };
+}
+
+/**
+ * 英译中响应
+ */
+export interface EnglishToChineseResponse extends BaseResponse {
+  data?: {
+    /** 翻译结果 */
+    translation: string;
+  };
+}
+
+/**
+ * 英英释义结果
+ */
+export interface EnglishDefinitionResult {
+  /** 英文释义 */
+  definition: string;
+  /** 例句列表 */
+  examples: string[];
+  /** 同义词 */
+  synonyms: string[];
+  /** 用法说明 */
+  usageNotes: string;
+}
+
+/**
+ * 英英释义响应
+ */
+export interface EnglishDefinitionResponse extends BaseResponse {
+  data?: EnglishDefinitionResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -437,4 +524,7 @@ export type Response =
   | GetMixedTranslateStateResponse
   | MixedTranslateResponse
   | AnalyzeSentenceResponse
-  | AssessPronunciationResponse;
+  | AssessPronunciationResponse
+  | ChineseToEnglishResponse
+  | EnglishToChineseResponse
+  | EnglishDefinitionResponse;
