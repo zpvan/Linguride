@@ -27,6 +27,10 @@ import { DEFAULT_PARAPHRASE_PROMPTS } from "../constants/paraphrasePrompts";
 import { DEFAULT_PRONUNCIATION_PROMPTS } from "../constants/pronunciationPrompts";
 import { DEFAULT_SENTENCE_ANALYSIS_PROMPTS } from "../constants/sentenceAnalysisPrompts";
 import {
+  SHADOW_ASSESS_PROMPTS,
+  SPLIT_SENTENCES_PROMPTS,
+} from "../constants/shadowPrompts";
+import {
   CHINESE_TO_ENGLISH_PROMPTS,
   ENGLISH_DEFINITION_PROMPTS,
   ENGLISH_TO_CHINESE_PROMPTS,
@@ -57,6 +61,10 @@ import {
   PronunciationAssessmentResult,
   SaveConfigResponse,
   SentenceAnalysisResult,
+  ShadowAssessmentResult,
+  ShadowAssessResponse,
+  SplitSentencesResponse,
+  SplitSentencesResult,
   TestConnectionResponse,
   TranslateResponse,
 } from "../types";
@@ -1137,6 +1145,190 @@ async function handleEnglishDefinition(
   }
 }
 
+// ====== 影子跟读功能 ======
+
+/**
+ * 处理 SPLIT_SENTENCES 消息
+ *
+ * 调用 AI 将用户输入的英文文本智能分句。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 获取 Prompt 配置
+ * 3. 替换 {{text}} 占位符
+ * 4. 调用 AI 进行分句
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleSplitSentences(
+  text: string
+): Promise<SplitSentencesResponse> {
+  try {
+    // 1. 获取配置并验证
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 验证输入
+    const trimmedText = text.trim();
+    if (!trimmedText) {
+      return {
+        success: false,
+        error: "输入文本不能为空",
+      };
+    }
+
+    // 3. 构建 Prompt
+    const userPrompt = SPLIT_SENTENCES_PROMPTS.user_prompt_template.replace(
+      "{{text}}",
+      trimmedText
+    );
+
+    // 4. 调用 AI 进行分句
+    console.log("[Lingride] 开始智能分句...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(
+      SPLIT_SENTENCES_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    // 5. 解析 JSON 响应
+    let result: SplitSentencesResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 确保字段完整性
+    const sentences = result.sentences || [];
+    result = {
+      sentences,
+      totalCount: sentences.length,
+    };
+
+    console.log(`[Lingride] 分句完成: ${result.totalCount} 句`);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 智能分句失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "分句失败，请重试",
+    };
+  }
+}
+
+/**
+ * 处理 SHADOW_ASSESS 消息
+ *
+ * 对比用户的跟读发音（语音识别文本）与原文，从准确度、流利度、语调、节奏四个维度给出评估。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 获取 Prompt 配置
+ * 3. 替换 {{original}} 和 {{recognized}} 占位符
+ * 4. 调用 AI 进行分析
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleShadowAssess(
+  original: string,
+  recognized: string
+): Promise<ShadowAssessResponse> {
+  try {
+    // 1. 获取配置并验证
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 验证输入
+    if (!original.trim() || !recognized.trim()) {
+      return {
+        success: false,
+        error: "原文和识别文本不能为空",
+      };
+    }
+
+    // 3. 构建 Prompt
+    const userPrompt = SHADOW_ASSESS_PROMPTS.user_prompt_template
+      .replace("{{original}}", original)
+      .replace("{{recognized}}", recognized);
+
+    // 4. 调用 AI 进行分析
+    console.log("[Lingride] 开始影子跟读评估...");
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(
+      SHADOW_ASSESS_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    // 5. 解析 JSON 响应
+    let result: ShadowAssessmentResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 确保字段完整性
+    result = {
+      score: result.score || 0,
+      accuracy: result.accuracy || 0,
+      fluency: result.fluency || 0,
+      intonation: result.intonation || 0,
+      rhythm: result.rhythm || 0,
+      issues: result.issues || [],
+      suggestions: result.suggestions || [],
+      encouragement: result.encouragement || "继续努力！",
+      comparison: result.comparison || {
+        original,
+        recognized,
+        matchRate: 0,
+        mismatches: [],
+      },
+    };
+
+    console.log("[Lingride] 影子跟读评估完成, score:", result.score);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 影子跟读评估失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "评估失败，请重试",
+    };
+  }
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -1334,6 +1526,17 @@ chrome.runtime.onMessage.addListener(
           response = await handleEnglishDefinition(
             message.payload.text,
             message.payload.userLevel
+          );
+          break;
+
+        case MessageType.SPLIT_SENTENCES:
+          response = await handleSplitSentences(message.payload.text);
+          break;
+
+        case MessageType.SHADOW_ASSESS:
+          response = await handleShadowAssess(
+            message.payload.original,
+            message.payload.recognized
           );
           break;
 

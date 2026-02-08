@@ -25,6 +25,10 @@ import {
   SentenceAnalysisResult,
 } from "./sentenceAnalysis";
 import { PronunciationAssessmentResult } from "./pronunciationAssessment";
+import {
+  ShadowAssessmentResult,
+  SplitSentencesResult,
+} from "./shadowReading";
 
 /**
  * 消息类型枚举
@@ -93,6 +97,12 @@ export enum MessageType {
   ENGLISH_TO_CHINESE = "ENGLISH_TO_CHINESE",
   /** 英英释义 */
   ENGLISH_DEFINITION = "ENGLISH_DEFINITION",
+
+  // ====== 影子跟读 ======
+  /** 智能分句 */
+  SPLIT_SENTENCES = "SPLIT_SENTENCES",
+  /** 影子跟读评估 */
+  SHADOW_ASSESS = "SHADOW_ASSESS",
 }
 
 /**
@@ -292,6 +302,30 @@ export interface EnglishDefinitionMessage {
 }
 
 /**
+ * 智能分句消息
+ */
+export interface SplitSentencesMessage {
+  type: MessageType.SPLIT_SENTENCES;
+  payload: {
+    /** 待分句的英文文本 */
+    text: string;
+  };
+}
+
+/**
+ * 影子跟读评估消息
+ */
+export interface ShadowAssessMessage {
+  type: MessageType.SHADOW_ASSESS;
+  payload: {
+    /** 原文（练习句子） */
+    original: string;
+    /** 识别文本（用户跟读后的语音识别结果） */
+    recognized: string;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -313,7 +347,9 @@ export type Message =
   | AssessPronunciationMessage
   | ChineseToEnglishMessage
   | EnglishToChineseMessage
-  | EnglishDefinitionMessage;
+  | EnglishDefinitionMessage
+  | SplitSentencesMessage
+  | ShadowAssessMessage;
 
 // ====== 响应类型定义 ======
 
@@ -509,6 +545,20 @@ export interface EnglishDefinitionResponse extends BaseResponse {
 }
 
 /**
+ * 智能分句响应
+ */
+export interface SplitSentencesResponse extends BaseResponse {
+  data?: SplitSentencesResult;
+}
+
+/**
+ * 影子跟读评估响应
+ */
+export interface ShadowAssessResponse extends BaseResponse {
+  data?: ShadowAssessmentResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -527,4 +577,6 @@ export type Response =
   | AssessPronunciationResponse
   | ChineseToEnglishResponse
   | EnglishToChineseResponse
-  | EnglishDefinitionResponse;
+  | EnglishDefinitionResponse
+  | SplitSentencesResponse
+  | ShadowAssessResponse;

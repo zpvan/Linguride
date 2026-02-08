@@ -69,6 +69,10 @@ export type {
   Response,
   SaveConfigMessage,
   SaveConfigResponse,
+  ShadowAssessMessage,
+  ShadowAssessResponse,
+  SplitSentencesMessage,
+  SplitSentencesResponse,
   TestConnectionMessage,
   TestConnectionResponse,
   ToggleMixedTranslateMessage,
@@ -121,3 +125,19 @@ export type {
   PronunciationPromptConfig,
   TextComparison,
 } from "./pronunciationAssessment";
+
+// 影子跟读类型
+export { DEFAULT_SHADOW_CONFIG } from "./shadowReading";
+export type {
+  ShadowAssessmentResult,
+  ShadowAssessPromptConfig,
+  ShadowConfig,
+  ShadowMode,
+  ShadowProgress,
+  ShadowSentence,
+  ShadowSentenceStatus,
+  ShadowSpeed,
+  SplitSentencesPromptConfig,
+  SplitSentencesRequest,
+  SplitSentencesResult,
+} from "./shadowReading";

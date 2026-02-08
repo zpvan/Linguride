@@ -21,12 +21,16 @@ import {
   MessageType,
   PronunciationAssessmentResult,
   SentenceAnalysisResult,
+  ShadowAssessmentResult,
+  ShadowMode,
+  ShadowSpeed,
 } from "../types";
+import * as shadow from "./shadow";
 
 // ====== 类型定义 ======
 
 /** 外教助手模式 */
-type TutorMode = "cn2en" | "en2cn" | "definition" | "analyze";
+type TutorMode = "cn2en" | "en2cn" | "definition" | "analyze" | "shadow";
 
 /** 模式配置 */
 interface ModeConfig {
@@ -43,6 +47,10 @@ const MODE_CONFIG: Record<TutorMode, ModeConfig> = {
     btnText: "释义",
   },
   analyze: { placeholder: "输入英文长难句，点击分析...", btnText: "语法分析" },
+  shadow: {
+    placeholder: "输入英文文本，开始影子跟读练习...",
+    btnText: "开始练习",
+  },
 };
 
 // ====== 状态变量 ======
@@ -192,6 +200,124 @@ const freeRecognitionText = document.getElementById(
   "freeRecognitionText"
 ) as HTMLElement;
 
+// ====== 影子跟读 DOM 元素 ======
+
+// 耳机提示
+const headphoneHint = document.getElementById("headphoneHint") as HTMLElement;
+const headphoneHintDismiss = document.getElementById(
+  "headphoneHintDismiss"
+) as HTMLButtonElement;
+
+// 影子跟读练习面板
+const shadowPracticePanel = document.getElementById(
+  "shadowPracticePanel"
+) as HTMLElement;
+const shadowModeSelector = document.getElementById(
+  "shadowModeSelector"
+) as HTMLElement;
+const shadowSpeedSelect = document.getElementById(
+  "shadowSpeedSelect"
+) as HTMLSelectElement;
+const shadowCurrentSentence = document.getElementById(
+  "shadowCurrentSentence"
+) as HTMLElement;
+const shadowProgressText = document.getElementById(
+  "shadowProgressText"
+) as HTMLElement;
+const shadowPlayBtn = document.getElementById(
+  "shadowPlayBtn"
+) as HTMLButtonElement;
+const shadowRecordBtn = document.getElementById(
+  "shadowRecordBtn"
+) as HTMLButtonElement;
+const shadowSkipBtn = document.getElementById(
+  "shadowSkipBtn"
+) as HTMLButtonElement;
+const shadowRecordingStatus = document.getElementById(
+  "shadowRecordingStatus"
+) as HTMLElement;
+const shadowRecordingTime = document.getElementById(
+  "shadowRecordingTime"
+) as HTMLElement;
+const shadowRecognitionPreview = document.getElementById(
+  "shadowRecognitionPreview"
+) as HTMLElement;
+const shadowRecognitionText = document.getElementById(
+  "shadowRecognitionText"
+) as HTMLElement;
+const shadowStatus = document.getElementById("shadowStatus") as HTMLElement;
+
+// 影子跟读评估结果
+const shadowAssessResult = document.getElementById(
+  "shadowAssessResult"
+) as HTMLElement;
+const shadowScore = document.getElementById("shadowScore") as HTMLElement;
+const shadowAccuracyBar = document.getElementById(
+  "shadowAccuracyBar"
+) as HTMLElement;
+const shadowAccuracyValue = document.getElementById(
+  "shadowAccuracyValue"
+) as HTMLElement;
+const shadowFluencyBar = document.getElementById(
+  "shadowFluencyBar"
+) as HTMLElement;
+const shadowFluencyValue = document.getElementById(
+  "shadowFluencyValue"
+) as HTMLElement;
+const shadowIntonationBar = document.getElementById(
+  "shadowIntonationBar"
+) as HTMLElement;
+const shadowIntonationValue = document.getElementById(
+  "shadowIntonationValue"
+) as HTMLElement;
+const shadowRhythmBar = document.getElementById(
+  "shadowRhythmBar"
+) as HTMLElement;
+const shadowRhythmValue = document.getElementById(
+  "shadowRhythmValue"
+) as HTMLElement;
+const shadowComparisonOriginal = document.getElementById(
+  "shadowComparisonOriginal"
+) as HTMLElement;
+const shadowComparisonRecognized = document.getElementById(
+  "shadowComparisonRecognized"
+) as HTMLElement;
+const shadowMatchRate = document.getElementById(
+  "shadowMatchRate"
+) as HTMLElement;
+const shadowIssuesSection = document.getElementById(
+  "shadowIssuesSection"
+) as HTMLElement;
+const shadowIssuesList = document.getElementById(
+  "shadowIssuesList"
+) as HTMLElement;
+const shadowSuggestionsSection = document.getElementById(
+  "shadowSuggestionsSection"
+) as HTMLElement;
+const shadowSuggestionsList = document.getElementById(
+  "shadowSuggestionsList"
+) as HTMLElement;
+const shadowEncouragementText = document.getElementById(
+  "shadowEncouragementText"
+) as HTMLElement;
+const shadowRetryBtn = document.getElementById(
+  "shadowRetryBtn"
+) as HTMLButtonElement;
+const shadowNextBtn = document.getElementById(
+  "shadowNextBtn"
+) as HTMLButtonElement;
+
+// 影子跟读完成面板
+const shadowCompletePanel = document.getElementById(
+  "shadowCompletePanel"
+) as HTMLElement;
+const shadowCompleteStats = document.getElementById(
+  "shadowCompleteStats"
+) as HTMLElement;
+const shadowRestartBtn = document.getElementById(
+  "shadowRestartBtn"
+) as HTMLButtonElement;
+
 // ====== 录音相关状态 ======
 
 let recognizer: ISpeechRecognizer | null = null;
@@ -216,6 +342,23 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
   onError?: (error: Error) => void;
 
   async start(): Promise<void> {
+    // 先清理之前的识别实例（解决重复录音问题）
+    if (this.recognition) {
+      try {
+        this.recognition.onend = null; // 移除 onend 回调防止自动重启
+        this.recognition.onerror = null;
+        this.recognition.onresult = null;
+        this.recognition.stop();
+      } catch (e) {
+        // 忽略停止时的错误
+      }
+      this.recognition = null;
+    }
+
+    // 重置状态
+    this._isRecognizing = false;
+    this.finalTranscript = "";
+
     // 检查浏览器支持
     const SpeechRecognitionCtor =
       window.SpeechRecognition ||
@@ -254,7 +397,6 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
     this.recognition.lang = "en-US";
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.finalTranscript = "";
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = "";
@@ -301,10 +443,21 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
 
   async stop(): Promise<string> {
     this._isRecognizing = false;
+    const result = this.finalTranscript.trim();
+
     if (this.recognition) {
-      this.recognition.stop();
+      // 移除回调防止后续干扰
+      this.recognition.onend = null;
+      this.recognition.onerror = null;
+      this.recognition.onresult = null;
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        // 忽略停止时的错误
+      }
     }
-    return this.finalTranscript.trim();
+
+    return result;
   }
 
   isRecognizing(): boolean {
@@ -474,7 +627,46 @@ function bindEvents(): void {
   window.addEventListener("beforeunload", () => {
     speechSynthesis.cancel();
     stopRecordingCleanup();
+    shadow.resetPractice();
   });
+
+  // ====== 影子跟读事件 ======
+
+  // 耳机提示关闭
+  headphoneHintDismiss?.addEventListener("click", () => {
+    headphoneHint.style.display = "none";
+    localStorage.setItem("lingride_headphone_hint_dismissed", "true");
+  });
+
+  // 影子跟读模式选择
+  shadowModeSelector?.addEventListener("click", handleShadowModeClick);
+
+  // 语速选择
+  shadowSpeedSelect?.addEventListener("change", handleShadowSpeedChange);
+
+  // 范读按钮
+  shadowPlayBtn?.addEventListener("click", handleShadowPlay);
+
+  // 跟读录音按钮
+  shadowRecordBtn?.addEventListener("click", handleShadowRecord);
+
+  // 跳过按钮
+  shadowSkipBtn?.addEventListener("click", handleShadowSkip);
+
+  // 重新练习按钮
+  shadowRetryBtn?.addEventListener("click", handleShadowRetry);
+
+  // 下一句按钮
+  shadowNextBtn?.addEventListener("click", handleShadowNext);
+
+  // 重新开始按钮
+  shadowRestartBtn?.addEventListener("click", handleShadowRestart);
+
+  // 问题词点击（事件委托）
+  shadowIssuesList?.addEventListener("click", handleShadowIssueClick);
+
+  // 快捷键支持
+  document.addEventListener("keydown", handleShadowKeydown);
 }
 
 // ====== 模式切换 ======
@@ -489,9 +681,20 @@ function handleModeClick(e: Event): void {
   const mode = target.dataset.mode as TutorMode;
   if (!mode || mode === currentMode) return;
 
+  // 切换模式前重置影子跟读状态
+  if (currentMode === "shadow") {
+    shadow.resetPractice();
+    hideShadowUI();
+  }
+
   currentMode = mode;
   updateModeUI();
   clearAllResults();
+
+  // 进入 shadow 模式时的特殊处理
+  if (mode === "shadow") {
+    initShadowMode();
+  }
 }
 
 /**
@@ -526,6 +729,11 @@ function clearAllResults(): void {
   // 清除状态消息
   sentenceStatus.style.display = "none";
   pronunciationStatus.style.display = "none";
+
+  // 隐藏影子跟读相关区域（但不隐藏练习面板）
+  shadowAssessResult.style.display = "none";
+  shadowCompletePanel.style.display = "none";
+  shadowStatus.style.display = "none";
 }
 
 // ====== 统一提交处理 ======
@@ -556,6 +764,9 @@ async function handleSubmit(): Promise<void> {
       break;
     case "analyze":
       await handleAnalyzeSentence();
+      break;
+    case "shadow":
+      await handleStartShadowPractice(text);
       break;
   }
 }
@@ -1063,14 +1274,19 @@ async function stopRecordingAndProcess(): Promise<void> {
 }
 
 /**
+ * 格式化时间显示（MM:SS）
+ */
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
  * 更新录音时间显示
  */
 function updateRecordingTime(seconds: number): void {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  recordingTime.textContent = `${mins.toString().padStart(2, "0")}:${secs
-    .toString()
-    .padStart(2, "0")}`;
+  recordingTime.textContent = formatTime(seconds);
 }
 
 /**
@@ -1297,4 +1513,482 @@ function speakEncouragement(): void {
   utterance.lang = "en-US";
   utterance.rate = 0.9;
   speechSynthesis.speak(utterance);
+}
+
+// ====== 影子跟读功能 ======
+
+/**
+ * 初始化影子跟读模式
+ *
+ * 设置 shadow 模块的依赖注入和回调。
+ */
+function initShadowMode(): void {
+  // 检查是否需要显示耳机提示
+  const isDismissed = localStorage.getItem("lingride_headphone_hint_dismissed");
+  if (!isDismissed) {
+    headphoneHint.style.display = "flex";
+  }
+
+  // 创建并注入语音识别器
+  const shadowRecognizer = new WebSpeechRecognizer();
+  shadow.injectRecognizer(shadowRecognizer);
+
+  // 设置回调
+  shadow.setOnInterimResult((text) => {
+    shadowRecognitionPreview.style.display = "block";
+    shadowRecognitionText.textContent = text;
+  });
+
+  shadow.setOnRecordingTime((seconds) => {
+    shadowRecordingTime.textContent = formatTime(seconds);
+  });
+
+  shadow.setOnError((error) => {
+    showStatus(shadowStatus, error.message, "error");
+    stopShadowRecordingUI();
+  });
+
+  // 加载保存的配置
+  loadShadowConfig();
+
+  console.log("[Lingride Tutor] 影子跟读模式已初始化");
+}
+
+/**
+ * 加载保存的影子跟读配置
+ */
+function loadShadowConfig(): void {
+  const savedMode = localStorage.getItem("lingride_shadow_mode") as ShadowMode;
+  const savedSpeed = localStorage.getItem("lingride_shadow_speed");
+
+  if (savedMode) {
+    shadow.setMode(savedMode);
+    updateShadowModeBtns(savedMode);
+  }
+
+  if (savedSpeed) {
+    const speed = parseFloat(savedSpeed) as ShadowSpeed;
+    shadow.setSpeed(speed);
+    shadowSpeedSelect.value = savedSpeed;
+  }
+}
+
+/**
+ * 隐藏影子跟读 UI
+ */
+function hideShadowUI(): void {
+  headphoneHint.style.display = "none";
+  shadowPracticePanel.style.display = "none";
+  shadowAssessResult.style.display = "none";
+  shadowCompletePanel.style.display = "none";
+  shadowRecordingStatus.style.display = "none";
+  shadowRecognitionPreview.style.display = "none";
+  shadowStatus.style.display = "none";
+}
+
+/**
+ * 开始影子跟读练习
+ */
+async function handleStartShadowPractice(text: string): Promise<void> {
+  submitBtn.disabled = true;
+  submitBtn.textContent = "分句中...";
+  clearAllResults();
+  showStatus(shadowStatus, "正在智能分句...", "loading");
+
+  try {
+    const sentences = await shadow.initShadowPractice(text);
+
+    if (sentences.length === 0) {
+      showStatus(shadowStatus, "未能识别出有效句子", "error");
+      return;
+    }
+
+    shadowStatus.style.display = "none";
+
+    // 显示练习面板
+    shadowPracticePanel.style.display = "block";
+
+    // 启用操作按钮
+    shadowPlayBtn.disabled = false;
+    shadowRecordBtn.disabled = false;
+    shadowSkipBtn.disabled = false;
+
+    // 更新 UI
+    updateShadowSentenceUI();
+
+    console.log(`[Lingride Tutor] 影子跟读已启动: ${sentences.length} 句`);
+  } catch (error) {
+    console.error("[Lingride Tutor] 启动影子跟读失败:", error);
+    showStatus(
+      shadowStatus,
+      error instanceof Error ? error.message : "启动失败，请重试",
+      "error"
+    );
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = MODE_CONFIG.shadow.btnText;
+  }
+}
+
+/**
+ * 更新影子跟读句子 UI
+ *
+ * 显示当前练习句子和进度（如：句子 1/5）。
+ */
+function updateShadowSentenceUI(): void {
+  const sentence = shadow.getCurrentSentence();
+  const progress = shadow.getProgress();
+
+  if (sentence) {
+    shadowCurrentSentence.textContent = sentence.text;
+    shadowProgressText.textContent = `句子 ${progress.current + 1}/${progress.total}`;
+  } else {
+    shadowCurrentSentence.textContent = "暂无句子";
+    shadowProgressText.textContent = "句子 0/0";
+  }
+}
+
+/**
+ * 更新影子跟读模式按钮状态
+ *
+ * 高亮当前选中的模式按钮（逐句/影子/同步）。
+ */
+function updateShadowModeBtns(mode: ShadowMode): void {
+  shadowModeSelector.querySelectorAll(".shadow-mode-btn").forEach((btn) => {
+    const btnMode = (btn as HTMLElement).dataset.shadowMode;
+    btn.classList.toggle("active", btnMode === mode);
+  });
+}
+
+/**
+ * 处理影子跟读模式选择
+ */
+function handleShadowModeClick(e: Event): void {
+  const target = (e.target as HTMLElement).closest(
+    ".shadow-mode-btn"
+  ) as HTMLElement;
+  if (!target) return;
+
+  const mode = target.dataset.shadowMode as ShadowMode;
+  if (!mode) return;
+
+  shadow.setMode(mode);
+  updateShadowModeBtns(mode);
+  localStorage.setItem("lingride_shadow_mode", mode);
+
+  // 影子/同步模式下显示耳机提示
+  const isDismissed = localStorage.getItem("lingride_headphone_hint_dismissed");
+  if (!isDismissed && (mode === "shadow" || mode === "sync")) {
+    headphoneHint.style.display = "flex";
+  }
+}
+
+/**
+ * 处理语速选择
+ */
+function handleShadowSpeedChange(): void {
+  const speed = parseFloat(shadowSpeedSelect.value) as ShadowSpeed;
+  shadow.setSpeed(speed);
+  localStorage.setItem("lingride_shadow_speed", shadowSpeedSelect.value);
+}
+
+/**
+ * 处理范读按钮点击
+ */
+function handleShadowPlay(): void {
+  // 如果正在播放，则停止
+  if (shadowPlayBtn.classList.contains("playing")) {
+    shadow.stopModelReading();
+    shadowPlayBtn.classList.remove("playing");
+    return;
+  }
+
+  // 开始范读
+  shadowPlayBtn.classList.add("playing");
+  shadow.playModelReading(
+    () => {
+      // 范读结束
+      shadowPlayBtn.classList.remove("playing");
+
+      // 影子模式：延迟后自动开始录音
+      const config = shadow.getConfig();
+      if (config.mode === "shadow" || config.mode === "sync") {
+        const delay = shadow.getRecordingDelay();
+        setTimeout(() => {
+          if (!shadow.isRecording()) {
+            handleShadowRecord();
+          }
+        }, delay);
+      }
+    },
+    () => {
+      // 同步模式：范读开始时同时开始录音
+      const config = shadow.getConfig();
+      if (config.mode === "sync" && !shadow.isRecording()) {
+        handleShadowRecord();
+      }
+    }
+  );
+}
+
+/**
+ * 处理跟读录音按钮点击
+ */
+async function handleShadowRecord(): Promise<void> {
+  // 如果正在录音，则停止并评估
+  if (shadow.isRecording()) {
+    await stopAndAssessShadow();
+    return;
+  }
+
+  // 开始录音
+  try {
+    startShadowRecordingUI();
+    await shadow.startShadowRecording();
+  } catch (error) {
+    console.error("[Lingride Tutor] 影子跟读录音失败:", error);
+    showStatus(
+      shadowStatus,
+      error instanceof Error ? error.message : "录音失败，请重试",
+      "error"
+    );
+    stopShadowRecordingUI();
+  }
+}
+
+/**
+ * 开始录音 UI 状态
+ *
+ * 显示录音指示器，禁用范读和跳过按钮，清空识别预览。
+ */
+function startShadowRecordingUI(): void {
+  shadowRecordBtn.classList.add("recording");
+  shadowRecordingStatus.style.display = "flex";
+  shadowRecognitionPreview.style.display = "none";
+  shadowRecognitionText.textContent = "";
+  shadowStatus.style.display = "none";
+
+  // 禁用其他按钮
+  shadowPlayBtn.disabled = true;
+  shadowSkipBtn.disabled = true;
+}
+
+/**
+ * 停止录音 UI 状态
+ *
+ * 隐藏录音指示器，恢复范读和跳过按钮。
+ */
+function stopShadowRecordingUI(): void {
+  shadowRecordBtn.classList.remove("recording");
+  shadowRecordingStatus.style.display = "none";
+
+  // 恢复按钮状态
+  shadowPlayBtn.disabled = false;
+  shadowSkipBtn.disabled = false;
+}
+
+/**
+ * 停止录音并进行评估
+ */
+async function stopAndAssessShadow(): Promise<void> {
+  stopShadowRecordingUI();
+  showStatus(shadowStatus, "正在评估...", "loading");
+
+  try {
+    const result = await shadow.stopAndAssess();
+    shadowStatus.style.display = "none";
+    shadowRecognitionPreview.style.display = "none";
+    renderShadowAssessResult(result);
+  } catch (error) {
+    console.error("[Lingride Tutor] 影子跟读评估失败:", error);
+    showStatus(
+      shadowStatus,
+      error instanceof Error ? error.message : "评估失败，请重试",
+      "error"
+    );
+  }
+}
+
+/**
+ * 渲染影子跟读评估结果
+ *
+ * 显示四维度评分（准确度、流利度、语调、节奏）、文本对比、
+ * 问题列表（可点击听示范）、改进建议和鼓励语。
+ */
+function renderShadowAssessResult(result: ShadowAssessmentResult): void {
+  shadowAssessResult.style.display = "block";
+  shadowPracticePanel.style.display = "none";
+
+  // 评分
+  shadowScore.textContent = result.score.toString();
+  shadowScore.className = `score-value-large ${getScoreClass(result.score)}`;
+
+  // 准确度、流利度、语调、节奏条
+  shadowAccuracyBar.style.width = `${result.accuracy}%`;
+  shadowAccuracyValue.textContent = result.accuracy.toString();
+  shadowFluencyBar.style.width = `${result.fluency}%`;
+  shadowFluencyValue.textContent = result.fluency.toString();
+  shadowIntonationBar.style.width = `${result.intonation}%`;
+  shadowIntonationValue.textContent = result.intonation.toString();
+  shadowRhythmBar.style.width = `${result.rhythm}%`;
+  shadowRhythmValue.textContent = result.rhythm.toString();
+
+  // 文本对比
+  shadowComparisonOriginal.textContent = result.comparison.original;
+  shadowComparisonRecognized.textContent = result.comparison.recognized;
+  shadowMatchRate.textContent = `${Math.round(result.comparison.matchRate * 100)}%`;
+
+  // 问题列表
+  if (result.issues && result.issues.length > 0) {
+    shadowIssuesSection.style.display = "block";
+    shadowIssuesList.innerHTML = "";
+    for (const issue of result.issues) {
+      const item = document.createElement("div");
+      item.className = `issue-item ${issue.severity}`;
+      item.innerHTML = `
+        <button class="issue-word-btn" data-word="${issue.word}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          ${issue.word}
+        </button>
+        <div class="issue-desc">${issue.issue}</div>
+        <div class="issue-correction">${issue.correction}</div>
+      `;
+      shadowIssuesList.appendChild(item);
+    }
+  } else {
+    shadowIssuesSection.style.display = "none";
+  }
+
+  // 改进建议
+  if (result.suggestions && result.suggestions.length > 0) {
+    shadowSuggestionsSection.style.display = "block";
+    shadowSuggestionsList.innerHTML = "";
+    for (const suggestion of result.suggestions) {
+      const li = document.createElement("li");
+      li.textContent = suggestion;
+      shadowSuggestionsList.appendChild(li);
+    }
+  } else {
+    shadowSuggestionsSection.style.display = "none";
+  }
+
+  // 鼓励语
+  shadowEncouragementText.textContent = result.encouragement;
+}
+
+/**
+ * 处理跳过按钮点击
+ */
+function handleShadowSkip(): void {
+  if (shadow.nextSentence()) {
+    updateShadowSentenceUI();
+    clearAllResults();
+  } else {
+    showShadowComplete();
+  }
+}
+
+/**
+ * 处理重新练习按钮点击
+ */
+function handleShadowRetry(): void {
+  shadow.retryCurrent();
+  shadowAssessResult.style.display = "none";
+  shadowPracticePanel.style.display = "block";
+  updateShadowSentenceUI();
+}
+
+/**
+ * 处理下一句按钮点击
+ */
+function handleShadowNext(): void {
+  if (shadow.nextSentence()) {
+    shadowAssessResult.style.display = "none";
+    shadowPracticePanel.style.display = "block";
+    updateShadowSentenceUI();
+  } else {
+    showShadowComplete();
+  }
+}
+
+/**
+ * 显示练习完成面板
+ *
+ * 隐藏评估和练习面板，显示完成统计（完成句数、平均得分）。
+ */
+function showShadowComplete(): void {
+  shadowAssessResult.style.display = "none";
+  shadowPracticePanel.style.display = "none";
+  shadowCompletePanel.style.display = "block";
+
+  const progress = shadow.getProgress();
+  const avgScore = shadow.getAverageScore();
+  shadowCompleteStats.textContent = `共完成 ${progress.completedCount} 句，平均得分 ${avgScore} 分`;
+}
+
+/**
+ * 处理重新开始按钮点击
+ */
+function handleShadowRestart(): void {
+  shadow.resetPractice();
+  shadowCompletePanel.style.display = "none";
+  shadowPracticePanel.style.display = "none";
+
+  // 重置输入框
+  sentenceInput.value = "";
+  handleSentenceInput();
+}
+
+/**
+ * 处理问题词点击
+ */
+function handleShadowIssueClick(e: Event): void {
+  const target = (e.target as HTMLElement).closest(
+    ".issue-word-btn"
+  ) as HTMLElement;
+  if (!target) return;
+
+  const word = target.dataset.word;
+  if (word) {
+    shadow.speakProblemWord(word);
+  }
+}
+
+/**
+ * 处理影子跟读快捷键
+ */
+function handleShadowKeydown(e: KeyboardEvent): void {
+  // 仅在 shadow 模式且不在输入框中时生效
+  if (currentMode !== "shadow") return;
+  if (document.activeElement === sentenceInput) return;
+
+  switch (e.code) {
+    case "Space":
+      e.preventDefault();
+      if (!shadowRecordBtn.disabled) {
+        handleShadowRecord();
+      }
+      break;
+    case "Enter":
+      e.preventDefault();
+      if (!shadowPlayBtn.disabled) {
+        handleShadowPlay();
+      }
+      break;
+    case "Tab":
+      e.preventDefault();
+      if (!shadowSkipBtn.disabled) {
+        handleShadowSkip();
+      }
+      break;
+    case "KeyR":
+      e.preventDefault();
+      if (shadowAssessResult.style.display !== "none") {
+        handleShadowRetry();
+      }
+      break;
+  }
 }
