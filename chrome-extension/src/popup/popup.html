@@ -13,6 +13,35 @@
       <!-- Header -->
       <header class="header">
         <h1 class="brand">Lingride</h1>
+        <div class="level-badge-wrapper" id="levelBadgeWrapper">
+          <button class="level-badge" id="levelBadge">Lv.A2</button>
+          <div class="level-dropdown" id="levelDropdown">
+            <button class="level-option" data-level="A1">
+              <span class="level-code">A1</span>
+              <span class="level-desc">初中入门</span>
+            </button>
+            <button class="level-option" data-level="A2">
+              <span class="level-code">A2</span>
+              <span class="level-desc">中考水平</span>
+            </button>
+            <button class="level-option" data-level="B1">
+              <span class="level-code">B1</span>
+              <span class="level-desc">高考水平</span>
+            </button>
+            <button class="level-option" data-level="B2">
+              <span class="level-code">B2</span>
+              <span class="level-desc">四六级</span>
+            </button>
+            <button class="level-option" data-level="C1">
+              <span class="level-code">C1</span>
+              <span class="level-desc">考研/专八</span>
+            </button>
+            <button class="level-option" data-level="C2">
+              <span class="level-code">C2</span>
+              <span class="level-desc">专业翻译</span>
+            </button>
+          </div>
+        </div>
         <div class="header-actions">
           <button id="tutorBtn" class="icon-btn tutor-btn" aria-label="外教" title="外教">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -49,20 +78,6 @@
           <span>需要先配置 API 服务</span>
           <button id="configHintBtn" class="link-btn">前往设置</button>
         </div>
-      </section>
-
-      <!-- 我的水平 -->
-      <section class="card">
-        <h2 class="section-label">我的水平</h2>
-        <div class="pill-group" id="levelSelector">
-          <button class="pill" data-level="A1">A1</button>
-          <button class="pill" data-level="A2">A2</button>
-          <button class="pill" data-level="B1">B1</button>
-          <button class="pill" data-level="B2">B2</button>
-          <button class="pill" data-level="C1">C1</button>
-          <button class="pill" data-level="C2">C2</button>
-        </div>
-        <p class="level-hint" id="levelHint"></p>
       </section>
 
       <!-- 页面洞察 -->

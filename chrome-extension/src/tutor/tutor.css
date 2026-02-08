@@ -94,6 +94,110 @@ body {
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.3px;
+  flex: 1;
+}
+
+/* ====== Level Badge ====== */
+.level-badge-wrapper {
+  position: relative;
+}
+
+.level-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.level-badge:hover {
+  background: var(--accent-soft);
+}
+
+.level-badge:active {
+  transform: scale(0.95);
+}
+
+.level-badge.open {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+.level-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s var(--ease-out);
+  z-index: 100;
+}
+
+.level-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.level-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s var(--ease-out);
+  gap: 12px;
+}
+
+.level-option:hover {
+  background: var(--bg-tertiary);
+}
+
+.level-option:active {
+  background: var(--bg-quaternary);
+}
+
+.level-option.active {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+.level-option.active .level-desc {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.level-code {
+  font-weight: 600;
+}
+
+.level-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 /* ====== Cards ====== */

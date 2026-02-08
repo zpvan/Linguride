@@ -29,14 +29,12 @@ import {
 } from "../constants/sentenceAnalysisPrompts";
 import {
   AnalyzeDifficultyResponse,
-  calculateTargetLevel,
   CEFRLevel,
   DEFAULT_CONFIG,
   DEFAULT_SYSTEM_PROMPT,
   DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
   DifficultyResult,
-  getRetentionPercent,
   LingridConfig,
   MessageType,
 } from "../types";
@@ -77,9 +75,12 @@ const configHintBtn = document.getElementById(
   "configHintBtn"
 ) as HTMLButtonElement;
 
-// 水平选择器
-const levelSelector = document.getElementById("levelSelector") as HTMLElement;
-const levelHint = document.getElementById("levelHint") as HTMLElement;
+// 水平选择器（徽章式）
+const levelBadgeWrapper = document.getElementById(
+  "levelBadgeWrapper"
+) as HTMLElement;
+const levelBadge = document.getElementById("levelBadge") as HTMLButtonElement;
+const levelDropdown = document.getElementById("levelDropdown") as HTMLElement;
 
 // 难度分析
 const analyzeDifficultyBtn = document.getElementById(
@@ -222,7 +223,6 @@ async function loadModeState(): Promise<void> {
 
     updateSegmentedControl();
     updateModeDesc();
-    updateLevelHint();
   } catch (error) {
     console.error("[Lingride] 加载模式状态失败:", error);
   }
@@ -242,8 +242,10 @@ function bindEvents(): void {
   // 模式选择器（事件委托）
   modeSelector.addEventListener("click", handleModeClick);
 
-  // 水平选择器（事件委托）
-  levelSelector.addEventListener("click", handleLevelClick);
+  // 水平选择器（徽章式下拉）
+  levelBadge.addEventListener("click", toggleLevelDropdown);
+  levelDropdown.addEventListener("click", handleLevelOptionClick);
+  document.addEventListener("click", handleOutsideClick);
 
   // 难度分析
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
@@ -337,7 +339,6 @@ function handleModeClick(e: Event): void {
 
   updateSegmentedControl();
   updateModeDesc();
-  updateLevelHint();
 }
 
 function activateMode(mode: ReadingMode): void {
@@ -401,50 +402,89 @@ function updateModeDesc(): void {
   }
 }
 
-// ====== 水平选择器 ======
+// ====== 水平选择器（徽章式下拉） ======
 
-function handleLevelClick(e: Event): void {
-  const target = (e.target as HTMLElement).closest(".pill") as HTMLElement;
+/**
+ * 切换下拉菜单显示状态
+ */
+function toggleLevelDropdown(e: Event): void {
+  e.stopPropagation();
+  const isOpen = levelDropdown.classList.contains("open");
+  if (isOpen) {
+    closeLevelDropdown();
+  } else {
+    openLevelDropdown();
+  }
+}
+
+/**
+ * 打开下拉菜单
+ */
+function openLevelDropdown(): void {
+  levelDropdown.classList.add("open");
+  levelBadge.classList.add("open");
+}
+
+/**
+ * 关闭下拉菜单
+ */
+function closeLevelDropdown(): void {
+  levelDropdown.classList.remove("open");
+  levelBadge.classList.remove("open");
+}
+
+/**
+ * 处理点击外部区域关闭下拉
+ */
+function handleOutsideClick(e: Event): void {
+  if (!levelBadgeWrapper.contains(e.target as Node)) {
+    closeLevelDropdown();
+  }
+}
+
+/**
+ * 处理等级选项点击
+ */
+function handleLevelOptionClick(e: Event): void {
+  const target = (e.target as HTMLElement).closest(
+    ".level-option"
+  ) as HTMLElement;
   if (!target) return;
 
   const level = target.dataset.level as CEFRLevel;
   if (!level) return;
 
   // 更新 UI
-  setActiveLevel(level);
+  updateLevelBadge(level);
+  closeLevelDropdown();
 
   // 更新配置
   currentConfig.user_english_level = level;
-  updateLevelHint();
 
   // 立即保存并刷新模式
   handleEnglishLevelChange(level);
 }
 
-function setActiveLevel(level: CEFRLevel): void {
-  levelSelector.querySelectorAll(".pill").forEach((pill) => {
-    const pillLevel = (pill as HTMLElement).dataset.level;
-    pill.classList.toggle("active", pillLevel === level);
+/**
+ * 更新徽章和下拉选项的选中状态
+ */
+function updateLevelBadge(level: CEFRLevel): void {
+  // 更新徽章文本
+  levelBadge.textContent = `Lv.${level}`;
+
+  // 更新下拉选项的 active 状态
+  levelDropdown.querySelectorAll(".level-option").forEach((option) => {
+    const optionLevel = (option as HTMLElement).dataset.level;
+    option.classList.toggle("active", optionLevel === level);
   });
 }
 
+/**
+ * 初始化/更新水平选择器 UI
+ */
 function updateLevelSelector(): void {
   const level = currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL;
-  setActiveLevel(level);
-  updateLevelHint();
-}
-
-function updateLevelHint(): void {
-  const userLevel = (currentConfig.user_english_level ||
-    DEFAULT_USER_ENGLISH_LEVEL) as CEFRLevel;
-
-  if (currentMode === "mixed") {
-    const percent = getRetentionPercent(userLevel);
-    levelHint.innerHTML = `将保留约 <strong>${percent}%</strong> 英文内容，其余用中文表达`;
-  } else {
-    const targetLevel = calculateTargetLevel(userLevel);
-    levelHint.innerHTML = `目标水平: <strong>${targetLevel}</strong>（略高于您的水平）`;
-  }
+  updateLevelBadge(level);
 }
 
 async function handleEnglishLevelChange(_newLevel: CEFRLevel): Promise<void> {

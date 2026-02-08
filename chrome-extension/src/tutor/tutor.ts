@@ -55,6 +55,13 @@ let userLevel: CEFRLevel = "A2";
 
 // ====== DOM 元素引用 ======
 
+// Level Badge
+const levelBadgeWrapper = document.getElementById(
+  "levelBadgeWrapper"
+) as HTMLElement;
+const levelBadge = document.getElementById("levelBadge") as HTMLButtonElement;
+const levelDropdown = document.getElementById("levelDropdown") as HTMLElement;
+
 // 模式选择器
 const modeSelector = document.getElementById("modeSelector") as HTMLElement;
 const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
@@ -333,15 +340,112 @@ async function loadUserConfig(): Promise<void> {
     if (response.success && response.data?.user_english_level) {
       userLevel = response.data.user_english_level;
       console.log(`[Lingride Tutor] 用户水平: ${userLevel}`);
+      updateLevelBadge(userLevel);
     }
   } catch (error) {
     console.error("[Lingride Tutor] 获取用户配置失败:", error);
   }
 }
 
+// ====== Level Badge 等级选择 ======
+
+/**
+ * 切换下拉菜单显示状态
+ */
+function toggleLevelDropdown(e: Event): void {
+  e.stopPropagation();
+  const isOpen = levelDropdown.classList.contains("open");
+  if (isOpen) {
+    closeLevelDropdown();
+  } else {
+    openLevelDropdown();
+  }
+}
+
+/**
+ * 打开下拉菜单
+ */
+function openLevelDropdown(): void {
+  levelDropdown.classList.add("open");
+  levelBadge.classList.add("open");
+}
+
+/**
+ * 关闭下拉菜单
+ */
+function closeLevelDropdown(): void {
+  levelDropdown.classList.remove("open");
+  levelBadge.classList.remove("open");
+}
+
+/**
+ * 处理点击外部区域关闭下拉
+ */
+function handleOutsideClick(e: Event): void {
+  if (!levelBadgeWrapper.contains(e.target as Node)) {
+    closeLevelDropdown();
+  }
+}
+
+/**
+ * 处理等级选项点击
+ */
+async function handleLevelOptionClick(e: Event): Promise<void> {
+  const target = (e.target as HTMLElement).closest(
+    ".level-option"
+  ) as HTMLElement;
+  if (!target) return;
+
+  const level = target.dataset.level as CEFRLevel;
+  if (!level) return;
+
+  // 更新 UI
+  updateLevelBadge(level);
+  closeLevelDropdown();
+
+  // 更新本地状态
+  userLevel = level;
+
+  // 保存到配置
+  try {
+    const configResponse: GetConfigResponse = await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    });
+    if (configResponse.success && configResponse.data) {
+      configResponse.data.user_english_level = level;
+      await chrome.runtime.sendMessage({
+        type: MessageType.SAVE_CONFIG,
+        payload: configResponse.data,
+      });
+      console.log(`[Lingride Tutor] 用户水平已更新: ${level}`);
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 保存用户水平失败:", error);
+  }
+}
+
+/**
+ * 更新徽章和下拉选项的选中状态
+ */
+function updateLevelBadge(level: CEFRLevel): void {
+  // 更新徽章文本
+  levelBadge.textContent = `Lv.${level}`;
+
+  // 更新下拉选项的 active 状态
+  levelDropdown.querySelectorAll(".level-option").forEach((option) => {
+    const optionLevel = (option as HTMLElement).dataset.level;
+    option.classList.toggle("active", optionLevel === level);
+  });
+}
+
 // ====== 事件绑定 ======
 
 function bindEvents(): void {
+  // Level Badge 下拉选择
+  levelBadge.addEventListener("click", toggleLevelDropdown);
+  levelDropdown.addEventListener("click", handleLevelOptionClick);
+  document.addEventListener("click", handleOutsideClick);
+
   // 模式选择器（事件委托）
   modeSelector.addEventListener("click", handleModeClick);
 
