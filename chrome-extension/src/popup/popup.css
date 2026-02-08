@@ -10,50 +10,56 @@
 
 /* ====== Design Tokens ====== */
 :root {
-  /* Backgrounds - iOS System Grays */
+  /* Backgrounds - iOS Settings Dark Mode */
   --bg-primary: #000000;
   --bg-secondary: #1C1C1E;
   --bg-tertiary: #2C2C2E;
   --bg-quaternary: #3A3A3C;
-  --bg-elevated: #2C2C2E;
+  --bg-elevated: #1C1C1E;
 
-  /* Text - iOS System Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #8E8E93;
-  --text-tertiary: #636366;
+  /* Text - iOS System Colors (softened) */
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(235, 235, 245, 0.6);
+  --text-tertiary: rgba(235, 235, 245, 0.3);
 
-  /* Accent — iOS System Blue */
+  /* Accent — iOS System Blue (slightly softer) */
   --accent: #0A84FF;
-  --accent-soft: rgba(10, 132, 255, 0.12);
-  --accent-hover: rgba(10, 132, 255, 0.18);
+  --accent-soft: rgba(10, 132, 255, 0.15);
+  --accent-hover: rgba(10, 132, 255, 0.22);
+  --accent-tinted-bg: rgba(10, 132, 255, 0.12);
 
   /* Semantic - iOS System Colors */
   --success: #30D158;
   --error: #FF453A;
   --warning: #FFD60A;
-  --separator: rgba(84, 84, 88, 0.65);
+  --separator: rgba(84, 84, 88, 0.36);
 
-  /* Spacing - iOS Standard */
+  /* Spacing - iOS Standard (increased for breathing room) */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
   --space-lg: 16px;
-  --space-xl: 20px;
+  --space-xl: 24px;
 
-  /* Radii - iOS Style */
+  /* Radii - iOS Settings Style */
   --radius-sm: 8px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-card: 16px;
-  --radius-pill: 20px;
-  --radius-segment: 9px;
+  --radius-lg: 12px;
+  --radius-card: 12px;
+  --radius-pill: 18px;
+  --radius-segment: 8px;
+
+  /* Card styling */
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --card-border: 0.5px solid rgba(255, 255, 255, 0.06);
 
   /* Typography - SF Pro */
   --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 
   /* Animation - iOS Spring */
   --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --duration: 0.3s;
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  --duration: 0.25s;
 }
 
 /* ====== Reset ====== */
@@ -71,11 +77,12 @@ body {
   overflow: hidden;
   font-family: var(--font-family);
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.47;
   background: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 .viewport {
@@ -96,7 +103,7 @@ body {
   max-height: 600px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--space-lg);
+  padding: var(--space-lg) var(--space-lg) var(--space-xl);
 }
 
 /* Scrollbar styling */
@@ -157,16 +164,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
-  background: transparent;
-  border: 1.5px solid var(--accent);
+  padding: 5px 12px;
+  background: var(--accent-tinted-bg);
+  border: none;
   border-radius: var(--radius-pill);
   color: var(--accent);
   font-family: var(--font-family);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s var(--ease-out);
+  transition: all 0.15s var(--ease-out);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -176,12 +183,11 @@ body {
 }
 
 .level-badge:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
 .level-badge.open {
-  background: var(--accent);
-  color: #FFFFFF;
+  background: var(--accent-soft);
 }
 
 .level-dropdown {
@@ -191,20 +197,22 @@ body {
   transform: translateX(-50%);
   min-width: 160px;
   background: var(--bg-elevated);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-xs);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08);
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) translateY(-8px);
-  transition: all 0.2s var(--ease-out);
+  transform: translateX(-50%) translateY(-6px) scale(0.96);
+  transition: all 0.2s var(--ease-spring);
   z-index: 100;
 }
 
 .level-dropdown.open {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .level-option {
@@ -212,38 +220,39 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 12px;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s var(--ease-out);
+  transition: all 0.12s var(--ease-out);
   gap: 12px;
 }
 
 .level-option:hover {
-  background: var(--bg-tertiary);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .level-option:active {
-  background: var(--bg-quaternary);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .level-option.active {
-  background: var(--accent);
-  color: #FFFFFF;
+  background: var(--accent-tinted-bg);
+  color: var(--accent);
 }
 
 .level-option.active .level-desc {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--accent);
+  opacity: 0.7;
 }
 
 .level-code {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .level-desc {
@@ -265,16 +274,17 @@ body {
   color: var(--text-secondary);
   cursor: pointer;
   border-radius: var(--radius-sm);
-  transition: all 0.2s var(--ease-out);
+  transition: all 0.15s var(--ease-out);
 }
 
 .icon-btn:hover {
-  background: var(--bg-tertiary);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
 }
 
 .icon-btn:active {
   transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .back-btn {
@@ -282,6 +292,7 @@ body {
 }
 
 .back-btn:hover {
+  background: var(--accent-tinted-bg);
   color: var(--accent);
 }
 
@@ -303,15 +314,24 @@ body {
   border-radius: var(--radius-card);
   padding: var(--space-lg);
   margin-bottom: var(--space-md);
+  /* iOS Settings card refinement */
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  /* Subtle inner glow for depth */
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 50%
+  );
 }
 
-/* ====== Section Label ====== */
+/* ====== Section Label - iOS Settings Style ====== */
 .section-label {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.08px;
   margin-bottom: var(--space-md);
 }
 
@@ -319,7 +339,7 @@ body {
 .segmented-control {
   position: relative;
   display: flex;
-  background: rgba(118, 118, 128, 0.24);
+  background: rgba(118, 118, 128, 0.12);
   border-radius: var(--radius-segment);
   padding: 2px;
   gap: 0;
@@ -331,11 +351,13 @@ body {
   left: 2px;
   width: calc(33.333% - 1.33px);
   height: calc(100% - 4px);
-  background: #636366;
+  background: var(--bg-tertiary);
   border-radius: calc(var(--radius-segment) - 1px);
-  transition: transform var(--duration) var(--ease-out), opacity var(--duration) var(--ease-out);
+  transition: transform var(--duration) var(--ease-spring), opacity var(--duration) var(--ease-out);
   opacity: 0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(255, 255, 255, 0.04);
   pointer-events: none;
 }
 
@@ -357,16 +379,16 @@ body {
 
 .segment {
   flex: 1;
-  padding: 6px 0;
+  padding: 7px 0;
   border: none;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-family: var(--font-family);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   border-radius: calc(var(--radius-segment) - 1px);
-  transition: color 0.2s var(--ease-out);
+  transition: color 0.15s var(--ease-out);
   position: relative;
   z-index: 1;
   user-select: none;
@@ -379,17 +401,18 @@ body {
 
 .segment.active {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ====== Mode Description ====== */
 .mode-desc {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin-top: var(--space-md);
   text-align: center;
   transition: opacity 0.2s var(--ease-out);
-  min-height: 18px;
+  min-height: 16px;
+  line-height: 1.4;
 }
 
 /* ====== Config Hint ====== */
@@ -469,38 +492,37 @@ body {
   font-weight: 600;
 }
 
-/* ====== Analyze Button - iOS Filled Button ====== */
+/* ====== Analyze Button - iOS Segmented Control Style ====== */
 .btn-analyze {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 12px 0;
+  padding: 7px 0;
   border: none;
-  background: var(--accent);
-  color: #FFFFFF;
+  background: rgba(118, 118, 128, 0.12);
+  color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: var(--radius-md);
-  transition: all 0.2s var(--ease-out);
+  border-radius: var(--radius-segment);
+  transition: all 0.15s var(--ease-out);
 }
 
 .btn-analyze:hover {
-  opacity: 0.85;
+  background: rgba(118, 118, 128, 0.18);
 }
 
 .btn-analyze:active {
   transform: scale(0.98);
-  opacity: 0.7;
+  background: rgba(118, 118, 128, 0.24);
 }
 
 .btn-analyze:disabled {
-  background: var(--bg-tertiary);
+  background: rgba(118, 118, 128, 0.12);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  opacity: 1;
   transform: none;
 }
 
@@ -514,7 +536,7 @@ body {
   flex: 1;
 }
 
-/* ====== Speak Button - iOS Filled Button ====== */
+/* ====== Speak Button - iOS Tinted Style ====== */
 .btn-speak {
   display: flex;
   align-items: center;
@@ -524,27 +546,26 @@ body {
   flex-shrink: 0;
   padding: 0;
   border: none;
-  background: var(--accent);
-  color: #FFFFFF;
+  background: var(--accent-tinted-bg);
+  color: var(--accent);
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: all 0.2s var(--ease-out);
+  transition: all 0.15s var(--ease-out);
 }
 
 .btn-speak:hover {
-  opacity: 0.85;
+  background: var(--accent-soft);
 }
 
 .btn-speak:active {
-  transform: scale(0.98);
-  opacity: 0.7;
+  transform: scale(0.96);
+  background: var(--accent-hover);
 }
 
 .btn-speak:disabled {
-  background: var(--bg-tertiary);
+  background: rgba(118, 118, 128, 0.12);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  opacity: 1;
   transform: none;
 }
 
@@ -606,6 +627,7 @@ body {
   padding: var(--space-lg);
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
+  border: 0.5px solid rgba(255, 255, 255, 0.04);
 }
 
 .result-header {
@@ -777,7 +799,8 @@ body {
 }
 
 .settings-label {
-  font-size: 15px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
   width: 48px;
   flex-shrink: 0;
@@ -790,7 +813,7 @@ body {
   border: none;
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 15px;
+  font-size: 13px;
   text-align: right;
   outline: none;
 }
@@ -806,7 +829,7 @@ body {
   border: none;
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 15px;
+  font-size: 13px;
   text-align: right;
   outline: none;
   cursor: pointer;
@@ -881,28 +904,32 @@ body {
   margin-right: 0;
 }
 
-/* Settings action button */
+/* Settings action button - iOS Segmented Control Style */
 .settings-action-btn {
   display: block;
   width: 100%;
-  padding: var(--space-md) var(--space-lg);
-  background: transparent;
+  padding: 7px 0;
+  background: rgba(118, 118, 128, 0.12);
   border: none;
-  color: var(--accent);
+  border-radius: var(--radius-segment);
+  color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 13px;
+  font-weight: 500;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.15s var(--ease-out);
+  margin: var(--space-md) var(--space-lg);
+  width: calc(100% - var(--space-lg) * 2);
 }
 
 .settings-action-btn:hover {
-  background: var(--accent-soft);
+  background: rgba(118, 118, 128, 0.18);
 }
 
 .settings-action-btn:active {
-  background: var(--accent-hover);
+  background: rgba(118, 118, 128, 0.24);
+  transform: scale(0.98);
 }
 
 /* ====== Accordion ====== */
@@ -920,15 +947,19 @@ body {
   border: none;
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   min-height: 44px;
   transition: background 0.2s;
 }
 
 .accordion-header:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(118, 118, 128, 0.12);
+}
+
+.accordion-header:active {
+  background: rgba(118, 118, 128, 0.18);
 }
 
 .accordion-chevron {
@@ -1004,28 +1035,34 @@ body {
 }
 
 /* ====== Reset Button ====== */
+.reset-section {
+  padding: 0;
+  margin-bottom: var(--space-md);
+}
+
 .reset-btn {
   display: block;
   width: 100%;
-  padding: var(--space-md);
-  background: transparent;
+  padding: 7px 0;
+  background: rgba(255, 69, 58, 0.12);
   border: none;
+  border-radius: var(--radius-segment);
   color: var(--error);
   font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 13px;
+  font-weight: 500;
   text-align: center;
   cursor: pointer;
-  border-radius: var(--radius-lg);
-  transition: background 0.2s;
+  transition: all 0.15s var(--ease-out);
 }
 
 .reset-btn:hover {
-  background: rgba(255, 69, 58, 0.08);
+  background: rgba(255, 69, 58, 0.18);
 }
 
 .reset-btn:active {
-  background: rgba(255, 69, 58, 0.15);
+  background: rgba(255, 69, 58, 0.24);
+  transform: scale(0.98);
 }
 
 /* ====== 长难句分析 ====== */
@@ -1260,7 +1297,7 @@ body {
   border-left: 3px solid var(--accent);
 }
 
-/* ====== 录音按钮 - iOS Filled Button ====== */
+/* ====== 录音按钮 - iOS Tinted Style ====== */
 .btn-record {
   display: flex;
   align-items: center;
@@ -1270,27 +1307,26 @@ body {
   flex-shrink: 0;
   padding: 0;
   border: none;
-  background: var(--accent);
-  color: #FFFFFF;
+  background: var(--accent-tinted-bg);
+  color: var(--accent);
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: all 0.2s var(--ease-out);
+  transition: all 0.15s var(--ease-out);
 }
 
 .btn-record:hover {
-  opacity: 0.85;
+  background: var(--accent-soft);
 }
 
 .btn-record:active {
-  transform: scale(0.98);
-  opacity: 0.7;
+  transform: scale(0.96);
+  background: var(--accent-hover);
 }
 
 .btn-record:disabled {
-  background: var(--bg-tertiary);
+  background: rgba(118, 118, 128, 0.12);
   color: var(--text-tertiary);
   cursor: not-allowed;
-  opacity: 1;
   transform: none;
 }
 
