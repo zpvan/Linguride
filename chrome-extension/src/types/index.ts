@@ -32,6 +32,7 @@ export type {
   ParaphrasePromptConfig,
   PromptConfig,
   ProviderConfig,
+  TencentASRConfig,
 } from "./config";
 
 // 消息类型
@@ -73,6 +74,8 @@ export type {
   ShadowAssessResponse,
   SplitSentencesMessage,
   SplitSentencesResponse,
+  TencentASRSignMessage,
+  TencentASRSignResponse,
   TestConnectionMessage,
   TestConnectionResponse,
   ToggleMixedTranslateMessage,

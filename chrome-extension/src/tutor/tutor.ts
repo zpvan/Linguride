@@ -19,6 +19,7 @@ import {
   EnglishToChineseResponse,
   GetConfigResponse,
   ISpeechRecognizer,
+  LingridConfig,
   MessageType,
   PronunciationAssessmentResult,
   SentenceAnalysisResult,
@@ -29,6 +30,10 @@ import {
 import * as shadow from "./shadow";
 import * as audioCapture from "./audioCapture";
 import * as echoMethod from "./echoMethod";
+import {
+  TencentASRRecognizer,
+  isTencentASRConfigured,
+} from "./tencentASRRecognizer";
 
 // ====== 类型定义 ======
 
@@ -63,6 +68,9 @@ let currentMode: TutorMode = "cn2en";
 
 /** 用户 CEFR 水平 */
 let userLevel: CEFRLevel = "A2";
+
+/** 用户完整配置（用于识别器选择） */
+let userConfig: LingridConfig | null = null;
 
 // ====== DOM 元素引用 ======
 
@@ -358,9 +366,18 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
   private finalTranscript = "";
   private _isRecognizing = false;
+  private lastConfidence = 0;
 
   onInterimResult?: (text: string) => void;
   onError?: (error: Error) => void;
+
+  /**
+   * 获取最后一次识别结果的置信度
+   * @returns 置信度 0-1，低于 0.6 建议提示用户重试
+   */
+  getLastConfidence(): number {
+    return this.lastConfidence;
+  }
 
   async start(): Promise<void> {
     // 先清理之前的识别实例（解决重复录音问题）
@@ -379,6 +396,7 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
     // 重置状态
     this._isRecognizing = false;
     this.finalTranscript = "";
+    this.lastConfidence = 0;
 
     // 检查浏览器支持
     const SpeechRecognitionCtor =
@@ -418,13 +436,35 @@ class WebSpeechRecognizer implements ISpeechRecognizer {
     this.recognition.lang = "en-US";
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
+    this.recognition.maxAlternatives = 3; // 获取多个候选结果，提高识别准确率
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = "";
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
+        const result = event.results[i];
+        // 获取置信度最高的候选结果
+        let bestAlternative = result[0];
+        let bestConfidence = result[0].confidence || 0;
+
+        // 遍历所有候选，选择置信度最高的
+        for (let j = 1; j < result.length; j++) {
+          const altConfidence = result[j].confidence || 0;
+          if (altConfidence > bestConfidence) {
+            bestAlternative = result[j];
+            bestConfidence = altConfidence;
+          }
+        }
+
+        const transcript = bestAlternative.transcript;
+
+        if (result.isFinal) {
           this.finalTranscript += transcript + " ";
+          // 记录最终结果的置信度
+          this.lastConfidence = bestConfidence;
+          console.log(
+            `[Lingride ASR] Final: "${transcript}" (confidence: ${(bestConfidence * 100).toFixed(1)}%)`
+          );
         } else {
           interimTranscript += transcript;
         }
@@ -511,14 +551,52 @@ async function loadUserConfig(): Promise<void> {
     const response: GetConfigResponse = await chrome.runtime.sendMessage({
       type: MessageType.GET_CONFIG,
     });
-    if (response.success && response.data?.user_english_level) {
-      userLevel = response.data.user_english_level;
-      console.log(`[Lingride Tutor] 用户水平: ${userLevel}`);
-      updateLevelBadge(userLevel);
+    if (response.success && response.data) {
+      // 保存完整配置
+      userConfig = response.data as LingridConfig;
+
+      if (response.data.user_english_level) {
+        userLevel = response.data.user_english_level;
+        console.log(`[Lingride Tutor] 用户水平: ${userLevel}`);
+        updateLevelBadge(userLevel);
+      }
     }
   } catch (error) {
     console.error("[Lingride Tutor] 获取用户配置失败:", error);
   }
+}
+
+/**
+ * 创建语音识别器（工厂函数）
+ *
+ * 根据用户配置选择使用腾讯云 ASR 或 Web Speech API。
+ * - 配置了腾讯云 ASR：使用 TencentASRRecognizer
+ * - 未配置：使用 WebSpeechRecognizer
+ *
+ * @param options 选项
+ * @param options.onFallback 降级回调，当腾讯云失败时调用
+ */
+function createRecognizer(options?: {
+  onFallback?: (reason: string) => void;
+}): ISpeechRecognizer {
+  // 检查是否配置了腾讯云 ASR
+  if (userConfig && isTencentASRConfigured(userConfig)) {
+    console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
+    const tencentRecognizer = new TencentASRRecognizer();
+
+    // 包装错误处理，实现降级逻辑
+    const originalOnError = tencentRecognizer.onError;
+    tencentRecognizer.onError = (error: Error) => {
+      console.warn("[Lingride Tutor] 腾讯云 ASR 失败，降级到 Web Speech API:", error.message);
+      options?.onFallback?.(`腾讯云识别失败: ${error.message}，使用浏览器识别`);
+      originalOnError?.(error);
+    };
+
+    return tencentRecognizer;
+  }
+
+  console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
+  return new WebSpeechRecognizer();
 }
 
 // ====== Level Badge 等级选择 ======
@@ -1165,13 +1243,13 @@ function renderSentenceAnalysisResult(result: SentenceAnalysisResult): void {
 function showStatus(
   element: HTMLElement,
   message: string,
-  type: "success" | "error" | "loading"
+  type: "success" | "error" | "loading" | "warning"
 ): void {
   element.textContent = message;
   element.className = `status-message ${type}`;
   element.style.display = "block";
 
-  if (type === "success") {
+  if (type === "success" || type === "warning") {
     setTimeout(() => {
       element.style.display = "none";
     }, 3000);
@@ -1229,8 +1307,12 @@ async function startRecording(): Promise<void> {
     freeRecognitionResult.style.display = "none";
     pronunciationStatus.style.display = "none";
 
-    // 初始化识别器
-    recognizer = new WebSpeechRecognizer();
+    // 初始化识别器（根据配置选择腾讯云或 Web Speech API）
+    recognizer = createRecognizer({
+      onFallback: (reason) => {
+        showStatus(pronunciationStatus, reason, "warning");
+      },
+    });
     recognizer.onInterimResult = (text) => {
       updateRecognitionPreview(text);
     };
@@ -1567,8 +1649,13 @@ function initShadowMode(): void {
     headphoneHint.style.display = "flex";
   }
 
-  // 创建并注入语音识别器
-  const shadowRecognizer = new WebSpeechRecognizer();
+  // 创建并注入语音识别器（根据配置选择腾讯云或 Web Speech API）
+  const shadowRecognizer = createRecognizer({
+    onFallback: (reason) => {
+      // 显示降级提示
+      showStatus(shadowStatus, reason, "warning");
+    },
+  });
   shadow.injectRecognizer(shadowRecognizer);
 
   // 设置回调

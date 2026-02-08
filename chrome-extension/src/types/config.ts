@@ -98,6 +98,23 @@ export interface MixedTranslatePromptConfig {
 }
 
 /**
+ * 腾讯云 ASR 配置
+ *
+ * 用于腾讯云实时语音识别服务的鉴权配置。
+ * 配置后可使用腾讯云 ASR 替代 Web Speech API，提高识别准确率。
+ */
+export interface TencentASRConfig {
+  /** 腾讯云 AppID */
+  app_id: string;
+
+  /** 腾讯云 SecretID */
+  secret_id: string;
+
+  /** 腾讯云 SecretKey */
+  secret_key: string;
+}
+
+/**
  * Lingride 扩展完整配置
  *
  * 存储在 chrome.storage.local 中的配置对象，
@@ -130,6 +147,9 @@ export interface LingridConfig {
 
   /** 长难句分析 Prompt 配置（可选，使用默认值） */
   sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
+
+  /** 腾讯云 ASR 配置（可选，不配置则使用 Web Speech API） */
+  tencent_asr?: TencentASRConfig;
 }
 
 /**

@@ -572,6 +572,12 @@ body {
   color: var(--accent);
 }
 
+.status-message.warning {
+  display: block;
+  background: rgba(255, 159, 10, 0.1);
+  color: #ff9f0a;
+}
+
 /* ====== Sentence Analysis Result ====== */
 .sentence-result {
   margin-top: 0;

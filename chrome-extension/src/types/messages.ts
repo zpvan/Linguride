@@ -103,6 +103,10 @@ export enum MessageType {
   SPLIT_SENTENCES = "SPLIT_SENTENCES",
   /** 影子跟读评估 */
   SHADOW_ASSESS = "SHADOW_ASSESS",
+
+  // ====== 腾讯云 ASR ======
+  /** 请求腾讯云 ASR 签名 URL */
+  TENCENT_ASR_SIGN = "TENCENT_ASR_SIGN",
 }
 
 /**
@@ -326,6 +330,13 @@ export interface ShadowAssessMessage {
 }
 
 /**
+ * 腾讯云 ASR 签名请求消息
+ */
+export interface TencentASRSignMessage {
+  type: MessageType.TENCENT_ASR_SIGN;
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -349,7 +360,8 @@ export type Message =
   | EnglishToChineseMessage
   | EnglishDefinitionMessage
   | SplitSentencesMessage
-  | ShadowAssessMessage;
+  | ShadowAssessMessage
+  | TencentASRSignMessage;
 
 // ====== 响应类型定义 ======
 
@@ -559,6 +571,16 @@ export interface ShadowAssessResponse extends BaseResponse {
 }
 
 /**
+ * 腾讯云 ASR 签名响应
+ */
+export interface TencentASRSignResponse extends BaseResponse {
+  data?: {
+    /** 签名后的 WebSocket URL */
+    signedUrl: string;
+  };
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -579,4 +601,5 @@ export type Response =
   | EnglishToChineseResponse
   | EnglishDefinitionResponse
   | SplitSentencesResponse
-  | ShadowAssessResponse;
+  | ShadowAssessResponse
+  | TencentASRSignResponse;

@@ -179,6 +179,32 @@
         <div id="connectionStatus" class="status-message"></div>
       </section>
 
+      <!-- 腾讯云 ASR 配置 -->
+      <section class="card settings-group">
+        <h2 class="section-label">语音识别（可选）</h2>
+        <p class="settings-desc">配置腾讯云 ASR 可提高影子跟读的语音识别准确率。未配置时使用浏览器内置识别。</p>
+        <div class="settings-row">
+          <label class="settings-label" for="tencentAppId">AppID</label>
+          <input type="text" id="tencentAppId" class="settings-input" placeholder="腾讯云 AppID">
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <label class="settings-label" for="tencentSecretId">SecretID</label>
+          <input type="text" id="tencentSecretId" class="settings-input" placeholder="腾讯云 SecretID">
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <label class="settings-label" for="tencentSecretKey">SecretKey</label>
+          <div class="password-input">
+            <input type="password" id="tencentSecretKey" class="settings-input" placeholder="腾讯云 SecretKey">
+            <button type="button" id="showTencentKeyBtn" class="show-key-btn">显示</button>
+          </div>
+        </div>
+        <p class="settings-hint">
+          <a href="https://console.cloud.tencent.com/cam/capi" target="_blank" rel="noopener">获取腾讯云密钥 →</a>
+        </p>
+      </section>
+
       <!-- Prompt 配置 (Accordion) -->
       <section class="card settings-group">
         <h2 class="section-label">Prompt 配置</h2>

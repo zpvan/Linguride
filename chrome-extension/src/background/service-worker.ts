@@ -65,6 +65,7 @@ import {
   ShadowAssessResponse,
   SplitSentencesResponse,
   SplitSentencesResult,
+  TencentASRSignResponse,
   TestConnectionResponse,
   TranslateResponse,
 } from "../types";
@@ -1329,6 +1330,117 @@ async function handleShadowAssess(
   }
 }
 
+// ====== 腾讯云 ASR 签名 ======
+
+/**
+ * 处理 TENCENT_ASR_SIGN 消息
+ *
+ * 生成腾讯云实时语音识别的签名 URL。
+ * 签名在 background 中生成以保护密钥安全。
+ *
+ * 腾讯云 ASR WebSocket URL 格式：
+ * wss://asr.cloud.tencent.com/asr/v2/{appid}?{params}&signature={signature}
+ */
+async function handleTencentASRSign(): Promise<TencentASRSignResponse> {
+  try {
+    // 1. 获取配置
+    const config = await getConfig();
+
+    if (
+      !config.tencent_asr?.app_id ||
+      !config.tencent_asr?.secret_id ||
+      !config.tencent_asr?.secret_key
+    ) {
+      return {
+        success: false,
+        error: "腾讯云 ASR 未配置，请在设置中填写 AppID、SecretID 和 SecretKey",
+      };
+    }
+
+    const { app_id, secret_id, secret_key } = config.tencent_asr;
+
+    // 2. 生成签名参数
+    const timestamp = Math.floor(Date.now() / 1000);
+    const expired = timestamp + 86400; // 24小时有效期
+    const nonce = Math.floor(Math.random() * 100000);
+
+    // 请求参数
+    const params: Record<string, string | number> = {
+      secretid: secret_id,
+      timestamp,
+      expired,
+      nonce,
+      engine_model_type: "16k_en", // 英语 16kHz
+      voice_format: 1, // PCM
+      needvad: 1, // 开启 VAD
+      filter_dirty: 0, // 不过滤脏话
+      filter_modal: 0, // 不过滤语气词
+      filter_punc: 0, // 不过滤标点
+      convert_num_mode: 1, // 数字智能转换
+      word_info: 0, // 不返回词级别时间戳
+    };
+
+    // 3. 生成签名字符串
+    const sortedKeys = Object.keys(params).sort();
+    const signStr = sortedKeys.map((k) => `${k}=${params[k]}`).join("&");
+
+    // 4. 计算 HMAC-SHA1 签名
+    const signature = await hmacSha1Base64(secret_key, signStr);
+
+    // 5. 构建完整 URL
+    const queryString =
+      sortedKeys.map((k) => `${k}=${encodeURIComponent(params[k])}`).join("&") +
+      `&signature=${encodeURIComponent(signature)}`;
+
+    const signedUrl = `wss://asr.cloud.tencent.com/asr/v2/${app_id}?${queryString}`;
+
+    console.log("[Lingride] 腾讯云 ASR 签名生成成功");
+
+    return {
+      success: true,
+      data: { signedUrl },
+    };
+  } catch (error) {
+    console.error("[Lingride] 腾讯云 ASR 签名生成失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "签名生成失败",
+    };
+  }
+}
+
+/**
+ * HMAC-SHA1 签名并返回 Base64 编码
+ *
+ * 使用 Web Crypto API 实现。
+ */
+async function hmacSha1Base64(key: string, data: string): Promise<string> {
+  // 将字符串转换为 ArrayBuffer
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(key);
+  const dataBuffer = encoder.encode(data);
+
+  // 导入密钥
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"]
+  );
+
+  // 计算 HMAC
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, dataBuffer);
+
+  // 转换为 Base64
+  const signatureArray = new Uint8Array(signature);
+  let binary = "";
+  for (let i = 0; i < signatureArray.length; i++) {
+    binary += String.fromCharCode(signatureArray[i]);
+  }
+  return btoa(binary);
+}
+
 // ====== 消息路由 ======
 
 /**
@@ -1538,6 +1650,10 @@ chrome.runtime.onMessage.addListener(
             message.payload.original,
             message.payload.recognized
           );
+          break;
+
+        case MessageType.TENCENT_ASR_SIGN:
+          response = await handleTencentASRSign();
           break;
 
         default:

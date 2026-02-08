@@ -1034,6 +1034,30 @@ body {
   color: var(--accent);
 }
 
+/* Settings 描述文本 */
+.settings-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+.settings-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: var(--space-md);
+  text-align: right;
+}
+
+.settings-hint a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.settings-hint a:hover {
+  text-decoration: underline;
+}
+
 /* ====== Reset Button ====== */
 .reset-section {
   padding: 0;

@@ -157,6 +157,20 @@ const sentenceAnalysisUserPromptTextarea = document.getElementById(
   "sentenceAnalysisUserPrompt"
 ) as HTMLTextAreaElement;
 
+// Settings - 腾讯云 ASR 配置
+const tencentAppIdInput = document.getElementById(
+  "tencentAppId"
+) as HTMLInputElement;
+const tencentSecretIdInput = document.getElementById(
+  "tencentSecretId"
+) as HTMLInputElement;
+const tencentSecretKeyInput = document.getElementById(
+  "tencentSecretKey"
+) as HTMLInputElement;
+const showTencentKeyBtn = document.getElementById(
+  "showTencentKeyBtn"
+) as HTMLButtonElement;
+
 // Settings - 操作
 const resetDefaultsBtn = document.getElementById(
   "resetDefaultsBtn"
@@ -261,6 +275,18 @@ function bindEvents(): void {
     const isPassword = apiKeyInput.type === "password";
     apiKeyInput.type = isPassword ? "text" : "password";
     showKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 腾讯云 ASR 配置自动保存
+  tencentAppIdInput.addEventListener("blur", autoSave);
+  tencentSecretIdInput.addEventListener("blur", autoSave);
+  tencentSecretKeyInput.addEventListener("blur", autoSave);
+
+  // Settings - 显示/隐藏腾讯云 SecretKey
+  showTencentKeyBtn.addEventListener("click", () => {
+    const isPassword = tencentSecretKeyInput.type === "password";
+    tencentSecretKeyInput.type = isPassword ? "text" : "password";
+    showTencentKeyBtn.textContent = isPassword ? "隐藏" : "显示";
   });
 
   // Settings - 测试连接
@@ -577,6 +603,22 @@ function collectFormData(): void {
     system_prompt: sentenceAnalysisSystemPromptTextarea.value,
     user_prompt_template: sentenceAnalysisUserPromptTextarea.value,
   };
+
+  // 腾讯云 ASR 配置（只有填写了才保存）
+  const appId = tencentAppIdInput.value.trim();
+  const secretId = tencentSecretIdInput.value.trim();
+  const secretKey = tencentSecretKeyInput.value.trim();
+
+  if (appId || secretId || secretKey) {
+    currentConfig.tencent_asr = {
+      app_id: appId,
+      secret_id: secretId,
+      secret_key: secretKey,
+    };
+  } else {
+    // 如果全部为空，删除配置
+    delete currentConfig.tencent_asr;
+  }
 }
 
 // ====== Settings 表单更新 ======
@@ -638,6 +680,11 @@ function updateSettingsForm(): void {
   sentenceAnalysisUserPromptTextarea.value =
     currentConfig.sentence_analysis_prompts?.user_prompt_template ||
     DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT;
+
+  // 腾讯云 ASR 配置
+  tencentAppIdInput.value = currentConfig.tencent_asr?.app_id || "";
+  tencentSecretIdInput.value = currentConfig.tencent_asr?.secret_id || "";
+  tencentSecretKeyInput.value = currentConfig.tencent_asr?.secret_key || "";
 }
 
 // ====== 模型选择 ======
