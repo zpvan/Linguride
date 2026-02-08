@@ -14,6 +14,7 @@ import {
   AssessPronunciationResponse,
   CEFRLevel,
   ChineseToEnglishResponse,
+  EchoMethodState,
   EnglishDefinitionResponse,
   EnglishToChineseResponse,
   GetConfigResponse,
@@ -26,6 +27,8 @@ import {
   ShadowSpeed,
 } from "../types";
 import * as shadow from "./shadow";
+import * as audioCapture from "./audioCapture";
+import * as echoMethod from "./echoMethod";
 
 // ====== 类型定义 ======
 
@@ -317,6 +320,24 @@ const shadowCompleteStats = document.getElementById(
 const shadowRestartBtn = document.getElementById(
   "shadowRestartBtn"
 ) as HTMLButtonElement;
+
+// ====== 回声法 DOM 元素 ======
+
+const echoPlayModelBtn = document.getElementById(
+  "echoPlayModel"
+) as HTMLButtonElement;
+const echoPlayUserBtn = document.getElementById(
+  "echoPlayUser"
+) as HTMLButtonElement;
+const echoPlayABBtn = document.getElementById(
+  "echoPlayAB"
+) as HTMLButtonElement;
+const echoPlayingStatus = document.getElementById(
+  "echoPlayingStatus"
+) as HTMLElement;
+const echoStatusText = document.getElementById(
+  "echoStatusText"
+) as HTMLElement;
 
 // ====== 录音相关状态 ======
 
@@ -628,6 +649,8 @@ function bindEvents(): void {
     speechSynthesis.cancel();
     stopRecordingCleanup();
     shadow.resetPractice();
+    echoMethod.reset();
+    audioCapture.forceRelease();
   });
 
   // ====== 影子跟读事件 ======
@@ -667,6 +690,21 @@ function bindEvents(): void {
 
   // 快捷键支持
   document.addEventListener("keydown", handleShadowKeydown);
+
+  // ====== 回声法事件 ======
+
+  // 回声法按钮
+  echoPlayModelBtn?.addEventListener("click", handleEchoPlayModel);
+  echoPlayUserBtn?.addEventListener("click", handleEchoPlayUser);
+  echoPlayABBtn?.addEventListener("click", handleEchoPlayAB);
+
+  // 设置回声法回调
+  echoMethod.setCallbacks({
+    onStateChange: handleEchoStateChange,
+    onError: (error, message) => {
+      console.error("[Lingride Tutor] 回声法错误:", error, message);
+    },
+  });
 }
 
 // ====== 模式切换 ======
@@ -1577,6 +1615,9 @@ function loadShadowConfig(): void {
  * 隐藏影子跟读 UI
  */
 function hideShadowUI(): void {
+  // 重置回声法
+  echoMethod.reset();
+
   headphoneHint.style.display = "none";
   shadowPracticePanel.style.display = "none";
   shadowAssessResult.style.display = "none";
@@ -1584,6 +1625,7 @@ function hideShadowUI(): void {
   shadowRecordingStatus.style.display = "none";
   shadowRecognitionPreview.style.display = "none";
   shadowStatus.style.display = "none";
+  echoPlayingStatus.style.display = "none";
 }
 
 /**
@@ -1744,6 +1786,16 @@ async function handleShadowRecord(): Promise<void> {
   // 开始录音
   try {
     startShadowRecordingUI();
+
+    // 1. 获取共享的 MediaStream
+    const stream = await audioCapture.acquireStream();
+
+    // 2. 启动回声法录音（如果支持）
+    if (echoMethod.isSupported()) {
+      await echoMethod.startRecording(stream);
+    }
+
+    // 3. 启动语音识别
     await shadow.startShadowRecording();
   } catch (error) {
     console.error("[Lingride Tutor] 影子跟读录音失败:", error);
@@ -1753,6 +1805,12 @@ async function handleShadowRecord(): Promise<void> {
       "error"
     );
     stopShadowRecordingUI();
+
+    // 清理资源
+    if (echoMethod.getState().isRecording) {
+      await echoMethod.stopRecording();
+    }
+    audioCapture.releaseStream();
   }
 }
 
@@ -1795,10 +1853,23 @@ async function stopAndAssessShadow(): Promise<void> {
   showStatus(shadowStatus, "正在评估...", "loading");
 
   try {
+    // 1. 停止回声法录音
+    if (echoMethod.getState().isRecording) {
+      await echoMethod.stopRecording();
+    }
+
+    // 2. 停止语音识别并获取评估结果
     const result = await shadow.stopAndAssess();
+
+    // 3. 释放 MediaStream
+    audioCapture.releaseStream();
+
     shadowStatus.style.display = "none";
     shadowRecognitionPreview.style.display = "none";
+
+    // 4. 渲染评估结果（包含回声法面板）
     renderShadowAssessResult(result);
+    updateEchoMethodUI();
   } catch (error) {
     console.error("[Lingride Tutor] 影子跟读评估失败:", error);
     showStatus(
@@ -1806,6 +1877,9 @@ async function stopAndAssessShadow(): Promise<void> {
       error instanceof Error ? error.message : "评估失败，请重试",
       "error"
     );
+
+    // 清理资源
+    audioCapture.releaseStream();
   }
 }
 
@@ -1883,6 +1957,9 @@ function renderShadowAssessResult(result: ShadowAssessmentResult): void {
  * 处理跳过按钮点击
  */
 function handleShadowSkip(): void {
+  // 切换句子时清理回声法录音
+  echoMethod.clearRecording();
+
   if (shadow.nextSentence()) {
     updateShadowSentenceUI();
     clearAllResults();
@@ -1893,8 +1970,14 @@ function handleShadowSkip(): void {
 
 /**
  * 处理重新练习按钮点击
+ *
+ * 保留旧录音，用户可能想对比前后两次录音。
+ * 新录音开始后旧录音会被覆盖。
  */
 function handleShadowRetry(): void {
+  // 停止当前播放（如果有）
+  echoMethod.stopPlayback();
+
   shadow.retryCurrent();
   shadowAssessResult.style.display = "none";
   shadowPracticePanel.style.display = "block";
@@ -1905,6 +1988,9 @@ function handleShadowRetry(): void {
  * 处理下一句按钮点击
  */
 function handleShadowNext(): void {
+  // 切换句子时清理回声法录音
+  echoMethod.clearRecording();
+
   if (shadow.nextSentence()) {
     shadowAssessResult.style.display = "none";
     shadowPracticePanel.style.display = "block";
@@ -1920,6 +2006,9 @@ function handleShadowNext(): void {
  * 隐藏评估和练习面板，显示完成统计（完成句数、平均得分）。
  */
 function showShadowComplete(): void {
+  // 清理回声法
+  echoMethod.clearRecording();
+
   shadowAssessResult.style.display = "none";
   shadowPracticePanel.style.display = "none";
   shadowCompletePanel.style.display = "block";
@@ -1934,6 +2023,8 @@ function showShadowComplete(): void {
  */
 function handleShadowRestart(): void {
   shadow.resetPractice();
+  echoMethod.reset();
+
   shadowCompletePanel.style.display = "none";
   shadowPracticePanel.style.display = "none";
 
@@ -1990,5 +2081,135 @@ function handleShadowKeydown(e: KeyboardEvent): void {
         handleShadowRetry();
       }
       break;
+    case "KeyE":
+      // E 键播放自己的录音
+      e.preventDefault();
+      if (
+        shadowAssessResult.style.display !== "none" &&
+        !echoPlayUserBtn.disabled
+      ) {
+        handleEchoPlayUser();
+      }
+      break;
   }
+}
+
+// ====== 回声法处理函数 ======
+
+/**
+ * 处理回声法"听范读"按钮点击
+ */
+async function handleEchoPlayModel(): Promise<void> {
+  const sentence = shadow.getCurrentSentence();
+  if (!sentence) return;
+
+  const config = shadow.getConfig();
+
+  try {
+    // 停止当前播放（如果有）
+    echoMethod.stopPlayback();
+
+    await echoMethod.playModelReading(sentence.text, config.speed);
+  } catch (error) {
+    console.error("[Lingride Tutor] 播放范读失败:", error);
+  }
+}
+
+/**
+ * 处理回声法"听自己"按钮点击
+ */
+async function handleEchoPlayUser(): Promise<void> {
+  try {
+    // 停止当前播放（如果有）
+    echoMethod.stopPlayback();
+
+    await echoMethod.playUserRecording();
+  } catch (error) {
+    console.error("[Lingride Tutor] 播放录音失败:", error);
+  }
+}
+
+/**
+ * 处理回声法"A-B对比"按钮点击
+ */
+async function handleEchoPlayAB(): Promise<void> {
+  const sentence = shadow.getCurrentSentence();
+  if (!sentence) return;
+
+  const config = shadow.getConfig();
+
+  try {
+    // 停止当前播放（如果有）
+    echoMethod.stopPlayback();
+
+    await echoMethod.playABComparison(sentence.text, config.speed);
+  } catch (error) {
+    console.error("[Lingride Tutor] A-B 对比播放失败:", error);
+  }
+}
+
+/**
+ * 处理回声法状态变化
+ */
+function handleEchoStateChange(state: EchoMethodState): void {
+  // 更新按钮状态
+  updateEchoButtonStates(state);
+
+  // 更新播放状态显示
+  updateEchoPlayingStatusUI(state);
+}
+
+/**
+ * 更新回声法按钮状态
+ */
+function updateEchoButtonStates(state: EchoMethodState): void {
+  // "听范读"按钮始终可用
+  echoPlayModelBtn.disabled = false;
+
+  // "听自己"和"A-B对比"按钮需要有录音
+  echoPlayUserBtn.disabled = !state.hasRecording;
+  echoPlayABBtn.disabled = !state.hasRecording;
+
+  // 更新按钮的 playing 样式
+  echoPlayModelBtn.classList.toggle(
+    "playing",
+    state.playingSource === "model" || state.playingSource === "ab-model"
+  );
+  echoPlayUserBtn.classList.toggle(
+    "playing",
+    state.playingSource === "user" || state.playingSource === "ab-user"
+  );
+  echoPlayABBtn.classList.toggle(
+    "playing",
+    state.playingSource === "ab-model" || state.playingSource === "ab-user"
+  );
+}
+
+/**
+ * 更新回声法播放状态 UI
+ */
+function updateEchoPlayingStatusUI(state: EchoMethodState): void {
+  if (state.isPlaying && state.playingSource) {
+    echoPlayingStatus.style.display = "flex";
+
+    const statusTexts: Record<string, string> = {
+      model: "正在播放范读...",
+      user: "正在播放您的录音...",
+      "ab-model": "A-B 对比：正在播放范读...",
+      "ab-user": "A-B 对比：正在播放您的录音...",
+    };
+
+    echoStatusText.textContent = statusTexts[state.playingSource] || "";
+  } else {
+    echoPlayingStatus.style.display = "none";
+  }
+}
+
+/**
+ * 更新回声法 UI（评估结果后调用）
+ */
+function updateEchoMethodUI(): void {
+  const state = echoMethod.getState();
+  updateEchoButtonStates(state);
+  updateEchoPlayingStatusUI(state);
 }

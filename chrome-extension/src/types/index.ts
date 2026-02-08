@@ -141,3 +141,14 @@ export type {
   SplitSentencesRequest,
   SplitSentencesResult,
 } from "./shadowReading";
+
+// 回声法类型
+export { DEFAULT_ECHO_METHOD_STATE } from "./echoMethod";
+export type {
+  AudioCaptureError,
+  AudioCaptureState,
+  EchoMethodCallbacks,
+  EchoMethodError,
+  EchoMethodState,
+  PlayingSource,
+} from "./echoMethod";
