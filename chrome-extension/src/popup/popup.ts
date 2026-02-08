@@ -767,7 +767,7 @@ async function handleAnalyzeDifficulty(): Promise<void> {
     showStatus(difficultyStatus, "分析请求失败", "error");
   } finally {
     analyzeDifficultyBtn.disabled = false;
-    analyzeDifficultyBtn.textContent = "分析当前页面";
+    analyzeDifficultyBtn.textContent = "当前页面";
   }
 }
 
