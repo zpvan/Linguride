@@ -34,6 +34,10 @@ import {
   TencentASRRecognizer,
   isTencentASRConfigured,
 } from "./tencentASRRecognizer";
+import {
+  AlibabaASRRecognizer,
+  isAlibabaASRConfigured,
+} from "./alibabaASRRecognizer";
 
 // ====== 类型定义 ======
 
@@ -569,17 +573,16 @@ async function loadUserConfig(): Promise<void> {
 /**
  * 创建语音识别器（工厂函数）
  *
- * 根据用户配置选择使用腾讯云 ASR 或 Web Speech API。
- * - 配置了腾讯云 ASR：使用 TencentASRRecognizer
- * - 未配置：使用 WebSpeechRecognizer
+ * 根据用户配置选择使用腾讯云 ASR、阿里云 ASR 或 Web Speech API。
+ * 优先级：腾讯云 ASR > 阿里云 ASR > Web Speech API
  *
  * @param options 选项
- * @param options.onFallback 降级回调，当腾讯云失败时调用
+ * @param options.onFallback 降级回调，当云服务失败时调用
  */
 function createRecognizer(options?: {
   onFallback?: (reason: string) => void;
 }): ISpeechRecognizer {
-  // 检查是否配置了腾讯云 ASR
+  // 优先级 1: 腾讯云 ASR
   if (userConfig && isTencentASRConfigured(userConfig)) {
     console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
     const tencentRecognizer = new TencentASRRecognizer();
@@ -595,6 +598,21 @@ function createRecognizer(options?: {
     return tencentRecognizer;
   }
 
+  // 优先级 2: 阿里云 ASR
+  if (userConfig && isAlibabaASRConfigured(userConfig)) {
+    console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
+    const alibabaRecognizer = new AlibabaASRRecognizer();
+
+    // 包装错误处理，实现降级逻辑
+    alibabaRecognizer.onError = (error: Error) => {
+      console.warn("[Lingride Tutor] 阿里云 ASR 失败，降级到 Web Speech API:", error.message);
+      options?.onFallback?.(`阿里云识别失败: ${error.message}，使用浏览器识别`);
+    };
+
+    return alibabaRecognizer;
+  }
+
+  // 优先级 3: Web Speech API（降级方案）
   console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
   return new WebSpeechRecognizer();
 }

@@ -107,6 +107,16 @@ export enum MessageType {
   // ====== 腾讯云 ASR ======
   /** 请求腾讯云 ASR 签名 URL */
   TENCENT_ASR_SIGN = "TENCENT_ASR_SIGN",
+
+  // ====== 阿里云 ASR ======
+  /** 启动阿里云 ASR 识别 */
+  ALIBABA_ASR_START = "ALIBABA_ASR_START",
+  /** 发送音频数据到阿里云 ASR */
+  ALIBABA_ASR_AUDIO = "ALIBABA_ASR_AUDIO",
+  /** 停止阿里云 ASR 识别 */
+  ALIBABA_ASR_STOP = "ALIBABA_ASR_STOP",
+  /** 阿里云 ASR 实时识别结果（Background -> Tutor，通过 Port） */
+  ALIBABA_ASR_RESULT = "ALIBABA_ASR_RESULT",
 }
 
 /**
@@ -337,6 +347,44 @@ export interface TencentASRSignMessage {
 }
 
 /**
+ * 阿里云 ASR 启动消息
+ */
+export interface AlibabaASRStartMessage {
+  type: MessageType.ALIBABA_ASR_START;
+}
+
+/**
+ * 阿里云 ASR 音频数据消息
+ */
+export interface AlibabaASRAudioMessage {
+  type: MessageType.ALIBABA_ASR_AUDIO;
+  payload: {
+    /** Base64 编码的 PCM 音频数据 */
+    audioData: string;
+  };
+}
+
+/**
+ * 阿里云 ASR 停止消息
+ */
+export interface AlibabaASRStopMessage {
+  type: MessageType.ALIBABA_ASR_STOP;
+}
+
+/**
+ * 阿里云 ASR 实时识别结果消息（Background -> Tutor，通过 Port）
+ */
+export interface AlibabaASRResultMessage {
+  type: MessageType.ALIBABA_ASR_RESULT;
+  payload: {
+    /** 识别文本 */
+    text: string;
+    /** 是否为最终结果 */
+    isFinal: boolean;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -361,7 +409,11 @@ export type Message =
   | EnglishDefinitionMessage
   | SplitSentencesMessage
   | ShadowAssessMessage
-  | TencentASRSignMessage;
+  | TencentASRSignMessage
+  | AlibabaASRStartMessage
+  | AlibabaASRAudioMessage
+  | AlibabaASRStopMessage
+  | AlibabaASRResultMessage;
 
 // ====== 响应类型定义 ======
 
@@ -581,6 +633,21 @@ export interface TencentASRSignResponse extends BaseResponse {
 }
 
 /**
+ * 阿里云 ASR 启动响应
+ */
+export interface AlibabaASRStartResponse extends BaseResponse {}
+
+/**
+ * 阿里云 ASR 停止响应
+ */
+export interface AlibabaASRStopResponse extends BaseResponse {
+  data?: {
+    /** 最终识别结果 */
+    finalText: string;
+  };
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -602,4 +669,6 @@ export type Response =
   | EnglishDefinitionResponse
   | SplitSentencesResponse
   | ShadowAssessResponse
-  | TencentASRSignResponse;
+  | TencentASRSignResponse
+  | AlibabaASRStartResponse
+  | AlibabaASRStopResponse;

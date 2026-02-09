@@ -37,6 +37,8 @@ import {
 } from "../constants/tutorPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
+  AlibabaASRStartResponse,
+  AlibabaASRStopResponse,
   AnalyzeDifficultyResponse,
   AnalyzeSentenceResponse,
   AssessPronunciationResponse,
@@ -1441,6 +1443,449 @@ async function hmacSha1Base64(key: string, data: string): Promise<string> {
   return btoa(binary);
 }
 
+// ====== 阿里云 ASR WebSocket 管理 ======
+
+/**
+ * 阿里云 ASR 会话状态
+ *
+ * 每个 Tab 最多一个活跃会话。
+ */
+interface AlibabaASRSession {
+  /** WebSocket 连接 */
+  ws: WebSocket;
+  /** 任务 ID（UUID） */
+  taskId: string;
+  /** 与 Tutor 页面的 Port 连接（用于推送实时结果） */
+  port: chrome.runtime.Port;
+  /** 最终识别结果（sentence_end=true 时累积） */
+  finalText: string;
+  /** 中间识别结果（sentence_end=false 时更新） */
+  interimText: string;
+  /** 是否已收到 task-started 事件 */
+  taskStarted: boolean;
+  /** 启动时的 resolve 回调 */
+  startResolve?: (value: AlibabaASRStartResponse) => void;
+  /** 启动时的 reject 回调 */
+  startReject?: (error: Error) => void;
+}
+
+/** 按 Tab ID 管理阿里云 ASR 会话 */
+const alibabaASRSessions = new Map<number, AlibabaASRSession>();
+
+/**
+ * 阿里云 ASR WebSocket URL
+ */
+const ALIBABA_ASR_WS_URL = "wss://dashscope.aliyuncs.com/api-ws/v1/inference";
+
+/**
+ * 处理 ALIBABA_ASR_START 消息
+ *
+ * 在 Background Service Worker 中建立 WebSocket 连接，保护 API Key 安全。
+ *
+ * 流程：
+ * 1. 验证配置
+ * 2. 建立 WebSocket 连接（Bearer Token 鉴权）
+ * 3. 发送 run-task 指令
+ * 4. 等待 task-started 事件
+ * 5. 返回成功响应
+ */
+async function handleAlibabaASRStart(
+  tabId: number,
+  port: chrome.runtime.Port
+): Promise<AlibabaASRStartResponse> {
+  try {
+    // 1. 检查是否已有活跃会话
+    if (alibabaASRSessions.has(tabId)) {
+      console.warn("[Lingride] 阿里云 ASR 会话已存在，先关闭旧会话");
+      await cleanupAlibabaASRSession(tabId);
+    }
+
+    // 2. 获取配置
+    const config = await getConfig();
+    if (!config.alibaba_asr?.api_key) {
+      return {
+        success: false,
+        error: "阿里云 ASR 未配置，请在设置中填写 API Key",
+      };
+    }
+
+    const apiKey = config.alibaba_asr.api_key;
+
+    // 3. 生成任务 ID
+    const taskId = crypto.randomUUID().replace(/-/g, "");
+
+    // 4. 返回 Promise，等待 task-started 事件
+    return new Promise((resolve, reject) => {
+      // 5. 建立 WebSocket 连接
+      // 注意：Service Worker 中的 WebSocket 不支持自定义 headers
+      // 阿里云 API 支持通过 URL 参数传递 token
+      const wsUrl = `${ALIBABA_ASR_WS_URL}?token=${encodeURIComponent(apiKey)}`;
+      const ws = new WebSocket(wsUrl);
+
+      // 创建会话对象
+      const session: AlibabaASRSession = {
+        ws,
+        taskId,
+        port,
+        finalText: "",
+        interimText: "",
+        taskStarted: false,
+        startResolve: resolve,
+        startReject: reject,
+      };
+
+      // 保存会话
+      alibabaASRSessions.set(tabId, session);
+
+      // 设置连接超时
+      const connectTimeout = setTimeout(() => {
+        if (!session.taskStarted) {
+          console.error("[Lingride] 阿里云 ASR 连接超时");
+          cleanupAlibabaASRSession(tabId);
+          resolve({ success: false, error: "连接超时，请重试" });
+        }
+      }, 10000);
+
+      // 6. 监听 WebSocket 事件
+      ws.onopen = () => {
+        console.log("[Lingride] 阿里云 ASR WebSocket 连接成功");
+
+        // 发送 run-task 指令
+        const runTaskCmd = {
+          header: {
+            action: "run-task",
+            task_id: taskId,
+            streaming: "duplex",
+          },
+          payload: {
+            task_group: "audio",
+            task: "asr",
+            function: "recognition",
+            model: "paraformer-realtime-v2",
+            parameters: {
+              format: "pcm",
+              sample_rate: 16000,
+              language_hints: ["en"], // 英语识别
+            },
+            input: {},
+          },
+        };
+
+        ws.send(JSON.stringify(runTaskCmd));
+        console.log("[Lingride] 已发送 run-task 指令");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data as string);
+          handleAlibabaASREvent(tabId, data, connectTimeout);
+        } catch (e) {
+          console.error("[Lingride] 解析阿里云 ASR 响应失败:", e);
+        }
+      };
+
+      ws.onerror = (event) => {
+        console.error("[Lingride] 阿里云 ASR WebSocket 错误:", event);
+        clearTimeout(connectTimeout);
+        if (!session.taskStarted) {
+          cleanupAlibabaASRSession(tabId);
+          resolve({ success: false, error: "WebSocket 连接失败" });
+        }
+      };
+
+      ws.onclose = (event) => {
+        console.log(
+          `[Lingride] 阿里云 ASR WebSocket 关闭: code=${event.code}, reason=${event.reason}`
+        );
+        clearTimeout(connectTimeout);
+        // 非正常关闭时清理会话
+        if (event.code !== 1000) {
+          cleanupAlibabaASRSession(tabId);
+        }
+      };
+    });
+  } catch (error) {
+    console.error("[Lingride] 启动阿里云 ASR 失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "启动失败",
+    };
+  }
+}
+
+/**
+ * 处理阿里云 ASR 事件
+ *
+ * 解析服务端返回的事件，更新会话状态并推送结果到 Tutor。
+ */
+function handleAlibabaASREvent(
+  tabId: number,
+  event: {
+    header?: {
+      event?: string;
+      task_id?: string;
+      error_code?: string;
+      error_message?: string;
+    };
+    payload?: {
+      output?: {
+        sentence?: {
+          text?: string;
+          sentence_end?: boolean;
+        };
+      };
+    };
+  },
+  connectTimeout?: ReturnType<typeof setTimeout>
+): void {
+  const session = alibabaASRSessions.get(tabId);
+  if (!session) return;
+
+  const eventType = event.header?.event;
+
+  switch (eventType) {
+    case "task-started":
+      console.log("[Lingride] 阿里云 ASR 任务已启动");
+      session.taskStarted = true;
+      if (connectTimeout) clearTimeout(connectTimeout);
+      // 调用启动成功回调
+      session.startResolve?.({ success: true });
+      session.startResolve = undefined;
+      session.startReject = undefined;
+      break;
+
+    case "result-generated":
+      const text = event.payload?.output?.sentence?.text || "";
+      const isFinal = event.payload?.output?.sentence?.sentence_end === true;
+
+      if (isFinal) {
+        // 最终结果：累积到 finalText
+        session.finalText += text + " ";
+        session.interimText = "";
+      } else {
+        // 中间结果：更新 interimText
+        session.interimText = text;
+      }
+
+      // 推送实时结果到 Tutor
+      try {
+        session.port.postMessage({
+          type: MessageType.ALIBABA_ASR_RESULT,
+          payload: {
+            text: (session.finalText + session.interimText).trim(),
+            isFinal,
+          },
+        });
+      } catch (e) {
+        console.warn("[Lingride] 推送阿里云 ASR 结果失败:", e);
+      }
+      break;
+
+    case "task-finished":
+      console.log("[Lingride] 阿里云 ASR 任务已完成");
+      break;
+
+    case "task-failed":
+      console.error(
+        "[Lingride] 阿里云 ASR 任务失败:",
+        event.header?.error_code,
+        event.header?.error_message
+      );
+      // 如果还在启动阶段，调用失败回调
+      if (!session.taskStarted) {
+        if (connectTimeout) clearTimeout(connectTimeout);
+        session.startResolve?.({
+          success: false,
+          error: event.header?.error_message || "任务启动失败",
+        });
+        session.startResolve = undefined;
+        session.startReject = undefined;
+      }
+      // 通知 Tutor 错误
+      try {
+        session.port.postMessage({
+          type: MessageType.ALIBABA_ASR_RESULT,
+          payload: {
+            text: "",
+            isFinal: true,
+            error: event.header?.error_message,
+          },
+        });
+      } catch (e) {
+        console.warn("[Lingride] 推送阿里云 ASR 错误失败:", e);
+      }
+      cleanupAlibabaASRSession(tabId);
+      break;
+
+    default:
+      // 忽略其他事件
+      break;
+  }
+}
+
+/**
+ * 处理 ALIBABA_ASR_AUDIO 消息
+ *
+ * 将 Base64 编码的音频数据解码后发送到阿里云 ASR。
+ */
+function handleAlibabaASRAudio(tabId: number, audioData: string): void {
+  const session = alibabaASRSessions.get(tabId);
+  if (!session) {
+    console.warn("[Lingride] 阿里云 ASR 会话不存在，忽略音频数据");
+    return;
+  }
+
+  if (session.ws.readyState !== WebSocket.OPEN) {
+    console.warn("[Lingride] 阿里云 ASR WebSocket 未就绪，忽略音频数据");
+    return;
+  }
+
+  if (!session.taskStarted) {
+    console.warn("[Lingride] 阿里云 ASR 任务未启动，忽略音频数据");
+    return;
+  }
+
+  try {
+    // Base64 解码
+    const binaryString = atob(audioData);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // 发送二进制音频数据
+    session.ws.send(bytes.buffer);
+  } catch (e) {
+    console.error("[Lingride] 发送阿里云 ASR 音频数据失败:", e);
+  }
+}
+
+/**
+ * 处理 ALIBABA_ASR_STOP 消息
+ *
+ * 发送 finish-task 指令并等待最终结果。
+ */
+async function handleAlibabaASRStop(
+  tabId: number
+): Promise<AlibabaASRStopResponse> {
+  const session = alibabaASRSessions.get(tabId);
+  if (!session) {
+    return {
+      success: false,
+      error: "没有活跃的阿里云 ASR 会话",
+    };
+  }
+
+  try {
+    // 发送 finish-task 指令
+    if (session.ws.readyState === WebSocket.OPEN && session.taskStarted) {
+      const finishTaskCmd = {
+        header: {
+          action: "finish-task",
+          task_id: session.taskId,
+          streaming: "duplex",
+        },
+        payload: {
+          input: {},
+        },
+      };
+
+      session.ws.send(JSON.stringify(finishTaskCmd));
+      console.log("[Lingride] 已发送 finish-task 指令");
+
+      // 等待一小段时间让服务器处理最后的数据
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    // 获取最终结果
+    const finalText = (session.finalText + session.interimText).trim();
+
+    // 清理会话
+    await cleanupAlibabaASRSession(tabId);
+
+    console.log(`[Lingride] 阿里云 ASR 停止，最终结果: "${finalText}"`);
+
+    return {
+      success: true,
+      data: { finalText },
+    };
+  } catch (error) {
+    console.error("[Lingride] 停止阿里云 ASR 失败:", error);
+    await cleanupAlibabaASRSession(tabId);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "停止失败",
+    };
+  }
+}
+
+/**
+ * 清理阿里云 ASR 会话
+ */
+async function cleanupAlibabaASRSession(tabId: number): Promise<void> {
+  const session = alibabaASRSessions.get(tabId);
+  if (!session) return;
+
+  try {
+    // 关闭 WebSocket
+    if (
+      session.ws.readyState === WebSocket.OPEN ||
+      session.ws.readyState === WebSocket.CONNECTING
+    ) {
+      session.ws.close(1000, "Session ended");
+    }
+  } catch (e) {
+    console.warn("[Lingride] 关闭阿里云 ASR WebSocket 失败:", e);
+  }
+
+  // 从 Map 中移除
+  alibabaASRSessions.delete(tabId);
+  console.log(`[Lingride] 阿里云 ASR 会话已清理: tabId=${tabId}`);
+}
+
+/**
+ * 监听 Port 连接（用于阿里云 ASR 实时结果推送）
+ */
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "alibaba-asr") {
+    console.log("[Lingride] 收到阿里云 ASR Port 连接");
+
+    // 获取 Tab ID
+    const tabId = port.sender?.tab?.id;
+    if (!tabId) {
+      console.error("[Lingride] 无法获取阿里云 ASR Port 的 Tab ID");
+      port.disconnect();
+      return;
+    }
+
+    // 监听 Port 断开
+    port.onDisconnect.addListener(() => {
+      console.log(`[Lingride] 阿里云 ASR Port 断开: tabId=${tabId}`);
+      // Port 断开时清理会话
+      cleanupAlibabaASRSession(tabId);
+    });
+
+    // 监听来自 Tutor 的消息
+    port.onMessage.addListener(async (message: Message) => {
+      switch (message.type) {
+        case MessageType.ALIBABA_ASR_START:
+          const startResponse = await handleAlibabaASRStart(tabId, port);
+          port.postMessage({ type: "ALIBABA_ASR_START_RESPONSE", ...startResponse });
+          break;
+
+        case MessageType.ALIBABA_ASR_AUDIO:
+          handleAlibabaASRAudio(tabId, (message as { payload: { audioData: string } }).payload.audioData);
+          break;
+
+        case MessageType.ALIBABA_ASR_STOP:
+          const stopResponse = await handleAlibabaASRStop(tabId);
+          port.postMessage({ type: "ALIBABA_ASR_STOP_RESPONSE", ...stopResponse });
+          break;
+      }
+    });
+  }
+});
+
 // ====== 消息路由 ======
 
 /**
@@ -1654,6 +2099,16 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TENCENT_ASR_SIGN:
           response = await handleTencentASRSign();
+          break;
+
+        // 阿里云 ASR 消息通过 Port 处理，这里提供 fallback
+        case MessageType.ALIBABA_ASR_START:
+        case MessageType.ALIBABA_ASR_AUDIO:
+        case MessageType.ALIBABA_ASR_STOP:
+          response = {
+            success: false,
+            error: "阿里云 ASR 消息应通过 Port 连接发送",
+          };
           break;
 
         default:

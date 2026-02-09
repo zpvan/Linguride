@@ -115,6 +115,19 @@ export interface TencentASRConfig {
 }
 
 /**
+ * 阿里云 ASR 配置
+ *
+ * 用于阿里云百炼 Paraformer 实时语音识别服务的鉴权配置。
+ * 配置后可使用阿里云 ASR 替代 Web Speech API，提高识别准确率。
+ *
+ * 优先级：腾讯云 ASR > 阿里云 ASR > Web Speech API
+ */
+export interface AlibabaASRConfig {
+  /** 阿里云百炼 API Key */
+  api_key: string;
+}
+
+/**
  * Lingride 扩展完整配置
  *
  * 存储在 chrome.storage.local 中的配置对象，
@@ -150,6 +163,9 @@ export interface LingridConfig {
 
   /** 腾讯云 ASR 配置（可选，不配置则使用 Web Speech API） */
   tencent_asr?: TencentASRConfig;
+
+  /** 阿里云 ASR 配置（可选，优先级低于腾讯云 ASR） */
+  alibaba_asr?: AlibabaASRConfig;
 }
 
 /**

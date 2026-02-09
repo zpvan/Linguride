@@ -26,6 +26,7 @@ export {
   toProviderConfig,
 } from "./config";
 export type {
+  AlibabaASRConfig,
   CEFRLevel,
   LingridConfig,
   MixedTranslatePromptConfig,
@@ -38,6 +39,12 @@ export type {
 // 消息类型
 export { MessageType } from "./messages";
 export type {
+  AlibabaASRAudioMessage,
+  AlibabaASRResultMessage,
+  AlibabaASRStartMessage,
+  AlibabaASRStartResponse,
+  AlibabaASRStopMessage,
+  AlibabaASRStopResponse,
   AnalyzeDifficultyMessage,
   AnalyzeDifficultyResponse,
   AnalyzeSentenceMessage,

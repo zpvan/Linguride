@@ -171,6 +171,14 @@ const showTencentKeyBtn = document.getElementById(
   "showTencentKeyBtn"
 ) as HTMLButtonElement;
 
+// Settings - 阿里云 ASR 配置
+const alibabaApiKeyInput = document.getElementById(
+  "alibabaApiKey"
+) as HTMLInputElement;
+const showAlibabaKeyBtn = document.getElementById(
+  "showAlibabaKeyBtn"
+) as HTMLButtonElement;
+
 // Settings - 操作
 const resetDefaultsBtn = document.getElementById(
   "resetDefaultsBtn"
@@ -287,6 +295,16 @@ function bindEvents(): void {
     const isPassword = tencentSecretKeyInput.type === "password";
     tencentSecretKeyInput.type = isPassword ? "text" : "password";
     showTencentKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 阿里云 ASR 配置自动保存
+  alibabaApiKeyInput.addEventListener("blur", autoSave);
+
+  // Settings - 显示/隐藏阿里云 API Key
+  showAlibabaKeyBtn.addEventListener("click", () => {
+    const isPassword = alibabaApiKeyInput.type === "password";
+    alibabaApiKeyInput.type = isPassword ? "text" : "password";
+    showAlibabaKeyBtn.textContent = isPassword ? "隐藏" : "显示";
   });
 
   // Settings - 测试连接
@@ -619,6 +637,18 @@ function collectFormData(): void {
     // 如果全部为空，删除配置
     delete currentConfig.tencent_asr;
   }
+
+  // 阿里云 ASR 配置（只有填写了才保存）
+  const alibabaApiKey = alibabaApiKeyInput.value.trim();
+
+  if (alibabaApiKey) {
+    currentConfig.alibaba_asr = {
+      api_key: alibabaApiKey,
+    };
+  } else {
+    // 如果为空，删除配置
+    delete currentConfig.alibaba_asr;
+  }
 }
 
 // ====== Settings 表单更新 ======
@@ -685,6 +715,9 @@ function updateSettingsForm(): void {
   tencentAppIdInput.value = currentConfig.tencent_asr?.app_id || "";
   tencentSecretIdInput.value = currentConfig.tencent_asr?.secret_id || "";
   tencentSecretKeyInput.value = currentConfig.tencent_asr?.secret_key || "";
+
+  // 阿里云 ASR 配置
+  alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
 }
 
 // ====== 模型选择 ======

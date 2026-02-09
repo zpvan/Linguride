@@ -205,6 +205,22 @@
         </p>
       </section>
 
+      <!-- 阿里云 ASR 配置 -->
+      <section class="card settings-group">
+        <h2 class="section-label">阿里云语音识别（备选）</h2>
+        <p class="settings-desc">配置阿里云百炼 ASR 作为语音识别的备选方案。优先级：腾讯云 → 阿里云 → 浏览器内置。</p>
+        <div class="settings-row">
+          <label class="settings-label" for="alibabaApiKey">API Key</label>
+          <div class="password-input">
+            <input type="password" id="alibabaApiKey" class="settings-input" placeholder="阿里云百炼 API Key">
+            <button type="button" id="showAlibabaKeyBtn" class="show-key-btn">显示</button>
+          </div>
+        </div>
+        <p class="settings-hint">
+          <a href="https://bailian.console.aliyun.com/?apiKey=1" target="_blank" rel="noopener">获取阿里云百炼 API Key →</a>
+        </p>
+      </section>
+
       <!-- Prompt 配置 (Accordion) -->
       <section class="card settings-group">
         <h2 class="section-label">Prompt 配置</h2>
