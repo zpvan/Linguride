@@ -768,6 +768,7 @@ async function testConnection(): Promise<void> {
 function handleAccordionClick(e: Event): void {
   const header = e.currentTarget as HTMLElement;
   const targetId = header.dataset.accordion;
+  const isNested = header.dataset.nested === "true";
   if (!targetId) return;
 
   const body = document.getElementById(targetId);
@@ -775,13 +776,29 @@ function handleAccordionClick(e: Event): void {
 
   const isOpen = body.classList.contains("open");
 
-  // Accordion 模式：关闭所有其他
-  document.querySelectorAll(".accordion-body.open").forEach((openBody) => {
-    openBody.classList.remove("open");
-  });
-  document.querySelectorAll(".accordion-header.expanded").forEach((h) => {
-    h.classList.remove("expanded");
-  });
+  if (isNested) {
+    // 嵌套 accordion：只在同级范围内互斥
+    const parent = header.closest(".accordion-body");
+    if (parent) {
+      parent.querySelectorAll(".accordion-body.open").forEach((openBody) => {
+        openBody.classList.remove("open");
+      });
+      parent.querySelectorAll(".accordion-header.expanded").forEach((h) => {
+        h.classList.remove("expanded");
+      });
+    }
+  } else {
+    // 顶层 accordion：关闭所有同级
+    const section = header.closest(".settings-group");
+    if (section) {
+      section.querySelectorAll(":scope > .accordion-item > .accordion-body.open").forEach((openBody) => {
+        openBody.classList.remove("open");
+      });
+      section.querySelectorAll(":scope > .accordion-item > .accordion-header.expanded").forEach((h) => {
+        h.classList.remove("expanded");
+      });
+    }
+  }
 
   // 切换当前项
   if (!isOpen) {

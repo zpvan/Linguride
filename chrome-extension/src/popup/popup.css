@@ -984,6 +984,38 @@ body {
   padding: 0 var(--space-lg) var(--space-md);
 }
 
+/* ====== Nested Accordion ====== */
+.accordion-item.nested {
+  margin: var(--space-sm) 0;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.accordion-item.nested:first-of-type {
+  margin-top: 0;
+}
+
+.accordion-header.nested-header {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 13px;
+  min-height: 40px;
+}
+
+.accordion-body.nested-body {
+  padding: 0 var(--space-md);
+}
+
+.accordion-body.nested-body.open {
+  padding: 0 var(--space-md) var(--space-sm);
+  max-height: 300px;
+}
+
+/* Nested settings description */
+.settings-desc.nested-desc {
+  padding: 0;
+  margin-bottom: var(--space-sm);
+}
+
 /* ====== Form Group (inside accordion) ====== */
 .form-group {
   margin-bottom: var(--space-md);
