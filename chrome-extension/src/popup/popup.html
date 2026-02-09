@@ -158,32 +158,34 @@
             </svg>
           </button>
           <div class="accordion-body" id="ai-service">
-            <div class="settings-row">
-              <label class="settings-label" for="apiBaseUrl">端点</label>
-              <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
-            </div>
-            <div class="settings-divider"></div>
-            <div class="settings-row">
-              <label class="settings-label" for="apiKey">密钥</label>
-              <div class="password-input">
-                <input type="password" id="apiKey" class="settings-input" placeholder="sk-...">
-                <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+            <div class="accordion-inner">
+              <div class="settings-row">
+                <label class="settings-label" for="apiBaseUrl">端点</label>
+                <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
               </div>
+              <div class="settings-divider"></div>
+              <div class="settings-row">
+                <label class="settings-label" for="apiKey">密钥</label>
+                <div class="password-input">
+                  <input type="password" id="apiKey" class="settings-input" placeholder="sk-...">
+                  <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+                </div>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-row">
+                <label class="settings-label" for="modelSelect">模型</label>
+                <select id="modelSelect" class="settings-select">
+                  <option value="deepseek-chat">DeepSeek Chat</option>
+                  <option value="deepseek-coder">DeepSeek Coder</option>
+                  <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                  <option value="custom">自定义...</option>
+                </select>
+              </div>
+              <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
+              <div class="settings-divider"></div>
+              <button id="testConnectionBtn" class="settings-action-btn">测试连接</button>
+              <div id="connectionStatus" class="status-message"></div>
             </div>
-            <div class="settings-divider"></div>
-            <div class="settings-row">
-              <label class="settings-label" for="modelSelect">模型</label>
-              <select id="modelSelect" class="settings-select">
-                <option value="deepseek-chat">DeepSeek Chat</option>
-                <option value="deepseek-coder">DeepSeek Coder</option>
-                <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-                <option value="custom">自定义...</option>
-              </select>
-            </div>
-            <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
-            <div class="settings-divider"></div>
-            <button id="testConnectionBtn" class="settings-action-btn">测试连接</button>
-            <div id="connectionStatus" class="status-message"></div>
           </div>
         </div>
       </section>
@@ -198,57 +200,63 @@
             </svg>
           </button>
           <div class="accordion-body" id="speech-service">
-            <p class="settings-desc nested-desc">配置云端 ASR 可提高影子跟读的语音识别准确率。优先级：腾讯云 → 阿里云 → 浏览器内置。</p>
-            <!-- 嵌套 accordion: 腾讯云 -->
-            <div class="accordion-item nested">
-              <button class="accordion-header nested-header" data-accordion="tencent-asr" data-nested="true">
-                <span>腾讯云</span>
-                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-              <div class="accordion-body nested-body" id="tencent-asr">
-                <div class="settings-row">
-                  <label class="settings-label" for="tencentAppId">AppID</label>
-                  <input type="text" id="tencentAppId" class="settings-input" placeholder="腾讯云 AppID">
-                </div>
-                <div class="settings-divider"></div>
-                <div class="settings-row">
-                  <label class="settings-label" for="tencentSecretId">SecretID</label>
-                  <input type="text" id="tencentSecretId" class="settings-input" placeholder="腾讯云 SecretID">
-                </div>
-                <div class="settings-divider"></div>
-                <div class="settings-row">
-                  <label class="settings-label" for="tencentSecretKey">SecretKey</label>
-                  <div class="password-input">
-                    <input type="password" id="tencentSecretKey" class="settings-input" placeholder="腾讯云 SecretKey">
-                    <button type="button" id="showTencentKeyBtn" class="show-key-btn">显示</button>
+            <div class="accordion-inner">
+              <p class="settings-desc nested-desc">配置云端 ASR 可提高影子跟读的语音识别准确率。优先级：腾讯云 → 阿里云 → 浏览器内置。</p>
+              <!-- 嵌套 accordion: 腾讯云 -->
+              <div class="accordion-item nested">
+                <button class="accordion-header nested-header" data-accordion="tencent-asr" data-nested="true">
+                  <span>腾讯云</span>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="accordion-body nested-body" id="tencent-asr">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentAppId">AppID</label>
+                      <input type="text" id="tencentAppId" class="settings-input" placeholder="腾讯云 AppID">
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentSecretId">SecretID</label>
+                      <input type="text" id="tencentSecretId" class="settings-input" placeholder="腾讯云 SecretID">
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentSecretKey">SecretKey</label>
+                      <div class="password-input">
+                        <input type="password" id="tencentSecretKey" class="settings-input" placeholder="腾讯云 SecretKey">
+                        <button type="button" id="showTencentKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <p class="settings-hint">
+                      <a href="https://console.cloud.tencent.com/cam/capi" target="_blank" rel="noopener">获取腾讯云密钥 →</a>
+                    </p>
                   </div>
                 </div>
-                <p class="settings-hint">
-                  <a href="https://console.cloud.tencent.com/cam/capi" target="_blank" rel="noopener">获取腾讯云密钥 →</a>
-                </p>
               </div>
-            </div>
-            <!-- 嵌套 accordion: 阿里云 -->
-            <div class="accordion-item nested">
-              <button class="accordion-header nested-header" data-accordion="alibaba-asr" data-nested="true">
-                <span>阿里云</span>
-                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-              <div class="accordion-body nested-body" id="alibaba-asr">
-                <div class="settings-row">
-                  <label class="settings-label" for="alibabaApiKey">API Key</label>
-                  <div class="password-input">
-                    <input type="password" id="alibabaApiKey" class="settings-input" placeholder="阿里云百炼 API Key">
-                    <button type="button" id="showAlibabaKeyBtn" class="show-key-btn">显示</button>
+              <!-- 嵌套 accordion: 阿里云 -->
+              <div class="accordion-item nested">
+                <button class="accordion-header nested-header" data-accordion="alibaba-asr" data-nested="true">
+                  <span>阿里云</span>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="accordion-body nested-body" id="alibaba-asr">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="alibabaApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="alibabaApiKey" class="settings-input" placeholder="阿里云百炼 API Key">
+                        <button type="button" id="showAlibabaKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <p class="settings-hint">
+                      <a href="https://bailian.console.aliyun.com/?apiKey=1" target="_blank" rel="noopener">获取阿里云百炼 API Key →</a>
+                    </p>
                   </div>
                 </div>
-                <p class="settings-hint">
-                  <a href="https://bailian.console.aliyun.com/?apiKey=1" target="_blank" rel="noopener">获取阿里云百炼 API Key →</a>
-                </p>
               </div>
             </div>
           </div>
@@ -268,14 +276,16 @@
             </svg>
           </button>
           <div class="accordion-body" id="translate-prompt">
-            <div class="form-group">
-              <label for="systemPrompt">System Prompt</label>
-              <textarea id="systemPrompt" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="userPrompt">User Prompt</label>
-              <textarea id="userPrompt" rows="3"></textarea>
-              <p class="hint">使用 <code>{{texts}}</code> 表示待翻译文本</p>
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="systemPrompt">System Prompt</label>
+                <textarea id="systemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="userPrompt">User Prompt</label>
+                <textarea id="userPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code> 表示待翻译文本</p>
+              </div>
             </div>
           </div>
         </div>
@@ -291,14 +301,16 @@
             </svg>
           </button>
           <div class="accordion-body" id="difficulty-prompt">
-            <div class="form-group">
-              <label for="difficultySystemPrompt">System Prompt</label>
-              <textarea id="difficultySystemPrompt" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="difficultyUserPrompt">User Prompt</label>
-              <textarea id="difficultyUserPrompt" rows="3"></textarea>
-              <p class="hint">使用 <code>{text}</code> 表示待分析文本</p>
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="difficultySystemPrompt">System Prompt</label>
+                <textarea id="difficultySystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="difficultyUserPrompt">User Prompt</label>
+                <textarea id="difficultyUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{text}</code> 表示待分析文本</p>
+              </div>
             </div>
           </div>
         </div>
@@ -314,14 +326,16 @@
             </svg>
           </button>
           <div class="accordion-body" id="paraphrase-prompt">
-            <div class="form-group">
-              <label for="paraphraseSystemPrompt">System Prompt</label>
-              <textarea id="paraphraseSystemPrompt" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="paraphraseUserPrompt">User Prompt</label>
-              <textarea id="paraphraseUserPrompt" rows="3"></textarea>
-              <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code></p>
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="paraphraseSystemPrompt">System Prompt</label>
+                <textarea id="paraphraseSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="paraphraseUserPrompt">User Prompt</label>
+                <textarea id="paraphraseUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code></p>
+              </div>
             </div>
           </div>
         </div>
@@ -337,14 +351,16 @@
             </svg>
           </button>
           <div class="accordion-body" id="mixed-prompt">
-            <div class="form-group">
-              <label for="mixedTranslateSystemPrompt">System Prompt</label>
-              <textarea id="mixedTranslateSystemPrompt" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="mixedTranslateUserPrompt">User Prompt</label>
-              <textarea id="mixedTranslateUserPrompt" rows="3"></textarea>
-              <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code></p>
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="mixedTranslateSystemPrompt">System Prompt</label>
+                <textarea id="mixedTranslateSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="mixedTranslateUserPrompt">User Prompt</label>
+                <textarea id="mixedTranslateUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code></p>
+              </div>
             </div>
           </div>
         </div>
@@ -360,14 +376,16 @@
             </svg>
           </button>
           <div class="accordion-body" id="sentence-analysis-prompt">
-            <div class="form-group">
-              <label for="sentenceAnalysisSystemPrompt">System Prompt</label>
-              <textarea id="sentenceAnalysisSystemPrompt" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="sentenceAnalysisUserPrompt">User Prompt</label>
-              <textarea id="sentenceAnalysisUserPrompt" rows="3"></textarea>
-              <p class="hint">使用 <code>{{sentence}}</code> 表示待分析句子</p>
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="sentenceAnalysisSystemPrompt">System Prompt</label>
+                <textarea id="sentenceAnalysisSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="sentenceAnalysisUserPrompt">User Prompt</label>
+                <textarea id="sentenceAnalysisUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{sentence}}</code> 表示待分析句子</p>
+              </div>
             </div>
           </div>
         </div>

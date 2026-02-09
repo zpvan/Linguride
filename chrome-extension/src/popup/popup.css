@@ -973,15 +973,22 @@ body {
 }
 
 .accordion-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s var(--ease-out);
-  padding: 0 var(--space-lg);
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s var(--ease-out);
 }
 
 .accordion-body.open {
-  max-height: 500px;
-  padding: 0 var(--space-lg) var(--space-md);
+  grid-template-rows: 1fr;
+}
+
+.accordion-inner {
+  overflow: hidden;
+  padding: 0 var(--space-lg);
+}
+
+.accordion-body.open .accordion-inner {
+  padding-bottom: var(--space-md);
 }
 
 /* ====== Nested Accordion ====== */
@@ -1001,13 +1008,12 @@ body {
   min-height: 40px;
 }
 
-.accordion-body.nested-body {
+.accordion-body.nested-body .accordion-inner {
   padding: 0 var(--space-md);
 }
 
-.accordion-body.nested-body.open {
-  padding: 0 var(--space-md) var(--space-sm);
-  max-height: 300px;
+.accordion-body.nested-body.open .accordion-inner {
+  padding-bottom: var(--space-sm);
 }
 
 /* Nested settings description */
