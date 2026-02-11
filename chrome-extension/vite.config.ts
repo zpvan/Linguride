@@ -19,6 +19,7 @@ export default defineConfig({
       additionalInputs: [
         "src/permissions/permissions.html",
         "src/tutor/tutor.html",
+        "src/corpus/corpus.html",
       ],
     }),
   ],

@@ -59,6 +59,7 @@ const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
 const viewport = document.querySelector(".viewport") as HTMLElement;
 
 // Header
+const corpusBtn = document.getElementById("corpusBtn") as HTMLButtonElement;
 const tutorBtn = document.getElementById("tutorBtn") as HTMLButtonElement;
 const settingsBtn = document.getElementById("settingsBtn") as HTMLButtonElement;
 const settingsBadge = document.getElementById("settingsBadge") as HTMLElement;
@@ -257,6 +258,9 @@ function bindEvents(): void {
   settingsBtn.addEventListener("click", showSettings);
   backBtn.addEventListener("click", showMain);
   configHintBtn.addEventListener("click", showSettings);
+
+  // 语料库标签页入口
+  corpusBtn.addEventListener("click", openCorpusPage);
 
   // 外教标签页入口
   tutorBtn.addEventListener("click", openTutorPage);
@@ -910,6 +914,20 @@ function renderDifficultyResult(result: DifficultyResult): void {
 
   // 选中文本提示
   selectionHint.style.display = result.isSelection ? "block" : "none";
+}
+
+// ====== 语料库标签页 ======
+
+/**
+ * 打开语料库标签页
+ *
+ * 在新标签页中打开语料库页面（听力训练）。
+ */
+function openCorpusPage(): void {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL("src/corpus/corpus.html"),
+  });
+  window.close(); // 关闭 popup
 }
 
 // ====== 外教标签页 ======

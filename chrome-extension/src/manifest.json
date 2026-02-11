@@ -43,7 +43,8 @@
     {
       "resources": [
         "src/permissions/permissions.html",
-        "src/tutor/tutor.html"
+        "src/tutor/tutor.html",
+        "src/corpus/corpus.html"
       ],
       "matches": ["<all_urls>"]
     }

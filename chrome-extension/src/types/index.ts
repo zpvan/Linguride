@@ -47,6 +47,8 @@ export type {
   AlibabaASRStopResponse,
   AnalyzeDifficultyMessage,
   AnalyzeDifficultyResponse,
+  AnalyzeListeningMessage,
+  AnalyzeListeningResponse,
   AnalyzeSentenceMessage,
   AnalyzeSentenceResponse,
   AssessPronunciationMessage,
@@ -77,6 +79,8 @@ export type {
   Response,
   SaveConfigMessage,
   SaveConfigResponse,
+  SegmentCorpusMessage,
+  SegmentCorpusResponse,
   ShadowAssessMessage,
   ShadowAssessResponse,
   SplitSentencesMessage,
@@ -162,3 +166,13 @@ export type {
   EchoMethodState,
   PlayingSource,
 } from "./echoMethod";
+
+// 语料库类型
+export type {
+  CorpusPromptConfig,
+  CorpusSentence,
+  ListeningAnalysisResult,
+  ListeningError,
+  ListeningErrorType,
+  SegmentCorpusResult,
+} from "./corpus";

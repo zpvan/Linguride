@@ -35,11 +35,16 @@ import {
   ENGLISH_DEFINITION_PROMPTS,
   ENGLISH_TO_CHINESE_PROMPTS,
 } from "../constants/tutorPrompts";
+import {
+  ANALYZE_LISTENING_PROMPTS,
+  SEGMENT_CORPUS_PROMPTS,
+} from "../constants/corpusPrompts";
 import { DeepSeekProvider } from "../providers";
 import {
   AlibabaASRStartResponse,
   AlibabaASRStopResponse,
   AnalyzeDifficultyResponse,
+  AnalyzeListeningResponse,
   AnalyzeSentenceResponse,
   AssessPronunciationResponse,
   calculateTargetLevel,
@@ -56,12 +61,15 @@ import {
   getRetentionPercent,
   GetTranslationStateResponse,
   LingridConfig,
+  ListeningAnalysisResult,
   Message,
   MessageType,
   MixedTranslateResponse,
   ParaphraseResponse,
   PronunciationAssessmentResult,
   SaveConfigResponse,
+  SegmentCorpusResponse,
+  SegmentCorpusResult,
   SentenceAnalysisResult,
   ShadowAssessmentResult,
   ShadowAssessResponse,
@@ -1332,6 +1340,182 @@ async function handleShadowAssess(
   }
 }
 
+// ====== 语料库听力训练功能 ======
+
+/**
+ * 处理 SEGMENT_CORPUS 消息
+ *
+ * 调用 AI 根据用户 CEFR 水平对语料文本进行 i+1 难度断句。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 验证输入文本
+ * 3. 替换 {{userLevel}} 和 {{text}} 占位符
+ * 4. 调用 AI 进行断句
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleSegmentCorpus(
+  text: string,
+  userLevel: CEFRLevel
+): Promise<SegmentCorpusResponse> {
+  try {
+    // 1. 获取配置并验证
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 验证输入
+    const trimmedText = text.trim();
+    if (!trimmedText) {
+      return {
+        success: false,
+        error: "输入文本不能为空",
+      };
+    }
+
+    // 3. 构建 Prompt
+    const userPrompt = SEGMENT_CORPUS_PROMPTS.user_prompt_template
+      .replace("{{userLevel}}", userLevel)
+      .replace("{{text}}", trimmedText);
+
+    // 4. 调用 AI 进行断句
+    console.log(`[Lingride] 开始语料断句 (${userLevel})...`);
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(
+      SEGMENT_CORPUS_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    // 5. 解析 JSON 响应
+    let result: SegmentCorpusResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 确保字段完整性
+    result = {
+      sentences: result.sentences || [],
+      overallLevel: result.overallLevel || userLevel,
+    };
+
+    console.log(`[Lingride] 语料断句完成: ${result.sentences.length} 句`);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 语料断句失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "断句失败，请重试",
+    };
+  }
+}
+
+/**
+ * 处理 ANALYZE_LISTENING 消息
+ *
+ * 调用 AI 对比用户听写结果与原文，分析听力盲区。
+ *
+ * 流程：
+ * 1. 验证 API Key 配置
+ * 2. 验证输入
+ * 3. 替换 {{original}}、{{userInput}} 和 {{userLevel}} 占位符
+ * 4. 调用 AI 进行分析
+ * 5. 解析 JSON 结果并返回
+ */
+async function handleAnalyzeListening(
+  original: string,
+  userInput: string,
+  userLevel: CEFRLevel
+): Promise<AnalyzeListeningResponse> {
+  try {
+    // 1. 获取配置并验证
+    const providerConfig = await getProviderConfig();
+
+    if (!providerConfig.apiKey) {
+      return {
+        success: false,
+        error: "请先配置 API Key",
+      };
+    }
+
+    // 2. 验证输入
+    if (!original.trim()) {
+      return {
+        success: false,
+        error: "原文不能为空",
+      };
+    }
+
+    // 3. 构建 Prompt
+    const userPrompt = ANALYZE_LISTENING_PROMPTS.user_prompt_template
+      .replace("{{original}}", original)
+      .replace("{{userInput}}", userInput || "(用户未输入)")
+      .replace("{{userLevel}}", userLevel);
+
+    // 4. 调用 AI 进行分析
+    console.log(`[Lingride] 开始听力分析 (${userLevel})...`);
+    const provider = new DeepSeekProvider(providerConfig);
+    const aiResponse = await provider.chat(
+      ANALYZE_LISTENING_PROMPTS.system_prompt,
+      userPrompt
+    );
+
+    // 5. 解析 JSON 响应
+    let result: ListeningAnalysisResult;
+    try {
+      // 尝试直接解析
+      result = JSON.parse(aiResponse);
+    } catch {
+      // 尝试提取 JSON 代码块
+      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        result = JSON.parse(jsonMatch[1].trim());
+      } else {
+        throw new Error("AI 返回的格式无效，无法解析为 JSON");
+      }
+    }
+
+    // 确保字段完整性
+    result = {
+      accuracy: result.accuracy || 0,
+      errors: result.errors || [],
+      blindSpots: result.blindSpots || [],
+      suggestions: result.suggestions || [],
+      encouragement: result.encouragement || "继续努力！",
+    };
+
+    console.log(`[Lingride] 听力分析完成, 准确率: ${result.accuracy}%`);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[Lingride] 听力分析失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "分析失败，请重试",
+    };
+  }
+}
+
 // ====== 腾讯云 ASR 签名 ======
 
 /**
@@ -2099,6 +2283,21 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TENCENT_ASR_SIGN:
           response = await handleTencentASRSign();
+          break;
+
+        case MessageType.SEGMENT_CORPUS:
+          response = await handleSegmentCorpus(
+            message.payload.text,
+            message.payload.userLevel
+          );
+          break;
+
+        case MessageType.ANALYZE_LISTENING:
+          response = await handleAnalyzeListening(
+            message.payload.original,
+            message.payload.userInput,
+            message.payload.userLevel
+          );
           break;
 
         // 阿里云 ASR 消息通过 Port 处理，这里提供 fallback

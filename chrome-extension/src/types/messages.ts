@@ -29,6 +29,10 @@ import {
   ShadowAssessmentResult,
   SplitSentencesResult,
 } from "./shadowReading";
+import {
+  ListeningAnalysisResult,
+  SegmentCorpusResult,
+} from "./corpus";
 
 /**
  * 消息类型枚举
@@ -117,6 +121,12 @@ export enum MessageType {
   ALIBABA_ASR_STOP = "ALIBABA_ASR_STOP",
   /** 阿里云 ASR 实时识别结果（Background -> Tutor，通过 Port） */
   ALIBABA_ASR_RESULT = "ALIBABA_ASR_RESULT",
+
+  // ====== 语料库听力训练 ======
+  /** 语料库断句（i+1 难度） */
+  SEGMENT_CORPUS = "SEGMENT_CORPUS",
+  /** 听力分析 */
+  ANALYZE_LISTENING = "ANALYZE_LISTENING",
 }
 
 /**
@@ -385,6 +395,38 @@ export interface AlibabaASRResultMessage {
 }
 
 /**
+ * 语料库断句消息
+ *
+ * 请求 AI 根据用户 CEFR 水平对语料文本进行 i+1 难度断句。
+ */
+export interface SegmentCorpusMessage {
+  type: MessageType.SEGMENT_CORPUS;
+  payload: {
+    /** 待断句的英文文本 */
+    text: string;
+    /** 用户 CEFR 水平 */
+    userLevel: CEFRLevel;
+  };
+}
+
+/**
+ * 听力分析消息
+ *
+ * 请求 AI 对比用户听写结果与原文，分析听力盲区。
+ */
+export interface AnalyzeListeningMessage {
+  type: MessageType.ANALYZE_LISTENING;
+  payload: {
+    /** 原文句子 */
+    original: string;
+    /** 用户听写输入 */
+    userInput: string;
+    /** 用户 CEFR 水平 */
+    userLevel: CEFRLevel;
+  };
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -413,7 +455,9 @@ export type Message =
   | AlibabaASRStartMessage
   | AlibabaASRAudioMessage
   | AlibabaASRStopMessage
-  | AlibabaASRResultMessage;
+  | AlibabaASRResultMessage
+  | SegmentCorpusMessage
+  | AnalyzeListeningMessage;
 
 // ====== 响应类型定义 ======
 
@@ -648,6 +692,24 @@ export interface AlibabaASRStopResponse extends BaseResponse {
 }
 
 /**
+ * 语料库断句响应
+ *
+ * 返回 AI 根据用户 CEFR 水平进行 i+1 难度断句的结果。
+ */
+export interface SegmentCorpusResponse extends BaseResponse {
+  data?: SegmentCorpusResult;
+}
+
+/**
+ * 听力分析响应
+ *
+ * 返回 AI 对用户听写结果的分析，包括错误类型、听力盲区和改进建议。
+ */
+export interface AnalyzeListeningResponse extends BaseResponse {
+  data?: ListeningAnalysisResult;
+}
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -671,4 +733,6 @@ export type Response =
   | ShadowAssessResponse
   | TencentASRSignResponse
   | AlibabaASRStartResponse
-  | AlibabaASRStopResponse;
+  | AlibabaASRStopResponse
+  | SegmentCorpusResponse
+  | AnalyzeListeningResponse;
