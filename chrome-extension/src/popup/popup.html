@@ -172,6 +172,15 @@
           <div class="accordion-body" id="ai-service">
             <div class="accordion-inner">
               <div class="settings-row">
+                <label class="settings-label" for="apiProviderSelect">服务商</label>
+                <select id="apiProviderSelect" class="settings-select">
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="custom">自定义...</option>
+                </select>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-row">
                 <label class="settings-label" for="apiBaseUrl">端点</label>
                 <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
               </div>

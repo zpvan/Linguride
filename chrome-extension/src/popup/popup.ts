@@ -43,6 +43,7 @@ import {
 
 /** 阅读模式 */
 type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
+type ApiProviderType = "deepseek" | "openai" | "custom";
 
 /** 模式描述映射 */
 const MODE_DESCRIPTIONS: Record<string, string> = {
@@ -52,6 +53,11 @@ const MODE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
+const API_BASE_URL_PRESETS: Record<Exclude<ApiProviderType, "custom">, string> =
+  {
+    deepseek: "https://api.deepseek.com",
+    openai: "https://api.openai.com",
+  };
 
 // ====== DOM 元素引用 ======
 
@@ -110,6 +116,9 @@ const selectionHint = document.getElementById("selectionHint") as HTMLElement;
 
 
 // Settings - API 配置
+const apiProviderSelect = document.getElementById(
+  "apiProviderSelect"
+) as HTMLSelectElement;
 const apiBaseUrlInput = document.getElementById(
   "apiBaseUrl"
 ) as HTMLInputElement;
@@ -277,6 +286,7 @@ function bindEvents(): void {
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
 
   // Settings - API 配置自动保存
+  apiProviderSelect.addEventListener("change", handleApiProviderChange);
   apiBaseUrlInput.addEventListener("blur", autoSave);
   apiKeyInput.addEventListener("blur", autoSave);
   modelSelect.addEventListener("change", handleModelChange);
@@ -599,10 +609,15 @@ async function autoSave(): Promise<void> {
 }
 
 function collectFormData(): void {
+  const selectedProvider = apiProviderSelect.value as ApiProviderType;
+  const apiBaseUrl =
+    selectedProvider === "custom"
+      ? apiBaseUrlInput.value.trim()
+      : API_BASE_URL_PRESETS[selectedProvider];
   const model =
     modelSelect.value === "custom" ? customModelInput.value : modelSelect.value;
 
-  currentConfig.api_base_url = apiBaseUrlInput.value.trim();
+  currentConfig.api_base_url = apiBaseUrl;
   currentConfig.api_key = apiKeyInput.value.trim();
   currentConfig.model = model.trim();
   currentConfig.prompts = {
@@ -659,7 +674,9 @@ function collectFormData(): void {
 
 function updateSettingsForm(): void {
   // API 配置
-  apiBaseUrlInput.value = currentConfig.api_base_url || "";
+  const providerType = resolveApiProviderType(currentConfig.api_base_url);
+  apiProviderSelect.value = providerType;
+  applyApiProviderSelection(providerType, currentConfig.api_base_url || "");
   apiKeyInput.value = currentConfig.api_key || "";
 
   // 模型
@@ -734,6 +751,47 @@ function handleModelChange(): void {
     customModelInput.style.display = "none";
     autoSave();
   }
+}
+
+function handleApiProviderChange(): void {
+  const providerType = apiProviderSelect.value as ApiProviderType;
+  applyApiProviderSelection(providerType, currentConfig.api_base_url || "");
+
+  if (providerType === "custom") {
+    apiBaseUrlInput.focus();
+  } else {
+    autoSave();
+  }
+}
+
+function resolveApiProviderType(apiBaseUrl?: string): ApiProviderType {
+  const normalized = normalizeApiBaseUrl(apiBaseUrl || "");
+  if (normalized === API_BASE_URL_PRESETS.deepseek) {
+    return "deepseek";
+  }
+  if (normalized === API_BASE_URL_PRESETS.openai) {
+    return "openai";
+  }
+  return "custom";
+}
+
+function normalizeApiBaseUrl(url: string): string {
+  return url.trim().replace(/\/+$/, "").toLowerCase();
+}
+
+function applyApiProviderSelection(
+  providerType: ApiProviderType,
+  currentBaseUrl: string
+): void {
+  if (providerType === "custom") {
+    apiBaseUrlInput.readOnly = false;
+    apiBaseUrlInput.value = currentBaseUrl;
+    apiBaseUrlInput.placeholder = "https://api.example.com";
+    return;
+  }
+
+  apiBaseUrlInput.readOnly = true;
+  apiBaseUrlInput.value = API_BASE_URL_PRESETS[providerType];
 }
 
 // ====== 测试连接 ======
@@ -961,4 +1019,3 @@ function showStatus(
     }, 3000);
   }
 }
-
