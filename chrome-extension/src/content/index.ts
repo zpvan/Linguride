@@ -56,6 +56,7 @@ import {
   showParaphraseLoading,
   showTranslation,
 } from "./translationInjector";
+import { initSelectionToolbar } from "./selectionToolbar";
 import { ViewportObserver } from "./viewportObserver";
 
 // ====== 状态管理 ======
@@ -973,6 +974,9 @@ function handleExtractPageText(): ExtractPageTextResponse {
 // ====== 消息处理与事件监听（仅首次注入时注册） ======
 
 if (!__lingride_already_loaded__) {
+  // 初始化划词工具条（独立于整页模式）
+  initSelectionToolbar();
+
   /**
    * 处理来自 Background 的消息
    */

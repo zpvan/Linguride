@@ -86,6 +86,11 @@ const EXCLUDED_SELECTORS = [
   // 排除注入容器内部的子元素
   ".lingride-en-highlight",
   ".lingride-inline-code",
+  // 排除划词工具条与结果卡片
+  "[data-lingride-selection-root]",
+  ".lingride-selection-root",
+  ".lingride-selection-toolbar",
+  ".lingride-selection-card",
   // ---- 元数据 & 导航区域排除 ----
   "nav",
   // 注意：不添加通用 "header"/"footer"，因为文章级 <header>/<footer> 可能包含合法正文
