@@ -37,6 +37,7 @@ const MIN_ENGLISH_RATIO = 0.6;
 const TOOLBAR_MARGIN = 8;
 const VIEWPORT_MARGIN = 12;
 const COPY_FEEDBACK_DURATION = 1500;
+const SELECTION_UPDATE_DEDUPE_MS = 160;
 
 const ACTION_LABELS: Record<ToolbarAction, string> = {
   translate: "翻译",
@@ -64,6 +65,8 @@ let requestToken = 0;
 let isLoading = false;
 let ignoreSelectionChangeUntil = 0;
 let cachedUserLevel: CEFRLevel | null = null;
+let lastSelectionUpdateText = "";
+let lastSelectionUpdateAt = 0;
 
 const buttonMap: Record<ToolbarAction, HTMLButtonElement | null> = {
   translate: null,
@@ -140,6 +143,8 @@ export function destroySelectionToolbar(): void {
   requestToken = 0;
   isLoading = false;
   hasPendingInit = false;
+  lastSelectionUpdateText = "";
+  lastSelectionUpdateAt = 0;
 
   isInitialized = false;
 }
@@ -186,6 +191,46 @@ function createToolbarUi(): void {
   root.addEventListener("click", handleRootClick);
 }
 
+function isToolbarMounted(): boolean {
+  if (!rootEl || !messageEl || !cardEl || !document.body) {
+    return false;
+  }
+
+  return (
+    rootEl.isConnected &&
+    messageEl.isConnected &&
+    cardEl.isConnected &&
+    document.body.contains(rootEl)
+  );
+}
+
+function ensureToolbarMounted(): boolean {
+  if (isToolbarMounted()) {
+    return true;
+  }
+
+  if (!document.body) {
+    return false;
+  }
+
+  const shouldWarn = !!rootEl || !!messageEl || !!cardEl;
+
+  rootEl = null;
+  messageEl = null;
+  cardEl = null;
+  buttonMap.translate = null;
+  buttonMap.definition = null;
+  buttonMap.analyze = null;
+
+  createToolbarUi();
+
+  if (shouldWarn && rootEl) {
+    console.warn("[Lingride] 划词工具条节点丢失，已自动重建");
+  }
+
+  return isToolbarMounted();
+}
+
 function createActionButton(action: ToolbarAction): HTMLButtonElement {
   const button = document.createElement("button");
   button.type = "button";
@@ -196,7 +241,7 @@ function createActionButton(action: ToolbarAction): HTMLButtonElement {
 }
 
 function bindEvents(): void {
-  document.addEventListener("mouseup", handleMouseUp);
+  document.addEventListener("mouseup", handleMouseUp, true);
   document.addEventListener("selectionchange", handleSelectionChange);
   document.addEventListener("pointerdown", handleDocumentPointerDown, true);
   document.addEventListener("scroll", handleViewportChanged, true);
@@ -205,7 +250,7 @@ function bindEvents(): void {
 }
 
 function unbindEvents(): void {
-  document.removeEventListener("mouseup", handleMouseUp);
+  document.removeEventListener("mouseup", handleMouseUp, true);
   document.removeEventListener("selectionchange", handleSelectionChange);
   document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
   document.removeEventListener("scroll", handleViewportChanged, true);
@@ -214,10 +259,7 @@ function unbindEvents(): void {
 }
 
 function handleMouseUp(event: MouseEvent): void {
-  if (!rootEl) {
-    createToolbarUi();
-  }
-  if (!rootEl) return;
+  if (!ensureToolbarMounted() || !rootEl) return;
 
   const target = event.target;
   if (target instanceof Node && rootEl.contains(target)) {
@@ -230,8 +272,9 @@ function handleMouseUp(event: MouseEvent): void {
 }
 
 function handleSelectionChange(): void {
-  if (!isVisible()) return;
   if (Date.now() < ignoreSelectionChangeUntil) return;
+
+  if (!ensureToolbarMounted()) return;
 
   if (selectionDebounceTimer !== null) {
     clearTimeout(selectionDebounceTimer);
@@ -295,7 +338,7 @@ function handleRootClick(event: Event): void {
 }
 
 function isSelectionInsideToolbar(selection: Selection): boolean {
-  if (!rootEl) return false;
+  if (!rootEl || !rootEl.isConnected) return false;
 
   const anchorNode = selection.anchorNode;
   const focusNode = selection.focusNode;
@@ -323,6 +366,18 @@ function updateToolbarFromSelection(): void {
     hideToolbar();
     return;
   }
+
+  const now = Date.now();
+  const isDuplicateUpdate =
+    evaluation.text === lastSelectionUpdateText &&
+    now - lastSelectionUpdateAt < SELECTION_UPDATE_DEDUPE_MS;
+
+  if (isDuplicateUpdate && isVisible()) {
+    return;
+  }
+
+  lastSelectionUpdateText = evaluation.text;
+  lastSelectionUpdateAt = now;
 
   const textChanged = evaluation.text !== currentText;
 
@@ -495,7 +550,7 @@ function setMessage(message: string, visible: boolean): void {
 }
 
 function showToolbar(): void {
-  if (!rootEl) return;
+  if (!ensureToolbarMounted() || !rootEl) return;
 
   rootEl.style.display = "block";
   rootEl.classList.add("is-visible");
@@ -503,8 +558,6 @@ function showToolbar(): void {
 }
 
 function hideToolbar(): void {
-  if (!rootEl) return;
-
   requestToken++;
   isLoading = false;
 
@@ -512,6 +565,10 @@ function hideToolbar(): void {
   currentRange = null;
   fallbackRect = null;
   disabledReason = "";
+  lastSelectionUpdateText = "";
+  lastSelectionUpdateAt = 0;
+
+  if (!rootEl) return;
 
   setMessage("", false);
   setActiveAction(null);
@@ -522,7 +579,7 @@ function hideToolbar(): void {
 }
 
 function isVisible(): boolean {
-  return !!rootEl && rootEl.style.display !== "none";
+  return !!rootEl && rootEl.isConnected && rootEl.style.display !== "none";
 }
 
 function scheduleReposition(): void {

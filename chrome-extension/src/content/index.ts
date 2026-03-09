@@ -143,6 +143,8 @@ if (__lingride_already_loaded__) {
   console.log("[Lingride] Content Script 已加载");
 }
 
+const isTopFrame = window.top === window;
+
 // ====== 核心功能 ======
 
 /**
@@ -977,156 +979,160 @@ if (!__lingride_already_loaded__) {
   // 初始化划词工具条（独立于整页模式）
   initSelectionToolbar();
 
-  /**
-   * 处理来自 Background 的消息
-   */
-  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    console.log("[Lingride] Content Script 收到消息:", message.type);
+  if (isTopFrame) {
+    /**
+     * 处理来自 Background 的消息
+     */
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      console.log("[Lingride] Content Script 收到消息:", message.type);
 
-    switch (message.type) {
-      case "TRANSLATION_STATE_CHANGED": {
-        const { enabled } = message.payload;
+      switch (message.type) {
+        case "TRANSLATION_STATE_CHANGED": {
+          const { enabled } = message.payload;
 
-        if (enabled) {
-          // 统一清除所有模式结果，确保互斥
-          removeAllModeResults();
+          if (enabled) {
+            // 统一清除所有模式结果，确保互斥
+            removeAllModeResults();
 
-          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
-          translationEpoch++;
-          paraphraseEpoch++;
-          mixedTranslateEpoch++;
+            // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+            translationEpoch++;
+            paraphraseEpoch++;
+            mixedTranslateEpoch++;
 
-          // 重置状态
-          isParaphraseEnabled = false;
-          isMixedTranslateEnabled = false;
-          isTranslationEnabled = true;
+            // 重置状态
+            isParaphraseEnabled = false;
+            isMixedTranslateEnabled = false;
+            isTranslationEnabled = true;
 
-          startTranslation();
-        } else {
-          isTranslationEnabled = false;
-          stopTranslation();
-        }
-        sendResponse({ success: true });
-        break;
-      }
-
-      case "PARAPHRASE_STATE_CHANGED": {
-        const { enabled, userLevel } = message.payload;
-
-        if (enabled) {
-          // 保存用户等级（用于缓存键）
-          if (userLevel) {
-            currentUserLevel = userLevel;
+            startTranslation();
+          } else {
+            isTranslationEnabled = false;
+            stopTranslation();
           }
-
-          // 统一清除所有模式结果，确保互斥
-          removeAllModeResults();
-
-          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
-          translationEpoch++;
-          paraphraseEpoch++;
-          mixedTranslateEpoch++;
-
-          // 重置状态
-          isTranslationEnabled = false;
-          isMixedTranslateEnabled = false;
-          isParaphraseEnabled = true;
-
-          startParaphrase();
-        } else {
-          isParaphraseEnabled = false;
-          stopParaphrase();
+          sendResponse({ success: true });
+          break;
         }
-        sendResponse({ success: true });
-        break;
-      }
 
-      case "MIXED_TRANSLATE_STATE_CHANGED": {
-        const { enabled, userLevel } = message.payload;
+        case "PARAPHRASE_STATE_CHANGED": {
+          const { enabled, userLevel } = message.payload;
 
-        if (enabled) {
-          // 保存用户等级（用于缓存键）
-          if (userLevel) {
-            currentUserLevel = userLevel;
+          if (enabled) {
+            // 保存用户等级（用于缓存键）
+            if (userLevel) {
+              currentUserLevel = userLevel;
+            }
+
+            // 统一清除所有模式结果，确保互斥
+            removeAllModeResults();
+
+            // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+            translationEpoch++;
+            paraphraseEpoch++;
+            mixedTranslateEpoch++;
+
+            // 重置状态
+            isTranslationEnabled = false;
+            isMixedTranslateEnabled = false;
+            isParaphraseEnabled = true;
+
+            startParaphrase();
+          } else {
+            isParaphraseEnabled = false;
+            stopParaphrase();
           }
-
-          // 统一清除所有模式结果，确保互斥
-          removeAllModeResults();
-
-          // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
-          translationEpoch++;
-          paraphraseEpoch++;
-          mixedTranslateEpoch++;
-
-          // 重置状态
-          isTranslationEnabled = false;
-          isParaphraseEnabled = false;
-          isMixedTranslateEnabled = true;
-
-          startMixedTranslate();
-        } else {
-          isMixedTranslateEnabled = false;
-          stopMixedTranslate();
+          sendResponse({ success: true });
+          break;
         }
-        sendResponse({ success: true });
-        break;
-      }
 
-      case MessageType.EXTRACT_PAGE_TEXT: {
-        const extractResult = handleExtractPageText();
-        sendResponse(extractResult);
-        break;
-      }
+        case "MIXED_TRANSLATE_STATE_CHANGED": {
+          const { enabled, userLevel } = message.payload;
 
-      default:
-        sendResponse({ success: false, error: "未知消息类型" });
-    }
+          if (enabled) {
+            // 保存用户等级（用于缓存键）
+            if (userLevel) {
+              currentUserLevel = userLevel;
+            }
 
-    return true;
-  });
+            // 统一清除所有模式结果，确保互斥
+            removeAllModeResults();
 
-  // ====== 页面可见性监听 ======
+            // 使所有 in-flight 回调失效，防止旧模式的响应写入 DOM
+            translationEpoch++;
+            paraphraseEpoch++;
+            mixedTranslateEpoch++;
 
-  /** visibilitychange 去抖动定时器 */
-  let visibilityTimer: number | null = null;
+            // 重置状态
+            isTranslationEnabled = false;
+            isParaphraseEnabled = false;
+            isMixedTranslateEnabled = true;
 
-  // 当页面变为可见时，如果翻译或释义已启用，重新扫描新增内容
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      console.log("[Lingride] 页面重新可见，检查新内容...");
-
-      // 去抖动：防止短时间内多次触发
-      if (visibilityTimer !== null) {
-        clearTimeout(visibilityTimer);
-      }
-
-      visibilityTimer = window.setTimeout(() => {
-        visibilityTimer = null;
-
-        // 检查运行状态，避免与正在执行的 start*() 冲突。
-        // 同时检查 translatableElements 是否为空：非空说明翻译已完成且仍有效，
-        // 无需重新执行（避免无谓的 DOM 移除+重插入循环）。
-        // 为空则说明从未翻译或已被 stop 清理，需要重新运行。
-        if (
-          isTranslationEnabled &&
-          !isTranslationRunning &&
-          translatableElements.size === 0
-        ) {
-          startTranslation();
-        } else if (
-          isParaphraseEnabled &&
-          !isParaphraseRunning &&
-          translatableElements.size === 0
-        ) {
-          startParaphrase();
-        } else if (
-          isMixedTranslateEnabled &&
-          !isMixedTranslateRunning &&
-          translatableElements.size === 0
-        ) {
-          startMixedTranslate();
+            startMixedTranslate();
+          } else {
+            isMixedTranslateEnabled = false;
+            stopMixedTranslate();
+          }
+          sendResponse({ success: true });
+          break;
         }
-      }, 500);
-    }
-  });
+
+        case MessageType.EXTRACT_PAGE_TEXT: {
+          const extractResult = handleExtractPageText();
+          sendResponse(extractResult);
+          break;
+        }
+
+        default:
+          sendResponse({ success: false, error: "未知消息类型" });
+      }
+
+      return true;
+    });
+
+    // ====== 页面可见性监听 ======
+
+    /** visibilitychange 去抖动定时器 */
+    let visibilityTimer: number | null = null;
+
+    // 当页面变为可见时，如果翻译或释义已启用，重新扫描新增内容
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        console.log("[Lingride] 页面重新可见，检查新内容...");
+
+        // 去抖动：防止短时间内多次触发
+        if (visibilityTimer !== null) {
+          clearTimeout(visibilityTimer);
+        }
+
+        visibilityTimer = window.setTimeout(() => {
+          visibilityTimer = null;
+
+          // 检查运行状态，避免与正在执行的 start*() 冲突。
+          // 同时检查 translatableElements 是否为空：非空说明翻译已完成且仍有效，
+          // 无需重新执行（避免无谓的 DOM 移除+重插入循环）。
+          // 为空则说明从未翻译或已被 stop 清理，需要重新运行。
+          if (
+            isTranslationEnabled &&
+            !isTranslationRunning &&
+            translatableElements.size === 0
+          ) {
+            startTranslation();
+          } else if (
+            isParaphraseEnabled &&
+            !isParaphraseRunning &&
+            translatableElements.size === 0
+          ) {
+            startParaphrase();
+          } else if (
+            isMixedTranslateEnabled &&
+            !isMixedTranslateRunning &&
+            translatableElements.size === 0
+          ) {
+            startMixedTranslate();
+          }
+        }, 500);
+      }
+    });
+  } else {
+    console.log("[Lingride] 子 frame：仅启用划词工具条");
+  }
 } // end of !__lingride_already_loaded__ guard

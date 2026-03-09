@@ -177,10 +177,14 @@ async function handleToggleTranslation(
 
     // 通知 Content Script
     try {
-      await chrome.tabs.sendMessage(tabId, {
-        type: "TRANSLATION_STATE_CHANGED",
-        payload: { enabled },
-      });
+      await chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: "TRANSLATION_STATE_CHANGED",
+          payload: { enabled },
+        },
+        { frameId: 0 }
+      );
       console.log("[Lingride] 已通知 Content Script, enabled:", enabled);
     } catch (e) {
       // Content Script 可能未加载，尝试注入
@@ -189,20 +193,24 @@ async function handleToggleTranslation(
       try {
         // 尝试注入 Content Script
         await chrome.scripting.executeScript({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/index.js"],
         });
         await chrome.scripting.insertCSS({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/styles.css"],
         });
 
         // 等待脚本加载后重新发送消息
         await new Promise((resolve) => setTimeout(resolve, 100));
-        await chrome.tabs.sendMessage(tabId, {
-          type: "TRANSLATION_STATE_CHANGED",
-          payload: { enabled },
-        });
+        await chrome.tabs.sendMessage(
+          tabId,
+          {
+            type: "TRANSLATION_STATE_CHANGED",
+            payload: { enabled },
+          },
+          { frameId: 0 }
+        );
         console.log("[Lingride] 注入并通知 Content Script 成功");
       } catch (injectError) {
         console.error("[Lingride] 注入 Content Script 失败:", injectError);
@@ -374,28 +382,36 @@ async function handleAnalyzeDifficulty(): Promise<AnalyzeDifficultyResponse> {
     let extractResponse: ExtractPageTextResponse;
 
     try {
-      extractResponse = await chrome.tabs.sendMessage(tabId, {
-        type: MessageType.EXTRACT_PAGE_TEXT,
-      });
+      extractResponse = await chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: MessageType.EXTRACT_PAGE_TEXT,
+        },
+        { frameId: 0 }
+      );
     } catch (e) {
       // Content Script 未加载，尝试注入
       console.warn("[Lingride] Content Script 未加载，尝试注入...");
 
       try {
         await chrome.scripting.executeScript({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/index.js"],
         });
         await chrome.scripting.insertCSS({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/styles.css"],
         });
 
         // 等待脚本加载后重新发送消息
         await new Promise((resolve) => setTimeout(resolve, 100));
-        extractResponse = await chrome.tabs.sendMessage(tabId, {
-          type: MessageType.EXTRACT_PAGE_TEXT,
-        });
+        extractResponse = await chrome.tabs.sendMessage(
+          tabId,
+          {
+            type: MessageType.EXTRACT_PAGE_TEXT,
+          },
+          { frameId: 0 }
+        );
       } catch (injectError) {
         console.error("[Lingride] 注入 Content Script 失败:", injectError);
         return {
@@ -490,10 +506,14 @@ async function handleToggleParaphrase(
 
     // 通知 Content Script（附带用户等级）
     try {
-      await chrome.tabs.sendMessage(tabId, {
-        type: "PARAPHRASE_STATE_CHANGED",
-        payload: { enabled, userLevel },
-      });
+      await chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: "PARAPHRASE_STATE_CHANGED",
+          payload: { enabled, userLevel },
+        },
+        { frameId: 0 }
+      );
       console.log(
         "[Lingride] 已通知 Content Script 释义状态, enabled:",
         enabled,
@@ -507,20 +527,24 @@ async function handleToggleParaphrase(
       try {
         // 尝试注入 Content Script
         await chrome.scripting.executeScript({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/index.js"],
         });
         await chrome.scripting.insertCSS({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/styles.css"],
         });
 
         // 等待脚本加载后重新发送消息
         await new Promise((resolve) => setTimeout(resolve, 100));
-        await chrome.tabs.sendMessage(tabId, {
-          type: "PARAPHRASE_STATE_CHANGED",
-          payload: { enabled, userLevel },
-        });
+        await chrome.tabs.sendMessage(
+          tabId,
+          {
+            type: "PARAPHRASE_STATE_CHANGED",
+            payload: { enabled, userLevel },
+          },
+          { frameId: 0 }
+        );
         console.log("[Lingride] 注入并通知 Content Script 成功");
       } catch (injectError) {
         console.error("[Lingride] 注入 Content Script 失败:", injectError);
@@ -700,10 +724,14 @@ async function handleToggleMixedTranslate(
 
     // 通知 Content Script（附带用户等级）
     try {
-      await chrome.tabs.sendMessage(tabId, {
-        type: "MIXED_TRANSLATE_STATE_CHANGED",
-        payload: { enabled, userLevel },
-      });
+      await chrome.tabs.sendMessage(
+        tabId,
+        {
+          type: "MIXED_TRANSLATE_STATE_CHANGED",
+          payload: { enabled, userLevel },
+        },
+        { frameId: 0 }
+      );
       console.log(
         "[Lingride] 已通知 Content Script 混杂中英状态, enabled:",
         enabled,
@@ -717,20 +745,24 @@ async function handleToggleMixedTranslate(
       try {
         // 尝试注入 Content Script
         await chrome.scripting.executeScript({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/index.js"],
         });
         await chrome.scripting.insertCSS({
-          target: { tabId },
+          target: { tabId, allFrames: true },
           files: ["src/content/styles.css"],
         });
 
         // 等待脚本加载后重新发送消息
         await new Promise((resolve) => setTimeout(resolve, 100));
-        await chrome.tabs.sendMessage(tabId, {
-          type: "MIXED_TRANSLATE_STATE_CHANGED",
-          payload: { enabled, userLevel },
-        });
+        await chrome.tabs.sendMessage(
+          tabId,
+          {
+            type: "MIXED_TRANSLATE_STATE_CHANGED",
+            payload: { enabled, userLevel },
+          },
+          { frameId: 0 }
+        );
         console.log("[Lingride] 注入并通知 Content Script 成功");
       } catch (injectError) {
         console.error("[Lingride] 注入 Content Script 失败:", injectError);
