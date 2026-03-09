@@ -36,6 +36,7 @@ const MAX_SELECTION_CHARS = 500;
 const MIN_ENGLISH_RATIO = 0.6;
 const TOOLBAR_MARGIN = 8;
 const VIEWPORT_MARGIN = 12;
+const COPY_FEEDBACK_DURATION = 1500;
 
 const ACTION_LABELS: Record<ToolbarAction, string> = {
   translate: "翻译",
@@ -53,6 +54,7 @@ let messageEl: HTMLDivElement | null = null;
 let cardEl: HTMLDivElement | null = null;
 let selectionDebounceTimer: number | null = null;
 let repositionRaf: number | null = null;
+let copyFeedbackTimer: number | null = null;
 
 let currentText = "";
 let currentRange: Range | null = null;
@@ -112,6 +114,11 @@ export function destroySelectionToolbar(): void {
   if (repositionRaf !== null) {
     cancelAnimationFrame(repositionRaf);
     repositionRaf = null;
+  }
+
+  if (copyFeedbackTimer !== null) {
+    clearTimeout(copyFeedbackTimer);
+    copyFeedbackTimer = null;
   }
 
   if (rootEl) {
@@ -239,6 +246,11 @@ function handleSelectionChange(): void {
       return;
     }
 
+    // 允许在结果卡片内自由选中文本进行复制，不触发重算/隐藏
+    if (isSelectionInsideToolbar(selection)) {
+      return;
+    }
+
     const selectedText = normalizeSelectionText(selection.toString());
     if (!selectedText) {
       if (!isLoading) hideToolbar();
@@ -280,6 +292,16 @@ function handleRootClick(event: Event): void {
   if (!currentText) return;
 
   void runAction(action);
+}
+
+function isSelectionInsideToolbar(selection: Selection): boolean {
+  if (!rootEl) return false;
+
+  const anchorNode = selection.anchorNode;
+  const focusNode = selection.focusNode;
+  if (!anchorNode || !focusNode) return false;
+
+  return rootEl.contains(anchorNode) && rootEl.contains(focusNode);
 }
 
 function handleViewportChanged(): void {
@@ -769,8 +791,17 @@ function renderDefinitionResult(
   showCardContainer();
   cardEl.innerHTML = "";
 
+  const header = document.createElement("div");
+  header.className = "lingride-selection-card-header";
+
   const title = createCardTitle("英英释义");
-  cardEl.appendChild(title);
+  const copyBtn = createCopyButton();
+  copyBtn.addEventListener("click", () => {
+    void handleCopyDefinition(data, copyBtn);
+  });
+
+  header.append(title, copyBtn);
+  cardEl.appendChild(header);
 
   if (data.definition) {
     cardEl.appendChild(createTextSection("Definition", data.definition));
@@ -786,6 +817,87 @@ function renderDefinitionResult(
 
   if (data.usageNotes) {
     cardEl.appendChild(createTextSection("Usage", data.usageNotes));
+  }
+}
+
+function createCopyButton(): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "lingride-selection-copy-btn";
+  button.textContent = "Copy";
+  button.title = "复制释义";
+  button.setAttribute("aria-label", "复制释义");
+  return button;
+}
+
+function buildDefinitionCopyText(
+  data: NonNullable<EnglishDefinitionResponse["data"]>
+): string {
+  const parts: string[] = [];
+
+  if (data.definition) {
+    parts.push(`Definition:\n${data.definition}`);
+  }
+
+  if (data.examples && data.examples.length > 0) {
+    const examples = data.examples.map((item) => `- ${item}`).join("\n");
+    parts.push(`Examples:\n${examples}`);
+  }
+
+  if (data.synonyms && data.synonyms.length > 0) {
+    parts.push(`Synonyms:\n${data.synonyms.join(", ")}`);
+  }
+
+  if (data.usageNotes) {
+    parts.push(`Usage:\n${data.usageNotes}`);
+  }
+
+  return parts.join("\n\n").trim();
+}
+
+async function handleCopyDefinition(
+  data: NonNullable<EnglishDefinitionResponse["data"]>,
+  button: HTMLButtonElement
+): Promise<void> {
+  const text = buildDefinitionCopyText(data);
+  if (!text) return;
+
+  const success = await copyTextToClipboard(text);
+  if (!success) return;
+
+  if (copyFeedbackTimer !== null) {
+    clearTimeout(copyFeedbackTimer);
+    copyFeedbackTimer = null;
+  }
+
+  button.classList.add("copied");
+  button.textContent = "Copied";
+
+  copyFeedbackTimer = window.setTimeout(() => {
+    button.classList.remove("copied");
+    button.textContent = "Copy";
+    copyFeedbackTimer = null;
+  }, COPY_FEEDBACK_DURATION);
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // Clipboard API 失败时回退到 execCommand 方案
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
   }
 }
 

@@ -266,6 +266,49 @@
   font-weight: 600;
 }
 
+.lingride-selection-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lingride-selection-card-header .lingride-selection-card-title {
+  margin: 0;
+}
+
+.lingride-selection-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(235, 235, 245, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lingride-selection-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.lingride-selection-copy-btn:active {
+  transform: scale(0.96);
+}
+
+.lingride-selection-copy-btn.copied {
+  background: #30d158;
+  color: #ffffff;
+}
+
 .lingride-selection-loading {
   color: rgba(235, 235, 245, 0.7);
   font-size: 13px;
@@ -356,6 +399,16 @@
 
   .lingride-selection-button:disabled {
     color: rgba(22, 22, 24, 0.36);
+  }
+
+  .lingride-selection-copy-btn {
+    background: rgba(60, 60, 67, 0.12);
+    color: rgba(28, 28, 30, 0.8);
+  }
+
+  .lingride-selection-copy-btn:hover {
+    background: rgba(60, 60, 67, 0.18);
+    color: rgba(28, 28, 30, 0.96);
   }
 
   .lingride-selection-card-title,
