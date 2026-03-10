@@ -199,7 +199,7 @@
 
 .lingride-selection-toolbar {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
@@ -228,6 +228,11 @@
 
 .lingride-selection-button.is-active {
   background: rgba(10, 132, 255, 0.22);
+  color: #ffffff;
+}
+
+.lingride-selection-button.is-speaking {
+  background: rgba(48, 209, 88, 0.24);
   color: #ffffff;
 }
 
@@ -278,7 +283,13 @@
   margin: 0;
 }
 
-.lingride-selection-copy-btn {
+.lingride-selection-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lingride-selection-card-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -295,13 +306,18 @@
   transition: all 0.15s ease;
 }
 
-.lingride-selection-copy-btn:hover {
+.lingride-selection-card-action-btn:hover {
   background: rgba(255, 255, 255, 0.16);
   color: #ffffff;
 }
 
-.lingride-selection-copy-btn:active {
+.lingride-selection-card-action-btn:active {
   transform: scale(0.96);
+}
+
+.lingride-selection-speak-btn.is-speaking {
+  background: #0a84ff;
+  color: #ffffff;
 }
 
 .lingride-selection-copy-btn.copied {
@@ -397,18 +413,28 @@
     background: rgba(10, 132, 255, 0.12);
   }
 
+  .lingride-selection-button.is-speaking {
+    color: #0a84ff;
+    background: rgba(10, 132, 255, 0.16);
+  }
+
   .lingride-selection-button:disabled {
     color: rgba(22, 22, 24, 0.36);
   }
 
-  .lingride-selection-copy-btn {
+  .lingride-selection-card-action-btn {
     background: rgba(60, 60, 67, 0.12);
     color: rgba(28, 28, 30, 0.8);
   }
 
-  .lingride-selection-copy-btn:hover {
+  .lingride-selection-card-action-btn:hover {
     background: rgba(60, 60, 67, 0.18);
     color: rgba(28, 28, 30, 0.96);
+  }
+
+  .lingride-selection-speak-btn.is-speaking {
+    background: rgba(10, 132, 255, 0.16);
+    color: #0a84ff;
   }
 
   .lingride-selection-card-title,

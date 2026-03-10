@@ -11,15 +11,22 @@
 import {
   AnalyzeSentenceResponse,
   CEFRLevel,
+  DEFAULT_TTS_SPEED,
   EnglishDefinitionResponse,
   GetConfigResponse,
+  isTTSSpeed,
+  LingridConfig,
   MessageType,
   SentenceAnalysisResult,
+  STORAGE_KEY,
+  TTSSpeed,
   TranslateResponse,
 } from "../types";
 import { getCachedTranslation, setCachedTranslation } from "./translationCache";
 
-type ToolbarAction = "translate" | "definition" | "analyze";
+type CardAction = "translate" | "definition" | "analyze";
+type ToolbarAction = CardAction | "pronounce";
+type SpeechLanguage = "en-US" | "zh-CN";
 
 type SelectionEvaluationState = "none" | "valid" | "disabled";
 
@@ -29,6 +36,11 @@ interface SelectionEvaluation {
   range: Range | null;
   rect: DOMRect | null;
   reason?: string;
+}
+
+interface CardSpeakConfig {
+  text: string;
+  lang: SpeechLanguage;
 }
 
 const MIN_SELECTION_CHARS = 2;
@@ -43,9 +55,17 @@ const ACTION_LABELS: Record<ToolbarAction, string> = {
   translate: "翻译",
   definition: "释义",
   analyze: "句法",
+  pronounce: "发音",
 };
 
 const CEFR_LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const CARD_ACTIONS: CardAction[] = ["translate", "definition", "analyze"];
+const TOOLBAR_ACTIONS: ToolbarAction[] = [
+  "translate",
+  "definition",
+  "analyze",
+  "pronounce",
+];
 
 let isInitialized = false;
 let hasPendingInit = false;
@@ -67,11 +87,15 @@ let ignoreSelectionChangeUntil = 0;
 let cachedUserLevel: CEFRLevel | null = null;
 let lastSelectionUpdateText = "";
 let lastSelectionUpdateAt = 0;
+let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
+let activeSpeechButton: HTMLButtonElement | null = null;
+let speechRequestId = 0;
 
 const buttonMap: Record<ToolbarAction, HTMLButtonElement | null> = {
   translate: null,
   definition: null,
   analyze: null,
+  pronounce: null,
 };
 
 /**
@@ -96,6 +120,7 @@ export function initSelectionToolbar(): void {
 
   createToolbarUi();
   bindEvents();
+  void loadSelectionPreferences();
   isInitialized = true;
 
   console.log("[Lingride] 划词工具条已初始化");
@@ -124,6 +149,8 @@ export function destroySelectionToolbar(): void {
     copyFeedbackTimer = null;
   }
 
+  stopSelectionSpeech();
+
   if (rootEl) {
     rootEl.remove();
   }
@@ -135,6 +162,7 @@ export function destroySelectionToolbar(): void {
   buttonMap.translate = null;
   buttonMap.definition = null;
   buttonMap.analyze = null;
+  buttonMap.pronounce = null;
 
   currentText = "";
   currentRange = null;
@@ -165,11 +193,13 @@ function createToolbarUi(): void {
   buttonMap.translate = createActionButton("translate");
   buttonMap.definition = createActionButton("definition");
   buttonMap.analyze = createActionButton("analyze");
+  buttonMap.pronounce = createActionButton("pronounce");
 
   toolbar.append(
     buttonMap.translate,
     buttonMap.definition,
-    buttonMap.analyze
+    buttonMap.analyze,
+    buttonMap.pronounce
   );
 
   const message = document.createElement("div");
@@ -221,6 +251,7 @@ function ensureToolbarMounted(): boolean {
   buttonMap.translate = null;
   buttonMap.definition = null;
   buttonMap.analyze = null;
+  buttonMap.pronounce = null;
 
   createToolbarUi();
 
@@ -247,6 +278,7 @@ function bindEvents(): void {
   document.addEventListener("scroll", handleViewportChanged, true);
   document.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("resize", handleViewportChanged);
+  chrome.storage.onChanged.addListener(handleConfigStorageChange);
 }
 
 function unbindEvents(): void {
@@ -256,6 +288,7 @@ function unbindEvents(): void {
   document.removeEventListener("scroll", handleViewportChanged, true);
   document.removeEventListener("keydown", handleKeyDown, true);
   window.removeEventListener("resize", handleViewportChanged);
+  chrome.storage.onChanged.removeListener(handleConfigStorageChange);
 }
 
 function handleMouseUp(event: MouseEvent): void {
@@ -334,6 +367,11 @@ function handleRootClick(event: Event): void {
   if (disabledReason) return;
   if (!currentText) return;
 
+  if (action === "pronounce") {
+    toggleSpeakText(currentText, "en-US", button);
+    return;
+  }
+
   void runAction(action);
 }
 
@@ -389,6 +427,7 @@ function updateToolbarFromSelection(): void {
     // 切换选区时使旧请求失效，防止异步结果串写到新选区
     requestToken++;
     isLoading = false;
+    stopSelectionSpeech();
     resetCard();
     setActiveAction(null);
   }
@@ -520,6 +559,7 @@ function setDisabledState(reason: string): void {
   disabledReason = reason;
   requestToken++;
   isLoading = false;
+  stopSelectionSpeech();
 
   setButtonsDisabled(true);
   setMessage(reason, true);
@@ -533,7 +573,7 @@ function setEnabledState(): void {
 }
 
 function setButtonsDisabled(disabled: boolean): void {
-  for (const action of Object.keys(buttonMap) as ToolbarAction[]) {
+  for (const action of TOOLBAR_ACTIONS) {
     const button = buttonMap[action];
     if (!button) continue;
 
@@ -560,6 +600,7 @@ function showToolbar(): void {
 function hideToolbar(): void {
   requestToken++;
   isLoading = false;
+  stopSelectionSpeech();
 
   currentText = "";
   currentRange = null;
@@ -641,8 +682,8 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-function setActiveAction(action: ToolbarAction | null): void {
-  for (const key of Object.keys(buttonMap) as ToolbarAction[]) {
+function setActiveAction(action: CardAction | null): void {
+  for (const key of CARD_ACTIONS) {
     const button = buttonMap[key];
     if (!button) continue;
 
@@ -667,7 +708,7 @@ function showCardContainer(): void {
   rootEl.classList.add("has-card");
 }
 
-function showCardLoading(action: ToolbarAction): void {
+function showCardLoading(action: CardAction): void {
   if (!cardEl) return;
 
   setActiveAction(action);
@@ -681,7 +722,7 @@ function showCardLoading(action: ToolbarAction): void {
   cardEl.appendChild(loading);
 }
 
-function showCardError(action: ToolbarAction, message: string): void {
+function showCardError(action: CardAction, message: string): void {
   if (!cardEl) return;
 
   setActiveAction(action);
@@ -697,9 +738,11 @@ function showCardError(action: ToolbarAction, message: string): void {
   cardEl.append(title, error);
 }
 
-async function runAction(action: ToolbarAction): Promise<void> {
+async function runAction(action: CardAction): Promise<void> {
   const text = currentText;
   if (!text) return;
+
+  stopSelectionSpeech();
 
   const token = ++requestToken;
   isLoading = true;
@@ -832,12 +875,15 @@ function renderTranslateResult(translation: string): void {
   showCardContainer();
   cardEl.innerHTML = "";
 
-  const title = createCardTitle("翻译");
+  const header = createCardHeader("翻译", {
+    text: translation,
+    lang: "zh-CN",
+  });
   const content = document.createElement("p");
   content.className = "lingride-selection-paragraph";
   content.textContent = translation;
 
-  cardEl.append(title, content);
+  cardEl.append(header, content);
 }
 
 function renderDefinitionResult(
@@ -848,16 +894,22 @@ function renderDefinitionResult(
   showCardContainer();
   cardEl.innerHTML = "";
 
-  const header = document.createElement("div");
-  header.className = "lingride-selection-card-header";
-
-  const title = createCardTitle("英英释义");
   const copyBtn = createCopyButton();
   copyBtn.addEventListener("click", () => {
     void handleCopyDefinition(data, copyBtn);
   });
 
-  header.append(title, copyBtn);
+  const header = createCardHeader(
+    "英英释义",
+    data.definition
+      ? {
+          text: data.definition,
+          lang: "en-US",
+        }
+      : null,
+    [copyBtn]
+  );
+
   cardEl.appendChild(header);
 
   if (data.definition) {
@@ -880,7 +932,8 @@ function renderDefinitionResult(
 function createCopyButton(): HTMLButtonElement {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "lingride-selection-copy-btn";
+  button.className =
+    "lingride-selection-card-action-btn lingride-selection-copy-btn";
   button.textContent = "Copy";
   button.title = "复制释义";
   button.setAttribute("aria-label", "复制释义");
@@ -964,8 +1017,9 @@ function renderSentenceAnalysisResult(result: SentenceAnalysisResult): void {
   showCardContainer();
   cardEl.innerHTML = "";
 
-  const title = createCardTitle("句法分析");
-  cardEl.appendChild(title);
+  const speakConfig = getSentenceAnalysisSpeakConfig(result);
+  const header = createCardHeader("句法分析", speakConfig);
+  cardEl.appendChild(header);
 
   if (result.translation) {
     cardEl.appendChild(createTextSection("翻译", result.translation));
@@ -1048,11 +1102,56 @@ function renderSentenceAnalysisResult(result: SentenceAnalysisResult): void {
   }
 }
 
+function createCardHeader(
+  titleText: string,
+  speakConfig: CardSpeakConfig | null,
+  extraActions: HTMLButtonElement[] = []
+): HTMLDivElement {
+  const header = document.createElement("div");
+  header.className = "lingride-selection-card-header";
+
+  const title = createCardTitle(titleText);
+  header.appendChild(title);
+
+  if (!speakConfig && extraActions.length === 0) {
+    return header;
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "lingride-selection-card-actions";
+
+  if (speakConfig?.text) {
+    const speakButton = createSpeakButton();
+    speakButton.addEventListener("click", () => {
+      toggleSpeakText(speakConfig.text, speakConfig.lang, speakButton);
+    });
+    actions.appendChild(speakButton);
+  }
+
+  for (const action of extraActions) {
+    actions.appendChild(action);
+  }
+
+  header.appendChild(actions);
+  return header;
+}
+
 function createCardTitle(text: string): HTMLHeadingElement {
   const title = document.createElement("h3");
   title.className = "lingride-selection-card-title";
   title.textContent = text;
   return title;
+}
+
+function createSpeakButton(): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className =
+    "lingride-selection-card-action-btn lingride-selection-speak-btn";
+  button.textContent = "发音";
+  button.title = "朗读当前内容";
+  button.setAttribute("aria-label", "朗读当前内容");
+  return button;
 }
 
 function createTextSection(title: string, text: string): HTMLElement {
@@ -1128,6 +1227,160 @@ function appendStructureTag(
   container.appendChild(tag);
 }
 
+function getSentenceAnalysisSpeakConfig(
+  result: SentenceAnalysisResult
+): CardSpeakConfig | null {
+  const simplifiedVersion = result.simplifiedVersion?.trim();
+  if (simplifiedVersion) {
+    return {
+      text: simplifiedVersion,
+      lang: "en-US",
+    };
+  }
+
+  const fallbackText = currentText.trim();
+  if (!fallbackText) {
+    return null;
+  }
+
+  return {
+    text: fallbackText,
+    lang: "en-US",
+  };
+}
+
+function toggleSpeakText(
+  text: string,
+  lang: SpeechLanguage,
+  button: HTMLButtonElement
+): void {
+  const normalizedText = text.trim();
+  if (!normalizedText) return;
+
+  if (!canSpeak()) {
+    setMessage("当前页面不支持发音", true);
+    return;
+  }
+
+  const isCurrentButtonActive =
+    activeSpeechButton === button && (speechSynthesis.speaking || speechSynthesis.pending);
+
+  if (isCurrentButtonActive) {
+    stopSelectionSpeech();
+    return;
+  }
+
+  startSelectionSpeech(normalizedText, lang, button);
+}
+
+function startSelectionSpeech(
+  text: string,
+  lang: SpeechLanguage,
+  button: HTMLButtonElement
+): void {
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechRequestId++;
+    speechSynthesis.cancel();
+  }
+
+  clearSpeakingButton();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = currentTTSSpeed;
+
+  const requestId = ++speechRequestId;
+  activeSpeechButton = button;
+  setSpeakingButtonState(button, true);
+
+  utterance.onend = () => {
+    if (requestId !== speechRequestId) return;
+    clearSpeakingButton();
+  };
+
+  utterance.onerror = () => {
+    if (requestId !== speechRequestId) return;
+    clearSpeakingButton();
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function stopSelectionSpeech(): void {
+  speechRequestId++;
+
+  if (canSpeak() && (speechSynthesis.speaking || speechSynthesis.pending)) {
+    speechSynthesis.cancel();
+  }
+
+  clearSpeakingButton();
+}
+
+function clearSpeakingButton(): void {
+  if (!activeSpeechButton) return;
+
+  setSpeakingButtonState(activeSpeechButton, false);
+  activeSpeechButton = null;
+}
+
+function setSpeakingButtonState(
+  button: HTMLButtonElement,
+  speaking: boolean
+): void {
+  button.classList.toggle("is-speaking", speaking);
+  button.setAttribute("aria-pressed", speaking ? "true" : "false");
+}
+
+function canSpeak(): boolean {
+  return (
+    typeof window.speechSynthesis !== "undefined" &&
+    typeof window.SpeechSynthesisUtterance !== "undefined"
+  );
+}
+
+async function loadSelectionPreferences(): Promise<void> {
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    })) as GetConfigResponse;
+
+    if (!response.success || !response.data) {
+      return;
+    }
+
+    applySelectionConfig(response.data);
+  } catch (error) {
+    console.warn("[Lingride] 加载划词发音配置失败，使用默认值", error);
+  }
+}
+
+function handleConfigStorageChange(
+  changes: Record<string, chrome.storage.StorageChange>,
+  areaName: string
+): void {
+  if (areaName !== "local") return;
+
+  const configChange = changes[STORAGE_KEY];
+  if (!configChange?.newValue) return;
+
+  applySelectionConfig(configChange.newValue as Partial<LingridConfig>);
+}
+
+function applySelectionConfig(config: Partial<LingridConfig>): void {
+  const nextLevel = config.user_english_level;
+  if (nextLevel && CEFR_LEVELS.includes(nextLevel)) {
+    cachedUserLevel = nextLevel;
+  }
+
+  const nextSpeed = config.tts_speed;
+  if (typeof nextSpeed === "number" && isTTSSpeed(nextSpeed)) {
+    currentTTSSpeed = nextSpeed;
+  } else if (typeof nextSpeed === "string") {
+    const parsed = parseFloat(nextSpeed);
+    currentTTSSpeed = isTTSSpeed(parsed) ? parsed : DEFAULT_TTS_SPEED;
+  }
+}
+
 function isToolbarAction(value: string | undefined): value is ToolbarAction {
-  return value === "translate" || value === "definition" || value === "analyze";
+  return TOOLBAR_ACTIONS.includes(value as ToolbarAction);
 }
