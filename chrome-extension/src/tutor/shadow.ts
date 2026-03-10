@@ -366,11 +366,11 @@ export function speakProblemWord(word: string): void {
 
   const utterance1 = new SpeechSynthesisUtterance(word);
   utterance1.lang = "en-US";
-  utterance1.rate = 0.8;
+  utterance1.rate = shadowConfig.speed;
 
   const utterance2 = new SpeechSynthesisUtterance(word);
   utterance2.lang = "en-US";
-  utterance2.rate = 0.8;
+  utterance2.rate = shadowConfig.speed;
 
   utterance1.onend = () => {
     setTimeout(() => {

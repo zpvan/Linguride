@@ -17,6 +17,7 @@
 
 import { CEFRLevel, DifficultyPromptConfig } from "./difficulty";
 import { SentenceAnalysisPromptConfig } from "./sentenceAnalysis";
+import { DEFAULT_TTS_SPEED, TTSSpeed } from "./tts";
 
 // 重新导出 CEFRLevel 供其他模块使用
 export type { CEFRLevel } from "./difficulty";
@@ -152,6 +153,9 @@ export interface LingridConfig {
   /** 用户当前英文水平（CEFR 等级） */
   user_english_level?: CEFRLevel;
 
+  /** 全局 TTS 语速 */
+  tts_speed?: TTSSpeed;
+
   /** 释义 Prompt 配置（可选，使用默认值） */
   paraphrase_prompts?: ParaphrasePromptConfig;
 
@@ -214,6 +218,7 @@ export const DEFAULT_CONFIG: LingridConfig = {
     user_prompt_template: DEFAULT_USER_PROMPT_TEMPLATE,
   },
   user_english_level: DEFAULT_USER_ENGLISH_LEVEL,
+  tts_speed: DEFAULT_TTS_SPEED,
 };
 
 /**

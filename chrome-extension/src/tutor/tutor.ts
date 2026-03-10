@@ -14,18 +14,21 @@ import {
   AssessPronunciationResponse,
   CEFRLevel,
   ChineseToEnglishResponse,
+  DEFAULT_TTS_SPEED,
   EchoMethodState,
   EnglishDefinitionResponse,
   EnglishToChineseResponse,
   GetConfigResponse,
   ISpeechRecognizer,
+  isTTSSpeed,
   LingridConfig,
   MessageType,
   PronunciationAssessmentResult,
   SentenceAnalysisResult,
+  STORAGE_KEY,
   ShadowAssessmentResult,
   ShadowMode,
-  ShadowSpeed,
+  TTSSpeed,
 } from "../types";
 import * as shadow from "./shadow";
 import * as audioCapture from "./audioCapture";
@@ -75,6 +78,9 @@ let userLevel: CEFRLevel = "A2";
 
 /** 用户完整配置（用于识别器选择） */
 let userConfig: LingridConfig | null = null;
+
+/** 当前全局 TTS 语速 */
+let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
 
 // ====== DOM 元素引用 ======
 
@@ -158,6 +164,9 @@ const sentenceSimplified = document.getElementById(
 const speakSentenceBtn = document.getElementById(
   "speakSentenceBtn"
 ) as HTMLButtonElement;
+const ttsSpeedSelect = document.getElementById(
+  "ttsSpeedSelect"
+) as HTMLSelectElement;
 
 // 录音练习
 const recordSentenceBtn = document.getElementById(
@@ -557,7 +566,8 @@ async function loadUserConfig(): Promise<void> {
     });
     if (response.success && response.data) {
       // 保存完整配置
-      userConfig = response.data as LingridConfig;
+      userConfig = response.data;
+      applyTTSSpeed(resolveTTSSpeed(response.data.tts_speed));
 
       if (response.data.user_english_level) {
         userLevel = response.data.user_english_level;
@@ -568,6 +578,74 @@ async function loadUserConfig(): Promise<void> {
   } catch (error) {
     console.error("[Lingride Tutor] 获取用户配置失败:", error);
   }
+}
+
+function resolveTTSSpeed(value: unknown): TTSSpeed {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? parseFloat(value)
+        : Number.NaN;
+
+  return isTTSSpeed(parsed) ? parsed : DEFAULT_TTS_SPEED;
+}
+
+function applyTTSSpeed(speed: TTSSpeed): void {
+  currentTTSSpeed = speed;
+
+  if (userConfig) {
+    userConfig.tts_speed = speed;
+  }
+
+  ttsSpeedSelect.value = String(speed);
+  shadowSpeedSelect.value = String(speed);
+  shadow.setSpeed(speed);
+}
+
+async function saveTTSSpeed(speed: TTSSpeed): Promise<void> {
+  applyTTSSpeed(speed);
+
+  try {
+    const configResponse: GetConfigResponse = await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    });
+
+    if (configResponse.success && configResponse.data) {
+      await chrome.runtime.sendMessage({
+        type: MessageType.SAVE_CONFIG,
+        payload: {
+          ...configResponse.data,
+          tts_speed: speed,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("[Lingride Tutor] 保存 TTS 语速失败:", error);
+  }
+}
+
+function handleTTSSpeedStorageChange(
+  changes: Record<string, chrome.storage.StorageChange>,
+  areaName: string
+): void {
+  if (areaName !== "local") return;
+
+  const configChange = changes[STORAGE_KEY];
+  if (!configChange?.newValue) return;
+
+  const nextSpeed = resolveTTSSpeed(
+    (configChange.newValue as Partial<LingridConfig>).tts_speed
+  );
+  applyTTSSpeed(nextSpeed);
+}
+
+function handleTTSSpeedMessage(message: {
+  type?: MessageType;
+  payload?: { speed?: TTSSpeed };
+}): void {
+  if (message.type !== MessageType.TTS_SPEED_CHANGED) return;
+  applyTTSSpeed(resolveTTSSpeed(message.payload?.speed));
 }
 
 /**
@@ -735,6 +813,7 @@ function bindEvents(): void {
 
   // 语音朗读
   speakSentenceBtn.addEventListener("click", handleSpeakSentence);
+  ttsSpeedSelect.addEventListener("change", handleTTSSpeedChange);
 
   // 录音练习
   recordSentenceBtn.addEventListener("click", handleRecordSentence);
@@ -762,6 +841,10 @@ function bindEvents(): void {
 
   // 语速选择
   shadowSpeedSelect?.addEventListener("change", handleShadowSpeedChange);
+
+  // 全局 TTS 语速同步
+  chrome.storage.onChanged.addListener(handleTTSSpeedStorageChange);
+  chrome.runtime.onMessage.addListener(handleTTSSpeedMessage);
 
   // 范读按钮
   shadowPlayBtn?.addEventListener("click", handleShadowPlay);
@@ -1137,7 +1220,7 @@ function handleSpeakSentence(): void {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-US";
-  utterance.rate = 0.9; // 略慢，适合学习者
+  utterance.rate = currentTTSSpeed;
 
   utterance.onstart = () => speakSentenceBtn.classList.add("speaking");
   utterance.onend = () => speakSentenceBtn.classList.remove("speaking");
@@ -1625,11 +1708,11 @@ function handleSpeakFeedback(): void {
 function speakWordTwice(word: string): void {
   const utterance1 = new SpeechSynthesisUtterance(word);
   utterance1.lang = "en-US";
-  utterance1.rate = 0.8; // 稍慢，便于学习
+  utterance1.rate = currentTTSSpeed;
 
   const utterance2 = new SpeechSynthesisUtterance(word);
   utterance2.lang = "en-US";
-  utterance2.rate = 0.8;
+  utterance2.rate = currentTTSSpeed;
 
   // 第一遍结束后，稍等再读第二遍
   utterance1.onend = () => {
@@ -1649,7 +1732,7 @@ function speakWordTwice(word: string): void {
 function speakEncouragement(): void {
   const utterance = new SpeechSynthesisUtterance("Perfect! Great job!");
   utterance.lang = "en-US";
-  utterance.rate = 0.9;
+  utterance.rate = currentTTSSpeed;
   speechSynthesis.speak(utterance);
 }
 
@@ -1702,18 +1785,13 @@ function initShadowMode(): void {
  */
 function loadShadowConfig(): void {
   const savedMode = localStorage.getItem("lingride_shadow_mode") as ShadowMode;
-  const savedSpeed = localStorage.getItem("lingride_shadow_speed");
 
   if (savedMode) {
     shadow.setMode(savedMode);
     updateShadowModeBtns(savedMode);
   }
 
-  if (savedSpeed) {
-    const speed = parseFloat(savedSpeed) as ShadowSpeed;
-    shadow.setSpeed(speed);
-    shadowSpeedSelect.value = savedSpeed;
-  }
+  applyTTSSpeed(currentTTSSpeed);
 }
 
 /**
@@ -1830,13 +1908,17 @@ function handleShadowModeClick(e: Event): void {
   }
 }
 
+function handleTTSSpeedChange(): void {
+  const speed = resolveTTSSpeed(ttsSpeedSelect.value);
+  void saveTTSSpeed(speed);
+}
+
 /**
  * 处理语速选择
  */
 function handleShadowSpeedChange(): void {
-  const speed = parseFloat(shadowSpeedSelect.value) as ShadowSpeed;
-  shadow.setSpeed(speed);
-  localStorage.setItem("lingride_shadow_speed", shadowSpeedSelect.value);
+  const speed = resolveTTSSpeed(shadowSpeedSelect.value);
+  void saveTTSSpeed(speed);
 }
 
 /**

@@ -35,6 +35,12 @@ export type {
   ProviderConfig,
   TencentASRConfig,
 } from "./config";
+export {
+  DEFAULT_TTS_SPEED,
+  isTTSSpeed,
+  TTS_SPEED_OPTIONS,
+} from "./tts";
+export type { TTSSpeed } from "./tts";
 
 // 消息类型
 export { MessageType } from "./messages";
@@ -89,6 +95,7 @@ export type {
   TencentASRSignResponse,
   TestConnectionMessage,
   TestConnectionResponse,
+  TTSSpeedChangedMessage,
   ToggleMixedTranslateMessage,
   ToggleParaphraseMessage,
   ToggleTranslationMessage,

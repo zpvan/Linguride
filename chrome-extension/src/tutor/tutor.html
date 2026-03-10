@@ -72,6 +72,15 @@
             <rect x="6" y="6" width="12" height="12" rx="2"></rect>
           </svg>
         </button>
+        <label class="tts-speed-control" for="ttsSpeedSelect">
+          <span class="tts-speed-label">语速</span>
+          <select id="ttsSpeedSelect" class="tts-speed-select">
+            <option value="1">1.0x</option>
+            <option value="0.9">0.9x</option>
+            <option value="0.8">0.8x</option>
+            <option value="0.7">0.7x</option>
+          </select>
+        </label>
         <button id="recordSentenceBtn" class="btn-record" title="录音练习口语">
           <!-- 麦克风图标（默认显示） -->
           <svg class="icon-mic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -286,11 +295,10 @@
         <div class="shadow-speed-selector">
           <span class="config-label">语速</span>
           <select id="shadowSpeedSelect" class="shadow-speed-select">
-            <option value="0.5">0.5x</option>
-            <option value="0.75">0.75x</option>
             <option value="1" selected>1.0x</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
+            <option value="0.9">0.9x</option>
+            <option value="0.8">0.8x</option>
+            <option value="0.7">0.7x</option>
           </select>
         </div>
       </div>

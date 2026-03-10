@@ -54,6 +54,7 @@ export async function getConfig(): Promise<LingridConfig> {
       // 可选字段：用户水平 & 各模式 Prompt 配置
       user_english_level:
         stored.user_english_level || DEFAULT_CONFIG.user_english_level,
+      tts_speed: stored.tts_speed || DEFAULT_CONFIG.tts_speed,
       difficulty_prompts:
         stored.difficulty_prompts || DEFAULT_CONFIG.difficulty_prompts,
       paraphrase_prompts:
@@ -64,6 +65,8 @@ export async function getConfig(): Promise<LingridConfig> {
       sentence_analysis_prompts:
         stored.sentence_analysis_prompts ||
         DEFAULT_CONFIG.sentence_analysis_prompts,
+      tencent_asr: stored.tencent_asr || DEFAULT_CONFIG.tencent_asr,
+      alibaba_asr: stored.alibaba_asr || DEFAULT_CONFIG.alibaba_asr,
     };
 
     return config;

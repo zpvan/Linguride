@@ -10,6 +10,7 @@
  */
 
 import { PronunciationAssessmentResult } from "./pronunciationAssessment";
+import { DEFAULT_TTS_SPEED, TTSSpeed } from "./tts";
 
 // ====== 影子跟读模式 ======
 
@@ -25,9 +26,9 @@ export type ShadowMode = "sentence" | "shadow" | "sync";
 /**
  * 语速选项
  *
- * 支持 0.5x 到 1.5x 五档语速调节
+ * 复用全局 TTS 四档语速选项
  */
-export type ShadowSpeed = 0.5 | 0.75 | 1.0 | 1.25 | 1.5;
+export type ShadowSpeed = TTSSpeed;
 
 // ====== 练习句子 ======
 
@@ -81,7 +82,7 @@ export interface ShadowConfig {
  */
 export const DEFAULT_SHADOW_CONFIG: ShadowConfig = {
   mode: "sentence",
-  speed: 1.0,
+  speed: DEFAULT_TTS_SPEED,
   passingScore: 70,
 };
 

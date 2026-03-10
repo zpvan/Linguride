@@ -14,16 +14,9 @@
  * @since 1.0.0
  */
 
-import { MixedTranslatePromptConfig, ParaphrasePromptConfig } from "./config";
-import {
-  CEFRLevel,
-  DifficultyPromptConfig,
-  DifficultyResult,
-} from "./difficulty";
-import {
-  SentenceAnalysisPromptConfig,
-  SentenceAnalysisResult,
-} from "./sentenceAnalysis";
+import { LingridConfig } from "./config";
+import { CEFRLevel, DifficultyResult } from "./difficulty";
+import { SentenceAnalysisResult } from "./sentenceAnalysis";
 import { PronunciationAssessmentResult } from "./pronunciationAssessment";
 import {
   ShadowAssessmentResult,
@@ -33,6 +26,7 @@ import {
   ListeningAnalysisResult,
   SegmentCorpusResult,
 } from "./corpus";
+import { TTSSpeed } from "./tts";
 
 /**
  * 消息类型枚举
@@ -45,6 +39,8 @@ export enum MessageType {
   GET_CONFIG = "GET_CONFIG",
   /** 保存配置 */
   SAVE_CONFIG = "SAVE_CONFIG",
+  /** 全局 TTS 语速已变更（Background -> Extension Pages） */
+  TTS_SPEED_CHANGED = "TTS_SPEED_CHANGED",
 
   // ====== 翻译控制 ======
   /** 开启/关闭翻译 */
@@ -141,14 +137,16 @@ export interface GetConfigMessage {
  */
 export interface SaveConfigMessage {
   type: MessageType.SAVE_CONFIG;
+  payload: LingridConfig;
+}
+
+/**
+ * 全局 TTS 语速变更消息
+ */
+export interface TTSSpeedChangedMessage {
+  type: MessageType.TTS_SPEED_CHANGED;
   payload: {
-    api_base_url: string;
-    api_key: string;
-    model: string;
-    prompts: {
-      system_prompt: string;
-      user_prompt_template: string;
-    };
+    speed: TTSSpeed;
   };
 }
 
@@ -432,6 +430,7 @@ export interface AnalyzeListeningMessage {
 export type Message =
   | GetConfigMessage
   | SaveConfigMessage
+  | TTSSpeedChangedMessage
   | ToggleTranslationMessage
   | GetTranslationStateMessage
   | TranslateMessage
@@ -477,20 +476,7 @@ export interface BaseResponse {
  * 返回完整的用户配置，包括 API 配置、Prompt 配置和用户英文水平。
  */
 export interface GetConfigResponse extends BaseResponse {
-  data?: {
-    api_base_url: string;
-    api_key: string;
-    model: string;
-    prompts: {
-      system_prompt: string;
-      user_prompt_template: string;
-    };
-    user_english_level?: CEFRLevel;
-    difficulty_prompts?: DifficultyPromptConfig;
-    paraphrase_prompts?: ParaphrasePromptConfig;
-    mixed_translate_prompts?: MixedTranslatePromptConfig;
-    sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
-  };
+  data?: LingridConfig;
 }
 
 /**

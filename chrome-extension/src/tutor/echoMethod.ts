@@ -218,7 +218,7 @@ export function playUserRecording(): Promise<void> {
  * 播放范读（使用 Web Speech API）
  *
  * @param text 要朗读的文本
- * @param speed 语速 (0.5 - 1.5)
+ * @param speed 语速
  * @returns Promise<void> 播放完成时 resolve
  */
 export function playModelReading(text: string, speed: number): Promise<void> {

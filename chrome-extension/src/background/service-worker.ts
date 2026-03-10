@@ -114,17 +114,7 @@ async function handleGetConfig(): Promise<GetConfigResponse> {
     const config = await getConfig();
     return {
       success: true,
-      data: {
-        api_base_url: config.api_base_url,
-        api_key: config.api_key,
-        model: config.model,
-        prompts: config.prompts,
-        user_english_level: config.user_english_level,
-        difficulty_prompts: config.difficulty_prompts,
-        paraphrase_prompts: config.paraphrase_prompts,
-        mixed_translate_prompts: config.mixed_translate_prompts,
-        sentence_analysis_prompts: config.sentence_analysis_prompts,
-      },
+      data: config,
     };
   } catch (error) {
     return {
@@ -143,7 +133,20 @@ async function handleSaveConfig(
   payload: LingridConfig
 ): Promise<SaveConfigResponse> {
   try {
+    const previousConfig = await getConfig();
     await saveConfig(payload);
+
+    if (previousConfig.tts_speed !== payload.tts_speed && payload.tts_speed) {
+      try {
+        await chrome.runtime.sendMessage({
+          type: MessageType.TTS_SPEED_CHANGED,
+          payload: { speed: payload.tts_speed },
+        });
+      } catch (error) {
+        console.warn("[Lingride] 广播 TTS 语速变更失败:", error);
+      }
+    }
+
     return { success: true };
   } catch (error) {
     return {
@@ -2128,6 +2131,10 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.SAVE_CONFIG:
           response = await handleSaveConfig(message.payload as LingridConfig);
+          break;
+
+        case MessageType.TTS_SPEED_CHANGED:
+          response = { success: true };
           break;
 
         case MessageType.TOGGLE_TRANSLATION:

@@ -22,12 +22,16 @@ import {
   AnalyzeListeningResponse,
   CEFRLevel,
   CorpusSentence,
+  DEFAULT_TTS_SPEED,
   GetConfigResponse,
+  isTTSSpeed,
   ListeningAnalysisResult,
   ListeningError,
   MessageType,
   SegmentCorpusResponse,
   SegmentCorpusResult,
+  STORAGE_KEY,
+  TTSSpeed,
 } from "../types";
 
 // ====== 类型定义 ======
@@ -119,6 +123,7 @@ let userLevel: CEFRLevel = "A2";
 let state: CorpusState | null = null;
 let isTTSAvailable = true;
 let currentUtterance: SpeechSynthesisUtterance | null = null;
+let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
 
 // ====== 初始化 ======
 
@@ -154,13 +159,78 @@ async function loadUserConfig(): Promise<void> {
       type: MessageType.GET_CONFIG,
     });
 
-    if (response.success && response.data?.user_english_level) {
-      userLevel = response.data.user_english_level;
-      updateLevelBadge(userLevel);
+    if (response.success && response.data) {
+      if (response.data.user_english_level) {
+        userLevel = response.data.user_english_level;
+        updateLevelBadge(userLevel);
+      }
+
+      applyTTSSpeed(resolveTTSSpeed(response.data.tts_speed));
     }
   } catch (error) {
     console.error("[Corpus] 加载配置失败:", error);
   }
+}
+
+function resolveTTSSpeed(value: unknown): TTSSpeed {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? parseFloat(value)
+        : Number.NaN;
+
+  return isTTSSpeed(parsed) ? parsed : DEFAULT_TTS_SPEED;
+}
+
+function applyTTSSpeed(speed: TTSSpeed): void {
+  currentTTSSpeed = speed;
+  speedSelect.value = String(speed);
+}
+
+async function saveTTSSpeed(speed: TTSSpeed): Promise<void> {
+  applyTTSSpeed(speed);
+
+  try {
+    const configResponse: GetConfigResponse = await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    });
+
+    if (configResponse.success && configResponse.data) {
+      await chrome.runtime.sendMessage({
+        type: MessageType.SAVE_CONFIG,
+        payload: {
+          ...configResponse.data,
+          tts_speed: speed,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("[Corpus] 保存 TTS 语速失败:", error);
+  }
+}
+
+function handleTTSSpeedStorageChange(
+  changes: Record<string, chrome.storage.StorageChange>,
+  areaName: string
+): void {
+  if (areaName !== "local") return;
+
+  const configChange = changes[STORAGE_KEY];
+  if (!configChange?.newValue) return;
+
+  const nextSpeed = resolveTTSSpeed(
+    (configChange.newValue as Partial<{ tts_speed?: TTSSpeed }>).tts_speed
+  );
+  applyTTSSpeed(nextSpeed);
+}
+
+function handleTTSSpeedMessage(message: {
+  type?: MessageType;
+  payload?: { speed?: TTSSpeed };
+}): void {
+  if (message.type !== MessageType.TTS_SPEED_CHANGED) return;
+  applyTTSSpeed(resolveTTSSpeed(message.payload?.speed));
 }
 
 // ====== 事件绑定 ======
@@ -179,6 +249,7 @@ function bindEvents(): void {
   toggleOriginalBtn.addEventListener("click", toggleOriginalText);
   playBtn.addEventListener("click", handlePlaySentence);
   replayBtn.addEventListener("click", handleReplaySentence);
+  speedSelect.addEventListener("change", handleSpeedChange);
   dictationInput.addEventListener("input", handleDictationInput);
   submitAnswerBtn.addEventListener("click", handleSubmitAnswer);
   skipBtn.addEventListener("click", handleSkipSentence);
@@ -189,6 +260,10 @@ function bindEvents(): void {
 
   // 完成操作
   newPracticeBtn.addEventListener("click", handleNewPractice);
+
+  // 全局 TTS 语速同步
+  chrome.storage.onChanged.addListener(handleTTSSpeedStorageChange);
+  chrome.runtime.onMessage.addListener(handleTTSSpeedMessage);
 }
 
 // ====== 水平选择器 ======
@@ -443,11 +518,16 @@ function updateOverallAccuracy(): void {
 
 // ====== TTS 朗读 ======
 
+function handleSpeedChange(): void {
+  const speed = resolveTTSSpeed(speedSelect.value);
+  void saveTTSSpeed(speed);
+}
+
 function handlePlaySentence(): void {
   if (!state || !isTTSAvailable) return;
 
   const sentence = state.sentences[state.currentIndex];
-  const rate = parseFloat(speedSelect.value);
+  const rate = currentTTSSpeed;
 
   // 停止当前播放
   speechSynthesis.cancel();
