@@ -53,6 +53,8 @@ interface ModeConfig {
   btnText: string;
 }
 
+const MAX_TUTOR_INPUT_CHARS = 5000;
+
 /** 模式配置映射 */
 const MODE_CONFIG: Record<TutorMode, ModeConfig> = {
   cn2en: { placeholder: "输入中文，点击翻译成英文...", btnText: "翻译" },
@@ -552,6 +554,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 初始化 UI
   updateModeUI();
+  handleSentenceInput();
 });
 
 /**
@@ -929,6 +932,7 @@ function updateModeUI(): void {
   // 更新 placeholder 和按钮文本
   const config = MODE_CONFIG[currentMode];
   sentenceInput.placeholder = config.placeholder;
+  sentenceInput.maxLength = MAX_TUTOR_INPUT_CHARS;
   submitBtn.textContent = config.btnText;
 }
 
@@ -1190,7 +1194,7 @@ async function handleCopy(
  */
 function handleSentenceInput(): void {
   const length = sentenceInput.value.length;
-  sentenceCharCount.textContent = `${length}/500`;
+  sentenceCharCount.textContent = `${length}/${MAX_TUTOR_INPUT_CHARS}`;
   submitBtn.disabled = length === 0;
   speakSentenceBtn.disabled = length === 0;
 

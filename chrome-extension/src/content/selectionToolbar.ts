@@ -44,7 +44,7 @@ interface CardSpeakConfig {
 }
 
 const MIN_SELECTION_CHARS = 2;
-const MAX_SELECTION_CHARS = 500;
+const MAX_SELECTION_CHARS = 5000;
 const MIN_ENGLISH_RATIO = 0.6;
 const TOOLBAR_MARGIN = 8;
 const VIEWPORT_MARGIN = 12;
