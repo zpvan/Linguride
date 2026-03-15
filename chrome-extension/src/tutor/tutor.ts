@@ -51,22 +51,37 @@ type TutorMode = "cn2en" | "en2cn" | "definition" | "analyze" | "shadow";
 interface ModeConfig {
   placeholder: string;
   btnText: string;
+  pendingText: string;
 }
 
 const MAX_TUTOR_INPUT_CHARS = 5000;
 
 /** 模式配置映射 */
 const MODE_CONFIG: Record<TutorMode, ModeConfig> = {
-  cn2en: { placeholder: "输入中文，点击翻译成英文...", btnText: "翻译" },
-  en2cn: { placeholder: "输入英文，点击翻译成中文...", btnText: "翻译" },
+  cn2en: {
+    placeholder: "输入中文，点击翻译成英文...",
+    btnText: "译成英文",
+    pendingText: "译成英文中...",
+  },
+  en2cn: {
+    placeholder: "输入英文，点击翻译成中文...",
+    btnText: "译成中文",
+    pendingText: "译成中文中...",
+  },
   definition: {
     placeholder: "输入英文单词或句子，获取英英释义...",
     btnText: "释义",
+    pendingText: "释义中...",
   },
-  analyze: { placeholder: "输入英文长难句，点击分析...", btnText: "语法分析" },
+  analyze: {
+    placeholder: "输入英文长难句，点击分析...",
+    btnText: "语法分析",
+    pendingText: "分析中...",
+  },
   shadow: {
     placeholder: "输入英文文本，开始影子跟读练习...",
     btnText: "开始练习",
+    pendingText: "分句中...",
   },
 };
 
@@ -999,7 +1014,7 @@ async function handleSubmit(): Promise<void> {
  */
 async function handleChineseToEnglish(text: string): Promise<void> {
   submitBtn.disabled = true;
-  submitBtn.textContent = "翻译中...";
+  submitBtn.textContent = MODE_CONFIG.cn2en.pendingText;
   clearAllResults();
   showStatus(sentenceStatus, "正在翻译...", "loading");
 
@@ -1033,7 +1048,7 @@ async function handleChineseToEnglish(text: string): Promise<void> {
  */
 async function handleEnglishToChinese(text: string): Promise<void> {
   submitBtn.disabled = true;
-  submitBtn.textContent = "翻译中...";
+  submitBtn.textContent = MODE_CONFIG.en2cn.pendingText;
   clearAllResults();
   showStatus(sentenceStatus, "正在翻译...", "loading");
 
@@ -1075,7 +1090,7 @@ function renderTranslationResult(translation: string): void {
  */
 async function handleEnglishDefinition(text: string): Promise<void> {
   submitBtn.disabled = true;
-  submitBtn.textContent = "释义中...";
+  submitBtn.textContent = MODE_CONFIG.definition.pendingText;
   clearAllResults();
   showStatus(sentenceStatus, "正在获取释义...", "loading");
 
@@ -1243,7 +1258,7 @@ async function handleAnalyzeSentence(): Promise<void> {
   if (!sentence) return;
 
   submitBtn.disabled = true;
-  submitBtn.textContent = "分析中...";
+  submitBtn.textContent = MODE_CONFIG.analyze.pendingText;
   clearAllResults();
   showStatus(sentenceStatus, "正在分析句子结构...", "loading");
 
@@ -1820,7 +1835,7 @@ function hideShadowUI(): void {
  */
 async function handleStartShadowPractice(text: string): Promise<void> {
   submitBtn.disabled = true;
-  submitBtn.textContent = "分句中...";
+  submitBtn.textContent = MODE_CONFIG.shadow.pendingText;
   clearAllResults();
   showStatus(shadowStatus, "正在智能分句...", "loading");
 
