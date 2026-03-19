@@ -129,6 +129,39 @@ export interface AlibabaASRConfig {
 }
 
 /**
+ * 小米语音合成配置
+ *
+ * 用于 OpenAI 兼容 Chat Completions 音频输出接口。
+ * API Key 为空表示不启用 AI TTS，直接回落到浏览器 TTS，
+ * 但仍可保留音色和风格偏好以供后续恢复。
+ */
+export type XiaomiTTSVoice = "mimo_default" | "default_zh" | "default_en";
+
+/**
+ * 小米 TTS 风格选择
+ *
+ * 每个分类最多选择一个值；跨分类可组合。
+ */
+export interface XiaomiTTSStyleSelection {
+  speed?: "faster" | "slower";
+  emotion?: "happy" | "sad" | "angry";
+  role?: "sunwukong" | "lindaiyu";
+  tone?: "whisper" | "jiazi" | "taiwan";
+  dialect?: "dongbei" | "sichuan" | "henan" | "cantonese";
+}
+
+export interface XiaomiTTSConfig {
+  /** 小米 API Key */
+  api_key: string;
+
+  /** 可选音色，留空时使用 mimo_default */
+  voice?: XiaomiTTSVoice;
+
+  /** 可选风格，留空时不添加额外风格标签 */
+  styles?: XiaomiTTSStyleSelection;
+}
+
+/**
  * Lingride 扩展完整配置
  *
  * 存储在 chrome.storage.local 中的配置对象，
@@ -170,7 +203,20 @@ export interface LingridConfig {
 
   /** 阿里云 ASR 配置（可选，优先级低于腾讯云 ASR） */
   alibaba_asr?: AlibabaASRConfig;
+
+  /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */
+  xiaomi_tts?: XiaomiTTSConfig;
 }
+
+/**
+ * 小米 TTS 固定基础端点
+ */
+export const XIAOMI_TTS_API_BASE_URL = "https://api.xiaomimimo.com/v1";
+
+/**
+ * 小米 TTS 固定模型名
+ */
+export const XIAOMI_TTS_MODEL = "mimo-v2-tts";
 
 /**
  * 默认 System Prompt

@@ -19,6 +19,8 @@ import {
   EchoMethodError,
   EchoMethodState,
 } from "../types/echoMethod";
+import type { TTSSpeed } from "../types";
+import type { HybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 状态变量 ======
 
@@ -49,6 +51,9 @@ let currentAudio: HTMLAudioElement | null = null;
 /** A-B 对比是否被中断 */
 let abComparisonAborted = false;
 
+/** 注入的统一 TTS 播放器 */
+let ttsPlayer: HybridTTSPlayer | null = null;
+
 // ====== 公开 API ======
 
 /**
@@ -58,6 +63,13 @@ let abComparisonAborted = false;
  */
 export function setCallbacks(newCallbacks: EchoMethodCallbacks): void {
   callbacks = { ...newCallbacks };
+}
+
+/**
+ * 注入统一 TTS 播放器
+ */
+export function injectTTSPlayer(player: HybridTTSPlayer): void {
+  ttsPlayer = player;
 }
 
 /**
@@ -215,16 +227,42 @@ export function playUserRecording(): Promise<void> {
 }
 
 /**
- * 播放范读（使用 Web Speech API）
+ * 播放范读（AI 优先，浏览器 TTS 回退）
  *
  * @param text 要朗读的文本
  * @param speed 语速
  * @returns Promise<void> 播放完成时 resolve
  */
-export function playModelReading(text: string, speed: number): Promise<void> {
+export function playModelReading(
+  text: string,
+  speed: TTSSpeed,
+  onFallbackWarning?: (message: string) => void
+): Promise<void> {
   return new Promise((resolve, reject) => {
     if (state.isPlaying) {
       stopPlayback();
+    }
+
+    updateState({ isPlaying: true, playingSource: "model" });
+
+    if (ttsPlayer) {
+      void ttsPlayer
+        .playText({
+          text,
+          rate: speed,
+          onFallbackWarning,
+        })
+        .then(() => {
+          updateState({ isPlaying: false, playingSource: null });
+          resolve();
+        })
+        .catch(() => {
+          updateState({ isPlaying: false, playingSource: null });
+          notifyError("playback-failed", "范读播放失败");
+          reject(new Error("范读播放失败"));
+        });
+      console.log("[Lingride EchoMethod] 开始播放范读");
+      return;
     }
 
     // 停止当前的语音合成
@@ -235,8 +273,6 @@ export function playModelReading(text: string, speed: number): Promise<void> {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
     utterance.rate = speed;
-
-    updateState({ isPlaying: true, playingSource: "model" });
 
     utterance.onend = () => {
       updateState({ isPlaying: false, playingSource: null });
@@ -265,7 +301,8 @@ export function playModelReading(text: string, speed: number): Promise<void> {
  */
 export async function playABComparison(
   text: string,
-  speed: number
+  speed: TTSSpeed,
+  onFallbackWarning?: (message: string) => void
 ): Promise<void> {
   if (!currentRecordingUrl) {
     notifyError("no-recording", "没有可播放的录音");
@@ -283,7 +320,7 @@ export async function playABComparison(
     updateState({ isPlaying: true, playingSource: "ab-model" });
 
     // 播放范读
-    await playModelReadingInternal(text, speed);
+    await playModelReadingInternal(text, speed, onFallbackWarning);
 
     // 检查是否被中断
     if (abComparisonAborted) {
@@ -329,7 +366,9 @@ export function stopPlayback(): void {
   }
 
   // 停止语音合成
-  if (speechSynthesis.speaking) {
+  if (ttsPlayer) {
+    ttsPlayer.stop();
+  } else if (speechSynthesis.speaking) {
     speechSynthesis.cancel();
   }
 
@@ -443,7 +482,19 @@ function delay(ms: number): Promise<void> {
 /**
  * 内部范读播放（不更新外部状态）
  */
-function playModelReadingInternal(text: string, speed: number): Promise<void> {
+function playModelReadingInternal(
+  text: string,
+  speed: TTSSpeed,
+  onFallbackWarning?: (message: string) => void
+): Promise<void> {
+  if (ttsPlayer) {
+    return ttsPlayer.playText({
+      text,
+      rate: speed,
+      onFallbackWarning,
+    });
+  }
+
   return new Promise((resolve, reject) => {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();

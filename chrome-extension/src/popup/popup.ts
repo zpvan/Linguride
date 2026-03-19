@@ -37,6 +37,9 @@ import {
   DifficultyResult,
   LingridConfig,
   MessageType,
+  TestTTSConnectionResponse,
+  XiaomiTTSStyleSelection,
+  XiaomiTTSVoice,
 } from "../types";
 
 // ====== 类型定义 ======
@@ -44,6 +47,10 @@ import {
 /** 阅读模式 */
 type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
 type ApiProviderType = "deepseek" | "openai" | "custom";
+type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
+type XiaomiTTSStyleValue = NonNullable<
+  XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
+>;
 
 /** 模式描述映射 */
 const MODE_DESCRIPTIONS: Record<string, string> = {
@@ -58,6 +65,58 @@ const API_BASE_URL_PRESETS: Record<Exclude<ApiProviderType, "custom">, string> =
     deepseek: "https://api.deepseek.com",
     openai: "https://api.openai.com",
   };
+const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
+const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
+  "speed",
+  "emotion",
+  "role",
+  "tone",
+  "dialect",
+];
+const XIAOMI_TTS_STYLE_GROUP_LABELS: Record<
+  XiaomiTTSStyleGroupKey,
+  string
+> = {
+  speed: "语速控制",
+  emotion: "情绪变化",
+  role: "角色扮演",
+  tone: "风格变化",
+  dialect: "方言",
+};
+const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
+  "mimo_default",
+  "default_zh",
+  "default_en",
+];
+const XIAOMI_TTS_STYLE_OPTIONS: Record<
+  XiaomiTTSStyleGroupKey,
+  Array<{ value: XiaomiTTSStyleValue; label: string }>
+> = {
+  speed: [
+    { value: "faster", label: "变快" },
+    { value: "slower", label: "变慢" },
+  ],
+  emotion: [
+    { value: "happy", label: "开心" },
+    { value: "sad", label: "悲伤" },
+    { value: "angry", label: "生气" },
+  ],
+  role: [
+    { value: "sunwukong", label: "孙悟空" },
+    { value: "lindaiyu", label: "林黛玉" },
+  ],
+  tone: [
+    { value: "whisper", label: "悄悄话" },
+    { value: "jiazi", label: "夹子音" },
+    { value: "taiwan", label: "台湾腔" },
+  ],
+  dialect: [
+    { value: "dongbei", label: "东北话" },
+    { value: "sichuan", label: "四川话" },
+    { value: "henan", label: "河南话" },
+    { value: "cantonese", label: "粤语" },
+  ],
+};
 
 // ====== DOM 元素引用 ======
 
@@ -189,6 +248,32 @@ const showAlibabaKeyBtn = document.getElementById(
   "showAlibabaKeyBtn"
 ) as HTMLButtonElement;
 
+// Settings - 小米 TTS 配置
+const xiaomiTTSApiKeyInput = document.getElementById(
+  "xiaomiTTSApiKey"
+) as HTMLInputElement;
+const showXiaomiTTSKeyBtn = document.getElementById(
+  "showXiaomiTTSKeyBtn"
+) as HTMLButtonElement;
+const xiaomiTTSVoiceSelect = document.getElementById(
+  "xiaomiTTSVoice"
+) as HTMLSelectElement;
+const testXiaomiTTSBtn = document.getElementById(
+  "testXiaomiTTSBtn"
+) as HTMLButtonElement;
+const xiaomiTTSStatus = document.getElementById(
+  "xiaomiTTSStatus"
+) as HTMLElement;
+const xiaomiTTSStyleSummary = document.getElementById(
+  "xiaomiTTSStyleSummary"
+) as HTMLElement;
+const clearXiaomiTTSStylesBtn = document.getElementById(
+  "clearXiaomiTTSStylesBtn"
+) as HTMLButtonElement;
+const xiaomiTTSStyleButtons = Array.from(
+  document.querySelectorAll("[data-xiaomi-tts-style-group]")
+) as HTMLButtonElement[];
+
 // Settings - 操作
 const resetDefaultsBtn = document.getElementById(
   "resetDefaultsBtn"
@@ -198,6 +283,157 @@ const resetDefaultsBtn = document.getElementById(
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
 let currentMode: ReadingMode = null;
+let xiaomiTTSResetTimer: number | null = null;
+let isTestingXiaomiTTS = false;
+
+function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
+  if (value && XIAOMI_TTS_VOICE_OPTIONS.includes(value as XiaomiTTSVoice)) {
+    return value as XiaomiTTSVoice;
+  }
+
+  return XIAOMI_TTS_DEFAULT_VOICE;
+}
+
+function isValidXiaomiTTSStyleValue(
+  group: XiaomiTTSStyleGroupKey,
+  value?: string | null
+): value is XiaomiTTSStyleValue {
+  if (!value) return false;
+
+  return XIAOMI_TTS_STYLE_OPTIONS[group].some((option) => option.value === value);
+}
+
+function normalizeXiaomiTTSStyles(
+  styles?: XiaomiTTSStyleSelection | null
+): XiaomiTTSStyleSelection | undefined {
+  if (!styles) return undefined;
+
+  const normalized: XiaomiTTSStyleSelection = {};
+
+  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
+    const value = styles[group];
+    if (isValidXiaomiTTSStyleValue(group, value)) {
+      setXiaomiTTSStyleValue(normalized, group, value);
+    }
+  });
+
+  return hasXiaomiTTSStyles(normalized) ? normalized : undefined;
+}
+
+function hasXiaomiTTSStyles(styles?: XiaomiTTSStyleSelection): boolean {
+  if (!styles) return false;
+
+  return XIAOMI_TTS_STYLE_GROUP_ORDER.some((group) => Boolean(styles[group]));
+}
+
+function getXiaomiTTSStyleLabel(
+  group: XiaomiTTSStyleGroupKey,
+  value: XiaomiTTSStyleValue
+): string {
+  const option = XIAOMI_TTS_STYLE_OPTIONS[group].find(
+    (item) => item.value === value
+  );
+  return option?.label || value;
+}
+
+function setXiaomiTTSStyleValue(
+  selection: XiaomiTTSStyleSelection,
+  group: XiaomiTTSStyleGroupKey,
+  value: XiaomiTTSStyleValue
+): void {
+  switch (group) {
+    case "speed":
+      if (value === "faster" || value === "slower") {
+        selection.speed = value;
+      }
+      break;
+    case "emotion":
+      if (value === "happy" || value === "sad" || value === "angry") {
+        selection.emotion = value;
+      }
+      break;
+    case "role":
+      if (value === "sunwukong" || value === "lindaiyu") {
+        selection.role = value;
+      }
+      break;
+    case "tone":
+      if (value === "whisper" || value === "jiazi" || value === "taiwan") {
+        selection.tone = value;
+      }
+      break;
+    case "dialect":
+      if (
+        value === "dongbei" ||
+        value === "sichuan" ||
+        value === "henan" ||
+        value === "cantonese"
+      ) {
+        selection.dialect = value;
+      }
+      break;
+  }
+}
+
+function renderXiaomiTTSStyleSummary(
+  selection?: XiaomiTTSStyleSelection
+): void {
+  xiaomiTTSStyleSummary.replaceChildren();
+
+  if (!hasXiaomiTTSStyles(selection)) {
+    xiaomiTTSStyleSummary.classList.add("is-empty");
+    xiaomiTTSStyleSummary.textContent = "未选择额外风格";
+    clearXiaomiTTSStylesBtn.classList.add("is-hidden");
+    return;
+  }
+
+  xiaomiTTSStyleSummary.classList.remove("is-empty");
+  clearXiaomiTTSStylesBtn.classList.remove("is-hidden");
+
+  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
+    const value = selection?.[group];
+    if (!value) return;
+
+    const tag = document.createElement("span");
+    tag.className = "xiaomi-tts-style-summary-tag";
+    tag.textContent = `${XIAOMI_TTS_STYLE_GROUP_LABELS[group]}：${getXiaomiTTSStyleLabel(
+      group,
+      value
+    )}`;
+    xiaomiTTSStyleSummary.appendChild(tag);
+  });
+}
+
+function applyXiaomiTTSStyleSelection(
+  selection?: XiaomiTTSStyleSelection
+): void {
+  const normalizedSelection = normalizeXiaomiTTSStyles(selection);
+
+  xiaomiTTSStyleButtons.forEach((button) => {
+    const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
+    const value = button.dataset.xiaomiTtsStyleValue as XiaomiTTSStyleValue;
+    button.classList.toggle("active", normalizedSelection?.[group] === value);
+  });
+
+  renderXiaomiTTSStyleSummary(normalizedSelection);
+}
+
+function getXiaomiTTSStylesFromUI(): XiaomiTTSStyleSelection | undefined {
+  const selection: XiaomiTTSStyleSelection = {};
+
+  xiaomiTTSStyleButtons.forEach((button) => {
+    if (!button.classList.contains("active")) return;
+
+    const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
+    const value = button.dataset.xiaomiTtsStyleValue;
+
+    if (isValidXiaomiTTSStyleValue(group, value)) {
+      setXiaomiTTSStyleValue(selection, group, value);
+    }
+  });
+
+  return hasXiaomiTTSStyles(selection) ? selection : undefined;
+}
 
 // ====== 初始化 ======
 
@@ -209,6 +445,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   bindEvents();
   updateBadge();
+  updateXiaomiTTSButtonAvailability();
 });
 
 // ====== 配置加载 ======
@@ -320,6 +557,25 @@ function bindEvents(): void {
     alibabaApiKeyInput.type = isPassword ? "text" : "password";
     showAlibabaKeyBtn.textContent = isPassword ? "隐藏" : "显示";
   });
+
+  // Settings - 小米 TTS 配置自动保存
+  xiaomiTTSApiKeyInput.addEventListener("input", handleXiaomiTTSApiKeyInput);
+  xiaomiTTSApiKeyInput.addEventListener("blur", autoSave);
+  xiaomiTTSVoiceSelect.addEventListener("change", handleXiaomiTTSVoiceChange);
+  clearXiaomiTTSStylesBtn.addEventListener("click", handleClearXiaomiTTSStyles);
+  xiaomiTTSStyleButtons.forEach((button) => {
+    button.addEventListener("click", handleXiaomiTTSStyleClick);
+  });
+
+  // Settings - 显示/隐藏小米 API Key
+  showXiaomiTTSKeyBtn.addEventListener("click", () => {
+    const isPassword = xiaomiTTSApiKeyInput.type === "password";
+    xiaomiTTSApiKeyInput.type = isPassword ? "text" : "password";
+    showXiaomiTTSKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 测试小米 TTS 连接
+  testXiaomiTTSBtn.addEventListener("click", handleTestXiaomiTTS);
 
   // Settings - 测试连接
   testConnectionBtn.addEventListener("click", testConnection);
@@ -668,11 +924,32 @@ function collectFormData(): void {
     // 如果为空，删除配置
     delete currentConfig.alibaba_asr;
   }
+
+  // 小米 TTS 配置（API Key 为空视为禁用，直接使用浏览器 TTS）
+  const xiaomiTTSApiKey = xiaomiTTSApiKeyInput.value.trim();
+  const xiaomiTTSVoice = normalizeXiaomiTTSVoice(xiaomiTTSVoiceSelect.value);
+  const xiaomiTTSStyles = getXiaomiTTSStylesFromUI();
+  const hasCustomVoice = xiaomiTTSVoice !== XIAOMI_TTS_DEFAULT_VOICE;
+
+  if (xiaomiTTSApiKey || hasCustomVoice || hasXiaomiTTSStyles(xiaomiTTSStyles)) {
+    currentConfig.xiaomi_tts = {
+      api_key: xiaomiTTSApiKey,
+      ...(hasCustomVoice ? { voice: xiaomiTTSVoice } : {}),
+      ...(xiaomiTTSStyles ? { styles: xiaomiTTSStyles } : {}),
+    };
+  } else {
+    delete currentConfig.xiaomi_tts;
+  }
+
+  updateXiaomiTTSButtonAvailability();
 }
 
 // ====== Settings 表单更新 ======
 
 function updateSettingsForm(): void {
+  isTestingXiaomiTTS = false;
+  hideXiaomiTTSStatus();
+
   // API 配置
   const providerType = resolveApiProviderType(currentConfig.api_base_url);
   apiProviderSelect.value = providerType;
@@ -739,6 +1016,240 @@ function updateSettingsForm(): void {
 
   // 阿里云 ASR 配置
   alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
+
+  // 小米 TTS 配置
+  xiaomiTTSApiKeyInput.value = currentConfig.xiaomi_tts?.api_key || "";
+  xiaomiTTSVoiceSelect.value = normalizeXiaomiTTSVoice(
+    currentConfig.xiaomi_tts?.voice
+  );
+  applyXiaomiTTSStyleSelection(currentConfig.xiaomi_tts?.styles);
+  updateXiaomiTTSButtonAvailability();
+}
+
+function clearXiaomiTTSResetTimer(): void {
+  if (xiaomiTTSResetTimer) {
+    clearTimeout(xiaomiTTSResetTimer);
+    xiaomiTTSResetTimer = null;
+  }
+}
+
+function showXiaomiTTSStatus(
+  message: string,
+  type: "success" | "error" | "loading"
+): void {
+  xiaomiTTSStatus.textContent = message;
+  xiaomiTTSStatus.className = `status-message service-test-status ${type}`;
+  xiaomiTTSStatus.style.display = "block";
+}
+
+function hideXiaomiTTSStatus(): void {
+  xiaomiTTSStatus.style.display = "none";
+  xiaomiTTSStatus.className = "status-message service-test-status";
+  xiaomiTTSStatus.textContent = "";
+}
+
+function setXiaomiTTSButtonState(
+  state: "idle" | "loading" | "success" | "error",
+  disabled: boolean,
+  title: string
+): void {
+  testXiaomiTTSBtn.classList.remove(
+    "is-loading",
+    "is-success",
+    "is-error",
+    "is-disabled"
+  );
+
+  if (state === "loading") {
+    testXiaomiTTSBtn.classList.add("is-loading");
+  } else if (state === "success") {
+    testXiaomiTTSBtn.classList.add("is-success");
+  } else if (state === "error") {
+    testXiaomiTTSBtn.classList.add("is-error");
+  } else if (disabled) {
+    testXiaomiTTSBtn.classList.add("is-disabled");
+  }
+
+  testXiaomiTTSBtn.disabled = disabled;
+  testXiaomiTTSBtn.title = title;
+}
+
+function updateXiaomiTTSButtonAvailability(): void {
+  clearXiaomiTTSResetTimer();
+  if (isTestingXiaomiTTS) return;
+
+  if (!xiaomiTTSApiKeyInput.value.trim()) {
+    setXiaomiTTSButtonState("idle", true, "填写 API Key 后可测试");
+    return;
+  }
+
+  setXiaomiTTSButtonState("idle", false, "测试小米语音合成服务");
+}
+
+function handleXiaomiTTSApiKeyInput(): void {
+  isTestingXiaomiTTS = false;
+  hideXiaomiTTSStatus();
+  updateXiaomiTTSButtonAvailability();
+}
+
+function handleXiaomiTTSConfigInput(): void {
+  isTestingXiaomiTTS = false;
+  hideXiaomiTTSStatus();
+  updateXiaomiTTSButtonAvailability();
+}
+
+async function handleXiaomiTTSVoiceChange(): Promise<void> {
+  handleXiaomiTTSConfigInput();
+  await autoSave();
+}
+
+async function handleClearXiaomiTTSStyles(event: Event): Promise<void> {
+  event.preventDefault();
+  applyXiaomiTTSStyleSelection();
+  handleXiaomiTTSConfigInput();
+  await autoSave();
+}
+
+async function handleXiaomiTTSStyleClick(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
+  const value = button.dataset.xiaomiTtsStyleValue;
+
+  if (!isValidXiaomiTTSStyleValue(group, value)) {
+    return;
+  }
+
+  const nextSelection = getXiaomiTTSStylesFromUI() || {};
+
+  if (nextSelection[group] === value) {
+    delete nextSelection[group];
+  } else {
+    setXiaomiTTSStyleValue(nextSelection, group, value);
+  }
+
+  applyXiaomiTTSStyleSelection(nextSelection);
+  handleXiaomiTTSConfigInput();
+  await autoSave();
+}
+
+function getShortXiaomiTTSErrorDetail(
+  response: TestTTSConnectionResponse
+): string | null {
+  const detail = response.errorDetail?.trim() || response.error?.trim() || "";
+
+  if (!detail || detail.length > 60) {
+    return null;
+  }
+
+  if (
+    detail === "请求失败" ||
+    detail === "语音合成请求失败" ||
+    detail === "语音合成服务连接失败"
+  ) {
+    return null;
+  }
+
+  return detail;
+}
+
+function appendXiaomiTTSErrorDetail(
+  message: string,
+  response: TestTTSConnectionResponse
+): string {
+  const detail = getShortXiaomiTTSErrorDetail(response);
+  if (!detail || message.includes(detail)) {
+    return message;
+  }
+
+  return `${message}（服务返回：${detail}）`;
+}
+
+function getXiaomiTTSFailureReason(
+  response: TestTTSConnectionResponse
+): string {
+  switch (response.errorCode) {
+    case "TTS_NOT_CONFIGURED":
+      return "请先填写 API Key";
+    case "TTS_BAD_REQUEST":
+      switch (response.errorHint) {
+        case "VOICE_INVALID":
+          return "音色参数不正确";
+        case "MODEL_INVALID":
+          return "模型参数不正确";
+        case "MESSAGES_INVALID":
+          return "消息格式不符合接口要求";
+        case "AUDIO_PARAM_INVALID":
+          return "音频参数不正确";
+        case "PARAM_INCORRECT":
+        default:
+          return appendXiaomiTTSErrorDetail("请求参数不正确", response);
+      }
+    case "TTS_AUTH_ERROR":
+      return "API Key 无效或无权限";
+    case "TTS_FORBIDDEN":
+      return "当前地区不可用，或 API Key 被风控";
+    case "TTS_CONTENT_BLOCKED":
+      return "输入内容触发审核拦截";
+    case "TTS_ENDPOINT_ERROR":
+      return appendXiaomiTTSErrorDetail("端点不可用", response);
+    case "TTS_NETWORK_ERROR":
+      return "网络异常或端点无法访问";
+    case "TTS_RATE_LIMIT":
+      return "请求过于频繁或额度受限";
+    case "TTS_SERVER_ERROR":
+      return "小米服务内部异常";
+    case "TTS_SERVER_BUSY":
+      return "小米服务负载过高，请稍后重试";
+    case "TTS_AUDIO_INVALID":
+      return appendXiaomiTTSErrorDetail("服务返回了无效音频数据", response);
+    case "TTS_UNKNOWN_ERROR":
+      return appendXiaomiTTSErrorDetail("请求失败", response);
+    default:
+      return appendXiaomiTTSErrorDetail("请求失败", response);
+  }
+}
+
+async function handleTestXiaomiTTS(event: Event): Promise<void> {
+  event.stopPropagation();
+
+  if (testXiaomiTTSBtn.disabled || !xiaomiTTSApiKeyInput.value.trim()) {
+    return;
+  }
+
+  isTestingXiaomiTTS = true;
+  setXiaomiTTSButtonState("loading", true, "测试中...");
+  showXiaomiTTSStatus("正在测试小米语音合成服务...", "loading");
+
+  try {
+    await autoSave();
+
+    const response: TestTTSConnectionResponse = await chrome.runtime.sendMessage({
+      type: MessageType.TEST_TTS_CONNECTION,
+    });
+
+    if (response.success) {
+      showXiaomiTTSStatus("连接成功", "success");
+      setXiaomiTTSButtonState("success", true, "测试成功");
+    } else {
+      const failureReason = getXiaomiTTSFailureReason(response);
+      showXiaomiTTSStatus(`连接失败：${failureReason}`, "error");
+      setXiaomiTTSButtonState(
+        "error",
+        true,
+        `连接失败：${failureReason}`
+      );
+    }
+  } catch (error) {
+    showXiaomiTTSStatus("连接失败：测试请求发送失败", "error");
+    setXiaomiTTSButtonState("error", true, "连接失败：测试请求发送失败");
+  } finally {
+    clearXiaomiTTSResetTimer();
+    xiaomiTTSResetTimer = window.setTimeout(() => {
+      isTestingXiaomiTTS = false;
+      hideXiaomiTTSStatus();
+      updateXiaomiTTSButtonAvailability();
+    }, 5000);
+  }
 }
 
 // ====== 模型选择 ======

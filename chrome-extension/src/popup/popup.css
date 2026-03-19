@@ -844,6 +844,82 @@ body {
   color: var(--text-primary);
 }
 
+.xiaomi-tts-style-section {
+  padding: var(--space-md) var(--space-lg);
+}
+
+.xiaomi-tts-style-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.xiaomi-tts-style-header .settings-label {
+  width: auto;
+}
+
+.xiaomi-tts-style-clear {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.xiaomi-tts-style-clear.is-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.xiaomi-tts-style-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 20px;
+  margin-bottom: var(--space-md);
+}
+
+.xiaomi-tts-style-summary.is-empty {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.xiaomi-tts-style-summary-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.xiaomi-tts-style-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.xiaomi-tts-style-group-label {
+  margin-bottom: var(--space-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.xiaomi-tts-style-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.xiaomi-tts-style-pill {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
 /* Password input */
 .password-input {
   flex: 1;
@@ -1006,6 +1082,71 @@ body {
   padding: var(--space-sm) var(--space-md);
   font-size: 13px;
   min-height: 40px;
+}
+
+.accordion-header.with-test {
+  gap: var(--space-sm);
+}
+
+.accordion-header-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.service-test-btn {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(142, 142, 147, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s var(--ease-out), background 0.2s, opacity 0.2s;
+}
+
+.service-test-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.service-test-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.service-test-btn.is-success {
+  background: var(--success);
+}
+
+.service-test-btn.is-error {
+  background: var(--error);
+}
+
+.service-test-btn.is-loading {
+  animation: serviceTestPulse 0.9s ease-in-out infinite;
+}
+
+.service-test-btn.is-disabled,
+.service-test-btn:disabled {
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+.service-test-status {
+  margin: 0 var(--space-md) var(--space-sm);
+  text-align: left;
+}
+
+@keyframes serviceTestPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .accordion-body.nested-body .accordion-inner {

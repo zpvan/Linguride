@@ -39,7 +39,8 @@
   ],
   "host_permissions": [
     "https://api.deepseek.com/*",
-    "https://*.openai.com/*"
+    "https://*.openai.com/*",
+    "https://api.xiaomimimo.com/*"
   ],
   "web_accessible_resources": [
     {

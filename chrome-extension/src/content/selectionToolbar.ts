@@ -22,6 +22,7 @@ import {
   TTSSpeed,
   TranslateResponse,
 } from "../types";
+import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 import { getCachedTranslation, setCachedTranslation } from "./translationCache";
 
 type CardAction = "translate" | "definition" | "analyze";
@@ -50,6 +51,10 @@ const TOOLBAR_MARGIN = 8;
 const VIEWPORT_MARGIN = 12;
 const COPY_FEEDBACK_DURATION = 1500;
 const SELECTION_UPDATE_DEDUPE_MS = 160;
+const TTS_FALLBACK_WARNING_MESSAGE =
+  "小米语音合成暂不可用，已切换为浏览器朗读";
+const TTS_PLAYBACK_ERROR_MESSAGE =
+  "朗读失败，请检查语音合成配置或浏览器语音能力";
 
 const ACTION_LABELS: Record<ToolbarAction, string> = {
   translate: "翻译",
@@ -88,8 +93,14 @@ let cachedUserLevel: CEFRLevel | null = null;
 let lastSelectionUpdateText = "";
 let lastSelectionUpdateAt = 0;
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
+let xiaomiTTSEnabled = false;
 let activeSpeechButton: HTMLButtonElement | null = null;
 let speechRequestId = 0;
+let speechMessageTimer: number | null = null;
+
+const selectionTTSPlayer = createHybridTTSPlayer({
+  isAIEnabled: () => xiaomiTTSEnabled,
+});
 
 const buttonMap: Record<ToolbarAction, HTMLButtonElement | null> = {
   translate: null,
@@ -147,6 +158,11 @@ export function destroySelectionToolbar(): void {
   if (copyFeedbackTimer !== null) {
     clearTimeout(copyFeedbackTimer);
     copyFeedbackTimer = null;
+  }
+
+  if (speechMessageTimer !== null) {
+    clearTimeout(speechMessageTimer);
+    speechMessageTimer = null;
   }
 
   stopSelectionSpeech();
@@ -561,6 +577,7 @@ function setDisabledState(reason: string): void {
   isLoading = false;
   stopSelectionSpeech();
 
+  messageEl?.classList.remove("is-error");
   setButtonsDisabled(true);
   setMessage(reason, true);
   resetCard();
@@ -568,6 +585,7 @@ function setDisabledState(reason: string): void {
 
 function setEnabledState(): void {
   disabledReason = "";
+  messageEl?.classList.remove("is-error");
   setButtonsDisabled(false);
   setMessage("", false);
 }
@@ -587,6 +605,10 @@ function setMessage(message: string, visible: boolean): void {
 
   messageEl.textContent = message;
   messageEl.classList.toggle("is-visible", visible);
+
+  if (!visible) {
+    messageEl.classList.remove("is-error");
+  }
 }
 
 function showToolbar(): void {
@@ -601,6 +623,10 @@ function hideToolbar(): void {
   requestToken++;
   isLoading = false;
   stopSelectionSpeech();
+  if (speechMessageTimer !== null) {
+    clearTimeout(speechMessageTimer);
+    speechMessageTimer = null;
+  }
 
   currentText = "";
   currentRange = null;
@@ -1257,13 +1283,13 @@ function toggleSpeakText(
   const normalizedText = text.trim();
   if (!normalizedText) return;
 
-  if (!canSpeak()) {
-    setMessage("当前页面不支持发音", true);
+  if (!canUseSelectionSpeech()) {
+    showTransientSpeechMessage("当前页面不支持发音", true);
     return;
   }
 
   const isCurrentButtonActive =
-    activeSpeechButton === button && (speechSynthesis.speaking || speechSynthesis.pending);
+    activeSpeechButton === button && selectionTTSPlayer.isPlaying();
 
   if (isCurrentButtonActive) {
     stopSelectionSpeech();
@@ -1278,41 +1304,42 @@ function startSelectionSpeech(
   lang: SpeechLanguage,
   button: HTMLButtonElement
 ): void {
-  if (speechSynthesis.speaking || speechSynthesis.pending) {
-    speechRequestId++;
-    speechSynthesis.cancel();
-  }
+  speechRequestId++;
+  selectionTTSPlayer.stop();
 
   clearSpeakingButton();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.rate = currentTTSSpeed;
 
   const requestId = ++speechRequestId;
   activeSpeechButton = button;
   setSpeakingButtonState(button, true);
 
-  utterance.onend = () => {
-    if (requestId !== speechRequestId) return;
-    clearSpeakingButton();
-  };
-
-  utterance.onerror = () => {
-    if (requestId !== speechRequestId) return;
-    clearSpeakingButton();
-  };
-
-  speechSynthesis.speak(utterance);
+  void selectionTTSPlayer
+    .playText({
+      text,
+      lang,
+      rate: currentTTSSpeed,
+      onEnd: () => {
+        if (requestId !== speechRequestId) return;
+        clearSpeakingButton();
+      },
+      onFallbackWarning: (message) => {
+        showTransientSpeechMessage(message, false);
+      },
+      fallbackWarningMessage: TTS_FALLBACK_WARNING_MESSAGE,
+    })
+    .catch((error) => {
+      if (requestId !== speechRequestId) return;
+      clearSpeakingButton();
+      showTransientSpeechMessage(
+        error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
+        true
+      );
+    });
 }
 
 function stopSelectionSpeech(): void {
   speechRequestId++;
-
-  if (canSpeak() && (speechSynthesis.speaking || speechSynthesis.pending)) {
-    speechSynthesis.cancel();
-  }
-
+  selectionTTSPlayer.stop();
   clearSpeakingButton();
 }
 
@@ -1336,6 +1363,35 @@ function canSpeak(): boolean {
     typeof window.speechSynthesis !== "undefined" &&
     typeof window.SpeechSynthesisUtterance !== "undefined"
   );
+}
+
+function canUseSelectionSpeech(): boolean {
+  return xiaomiTTSEnabled || canSpeak();
+}
+
+function showTransientSpeechMessage(message: string, isError: boolean): void {
+  if (disabledReason) return;
+
+  if (speechMessageTimer !== null) {
+    clearTimeout(speechMessageTimer);
+    speechMessageTimer = null;
+  }
+
+  setMessage(message, true);
+  messageEl?.classList.toggle("is-error", isError);
+
+  speechMessageTimer = window.setTimeout(() => {
+    speechMessageTimer = null;
+
+    if (disabledReason) {
+      setMessage(disabledReason, true);
+      messageEl?.classList.remove("is-error");
+      return;
+    }
+
+    setMessage("", false);
+    messageEl?.classList.remove("is-error");
+  }, 3000);
 }
 
 async function loadSelectionPreferences(): Promise<void> {
@@ -1371,6 +1427,8 @@ function applySelectionConfig(config: Partial<LingridConfig>): void {
   if (nextLevel && CEFR_LEVELS.includes(nextLevel)) {
     cachedUserLevel = nextLevel;
   }
+
+  xiaomiTTSEnabled = !!config.xiaomi_tts?.api_key?.trim();
 
   const nextSpeed = config.tts_speed;
   if (typeof nextSpeed === "number" && isTTSSpeed(nextSpeed)) {

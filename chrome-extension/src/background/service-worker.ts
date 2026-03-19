@@ -75,9 +75,17 @@ import {
   ShadowAssessResponse,
   SplitSentencesResponse,
   SplitSentencesResult,
+  SynthesizeSpeechResponse,
   TencentASRSignResponse,
+  TestTTSConnectionResponse,
   TestConnectionResponse,
+  TTSServiceErrorCode,
+  TTSServiceErrorHint,
   TranslateResponse,
+  XIAOMI_TTS_API_BASE_URL,
+  XIAOMI_TTS_MODEL,
+  XiaomiTTSStyleSelection,
+  XiaomiTTSVoice,
 } from "../types";
 import {
   getConfig,
@@ -101,6 +109,453 @@ console.log("[Lingride] Background Service Worker 已启动");
 
 // 初始化 Tab 状态监听器
 initTabStateListeners();
+
+// ====== 小米 TTS ======
+
+const XIAOMI_TTS_AUDIO_FORMAT = "wav";
+const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
+const XIAOMI_TTS_TEST_TEXT = "Hello from Lingride.";
+const XIAOMI_TTS_REQUEST_PROMPT =
+  "Please synthesize the assistant message as speech exactly as written.";
+type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
+type XiaomiTTSStyleValue = NonNullable<
+  XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
+>;
+
+const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
+  "mimo_default",
+  "default_zh",
+  "default_en",
+];
+const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
+  "speed",
+  "emotion",
+  "role",
+  "tone",
+  "dialect",
+];
+const XIAOMI_TTS_STYLE_PROMPTS: Record<
+  XiaomiTTSStyleGroupKey,
+  Record<string, string>
+> = {
+  speed: {
+    faster: "变快",
+    slower: "变慢",
+  },
+  emotion: {
+    happy: "开心",
+    sad: "悲伤",
+    angry: "生气",
+  },
+  role: {
+    sunwukong: "孙悟空",
+    lindaiyu: "林黛玉",
+  },
+  tone: {
+    whisper: "悄悄话",
+    jiazi: "夹子音",
+    taiwan: "台湾腔",
+  },
+  dialect: {
+    dongbei: "东北话",
+    sichuan: "四川话",
+    henan: "河南话",
+    cantonese: "粤语",
+  },
+};
+
+interface XiaomiTTSChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      audio?: {
+        data?: string;
+      };
+    };
+  }>;
+  error?: {
+    message?: string;
+    code?: string;
+    type?: string;
+  };
+  message?: string;
+}
+
+class XiaomiTTSError extends Error {
+  readonly code: TTSServiceErrorCode;
+  readonly hint?: TTSServiceErrorHint;
+  readonly httpStatus?: number;
+  readonly detail?: string;
+
+  constructor(params: {
+    code: TTSServiceErrorCode;
+    message: string;
+    hint?: TTSServiceErrorHint;
+    httpStatus?: number;
+    detail?: string;
+  }) {
+    super(params.message);
+    this.name = "XiaomiTTSError";
+    this.code = params.code;
+    this.hint = params.hint;
+    this.httpStatus = params.httpStatus;
+    this.detail = params.detail;
+  }
+}
+
+function getXiaomiTTSErrorMessage(code: TTSServiceErrorCode): string {
+  switch (code) {
+    case "TTS_NOT_CONFIGURED":
+      return "未配置小米语音合成 API Key";
+    case "TTS_BAD_REQUEST":
+      return "请求参数不正确";
+    case "TTS_AUTH_ERROR":
+      return "API Key 无效或无权限";
+    case "TTS_FORBIDDEN":
+      return "当前地区不可用，或 API Key 被风控";
+    case "TTS_CONTENT_BLOCKED":
+      return "输入内容触发审核拦截";
+    case "TTS_ENDPOINT_ERROR":
+      return "端点不可用";
+    case "TTS_NETWORK_ERROR":
+      return "网络异常或端点无法访问";
+    case "TTS_RATE_LIMIT":
+      return "请求过于频繁或额度受限";
+    case "TTS_SERVER_ERROR":
+      return "小米服务内部异常";
+    case "TTS_SERVER_BUSY":
+      return "小米服务负载过高，请稍后重试";
+    case "TTS_AUDIO_INVALID":
+      return "服务返回了无效音频数据";
+    case "TTS_UNKNOWN_ERROR":
+      return "语音合成请求失败";
+    default:
+      return "语音合成请求失败";
+  }
+}
+
+function buildXiaomiTTSRequestUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
+}
+
+function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
+  if (value && XIAOMI_TTS_VOICE_OPTIONS.includes(value as XiaomiTTSVoice)) {
+    return value as XiaomiTTSVoice;
+  }
+
+  return XIAOMI_TTS_DEFAULT_VOICE;
+}
+
+function isValidXiaomiTTSStyleValue(
+  group: XiaomiTTSStyleGroupKey,
+  value?: string | null
+): value is XiaomiTTSStyleValue {
+  if (!value) return false;
+
+  return Boolean(XIAOMI_TTS_STYLE_PROMPTS[group][value]);
+}
+
+function normalizeXiaomiTTSStyles(
+  styles?: XiaomiTTSStyleSelection
+): XiaomiTTSStyleSelection | undefined {
+  if (!styles) return undefined;
+
+  const normalized: XiaomiTTSStyleSelection = {};
+
+  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
+    const value = styles[group];
+    if (isValidXiaomiTTSStyleValue(group, value)) {
+      setXiaomiTTSStyleValue(normalized, group, value);
+    }
+  });
+
+  return hasXiaomiTTSStyles(normalized) ? normalized : undefined;
+}
+
+function hasXiaomiTTSStyles(styles?: XiaomiTTSStyleSelection): boolean {
+  if (!styles) return false;
+
+  return XIAOMI_TTS_STYLE_GROUP_ORDER.some((group) => Boolean(styles[group]));
+}
+
+function setXiaomiTTSStyleValue(
+  selection: XiaomiTTSStyleSelection,
+  group: XiaomiTTSStyleGroupKey,
+  value: XiaomiTTSStyleValue
+): void {
+  switch (group) {
+    case "speed":
+      if (value === "faster" || value === "slower") {
+        selection.speed = value;
+      }
+      break;
+    case "emotion":
+      if (value === "happy" || value === "sad" || value === "angry") {
+        selection.emotion = value;
+      }
+      break;
+    case "role":
+      if (value === "sunwukong" || value === "lindaiyu") {
+        selection.role = value;
+      }
+      break;
+    case "tone":
+      if (value === "whisper" || value === "jiazi" || value === "taiwan") {
+        selection.tone = value;
+      }
+      break;
+    case "dialect":
+      if (
+        value === "dongbei" ||
+        value === "sichuan" ||
+        value === "henan" ||
+        value === "cantonese"
+      ) {
+        selection.dialect = value;
+      }
+      break;
+  }
+}
+
+function getXiaomiTTSVoice(config: LingridConfig): XiaomiTTSVoice {
+  return normalizeXiaomiTTSVoice(config.xiaomi_tts?.voice);
+}
+
+function buildXiaomiTTSAssistantContent(
+  text: string,
+  config: LingridConfig
+): string {
+  const styles = normalizeXiaomiTTSStyles(config.xiaomi_tts?.styles);
+  if (!hasXiaomiTTSStyles(styles)) {
+    return text;
+  }
+
+  const promptParts: string[] = [];
+
+  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
+    const value = styles?.[group];
+    if (!value) return;
+
+    const prompt = XIAOMI_TTS_STYLE_PROMPTS[group][value];
+    if (prompt) {
+      promptParts.push(prompt);
+    }
+  });
+
+  if (promptParts.length === 0) {
+    return text;
+  }
+
+  return `<style>${promptParts.join(" ")}</style>${text}`;
+}
+
+function extractXiaomiTTSErrorMessage(errorText: string): string {
+  const trimmedText = errorText.trim();
+  if (!trimmedText) return "";
+
+  try {
+    const errorData = JSON.parse(errorText) as XiaomiTTSChatCompletionResponse;
+    return (
+      errorData.error?.message?.trim() ||
+      errorData.message?.trim() ||
+      trimmedText
+    );
+  } catch {
+    return trimmedText;
+  }
+}
+
+function getXiaomiTTSErrorHint(
+  errorMessage: string
+): TTSServiceErrorHint | undefined {
+  const normalizedMessage = errorMessage.toLowerCase();
+
+  if (normalizedMessage.includes("voice")) {
+    return "VOICE_INVALID";
+  }
+
+  if (normalizedMessage.includes("model")) {
+    return "MODEL_INVALID";
+  }
+
+  if (
+    normalizedMessage.includes("messages") ||
+    normalizedMessage.includes("message")
+  ) {
+    return "MESSAGES_INVALID";
+  }
+
+  if (
+    normalizedMessage.includes("audio") ||
+    normalizedMessage.includes("format")
+  ) {
+    return "AUDIO_PARAM_INVALID";
+  }
+
+  if (
+    normalizedMessage.includes("param incorrect") ||
+    normalizedMessage.includes("parameter") ||
+    normalizedMessage.includes("param") ||
+    normalizedMessage.includes("format incorrect")
+  ) {
+    return "PARAM_INCORRECT";
+  }
+
+  return undefined;
+}
+
+function classifyXiaomiTTSError(
+  httpStatus: number,
+  errorMessage: string
+): {
+  code: TTSServiceErrorCode;
+  hint?: TTSServiceErrorHint;
+} {
+  const hint = getXiaomiTTSErrorHint(errorMessage);
+
+  switch (httpStatus) {
+    case 400:
+      return {
+        code: "TTS_BAD_REQUEST",
+        hint,
+      };
+    case 401:
+      return {
+        code: "TTS_AUTH_ERROR",
+      };
+    case 403:
+      return {
+        code: "TTS_FORBIDDEN",
+      };
+    case 404:
+      return {
+        code: "TTS_ENDPOINT_ERROR",
+      };
+    case 421:
+      return {
+        code: "TTS_CONTENT_BLOCKED",
+      };
+    case 429:
+      return {
+        code: "TTS_RATE_LIMIT",
+      };
+    case 500:
+      return {
+        code: "TTS_SERVER_ERROR",
+      };
+    case 503:
+      return {
+        code: "TTS_SERVER_BUSY",
+      };
+    default:
+      return {
+        code: "TTS_UNKNOWN_ERROR",
+        hint,
+      };
+  }
+}
+
+function isXiaomiTTSConfigured(config: LingridConfig): boolean {
+  return !!config.xiaomi_tts?.api_key?.trim();
+}
+
+async function requestXiaomiTTSAudio(text: string): Promise<{
+  audioBase64: string;
+  mimeType: string;
+}> {
+  const config = await getConfig();
+
+  if (!isXiaomiTTSConfigured(config)) {
+    throw new XiaomiTTSError({
+      code: "TTS_NOT_CONFIGURED",
+      message: getXiaomiTTSErrorMessage("TTS_NOT_CONFIGURED"),
+    });
+  }
+
+  const apiKey = config.xiaomi_tts!.api_key.trim();
+  const assistantContent = buildXiaomiTTSAssistantContent(text, config);
+  const requestBody = {
+    model: XIAOMI_TTS_MODEL,
+    messages: [
+      {
+        role: "user",
+        content: XIAOMI_TTS_REQUEST_PROMPT,
+      },
+      {
+        role: "assistant",
+        content: assistantContent,
+      },
+    ],
+    audio: {
+      format: XIAOMI_TTS_AUDIO_FORMAT,
+      voice: getXiaomiTTSVoice(config),
+    },
+  };
+
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(buildXiaomiTTSRequestUrl(XIAOMI_TTS_API_BASE_URL), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": apiKey,
+      },
+      body: JSON.stringify(requestBody),
+    });
+  } catch (error) {
+    throw new XiaomiTTSError({
+      code: "TTS_NETWORK_ERROR",
+      message: getXiaomiTTSErrorMessage("TTS_NETWORK_ERROR"),
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractXiaomiTTSErrorMessage(responseText);
+    const classification = classifyXiaomiTTSError(
+      response.status,
+      errorMessage
+    );
+
+    throw new XiaomiTTSError({
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      message: getXiaomiTTSErrorMessage(classification.code),
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  let data: XiaomiTTSChatCompletionResponse;
+
+  try {
+    data = JSON.parse(responseText) as XiaomiTTSChatCompletionResponse;
+  } catch {
+    throw new XiaomiTTSError({
+      code: "TTS_AUDIO_INVALID",
+      message: getXiaomiTTSErrorMessage("TTS_AUDIO_INVALID"),
+      detail: responseText.trim() || "响应不是有效 JSON",
+    });
+  }
+
+  const audioBase64 = data.choices?.[0]?.message?.audio?.data;
+
+  if (!audioBase64) {
+    throw new XiaomiTTSError({
+      code: "TTS_AUDIO_INVALID",
+      message: getXiaomiTTSErrorMessage("TTS_AUDIO_INVALID"),
+      detail:
+        extractXiaomiTTSErrorMessage(responseText) || responseText.trim() || undefined,
+    });
+  }
+
+  return {
+    audioBase64,
+    mimeType: "audio/wav",
+  };
+}
 
 // ====== 消息处理 ======
 
@@ -337,6 +792,80 @@ async function handleTestConnection(): Promise<TestConnectionResponse> {
     return {
       success: false,
       error: error instanceof Error ? error.message : "测试连接失败",
+    };
+  }
+}
+
+/**
+ * 处理 TEST_TTS_CONNECTION 消息
+ *
+ * 测试小米 TTS 配置是否可用。
+ */
+async function handleTestTTSConnection(): Promise<TestTTSConnectionResponse> {
+  try {
+    await requestXiaomiTTSAudio(XIAOMI_TTS_TEST_TEXT);
+    return { success: true };
+  } catch (error) {
+    if (error instanceof XiaomiTTSError) {
+      return {
+        success: false,
+        errorCode: error.code,
+        error: error.message,
+        errorHint: error.hint,
+        httpStatus: error.httpStatus,
+        errorDetail: error.detail,
+      };
+    }
+
+    return {
+      success: false,
+      errorCode: "TTS_UNKNOWN_ERROR",
+      error:
+        error instanceof Error ? error.message : "语音合成服务连接失败",
+      errorDetail: error instanceof Error ? error.message : undefined,
+    };
+  }
+}
+
+/**
+ * 处理 SYNTHESIZE_SPEECH 消息
+ *
+ * 调用小米 TTS 生成音频。
+ */
+async function handleSynthesizeSpeech(
+  text: string
+): Promise<SynthesizeSpeechResponse> {
+  try {
+    if (!text.trim()) {
+      return {
+        success: false,
+        errorCode: "TTS_BAD_REQUEST",
+        error: "朗读文本不能为空",
+      };
+    }
+
+    const data = await requestXiaomiTTSAudio(text.trim());
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    if (error instanceof XiaomiTTSError) {
+      return {
+        success: false,
+        errorCode: error.code,
+        error: error.message,
+        errorHint: error.hint,
+        httpStatus: error.httpStatus,
+        errorDetail: error.detail,
+      };
+    }
+
+    return {
+      success: false,
+      errorCode: "TTS_UNKNOWN_ERROR",
+      error: error instanceof Error ? error.message : "语音合成失败",
+      errorDetail: error instanceof Error ? error.message : undefined,
     };
   }
 }
@@ -2187,6 +2716,10 @@ chrome.runtime.onMessage.addListener(
           response = await handleTestConnection();
           break;
 
+        case MessageType.TEST_TTS_CONNECTION:
+          response = await handleTestTTSConnection();
+          break;
+
         case MessageType.ANALYZE_DIFFICULTY:
           response = await handleAnalyzeDifficulty();
           break;
@@ -2285,6 +2818,10 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.ANALYZE_SENTENCE:
           response = await handleAnalyzeSentence(message.payload.sentence);
+          break;
+
+        case MessageType.SYNTHESIZE_SPEECH:
+          response = await handleSynthesizeSpeech(message.payload.text);
           break;
 
         case MessageType.ASSESS_PRONUNCIATION:

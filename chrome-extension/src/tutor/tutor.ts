@@ -41,6 +41,7 @@ import {
   AlibabaASRRecognizer,
   isAlibabaASRConfigured,
 } from "./alibabaASRRecognizer";
+import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 类型定义 ======
 
@@ -55,6 +56,10 @@ interface ModeConfig {
 }
 
 const MAX_TUTOR_INPUT_CHARS = 5000;
+const TTS_FALLBACK_WARNING_MESSAGE =
+  "小米语音合成暂不可用，已切换为浏览器朗读";
+const TTS_PLAYBACK_ERROR_MESSAGE =
+  "朗读失败，请检查语音合成配置或浏览器语音能力";
 
 /** 模式配置映射 */
 const MODE_CONFIG: Record<TutorMode, ModeConfig> = {
@@ -98,6 +103,12 @@ let userConfig: LingridConfig | null = null;
 
 /** 当前全局 TTS 语速 */
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
+const tutorTTSPlayer = createHybridTTSPlayer({
+  isAIEnabled: () => !!userConfig?.xiaomi_tts?.api_key?.trim(),
+});
+
+shadow.injectTTSPlayer(tutorTTSPlayer);
+echoMethod.injectTTSPlayer(tutorTTSPlayer);
 
 // ====== DOM 元素引用 ======
 
@@ -652,10 +663,20 @@ function handleTTSSpeedStorageChange(
   const configChange = changes[STORAGE_KEY];
   if (!configChange?.newValue) return;
 
+  const nextConfig = configChange.newValue as Partial<LingridConfig>;
+
   const nextSpeed = resolveTTSSpeed(
-    (configChange.newValue as Partial<LingridConfig>).tts_speed
+    nextConfig.tts_speed
   );
   applyTTSSpeed(nextSpeed);
+
+  if (userConfig) {
+    userConfig = {
+      ...userConfig,
+      xiaomi_tts: nextConfig.xiaomi_tts,
+      tts_speed: nextSpeed,
+    };
+  }
 }
 
 function handleTTSSpeedMessage(message: {
@@ -839,7 +860,7 @@ function bindEvents(): void {
 
   // 页面关闭时停止朗读和录音
   window.addEventListener("beforeunload", () => {
-    speechSynthesis.cancel();
+    tutorTTSPlayer.stop();
     stopRecordingCleanup();
     shadow.resetPractice();
     echoMethod.reset();
@@ -982,8 +1003,8 @@ async function handleSubmit(): Promise<void> {
   if (!text) return;
 
   // 停止正在进行的朗读
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+  if (tutorTTSPlayer.isPlaying()) {
+    tutorTTSPlayer.stop();
     speakSentenceBtn.classList.remove("speaking");
   }
 
@@ -1214,8 +1235,8 @@ function handleSentenceInput(): void {
   speakSentenceBtn.disabled = length === 0;
 
   // 输入内容修改时停止正在进行的朗读
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+  if (tutorTTSPlayer.isPlaying()) {
+    tutorTTSPlayer.stop();
     speakSentenceBtn.classList.remove("speaking");
   }
 }
@@ -1223,13 +1244,13 @@ function handleSentenceInput(): void {
 /**
  * 处理语音朗读
  *
- * 使用浏览器原生 Web Speech API (speechSynthesis) 朗读输入框中的英文内容。
+ * 优先使用小米 AI 语音合成，失败时回退到浏览器 TTS。
  * 点击切换：未朗读 → 开始朗读；朗读中 → 停止朗读。
  */
 function handleSpeakSentence(): void {
   // 如果正在朗读，则停止
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+  if (tutorTTSPlayer.isPlaying()) {
+    tutorTTSPlayer.stop();
     speakSentenceBtn.classList.remove("speaking");
     return;
   }
@@ -1237,15 +1258,18 @@ function handleSpeakSentence(): void {
   const text = sentenceInput.value.trim();
   if (!text) return;
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = currentTTSSpeed;
-
-  utterance.onstart = () => speakSentenceBtn.classList.add("speaking");
-  utterance.onend = () => speakSentenceBtn.classList.remove("speaking");
-  utterance.onerror = () => speakSentenceBtn.classList.remove("speaking");
-
-  speechSynthesis.speak(utterance);
+  void tutorTTSPlayer
+    .playText({
+      text,
+      rate: currentTTSSpeed,
+      onStart: () => speakSentenceBtn.classList.add("speaking"),
+      onEnd: () => speakSentenceBtn.classList.remove("speaking"),
+      onFallbackWarning: () => showTTSFallbackWarning(sentenceStatus),
+    })
+    .catch((error) => {
+      speakSentenceBtn.classList.remove("speaking");
+      showTTSError(sentenceStatus, error);
+    });
 }
 
 /**
@@ -1374,6 +1398,18 @@ function showStatus(
       element.style.display = "none";
     }, 3000);
   }
+}
+
+function showTTSFallbackWarning(element: HTMLElement): void {
+  showStatus(element, TTS_FALLBACK_WARNING_MESSAGE, "warning");
+}
+
+function showTTSError(element: HTMLElement, error: unknown): void {
+  const message =
+    error instanceof Error && error.message
+      ? error.message
+      : TTS_PLAYBACK_ERROR_MESSAGE;
+  showStatus(element, message, "error");
 }
 
 // ====== 录音练习功能 ======
@@ -1694,8 +1730,8 @@ function handleSpeakFeedback(): void {
   if (!lastPronunciationResult) return;
 
   // 如果正在朗读，则停止
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
+  if (tutorTTSPlayer.isPlaying()) {
+    tutorTTSPlayer.stop();
     return;
   }
 
@@ -1725,22 +1761,15 @@ function handleSpeakFeedback(): void {
  * 慢速朗读，两遍之间间隔 500ms，便于用户跟读学习。
  */
 function speakWordTwice(word: string): void {
-  const utterance1 = new SpeechSynthesisUtterance(word);
-  utterance1.lang = "en-US";
-  utterance1.rate = currentTTSSpeed;
-
-  const utterance2 = new SpeechSynthesisUtterance(word);
-  utterance2.lang = "en-US";
-  utterance2.rate = currentTTSSpeed;
-
-  // 第一遍结束后，稍等再读第二遍
-  utterance1.onend = () => {
-    setTimeout(() => {
-      speechSynthesis.speak(utterance2);
-    }, 500); // 500ms 间隔
-  };
-
-  speechSynthesis.speak(utterance1);
+  void tutorTTSPlayer
+    .playTextTwice({
+      text: word,
+      rate: currentTTSSpeed,
+      onFallbackWarning: () => showTTSFallbackWarning(pronunciationStatus),
+    })
+    .catch((error) => {
+      showTTSError(pronunciationStatus, error);
+    });
 }
 
 /**
@@ -1749,10 +1778,15 @@ function speakWordTwice(word: string): void {
  * 用于发音完美时给予正面反馈。
  */
 function speakEncouragement(): void {
-  const utterance = new SpeechSynthesisUtterance("Perfect! Great job!");
-  utterance.lang = "en-US";
-  utterance.rate = currentTTSSpeed;
-  speechSynthesis.speak(utterance);
+  void tutorTTSPlayer
+    .playText({
+      text: "Perfect! Great job!",
+      rate: currentTTSSpeed,
+      onFallbackWarning: () => showTTSFallbackWarning(pronunciationStatus),
+    })
+    .catch((error) => {
+      showTTSError(pronunciationStatus, error);
+    });
 }
 
 // ====== 影子跟读功能 ======
@@ -1953,30 +1987,36 @@ function handleShadowPlay(): void {
 
   // 开始范读
   shadowPlayBtn.classList.add("playing");
-  shadow.playModelReading(
-    () => {
-      // 范读结束
-      shadowPlayBtn.classList.remove("playing");
+  void shadow
+    .playModelReading(
+      () => {
+        // 范读结束
+        shadowPlayBtn.classList.remove("playing");
 
-      // 影子模式：延迟后自动开始录音
-      const config = shadow.getConfig();
-      if (config.mode === "shadow" || config.mode === "sync") {
-        const delay = shadow.getRecordingDelay();
-        setTimeout(() => {
-          if (!shadow.isRecording()) {
-            handleShadowRecord();
-          }
-        }, delay);
-      }
-    },
-    () => {
-      // 同步模式：范读开始时同时开始录音
-      const config = shadow.getConfig();
-      if (config.mode === "sync" && !shadow.isRecording()) {
-        handleShadowRecord();
-      }
-    }
-  );
+        // 影子模式：延迟后自动开始录音
+        const config = shadow.getConfig();
+        if (config.mode === "shadow" || config.mode === "sync") {
+          const delay = shadow.getRecordingDelay();
+          setTimeout(() => {
+            if (!shadow.isRecording()) {
+              handleShadowRecord();
+            }
+          }, delay);
+        }
+      },
+      () => {
+        // 同步模式：范读开始时同时开始录音
+        const config = shadow.getConfig();
+        if (config.mode === "sync" && !shadow.isRecording()) {
+          handleShadowRecord();
+        }
+      },
+      () => showTTSFallbackWarning(shadowStatus)
+    )
+    .catch((error) => {
+      shadowPlayBtn.classList.remove("playing");
+      showTTSError(shadowStatus, error);
+    });
 }
 
 /**
@@ -2250,7 +2290,11 @@ function handleShadowIssueClick(e: Event): void {
 
   const word = target.dataset.word;
   if (word) {
-    shadow.speakProblemWord(word);
+    void shadow
+      .speakProblemWord(word, () => showTTSFallbackWarning(shadowStatus))
+      .catch((error) => {
+        showTTSError(shadowStatus, error);
+      });
   }
 }
 
@@ -2315,9 +2359,14 @@ async function handleEchoPlayModel(): Promise<void> {
     // 停止当前播放（如果有）
     echoMethod.stopPlayback();
 
-    await echoMethod.playModelReading(sentence.text, config.speed);
+    await echoMethod.playModelReading(
+      sentence.text,
+      config.speed,
+      () => showTTSFallbackWarning(shadowStatus)
+    );
   } catch (error) {
     console.error("[Lingride Tutor] 播放范读失败:", error);
+    showTTSError(shadowStatus, error);
   }
 }
 
@@ -2348,9 +2397,14 @@ async function handleEchoPlayAB(): Promise<void> {
     // 停止当前播放（如果有）
     echoMethod.stopPlayback();
 
-    await echoMethod.playABComparison(sentence.text, config.speed);
+    await echoMethod.playABComparison(
+      sentence.text,
+      config.speed,
+      () => showTTSFallbackWarning(shadowStatus)
+    );
   } catch (error) {
     console.error("[Lingride Tutor] A-B 对比播放失败:", error);
+    showTTSError(shadowStatus, error);
   }
 }
 

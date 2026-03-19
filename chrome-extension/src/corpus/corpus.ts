@@ -25,6 +25,7 @@ import {
   DEFAULT_TTS_SPEED,
   GetConfigResponse,
   isTTSSpeed,
+  LingridConfig,
   ListeningAnalysisResult,
   ListeningError,
   MessageType,
@@ -33,6 +34,7 @@ import {
   STORAGE_KEY,
   TTSSpeed,
 } from "../types";
+import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 类型定义 ======
 
@@ -60,6 +62,10 @@ const ERROR_TYPE_LABELS: Record<string, string> = {
   vocabulary: "词汇盲区",
   speed: "语速适应",
 };
+const TTS_FALLBACK_WARNING_MESSAGE =
+  "小米语音合成暂不可用，已切换为浏览器朗读";
+const TTS_PLAYBACK_ERROR_MESSAGE =
+  "朗读失败，请检查语音合成配置或浏览器语音能力";
 
 // ====== DOM 元素引用 ======
 
@@ -122,8 +128,11 @@ const newPracticeBtn = document.getElementById("newPracticeBtn") as HTMLButtonEl
 let userLevel: CEFRLevel = "A2";
 let state: CorpusState | null = null;
 let isTTSAvailable = true;
-let currentUtterance: SpeechSynthesisUtterance | null = null;
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
+let xiaomiTTSEnabled = false;
+const corpusTTSPlayer = createHybridTTSPlayer({
+  isAIEnabled: () => xiaomiTTSEnabled,
+});
 
 // ====== 初始化 ======
 
@@ -144,10 +153,20 @@ document.addEventListener("DOMContentLoaded", async () => {
  * 检测 TTS 可用性
  */
 function checkTTSAvailability(): void {
-  if (!("speechSynthesis" in window)) {
-    isTTSAvailable = false;
+  updateTTSAvailability();
+
+  if (!isTTSAvailable) {
     console.warn("[Corpus] TTS 不可用");
   }
+}
+
+function applyXiaomiTTSConfig(config: Partial<LingridConfig>): void {
+  xiaomiTTSEnabled = !!config.xiaomi_tts?.api_key?.trim();
+  updateTTSAvailability();
+}
+
+function updateTTSAvailability(): void {
+  isTTSAvailable = xiaomiTTSEnabled || "speechSynthesis" in window;
 }
 
 /**
@@ -165,6 +184,7 @@ async function loadUserConfig(): Promise<void> {
         updateLevelBadge(userLevel);
       }
 
+      applyXiaomiTTSConfig(response.data);
       applyTTSSpeed(resolveTTSSpeed(response.data.tts_speed));
     }
   } catch (error) {
@@ -220,9 +240,10 @@ function handleTTSSpeedStorageChange(
   if (!configChange?.newValue) return;
 
   const nextSpeed = resolveTTSSpeed(
-    (configChange.newValue as Partial<{ tts_speed?: TTSSpeed }>).tts_speed
+    (configChange.newValue as Partial<LingridConfig>).tts_speed
   );
   applyTTSSpeed(nextSpeed);
+  applyXiaomiTTSConfig(configChange.newValue as Partial<LingridConfig>);
 }
 
 function handleTTSSpeedMessage(message: {
@@ -264,6 +285,10 @@ function bindEvents(): void {
   // 全局 TTS 语速同步
   chrome.storage.onChanged.addListener(handleTTSSpeedStorageChange);
   chrome.runtime.onMessage.addListener(handleTTSSpeedMessage);
+
+  window.addEventListener("beforeunload", () => {
+    corpusTTSPlayer.stop();
+  });
 }
 
 // ====== 水平选择器 ======
@@ -530,32 +555,35 @@ function handlePlaySentence(): void {
   const rate = currentTTSSpeed;
 
   // 停止当前播放
-  speechSynthesis.cancel();
+  corpusTTSPlayer.stop();
 
-  // 创建新的朗读
-  currentUtterance = new SpeechSynthesisUtterance(sentence.text);
-  currentUtterance.lang = "en-US";
-  currentUtterance.rate = rate;
-
-  currentUtterance.onstart = () => {
-    playBtn.classList.add("playing");
-  };
-
-  currentUtterance.onend = () => {
-    playBtn.classList.remove("playing");
-    // 增加播放次数
-    if (state) {
-      state.playCounts[state.currentIndex]++;
-      playCount.textContent = `已播放 ${state.playCounts[state.currentIndex]} 次`;
-    }
-  };
-
-  currentUtterance.onerror = () => {
-    playBtn.classList.remove("playing");
-    console.error("[Corpus] TTS 播放失败");
-  };
-
-  speechSynthesis.speak(currentUtterance);
+  void corpusTTSPlayer
+    .playText({
+      text: sentence.text,
+      rate,
+      onStart: () => {
+        playBtn.classList.add("playing");
+      },
+      onEnd: () => {
+        playBtn.classList.remove("playing");
+        if (state) {
+          state.playCounts[state.currentIndex]++;
+          playCount.textContent = `已播放 ${state.playCounts[state.currentIndex]} 次`;
+        }
+      },
+      onFallbackWarning: (message) => {
+        showStatus(practiceStatus, message, "warning");
+      },
+      fallbackWarningMessage: TTS_FALLBACK_WARNING_MESSAGE,
+    })
+    .catch((error) => {
+      playBtn.classList.remove("playing");
+      showStatus(
+        practiceStatus,
+        error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
+        "error"
+      );
+    });
 }
 
 function handleReplaySentence(): void {
@@ -600,7 +628,7 @@ async function handleSubmitAnswer(): Promise<void> {
   showStatus(practiceStatus, "正在分析听写结果...", "loading");
 
   // 停止 TTS
-  speechSynthesis.cancel();
+  corpusTTSPlayer.stop();
 
   try {
     // 调用 AI 分析
@@ -912,6 +940,12 @@ function showStatus(element: HTMLElement, message: string, type: "success" | "er
   element.textContent = message;
   element.className = `status-message ${type}`;
   element.style.display = "block";
+
+  if (type === "success" || type === "warning") {
+    setTimeout(() => {
+      element.style.display = "none";
+    }, 3000);
+  }
 }
 
 function hideStatus(element: HTMLElement): void {

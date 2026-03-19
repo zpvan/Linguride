@@ -22,6 +22,7 @@ import {
   ShadowSpeed,
   SplitSentencesResponse,
 } from "../types";
+import type { HybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 状态变量 ======
 
@@ -36,6 +37,9 @@ let shadowConfig: ShadowConfig = { ...DEFAULT_SHADOW_CONFIG };
 
 /** 注入的语音识别器 */
 let recognizer: ISpeechRecognizer | null = null;
+
+/** 注入的统一 TTS 播放器 */
+let ttsPlayer: HybridTTSPlayer | null = null;
 
 /** 录音计时器 */
 let recordingTimer: number | null = null;
@@ -72,6 +76,13 @@ let onErrorCallback: ((error: Error) => void) | null = null;
  */
 export function injectRecognizer(rec: ISpeechRecognizer): void {
   recognizer = rec;
+}
+
+/**
+ * 注入统一 TTS 播放器
+ */
+export function injectTTSPlayer(player: HybridTTSPlayer): void {
+  ttsPlayer = player;
 }
 
 /**
@@ -168,14 +179,29 @@ export function getAllSentences(): ShadowSentence[] {
 /**
  * 播放范读
  *
- * 使用 Web Speech API 朗读当前句子，支持语速调节。
+ * 优先使用 AI 语音合成，失败时回退到浏览器 TTS，支持语速调节。
  *
  * @param onEnd 朗读结束回调
  * @param onStart 朗读开始回调
  */
-export function playModelReading(onEnd?: () => void, onStart?: () => void): void {
+export async function playModelReading(
+  onEnd?: () => void,
+  onStart?: () => void,
+  onFallbackWarning?: (message: string) => void
+): Promise<void> {
   const sentence = getCurrentSentence();
   if (!sentence) return;
+
+  if (ttsPlayer) {
+    await ttsPlayer.playText({
+      text: sentence.text,
+      rate: shadowConfig.speed,
+      onStart,
+      onEnd,
+      onFallbackWarning,
+    });
+    return;
+  }
 
   // 停止当前朗读
   if (speechSynthesis.speaking) {
@@ -205,6 +231,11 @@ export function playModelReading(onEnd?: () => void, onStart?: () => void): void
  * 停止范读
  */
 export function stopModelReading(): void {
+  if (ttsPlayer) {
+    ttsPlayer.stop();
+    return;
+  }
+
   if (speechSynthesis.speaking) {
     speechSynthesis.cancel();
   }
@@ -358,7 +389,19 @@ export function retryCurrent(): void {
  *
  * 使用慢速朗读问题单词两遍，帮助用户学习。
  */
-export function speakProblemWord(word: string): void {
+export async function speakProblemWord(
+  word: string,
+  onFallbackWarning?: (message: string) => void
+): Promise<void> {
+  if (ttsPlayer) {
+    await ttsPlayer.playTextTwice({
+      text: word,
+      rate: shadowConfig.speed,
+      onFallbackWarning,
+    });
+    return;
+  }
+
   // 停止当前朗读
   if (speechSynthesis.speaking) {
     speechSynthesis.cancel();

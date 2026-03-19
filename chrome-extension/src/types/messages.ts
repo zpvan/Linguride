@@ -55,6 +55,8 @@ export enum MessageType {
   // ====== 连接测试 ======
   /** 测试 API 连接 */
   TEST_CONNECTION = "TEST_CONNECTION",
+  /** 测试小米 TTS 连接 */
+  TEST_TTS_CONNECTION = "TEST_TTS_CONNECTION",
 
   // ====== 难度分析 ======
   /** 分析页面难度 */
@@ -85,6 +87,10 @@ export enum MessageType {
   // ====== 长难句分析 ======
   /** 分析英文长难句 */
   ANALYZE_SENTENCE = "ANALYZE_SENTENCE",
+
+  // ====== 语音合成 ======
+  /** 合成语音 */
+  SYNTHESIZE_SPEECH = "SYNTHESIZE_SPEECH",
 
   // ====== 发音评估 ======
   /** 评估发音 */
@@ -189,6 +195,13 @@ export interface TestConnectionMessage {
 }
 
 /**
+ * 小米 TTS 测试连接消息
+ */
+export interface TestTTSConnectionMessage {
+  type: MessageType.TEST_TTS_CONNECTION;
+}
+
+/**
  * 难度分析消息
  */
 export interface AnalyzeDifficultyMessage {
@@ -272,6 +285,19 @@ export interface AnalyzeSentenceMessage {
   payload: {
     /** 待分析的英文句子 */
     sentence: string;
+  };
+}
+
+/**
+ * 语音合成消息
+ */
+export interface SynthesizeSpeechMessage {
+  type: MessageType.SYNTHESIZE_SPEECH;
+  payload: {
+    /** 要朗读的文本 */
+    text: string;
+    /** 播放语速 */
+    rate: TTSSpeed;
   };
 }
 
@@ -435,6 +461,7 @@ export type Message =
   | GetTranslationStateMessage
   | TranslateMessage
   | TestConnectionMessage
+  | TestTTSConnectionMessage
   | AnalyzeDifficultyMessage
   | ExtractPageTextMessage
   | ToggleParaphraseMessage
@@ -444,6 +471,7 @@ export type Message =
   | GetMixedTranslateStateMessage
   | MixedTranslateMessage
   | AnalyzeSentenceMessage
+  | SynthesizeSpeechMessage
   | AssessPronunciationMessage
   | ChineseToEnglishMessage
   | EnglishToChineseMessage
@@ -519,6 +547,45 @@ export interface TestConnectionResponse extends BaseResponse {
 }
 
 /**
+ * 小米 TTS 服务错误码
+ */
+export type TTSServiceErrorCode =
+  | "TTS_NOT_CONFIGURED"
+  | "TTS_BAD_REQUEST"
+  | "TTS_AUTH_ERROR"
+  | "TTS_FORBIDDEN"
+  | "TTS_CONTENT_BLOCKED"
+  | "TTS_ENDPOINT_ERROR"
+  | "TTS_NETWORK_ERROR"
+  | "TTS_RATE_LIMIT"
+  | "TTS_SERVER_ERROR"
+  | "TTS_SERVER_BUSY"
+  | "TTS_AUDIO_INVALID"
+  | "TTS_UNKNOWN_ERROR";
+
+/**
+ * 小米 TTS 服务错误细分提示
+ *
+ * 仅用于前台生成更具体的错误提示，不作为稳定主错误码使用。
+ */
+export type TTSServiceErrorHint =
+  | "PARAM_INCORRECT"
+  | "VOICE_INVALID"
+  | "MODEL_INVALID"
+  | "MESSAGES_INVALID"
+  | "AUDIO_PARAM_INVALID";
+
+/**
+ * 小米 TTS 测试连接响应
+ */
+export interface TestTTSConnectionResponse extends BaseResponse {
+  httpStatus?: number;
+  errorCode?: TTSServiceErrorCode;
+  errorHint?: TTSServiceErrorHint;
+  errorDetail?: string;
+}
+
+/**
  * 提取页面文本响应
  */
 export interface ExtractPageTextResponse extends BaseResponse {
@@ -588,6 +655,26 @@ export interface MixedTranslateResponse extends BaseResponse {
  */
 export interface AnalyzeSentenceResponse extends BaseResponse {
   data?: SentenceAnalysisResult;
+}
+
+/**
+ * 语音合成响应
+ */
+export interface SynthesizeSpeechResponse extends BaseResponse {
+  data?: {
+    /** Base64 编码的音频 */
+    audioBase64: string;
+    /** 音频 MIME 类型 */
+    mimeType: string;
+  };
+  /** 错误代码（用于前台决定是否静默回退） */
+  errorCode?: TTSServiceErrorCode;
+  /** 细分错误提示（用于前台展示更具体原因） */
+  errorHint?: TTSServiceErrorHint;
+  /** HTTP 状态码（如有） */
+  httpStatus?: number;
+  /** 原始错误详情（如有） */
+  errorDetail?: string;
 }
 
 /**
@@ -704,6 +791,7 @@ export type Response =
   | GetTranslationStateResponse
   | TranslateResponse
   | TestConnectionResponse
+  | TestTTSConnectionResponse
   | ExtractPageTextResponse
   | AnalyzeDifficultyResponse
   | GetParaphraseStateResponse
@@ -711,6 +799,7 @@ export type Response =
   | GetMixedTranslateStateResponse
   | MixedTranslateResponse
   | AnalyzeSentenceResponse
+  | SynthesizeSpeechResponse
   | AssessPronunciationResponse
   | ChineseToEnglishResponse
   | EnglishToChineseResponse
