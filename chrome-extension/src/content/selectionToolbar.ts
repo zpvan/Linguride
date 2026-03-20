@@ -52,7 +52,7 @@ const VIEWPORT_MARGIN = 12;
 const COPY_FEEDBACK_DURATION = 1500;
 const SELECTION_UPDATE_DEDUPE_MS = 160;
 const TTS_FALLBACK_WARNING_MESSAGE =
-  "小米语音合成暂不可用，已切换为浏览器朗读";
+  "AI 语音合成暂不可用，已切换为浏览器朗读";
 const TTS_PLAYBACK_ERROR_MESSAGE =
   "朗读失败，请检查语音合成配置或浏览器语音能力";
 
@@ -93,13 +93,13 @@ let cachedUserLevel: CEFRLevel | null = null;
 let lastSelectionUpdateText = "";
 let lastSelectionUpdateAt = 0;
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
-let xiaomiTTSEnabled = false;
+let aiTTSEnabled = false;
 let activeSpeechButton: HTMLButtonElement | null = null;
 let speechRequestId = 0;
 let speechMessageTimer: number | null = null;
 
 const selectionTTSPlayer = createHybridTTSPlayer({
-  isAIEnabled: () => xiaomiTTSEnabled,
+  isAIEnabled: () => aiTTSEnabled,
 });
 
 const buttonMap: Record<ToolbarAction, HTMLButtonElement | null> = {
@@ -1366,7 +1366,7 @@ function canSpeak(): boolean {
 }
 
 function canUseSelectionSpeech(): boolean {
-  return xiaomiTTSEnabled || canSpeak();
+  return aiTTSEnabled || canSpeak();
 }
 
 function showTransientSpeechMessage(message: string, isError: boolean): void {
@@ -1428,7 +1428,9 @@ function applySelectionConfig(config: Partial<LingridConfig>): void {
     cachedUserLevel = nextLevel;
   }
 
-  xiaomiTTSEnabled = !!config.xiaomi_tts?.api_key?.trim();
+  aiTTSEnabled = Boolean(
+    config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
+  );
 
   const nextSpeed = config.tts_speed;
   if (typeof nextSpeed === "number" && isTTSSpeed(nextSpeed)) {

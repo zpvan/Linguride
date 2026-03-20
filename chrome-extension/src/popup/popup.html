@@ -295,7 +295,77 @@
           </button>
           <div class="accordion-body" id="speech-synthesis-service">
             <div class="accordion-inner">
-              <p class="settings-desc nested-desc">填写 API Key 后优先使用 AI 语音合成；留空则直接使用浏览器朗读。</p>
+              <p class="settings-desc nested-desc">填写 API Key 后优先使用 AI 语音合成。固定优先级：MiniMax → 小米 → 浏览器朗读。</p>
+              <div class="accordion-item nested">
+                <div class="accordion-header nested-header with-test" data-accordion="minimax-tts" data-nested="true" role="button" tabindex="0">
+                  <div class="accordion-header-main">
+                    <span>MiniMax</span>
+                    <button
+                      type="button"
+                      id="testMiniMaxTTSBtn"
+                      class="service-test-btn is-disabled"
+                      disabled
+                      title="填写 API Key 后可测试"
+                      aria-label="测试 MiniMax 语音合成服务"
+                    ></button>
+                  </div>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div id="minimaxTTSStatus" class="status-message service-test-status"></div>
+                <div class="accordion-body nested-body" id="minimax-tts">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSBaseUrl">端点</label>
+                      <input
+                        type="text"
+                        id="minimaxTTSBaseUrl"
+                        class="settings-input"
+                        value="https://api.minimax.io/v1"
+                        readonly
+                      >
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="minimaxTTSApiKey" class="settings-input" placeholder="MiniMax API Key">
+                        <button type="button" id="showMiniMaxTTSKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSModel">模型</label>
+                      <select id="minimaxTTSModel" class="settings-select">
+                        <option value="speech-2.8-hd">speech-2.8-hd</option>
+                        <option value="speech-2.8-turbo">speech-2.8-turbo</option>
+                        <option value="speech-2.6-hd">speech-2.6-hd</option>
+                        <option value="speech-2.6-turbo">speech-2.6-turbo</option>
+                        <option value="speech-02-hd">speech-02-hd</option>
+                        <option value="speech-02-turbo">speech-02-turbo</option>
+                      </select>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSVoiceId">音色ID</label>
+                      <input
+                        type="text"
+                        id="minimaxTTSVoiceId"
+                        class="settings-input"
+                        placeholder="English_expressive_narrator"
+                      >
+                    </div>
+                    <p class="settings-hint">留空时使用默认音色 English_expressive_narrator。</p>
+                    <p class="settings-hint">
+                      <a href="https://platform.minimax.io/docs/guides/speech-t2a-async" target="_blank" rel="noopener">查看 MiniMax TTS 文档 →</a>
+                    </p>
+                    <p class="settings-hint">
+                      <a href="https://platform.minimax.io/docs/faq/system-voice-id" target="_blank" rel="noopener">查看 MiniMax Voice ID 列表 →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div class="accordion-item nested">
                 <div class="accordion-header nested-header with-test" data-accordion="xiaomi-tts" data-nested="true" role="button" tabindex="0">
                   <div class="accordion-header-main">

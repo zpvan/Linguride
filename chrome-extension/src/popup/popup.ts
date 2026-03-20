@@ -36,7 +36,9 @@ import {
   DEFAULT_USER_PROMPT_TEMPLATE,
   DifficultyResult,
   LingridConfig,
+  MINIMAX_TTS_DEFAULT_MODEL,
   MessageType,
+  MiniMaxTTSModel,
   TestTTSConnectionResponse,
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
@@ -47,6 +49,7 @@ import {
 /** 阅读模式 */
 type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
 type ApiProviderType = "deepseek" | "openai" | "custom";
+type ServiceTestState = "idle" | "loading" | "success" | "error";
 type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
 type XiaomiTTSStyleValue = NonNullable<
   XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
@@ -87,6 +90,14 @@ const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
   "mimo_default",
   "default_zh",
   "default_en",
+];
+const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
+  "speech-2.8-hd",
+  "speech-2.8-turbo",
+  "speech-2.6-hd",
+  "speech-2.6-turbo",
+  "speech-02-hd",
+  "speech-02-turbo",
 ];
 const XIAOMI_TTS_STYLE_OPTIONS: Record<
   XiaomiTTSStyleGroupKey,
@@ -248,6 +259,26 @@ const showAlibabaKeyBtn = document.getElementById(
   "showAlibabaKeyBtn"
 ) as HTMLButtonElement;
 
+// Settings - MiniMax TTS 配置
+const minimaxTTSApiKeyInput = document.getElementById(
+  "minimaxTTSApiKey"
+) as HTMLInputElement;
+const showMiniMaxTTSKeyBtn = document.getElementById(
+  "showMiniMaxTTSKeyBtn"
+) as HTMLButtonElement;
+const minimaxTTSModelSelect = document.getElementById(
+  "minimaxTTSModel"
+) as HTMLSelectElement;
+const minimaxTTSVoiceIdInput = document.getElementById(
+  "minimaxTTSVoiceId"
+) as HTMLInputElement;
+const testMiniMaxTTSBtn = document.getElementById(
+  "testMiniMaxTTSBtn"
+) as HTMLButtonElement;
+const minimaxTTSStatus = document.getElementById(
+  "minimaxTTSStatus"
+) as HTMLElement;
+
 // Settings - 小米 TTS 配置
 const xiaomiTTSApiKeyInput = document.getElementById(
   "xiaomiTTSApiKey"
@@ -283,7 +314,9 @@ const resetDefaultsBtn = document.getElementById(
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
 let currentMode: ReadingMode = null;
+let minimaxTTSResetTimer: number | null = null;
 let xiaomiTTSResetTimer: number | null = null;
+let isTestingMiniMaxTTS = false;
 let isTestingXiaomiTTS = false;
 
 function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
@@ -292,6 +325,14 @@ function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
   }
 
   return XIAOMI_TTS_DEFAULT_VOICE;
+}
+
+function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
+  if (value && MINIMAX_TTS_MODEL_OPTIONS.includes(value as MiniMaxTTSModel)) {
+    return value as MiniMaxTTSModel;
+  }
+
+  return MINIMAX_TTS_DEFAULT_MODEL;
 }
 
 function isValidXiaomiTTSStyleValue(
@@ -435,6 +476,87 @@ function getXiaomiTTSStylesFromUI(): XiaomiTTSStyleSelection | undefined {
   return hasXiaomiTTSStyles(selection) ? selection : undefined;
 }
 
+function clearServiceTestResetTimer(timer: number | null): void {
+  if (timer) {
+    clearTimeout(timer);
+  }
+}
+
+function showServiceTestStatus(
+  element: HTMLElement,
+  message: string,
+  type: "success" | "error" | "loading"
+): void {
+  element.textContent = message;
+  element.className = `status-message service-test-status ${type}`;
+  element.style.display = "block";
+}
+
+function hideServiceTestStatus(element: HTMLElement): void {
+  element.style.display = "none";
+  element.className = "status-message service-test-status";
+  element.textContent = "";
+}
+
+function setServiceTestButtonState(
+  button: HTMLButtonElement,
+  state: ServiceTestState,
+  disabled: boolean,
+  title: string
+): void {
+  button.classList.remove(
+    "is-loading",
+    "is-success",
+    "is-error",
+    "is-disabled"
+  );
+
+  if (state === "loading") {
+    button.classList.add("is-loading");
+  } else if (state === "success") {
+    button.classList.add("is-success");
+  } else if (state === "error") {
+    button.classList.add("is-error");
+  } else if (disabled) {
+    button.classList.add("is-disabled");
+  }
+
+  button.disabled = disabled;
+  button.title = title;
+}
+
+function getShortTTSErrorDetail(
+  response: TestTTSConnectionResponse
+): string | null {
+  const detail = response.errorDetail?.trim() || response.error?.trim() || "";
+
+  if (!detail || detail.length > 60) {
+    return null;
+  }
+
+  if (
+    detail === "请求失败" ||
+    detail === "语音合成请求失败" ||
+    detail === "语音合成服务连接失败"
+  ) {
+    return null;
+  }
+
+  return detail;
+}
+
+function appendTTSErrorDetail(
+  message: string,
+  response: TestTTSConnectionResponse
+): string {
+  const detail = getShortTTSErrorDetail(response);
+  if (!detail || message.includes(detail)) {
+    return message;
+  }
+
+  return `${message}（服务返回：${detail}）`;
+}
+
 // ====== 初始化 ======
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -445,6 +567,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   bindEvents();
   updateBadge();
+  updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 });
 
@@ -557,6 +680,23 @@ function bindEvents(): void {
     alibabaApiKeyInput.type = isPassword ? "text" : "password";
     showAlibabaKeyBtn.textContent = isPassword ? "隐藏" : "显示";
   });
+
+  // Settings - MiniMax TTS 配置自动保存
+  minimaxTTSApiKeyInput.addEventListener("input", handleMiniMaxTTSConfigInput);
+  minimaxTTSApiKeyInput.addEventListener("blur", autoSave);
+  minimaxTTSModelSelect.addEventListener("change", handleMiniMaxTTSModelChange);
+  minimaxTTSVoiceIdInput.addEventListener("input", handleMiniMaxTTSConfigInput);
+  minimaxTTSVoiceIdInput.addEventListener("blur", autoSave);
+
+  // Settings - 显示/隐藏 MiniMax API Key
+  showMiniMaxTTSKeyBtn.addEventListener("click", () => {
+    const isPassword = minimaxTTSApiKeyInput.type === "password";
+    minimaxTTSApiKeyInput.type = isPassword ? "text" : "password";
+    showMiniMaxTTSKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 测试 MiniMax TTS 连接
+  testMiniMaxTTSBtn.addEventListener("click", handleTestMiniMaxTTS);
 
   // Settings - 小米 TTS 配置自动保存
   xiaomiTTSApiKeyInput.addEventListener("input", handleXiaomiTTSApiKeyInput);
@@ -925,6 +1065,22 @@ function collectFormData(): void {
     delete currentConfig.alibaba_asr;
   }
 
+  // MiniMax TTS 配置（API Key 为空视为禁用，但保留模型与音色偏好）
+  const minimaxTTSApiKey = minimaxTTSApiKeyInput.value.trim();
+  const minimaxTTSModel = normalizeMiniMaxTTSModel(minimaxTTSModelSelect.value);
+  const minimaxTTSVoiceId = minimaxTTSVoiceIdInput.value.trim();
+  const hasCustomMiniMaxModel = minimaxTTSModel !== MINIMAX_TTS_DEFAULT_MODEL;
+
+  if (minimaxTTSApiKey || hasCustomMiniMaxModel || minimaxTTSVoiceId) {
+    currentConfig.minimax_tts = {
+      api_key: minimaxTTSApiKey,
+      ...(hasCustomMiniMaxModel ? { model: minimaxTTSModel } : {}),
+      ...(minimaxTTSVoiceId ? { voice_id: minimaxTTSVoiceId } : {}),
+    };
+  } else {
+    delete currentConfig.minimax_tts;
+  }
+
   // 小米 TTS 配置（API Key 为空视为禁用，直接使用浏览器 TTS）
   const xiaomiTTSApiKey = xiaomiTTSApiKeyInput.value.trim();
   const xiaomiTTSVoice = normalizeXiaomiTTSVoice(xiaomiTTSVoiceSelect.value);
@@ -941,13 +1097,18 @@ function collectFormData(): void {
     delete currentConfig.xiaomi_tts;
   }
 
+  updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 }
 
 // ====== Settings 表单更新 ======
 
 function updateSettingsForm(): void {
+  isTestingMiniMaxTTS = false;
   isTestingXiaomiTTS = false;
+  clearMiniMaxTTSResetTimer();
+  clearXiaomiTTSResetTimer();
+  hideMiniMaxTTSStatus();
   hideXiaomiTTSStatus();
 
   // API 配置
@@ -1017,61 +1178,82 @@ function updateSettingsForm(): void {
   // 阿里云 ASR 配置
   alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
 
+  // MiniMax TTS 配置
+  minimaxTTSApiKeyInput.value = currentConfig.minimax_tts?.api_key || "";
+  minimaxTTSModelSelect.value = normalizeMiniMaxTTSModel(
+    currentConfig.minimax_tts?.model
+  );
+  minimaxTTSVoiceIdInput.value =
+    currentConfig.minimax_tts?.voice_id || "";
+
   // 小米 TTS 配置
   xiaomiTTSApiKeyInput.value = currentConfig.xiaomi_tts?.api_key || "";
   xiaomiTTSVoiceSelect.value = normalizeXiaomiTTSVoice(
     currentConfig.xiaomi_tts?.voice
   );
   applyXiaomiTTSStyleSelection(currentConfig.xiaomi_tts?.styles);
+  updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 }
 
+function clearMiniMaxTTSResetTimer(): void {
+  clearServiceTestResetTimer(minimaxTTSResetTimer);
+  minimaxTTSResetTimer = null;
+}
+
 function clearXiaomiTTSResetTimer(): void {
-  if (xiaomiTTSResetTimer) {
-    clearTimeout(xiaomiTTSResetTimer);
-    xiaomiTTSResetTimer = null;
-  }
+  clearServiceTestResetTimer(xiaomiTTSResetTimer);
+  xiaomiTTSResetTimer = null;
+}
+
+function showMiniMaxTTSStatus(
+  message: string,
+  type: "success" | "error" | "loading"
+): void {
+  showServiceTestStatus(minimaxTTSStatus, message, type);
+}
+
+function hideMiniMaxTTSStatus(): void {
+  hideServiceTestStatus(minimaxTTSStatus);
 }
 
 function showXiaomiTTSStatus(
   message: string,
   type: "success" | "error" | "loading"
 ): void {
-  xiaomiTTSStatus.textContent = message;
-  xiaomiTTSStatus.className = `status-message service-test-status ${type}`;
-  xiaomiTTSStatus.style.display = "block";
+  showServiceTestStatus(xiaomiTTSStatus, message, type);
 }
 
 function hideXiaomiTTSStatus(): void {
-  xiaomiTTSStatus.style.display = "none";
-  xiaomiTTSStatus.className = "status-message service-test-status";
-  xiaomiTTSStatus.textContent = "";
+  hideServiceTestStatus(xiaomiTTSStatus);
 }
 
-function setXiaomiTTSButtonState(
-  state: "idle" | "loading" | "success" | "error",
+function setMiniMaxTTSButtonState(
+  state: ServiceTestState,
   disabled: boolean,
   title: string
 ): void {
-  testXiaomiTTSBtn.classList.remove(
-    "is-loading",
-    "is-success",
-    "is-error",
-    "is-disabled"
-  );
+  setServiceTestButtonState(testMiniMaxTTSBtn, state, disabled, title);
+}
 
-  if (state === "loading") {
-    testXiaomiTTSBtn.classList.add("is-loading");
-  } else if (state === "success") {
-    testXiaomiTTSBtn.classList.add("is-success");
-  } else if (state === "error") {
-    testXiaomiTTSBtn.classList.add("is-error");
-  } else if (disabled) {
-    testXiaomiTTSBtn.classList.add("is-disabled");
+function setXiaomiTTSButtonState(
+  state: ServiceTestState,
+  disabled: boolean,
+  title: string
+): void {
+  setServiceTestButtonState(testXiaomiTTSBtn, state, disabled, title);
+}
+
+function updateMiniMaxTTSButtonAvailability(): void {
+  clearMiniMaxTTSResetTimer();
+  if (isTestingMiniMaxTTS) return;
+
+  if (!minimaxTTSApiKeyInput.value.trim()) {
+    setMiniMaxTTSButtonState("idle", true, "填写 API Key 后可测试");
+    return;
   }
 
-  testXiaomiTTSBtn.disabled = disabled;
-  testXiaomiTTSBtn.title = title;
+  setMiniMaxTTSButtonState("idle", false, "测试 MiniMax 语音合成服务");
 }
 
 function updateXiaomiTTSButtonAvailability(): void {
@@ -1084,6 +1266,17 @@ function updateXiaomiTTSButtonAvailability(): void {
   }
 
   setXiaomiTTSButtonState("idle", false, "测试小米语音合成服务");
+}
+
+function handleMiniMaxTTSConfigInput(): void {
+  isTestingMiniMaxTTS = false;
+  hideMiniMaxTTSStatus();
+  updateMiniMaxTTSButtonAvailability();
+}
+
+async function handleMiniMaxTTSModelChange(): Promise<void> {
+  handleMiniMaxTTSConfigInput();
+  await autoSave();
 }
 
 function handleXiaomiTTSApiKeyInput(): void {
@@ -1132,36 +1325,49 @@ async function handleXiaomiTTSStyleClick(event: Event): Promise<void> {
   await autoSave();
 }
 
-function getShortXiaomiTTSErrorDetail(
-  response: TestTTSConnectionResponse
-): string | null {
-  const detail = response.errorDetail?.trim() || response.error?.trim() || "";
-
-  if (!detail || detail.length > 60) {
-    return null;
-  }
-
-  if (
-    detail === "请求失败" ||
-    detail === "语音合成请求失败" ||
-    detail === "语音合成服务连接失败"
-  ) {
-    return null;
-  }
-
-  return detail;
-}
-
-function appendXiaomiTTSErrorDetail(
-  message: string,
+function getMiniMaxTTSFailureReason(
   response: TestTTSConnectionResponse
 ): string {
-  const detail = getShortXiaomiTTSErrorDetail(response);
-  if (!detail || message.includes(detail)) {
-    return message;
+  switch (response.errorCode) {
+    case "TTS_NOT_CONFIGURED":
+      return "请先填写 API Key";
+    case "TTS_BAD_REQUEST":
+      switch (response.errorHint) {
+        case "VOICE_INVALID":
+          return "voice_id 参数不正确";
+        case "MODEL_INVALID":
+          return "模型参数不正确";
+        case "MESSAGES_INVALID":
+          return "请求格式不符合接口要求";
+        case "AUDIO_PARAM_INVALID":
+          return "音频参数不正确";
+        case "PARAM_INCORRECT":
+        default:
+          return appendTTSErrorDetail("请求参数不正确", response);
+      }
+    case "TTS_AUTH_ERROR":
+      return "API Key 无效或无权限";
+    case "TTS_FORBIDDEN":
+      return "当前服务不可用或无访问权限";
+    case "TTS_CONTENT_BLOCKED":
+      return "输入内容触发审核拦截";
+    case "TTS_ENDPOINT_ERROR":
+      return appendTTSErrorDetail("端点不可用", response);
+    case "TTS_NETWORK_ERROR":
+      return "网络异常或端点无法访问";
+    case "TTS_RATE_LIMIT":
+      return "请求过于频繁或额度受限";
+    case "TTS_SERVER_ERROR":
+      return "MiniMax 服务内部异常";
+    case "TTS_SERVER_BUSY":
+      return "MiniMax 服务繁忙，请稍后重试";
+    case "TTS_AUDIO_INVALID":
+      return appendTTSErrorDetail("服务返回了无效音频数据", response);
+    case "TTS_UNKNOWN_ERROR":
+      return appendTTSErrorDetail("请求失败", response);
+    default:
+      return appendTTSErrorDetail("请求失败", response);
   }
-
-  return `${message}（服务返回：${detail}）`;
 }
 
 function getXiaomiTTSFailureReason(
@@ -1182,7 +1388,7 @@ function getXiaomiTTSFailureReason(
           return "音频参数不正确";
         case "PARAM_INCORRECT":
         default:
-          return appendXiaomiTTSErrorDetail("请求参数不正确", response);
+          return appendTTSErrorDetail("请求参数不正确", response);
       }
     case "TTS_AUTH_ERROR":
       return "API Key 无效或无权限";
@@ -1191,7 +1397,7 @@ function getXiaomiTTSFailureReason(
     case "TTS_CONTENT_BLOCKED":
       return "输入内容触发审核拦截";
     case "TTS_ENDPOINT_ERROR":
-      return appendXiaomiTTSErrorDetail("端点不可用", response);
+      return appendTTSErrorDetail("端点不可用", response);
     case "TTS_NETWORK_ERROR":
       return "网络异常或端点无法访问";
     case "TTS_RATE_LIMIT":
@@ -1201,11 +1407,51 @@ function getXiaomiTTSFailureReason(
     case "TTS_SERVER_BUSY":
       return "小米服务负载过高，请稍后重试";
     case "TTS_AUDIO_INVALID":
-      return appendXiaomiTTSErrorDetail("服务返回了无效音频数据", response);
+      return appendTTSErrorDetail("服务返回了无效音频数据", response);
     case "TTS_UNKNOWN_ERROR":
-      return appendXiaomiTTSErrorDetail("请求失败", response);
+      return appendTTSErrorDetail("请求失败", response);
     default:
-      return appendXiaomiTTSErrorDetail("请求失败", response);
+      return appendTTSErrorDetail("请求失败", response);
+  }
+}
+
+async function handleTestMiniMaxTTS(event: Event): Promise<void> {
+  event.stopPropagation();
+
+  if (testMiniMaxTTSBtn.disabled || !minimaxTTSApiKeyInput.value.trim()) {
+    return;
+  }
+
+  isTestingMiniMaxTTS = true;
+  setMiniMaxTTSButtonState("loading", true, "测试中...");
+  showMiniMaxTTSStatus("正在测试 MiniMax 语音合成服务...", "loading");
+
+  try {
+    await autoSave();
+
+    const response: TestTTSConnectionResponse = await chrome.runtime.sendMessage({
+      type: MessageType.TEST_TTS_CONNECTION,
+      payload: { provider: "minimax" },
+    });
+
+    if (response.success) {
+      showMiniMaxTTSStatus("连接成功", "success");
+      setMiniMaxTTSButtonState("success", true, "测试成功");
+    } else {
+      const failureReason = getMiniMaxTTSFailureReason(response);
+      showMiniMaxTTSStatus(`连接失败：${failureReason}`, "error");
+      setMiniMaxTTSButtonState("error", true, `连接失败：${failureReason}`);
+    }
+  } catch {
+    showMiniMaxTTSStatus("连接失败：测试请求发送失败", "error");
+    setMiniMaxTTSButtonState("error", true, "连接失败：测试请求发送失败");
+  } finally {
+    clearMiniMaxTTSResetTimer();
+    minimaxTTSResetTimer = window.setTimeout(() => {
+      isTestingMiniMaxTTS = false;
+      hideMiniMaxTTSStatus();
+      updateMiniMaxTTSButtonAvailability();
+    }, 5000);
   }
 }
 
@@ -1225,6 +1471,7 @@ async function handleTestXiaomiTTS(event: Event): Promise<void> {
 
     const response: TestTTSConnectionResponse = await chrome.runtime.sendMessage({
       type: MessageType.TEST_TTS_CONNECTION,
+      payload: { provider: "xiaomi" },
     });
 
     if (response.success) {
@@ -1239,7 +1486,7 @@ async function handleTestXiaomiTTS(event: Event): Promise<void> {
         `连接失败：${failureReason}`
       );
     }
-  } catch (error) {
+  } catch {
     showXiaomiTTSStatus("连接失败：测试请求发送失败", "error");
     setXiaomiTTSButtonState("error", true, "连接失败：测试请求发送失败");
   } finally {

@@ -10,7 +10,7 @@ import {
 } from "../types";
 
 const DEFAULT_FALLBACK_WARNING =
-  "小米语音合成暂不可用，已切换为浏览器朗读";
+  "AI 语音合成暂不可用，已切换为浏览器朗读";
 
 interface ActivePlayback {
   audio?: HTMLAudioElement;
@@ -98,6 +98,7 @@ export function createHybridTTSPlayer(
 
   function beginRun(): number {
     stop();
+    fallbackWarningShown = false;
     activeRunToken = runToken;
     return runToken;
   }
@@ -251,7 +252,11 @@ export function createHybridTTSPlayer(
         if (!isCurrentRun(token)) return;
 
         if (response.success && response.data) {
-          fallbackWarningShown = false;
+          if (response.data.fallbackWarningMessage && !fallbackWarningShown) {
+            fallbackWarningShown = true;
+            onFallbackWarning?.(response.data.fallbackWarningMessage);
+          }
+
           await playAudioFromBase64(
             response.data.audioBase64,
             response.data.mimeType,

@@ -64,6 +64,10 @@ import {
   ListeningAnalysisResult,
   Message,
   MessageType,
+  MINIMAX_TTS_API_BASE_URL,
+  MINIMAX_TTS_DEFAULT_MODEL,
+  MINIMAX_TTS_DEFAULT_VOICE_ID,
+  MiniMaxTTSModel,
   MixedTranslateResponse,
   ParaphraseResponse,
   PronunciationAssessmentResult,
@@ -79,6 +83,7 @@ import {
   TencentASRSignResponse,
   TestTTSConnectionResponse,
   TestConnectionResponse,
+  TTSProviderId,
   TTSServiceErrorCode,
   TTSServiceErrorHint,
   TranslateResponse,
@@ -110,23 +115,126 @@ console.log("[Lingride] Background Service Worker 已启动");
 // 初始化 Tab 状态监听器
 initTabStateListeners();
 
-// ====== 小米 TTS ======
+// ====== TTS 服务 ======
 
 const XIAOMI_TTS_AUDIO_FORMAT = "wav";
 const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
 const XIAOMI_TTS_TEST_TEXT = "Hello from Lingride.";
 const XIAOMI_TTS_REQUEST_PROMPT =
   "Please synthesize the assistant message as speech exactly as written.";
+const MINIMAX_TTS_TEST_TEXT = "Hello from Lingride.";
+const MINIMAX_TTS_AUDIO_FORMAT = "mp3";
+const MINIMAX_TTS_TEXT_MAX_CHARS = 50000;
+const MINIMAX_TTS_POLL_INTERVAL_MS = 500;
+const MINIMAX_TTS_POLL_TIMEOUT_MS = 20000;
+const MINIMAX_TTS_UPLOAD_PURPOSE = "t2a_async_input";
 type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
 type XiaomiTTSStyleValue = NonNullable<
   XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
 >;
+type MiniMaxTaskId = string | number;
+type MiniMaxFileId = string | number;
+type MiniMaxTaskStatus = "processing" | "success" | "failed" | "expired";
+
+interface TTSAudioData {
+  audioBase64: string;
+  mimeType: string;
+  provider: TTSProviderId;
+  fallbackWarningMessage?: string;
+}
+
+interface TTSProviderRequestContext {
+  config: LingridConfig;
+  text: string;
+}
+
+interface XiaomiTTSChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      audio?: {
+        data?: string;
+      };
+    };
+  }>;
+  error?: {
+    message?: string;
+    code?: string;
+    type?: string;
+  };
+  message?: string;
+}
+
+interface MiniMaxBaseResp {
+  status_code?: number;
+  status_msg?: string;
+}
+
+interface MiniMaxBaseResponsePayload {
+  base_resp?: MiniMaxBaseResp;
+  message?: string;
+  error?: {
+    message?: string;
+  };
+}
+
+interface MiniMaxTTSCreateTaskResponse extends MiniMaxBaseResponsePayload {
+  task_id?: MiniMaxTaskId;
+  task_token?: string;
+  file_id?: MiniMaxFileId;
+}
+
+interface MiniMaxTTSQueryTaskResponse extends MiniMaxBaseResponsePayload {
+  task_id?: MiniMaxTaskId;
+  status?: string;
+  file_id?: MiniMaxFileId;
+}
+
+interface MiniMaxFileUploadResponse extends MiniMaxBaseResponsePayload {
+  file?: {
+    file_id?: MiniMaxFileId;
+  };
+  file_id?: MiniMaxFileId;
+}
+
+class TTSError extends Error {
+  readonly provider: TTSProviderId;
+  readonly code: TTSServiceErrorCode;
+  readonly hint?: TTSServiceErrorHint;
+  readonly httpStatus?: number;
+  readonly detail?: string;
+
+  constructor(params: {
+    provider: TTSProviderId;
+    code: TTSServiceErrorCode;
+    message: string;
+    hint?: TTSServiceErrorHint;
+    httpStatus?: number;
+    detail?: string;
+  }) {
+    super(params.message);
+    this.name = "TTSError";
+    this.provider = params.provider;
+    this.code = params.code;
+    this.hint = params.hint;
+    this.httpStatus = params.httpStatus;
+    this.detail = params.detail;
+  }
+}
 
 const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
   "mimo_default",
   "default_zh",
   "default_en",
 ];
+const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
+  "speech-2.8-hd",
+  "speech-2.8-turbo",
+  "speech-2.6-hd",
+  "speech-2.6-turbo",
+  "speech-02-hd",
+  "speech-02-turbo",
+];
+const TTS_PROVIDER_PRIORITY: TTSProviderId[] = ["minimax", "xiaomi"];
 const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
   "speed",
   "emotion",
@@ -164,54 +272,25 @@ const XIAOMI_TTS_STYLE_PROMPTS: Record<
   },
 };
 
-interface XiaomiTTSChatCompletionResponse {
-  choices?: Array<{
-    message?: {
-      audio?: {
-        data?: string;
-      };
-    };
-  }>;
-  error?: {
-    message?: string;
-    code?: string;
-    type?: string;
-  };
-  message?: string;
+function getTTSProviderLabel(provider: TTSProviderId): string {
+  return provider === "minimax" ? "MiniMax" : "小米";
 }
 
-class XiaomiTTSError extends Error {
-  readonly code: TTSServiceErrorCode;
-  readonly hint?: TTSServiceErrorHint;
-  readonly httpStatus?: number;
-  readonly detail?: string;
+function getTTSErrorMessage(
+  provider: TTSProviderId,
+  code: TTSServiceErrorCode
+): string {
+  const providerLabel = getTTSProviderLabel(provider);
 
-  constructor(params: {
-    code: TTSServiceErrorCode;
-    message: string;
-    hint?: TTSServiceErrorHint;
-    httpStatus?: number;
-    detail?: string;
-  }) {
-    super(params.message);
-    this.name = "XiaomiTTSError";
-    this.code = params.code;
-    this.hint = params.hint;
-    this.httpStatus = params.httpStatus;
-    this.detail = params.detail;
-  }
-}
-
-function getXiaomiTTSErrorMessage(code: TTSServiceErrorCode): string {
   switch (code) {
     case "TTS_NOT_CONFIGURED":
-      return "未配置小米语音合成 API Key";
+      return `未配置${providerLabel}语音合成 API Key`;
     case "TTS_BAD_REQUEST":
       return "请求参数不正确";
     case "TTS_AUTH_ERROR":
       return "API Key 无效或无权限";
     case "TTS_FORBIDDEN":
-      return "当前地区不可用，或 API Key 被风控";
+      return "当前服务不可用，或 API Key 无访问权限";
     case "TTS_CONTENT_BLOCKED":
       return "输入内容触发审核拦截";
     case "TTS_ENDPOINT_ERROR":
@@ -221,9 +300,9 @@ function getXiaomiTTSErrorMessage(code: TTSServiceErrorCode): string {
     case "TTS_RATE_LIMIT":
       return "请求过于频繁或额度受限";
     case "TTS_SERVER_ERROR":
-      return "小米服务内部异常";
+      return `${providerLabel}服务内部异常`;
     case "TTS_SERVER_BUSY":
-      return "小米服务负载过高，请稍后重试";
+      return `${providerLabel}服务繁忙，请稍后重试`;
     case "TTS_AUDIO_INVALID":
       return "服务返回了无效音频数据";
     case "TTS_UNKNOWN_ERROR":
@@ -233,8 +312,38 @@ function getXiaomiTTSErrorMessage(code: TTSServiceErrorCode): string {
   }
 }
 
+function buildTTSRequestUrl(baseUrl: string, path: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
+}
+
 function buildXiaomiTTSRequestUrl(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
+  return buildTTSRequestUrl(baseUrl, "chat/completions");
+}
+
+function buildMiniMaxTTSCreateTaskUrl(baseUrl: string): string {
+  return buildTTSRequestUrl(baseUrl, "t2a_async_v2");
+}
+
+function buildMiniMaxTTSQueryUrl(
+  baseUrl: string,
+  taskId: MiniMaxTaskId
+): string {
+  const url = new URL(buildTTSRequestUrl(baseUrl, "query/t2a_async_query_v2"));
+  url.searchParams.set("task_id", String(taskId));
+  return url.toString();
+}
+
+function buildMiniMaxTTSUploadUrl(baseUrl: string): string {
+  return buildTTSRequestUrl(baseUrl, "files/upload");
+}
+
+function buildMiniMaxTTSFileRetrieveUrl(
+  baseUrl: string,
+  fileId: MiniMaxFileId
+): string {
+  const url = new URL(buildTTSRequestUrl(baseUrl, "files/retrieve_content"));
+  url.searchParams.set("file_id", String(fileId));
+  return url.toString();
 }
 
 function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
@@ -243,6 +352,30 @@ function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
   }
 
   return XIAOMI_TTS_DEFAULT_VOICE;
+}
+
+function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
+  if (value && MINIMAX_TTS_MODEL_OPTIONS.includes(value as MiniMaxTTSModel)) {
+    return value as MiniMaxTTSModel;
+  }
+
+  return MINIMAX_TTS_DEFAULT_MODEL;
+}
+
+function normalizeMiniMaxTaskStatus(
+  value?: string | null
+): MiniMaxTaskStatus | null {
+  const normalized = value?.trim().toLowerCase();
+  if (
+    normalized === "processing" ||
+    normalized === "success" ||
+    normalized === "failed" ||
+    normalized === "expired"
+  ) {
+    return normalized;
+  }
+
+  return null;
 }
 
 function isValidXiaomiTTSStyleValue(
@@ -320,6 +453,14 @@ function getXiaomiTTSVoice(config: LingridConfig): XiaomiTTSVoice {
   return normalizeXiaomiTTSVoice(config.xiaomi_tts?.voice);
 }
 
+function getMiniMaxTTSModel(config: LingridConfig): MiniMaxTTSModel {
+  return normalizeMiniMaxTTSModel(config.minimax_tts?.model);
+}
+
+function getMiniMaxTTSVoiceId(config: LingridConfig): string {
+  return config.minimax_tts?.voice_id?.trim() || MINIMAX_TTS_DEFAULT_VOICE_ID;
+}
+
 function buildXiaomiTTSAssistantContent(
   text: string,
   config: LingridConfig
@@ -348,15 +489,18 @@ function buildXiaomiTTSAssistantContent(
   return `<style>${promptParts.join(" ")}</style>${text}`;
 }
 
-function extractXiaomiTTSErrorMessage(errorText: string): string {
+function extractTTSErrorMessage(errorText: string): string {
   const trimmedText = errorText.trim();
   if (!trimmedText) return "";
 
   try {
-    const errorData = JSON.parse(errorText) as XiaomiTTSChatCompletionResponse;
+    const errorData = JSON.parse(errorText) as MiniMaxBaseResponsePayload & {
+      error?: { message?: string };
+    };
     return (
       errorData.error?.message?.trim() ||
       errorData.message?.trim() ||
+      errorData.base_resp?.status_msg?.trim() ||
       trimmedText
     );
   } catch {
@@ -364,12 +508,15 @@ function extractXiaomiTTSErrorMessage(errorText: string): string {
   }
 }
 
-function getXiaomiTTSErrorHint(
+function getTTSErrorHint(
   errorMessage: string
 ): TTSServiceErrorHint | undefined {
   const normalizedMessage = errorMessage.toLowerCase();
 
-  if (normalizedMessage.includes("voice")) {
+  if (
+    normalizedMessage.includes("voice_id") ||
+    normalizedMessage.includes("voice")
+  ) {
     return "VOICE_INVALID";
   }
 
@@ -385,8 +532,10 @@ function getXiaomiTTSErrorHint(
   }
 
   if (
+    normalizedMessage.includes("audio_setting") ||
     normalizedMessage.includes("audio") ||
-    normalizedMessage.includes("format")
+    normalizedMessage.includes("format") ||
+    normalizedMessage.includes("bitrate")
   ) {
     return "AUDIO_PARAM_INVALID";
   }
@@ -395,7 +544,7 @@ function getXiaomiTTSErrorHint(
     normalizedMessage.includes("param incorrect") ||
     normalizedMessage.includes("parameter") ||
     normalizedMessage.includes("param") ||
-    normalizedMessage.includes("format incorrect")
+    normalizedMessage.includes("invalid")
   ) {
     return "PARAM_INCORRECT";
   }
@@ -403,17 +552,18 @@ function getXiaomiTTSErrorHint(
   return undefined;
 }
 
-function classifyXiaomiTTSError(
+function classifyTTSError(
   httpStatus: number,
   errorMessage: string
 ): {
   code: TTSServiceErrorCode;
   hint?: TTSServiceErrorHint;
 } {
-  const hint = getXiaomiTTSErrorHint(errorMessage);
+  const hint = getTTSErrorHint(errorMessage);
 
   switch (httpStatus) {
     case 400:
+    case 422:
       return {
         code: "TTS_BAD_REQUEST",
         hint,
@@ -454,20 +604,117 @@ function classifyXiaomiTTSError(
   }
 }
 
+function createTTSError(params: {
+  provider: TTSProviderId;
+  code: TTSServiceErrorCode;
+  hint?: TTSServiceErrorHint;
+  httpStatus?: number;
+  detail?: string;
+  message?: string;
+}): TTSError {
+  return new TTSError({
+    ...params,
+    message:
+      params.message || getTTSErrorMessage(params.provider, params.code),
+  });
+}
+
+function normalizeUnknownTTSError(
+  provider: TTSProviderId,
+  error: unknown
+): TTSError {
+  if (error instanceof TTSError) {
+    return error;
+  }
+
+  return createTTSError({
+    provider,
+    code: "TTS_UNKNOWN_ERROR",
+    detail: error instanceof Error ? error.message : undefined,
+    message: error instanceof Error ? error.message : "语音合成请求失败",
+  });
+}
+
 function isXiaomiTTSConfigured(config: LingridConfig): boolean {
   return !!config.xiaomi_tts?.api_key?.trim();
 }
 
-async function requestXiaomiTTSAudio(text: string): Promise<{
-  audioBase64: string;
-  mimeType: string;
-}> {
-  const config = await getConfig();
+function isMiniMaxTTSConfigured(config: LingridConfig): boolean {
+  return !!config.minimax_tts?.api_key?.trim();
+}
+
+function isTTSProviderConfigured(
+  config: LingridConfig,
+  provider: TTSProviderId
+): boolean {
+  return provider === "minimax"
+    ? isMiniMaxTTSConfigured(config)
+    : isXiaomiTTSConfigured(config);
+}
+
+function parseJSONResponse<T>(
+  responseText: string,
+  params: {
+    provider: TTSProviderId;
+    code: TTSServiceErrorCode;
+    detail?: string;
+  }
+): T {
+  try {
+    return JSON.parse(responseText) as T;
+  } catch {
+    throw createTTSError({
+      provider: params.provider,
+      code: params.code,
+      detail: params.detail || responseText.trim() || "响应不是有效 JSON",
+    });
+  }
+}
+
+function ensureMiniMaxBaseResponseSuccess(
+  responseText: string,
+  payload: MiniMaxBaseResponsePayload,
+  provider: TTSProviderId
+): void {
+  const statusCode = payload.base_resp?.status_code;
+  if (typeof statusCode === "number" && statusCode !== 0) {
+    throw createTTSError({
+      provider,
+      code: "TTS_UNKNOWN_ERROR",
+      detail:
+        extractTTSErrorMessage(responseText) ||
+        payload.base_resp?.status_msg ||
+        `status_code=${statusCode}`,
+    });
+  }
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+async function requestXiaomiTTSAudio(
+  context: TTSProviderRequestContext
+): Promise<TTSAudioData> {
+  const { config, text } = context;
 
   if (!isXiaomiTTSConfigured(config)) {
-    throw new XiaomiTTSError({
+    throw createTTSError({
+      provider: "xiaomi",
       code: "TTS_NOT_CONFIGURED",
-      message: getXiaomiTTSErrorMessage("TTS_NOT_CONFIGURED"),
     });
   }
 
@@ -503,9 +750,9 @@ async function requestXiaomiTTSAudio(text: string): Promise<{
       body: JSON.stringify(requestBody),
     });
   } catch (error) {
-    throw new XiaomiTTSError({
+    throw createTTSError({
+      provider: "xiaomi",
       code: "TTS_NETWORK_ERROR",
-      message: getXiaomiTTSErrorMessage("TTS_NETWORK_ERROR"),
       detail: error instanceof Error ? error.message : undefined,
     });
   }
@@ -513,48 +760,423 @@ async function requestXiaomiTTSAudio(text: string): Promise<{
   const responseText = await response.text();
 
   if (!response.ok) {
-    const errorMessage = extractXiaomiTTSErrorMessage(responseText);
-    const classification = classifyXiaomiTTSError(
-      response.status,
-      errorMessage
-    );
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
 
-    throw new XiaomiTTSError({
+    throw createTTSError({
+      provider: "xiaomi",
       code: classification.code,
       hint: classification.hint,
       httpStatus: response.status,
-      message: getXiaomiTTSErrorMessage(classification.code),
       detail: errorMessage || responseText.trim() || undefined,
     });
   }
 
-  let data: XiaomiTTSChatCompletionResponse;
-
-  try {
-    data = JSON.parse(responseText) as XiaomiTTSChatCompletionResponse;
-  } catch {
-    throw new XiaomiTTSError({
+  const data = parseJSONResponse<XiaomiTTSChatCompletionResponse>(
+    responseText,
+    {
+      provider: "xiaomi",
       code: "TTS_AUDIO_INVALID",
-      message: getXiaomiTTSErrorMessage("TTS_AUDIO_INVALID"),
-      detail: responseText.trim() || "响应不是有效 JSON",
-    });
-  }
-
+    }
+  );
   const audioBase64 = data.choices?.[0]?.message?.audio?.data;
 
   if (!audioBase64) {
-    throw new XiaomiTTSError({
+    throw createTTSError({
+      provider: "xiaomi",
       code: "TTS_AUDIO_INVALID",
-      message: getXiaomiTTSErrorMessage("TTS_AUDIO_INVALID"),
-      detail:
-        extractXiaomiTTSErrorMessage(responseText) || responseText.trim() || undefined,
+      detail: extractTTSErrorMessage(responseText) || responseText.trim() || undefined,
     });
   }
 
   return {
     audioBase64,
     mimeType: "audio/wav",
+    provider: "xiaomi",
   };
+}
+
+async function uploadMiniMaxTextInput(
+  apiKey: string,
+  text: string
+): Promise<MiniMaxFileId> {
+  const formData = new FormData();
+  formData.append("purpose", MINIMAX_TTS_UPLOAD_PURPOSE);
+  formData.append(
+    "file",
+    new Blob([text], { type: "text/plain;charset=utf-8" }),
+    "lingride-tts-input.txt"
+  );
+
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(buildMiniMaxTTSUploadUrl(MINIMAX_TTS_API_BASE_URL), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: formData,
+    });
+  } catch (error) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "minimax",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  const data = parseJSONResponse<MiniMaxFileUploadResponse>(responseText, {
+    provider: "minimax",
+    code: "TTS_UNKNOWN_ERROR",
+  });
+
+  ensureMiniMaxBaseResponseSuccess(responseText, data, "minimax");
+
+  const fileId = data.file?.file_id ?? data.file_id;
+  if (!fileId) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_UNKNOWN_ERROR",
+      detail: responseText.trim() || "MiniMax 文件上传未返回 file_id",
+    });
+  }
+
+  return fileId;
+}
+
+async function createMiniMaxTTSTask(
+  context: TTSProviderRequestContext
+): Promise<{ taskId: MiniMaxTaskId; fileId?: MiniMaxFileId }> {
+  const { config, text } = context;
+
+  if (!isMiniMaxTTSConfigured(config)) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const apiKey = config.minimax_tts!.api_key.trim();
+  const requestBody: Record<string, unknown> = {
+    model: getMiniMaxTTSModel(config),
+    language_boost: "auto",
+    voice_setting: {
+      voice_id: getMiniMaxTTSVoiceId(config),
+      speed: 1,
+      vol: 1,
+      pitch: 1,
+    },
+    audio_setting: {
+      format: MINIMAX_TTS_AUDIO_FORMAT,
+    },
+  };
+
+  if (text.length > MINIMAX_TTS_TEXT_MAX_CHARS) {
+    requestBody.text_file_id = await uploadMiniMaxTextInput(apiKey, text);
+  } else {
+    requestBody.text = text;
+  }
+
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(
+      buildMiniMaxTTSCreateTaskUrl(MINIMAX_TTS_API_BASE_URL),
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+  } catch (error) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "minimax",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  const data = parseJSONResponse<MiniMaxTTSCreateTaskResponse>(responseText, {
+    provider: "minimax",
+    code: "TTS_UNKNOWN_ERROR",
+  });
+
+  ensureMiniMaxBaseResponseSuccess(responseText, data, "minimax");
+
+  if (!data.task_id) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_UNKNOWN_ERROR",
+      detail: responseText.trim() || "MiniMax 创建任务未返回 task_id",
+    });
+  }
+
+  return {
+    taskId: data.task_id,
+    fileId: data.file_id,
+  };
+}
+
+async function queryMiniMaxTTSTask(
+  apiKey: string,
+  taskId: MiniMaxTaskId
+): Promise<MiniMaxTTSQueryTaskResponse> {
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(
+      buildMiniMaxTTSQueryUrl(MINIMAX_TTS_API_BASE_URL, taskId),
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    );
+  } catch (error) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "minimax",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  const data = parseJSONResponse<MiniMaxTTSQueryTaskResponse>(responseText, {
+    provider: "minimax",
+    code: "TTS_UNKNOWN_ERROR",
+  });
+
+  ensureMiniMaxBaseResponseSuccess(responseText, data, "minimax");
+  return data;
+}
+
+async function waitForMiniMaxTaskFileId(
+  apiKey: string,
+  taskId: MiniMaxTaskId,
+  initialFileId?: MiniMaxFileId
+): Promise<MiniMaxFileId> {
+  const startedAt = Date.now();
+  let fileId = initialFileId;
+
+  while (Date.now() - startedAt < MINIMAX_TTS_POLL_TIMEOUT_MS) {
+    const data = await queryMiniMaxTTSTask(apiKey, taskId);
+    if (data.file_id) {
+      fileId = data.file_id;
+    }
+
+    const status = normalizeMiniMaxTaskStatus(data.status);
+
+    if (status === "success") {
+      if (fileId) {
+        return fileId;
+      }
+
+      throw createTTSError({
+        provider: "minimax",
+        code: "TTS_UNKNOWN_ERROR",
+        detail: `MiniMax 任务已成功，但未返回 file_id（task_id=${taskId}）`,
+      });
+    }
+
+    if (status === "failed" || status === "expired") {
+      throw createTTSError({
+        provider: "minimax",
+        code: "TTS_UNKNOWN_ERROR",
+        detail: `MiniMax 任务状态为 ${status}（task_id=${taskId}）`,
+      });
+    }
+
+    if (!status) {
+      throw createTTSError({
+        provider: "minimax",
+        code: "TTS_UNKNOWN_ERROR",
+        detail:
+          data.status?.trim() ||
+          `MiniMax 任务返回了未知状态（task_id=${taskId}）`,
+      });
+    }
+
+    await sleep(MINIMAX_TTS_POLL_INTERVAL_MS);
+  }
+
+  throw createTTSError({
+    provider: "minimax",
+    code: "TTS_SERVER_BUSY",
+    detail: `MiniMax 任务轮询超时（task_id=${taskId}）`,
+  });
+}
+
+async function downloadMiniMaxTTSAudio(
+  apiKey: string,
+  fileId: MiniMaxFileId
+): Promise<TTSAudioData> {
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(
+      buildMiniMaxTTSFileRetrieveUrl(MINIMAX_TTS_API_BASE_URL, fileId),
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    );
+  } catch (error) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  if (!response.ok) {
+    const responseText = await response.text();
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "minimax",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  const audioBuffer = await response.arrayBuffer();
+  if (audioBuffer.byteLength === 0) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_AUDIO_INVALID",
+      detail: `MiniMax 下载的音频为空（file_id=${fileId}）`,
+    });
+  }
+
+  return {
+    audioBase64: arrayBufferToBase64(audioBuffer),
+    mimeType: "audio/mpeg",
+    provider: "minimax",
+  };
+}
+
+async function requestMiniMaxTTSAudio(
+  context: TTSProviderRequestContext
+): Promise<TTSAudioData> {
+  const apiKey = context.config.minimax_tts?.api_key?.trim();
+  if (!apiKey) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const { taskId, fileId } = await createMiniMaxTTSTask(context);
+  const outputFileId = await waitForMiniMaxTaskFileId(apiKey, taskId, fileId);
+  return downloadMiniMaxTTSAudio(apiKey, outputFileId);
+}
+
+async function requestTTSAudioByProvider(
+  provider: TTSProviderId,
+  context: TTSProviderRequestContext
+): Promise<TTSAudioData> {
+  return provider === "minimax"
+    ? requestMiniMaxTTSAudio(context)
+    : requestXiaomiTTSAudio(context);
+}
+
+async function requestTTSAudioWithPriority(text: string): Promise<TTSAudioData> {
+  const config = await getConfig();
+  const context: TTSProviderRequestContext = {
+    config,
+    text,
+  };
+  let firstFailure: TTSError | null = null;
+
+  for (const provider of TTS_PROVIDER_PRIORITY) {
+    if (!isTTSProviderConfigured(config, provider)) {
+      continue;
+    }
+
+    try {
+      const result = await requestTTSAudioByProvider(provider, context);
+
+      if (firstFailure) {
+        return {
+          ...result,
+          fallbackWarningMessage: `${getTTSProviderLabel(
+            firstFailure.provider
+          )} 失败，已切换到${getTTSProviderLabel(provider)}语音合成`,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      const normalizedError = normalizeUnknownTTSError(provider, error);
+      if (!firstFailure) {
+        firstFailure = normalizedError;
+      }
+    }
+  }
+
+  if (firstFailure) {
+    throw firstFailure;
+  }
+
+  throw createTTSError({
+    provider: "minimax",
+    code: "TTS_NOT_CONFIGURED",
+    message: "未配置 AI 语音合成服务 API Key",
+  });
 }
 
 // ====== 消息处理 ======
@@ -799,14 +1421,23 @@ async function handleTestConnection(): Promise<TestConnectionResponse> {
 /**
  * 处理 TEST_TTS_CONNECTION 消息
  *
- * 测试小米 TTS 配置是否可用。
+ * 测试指定 TTS Provider 配置是否可用。
  */
-async function handleTestTTSConnection(): Promise<TestTTSConnectionResponse> {
+async function handleTestTTSConnection(
+  provider: TTSProviderId
+): Promise<TestTTSConnectionResponse> {
   try {
-    await requestXiaomiTTSAudio(XIAOMI_TTS_TEST_TEXT);
+    const config = await getConfig();
+    const text = provider === "minimax" ? MINIMAX_TTS_TEST_TEXT : XIAOMI_TTS_TEST_TEXT;
+
+    await requestTTSAudioByProvider(provider, {
+      config,
+      text,
+    });
+
     return { success: true };
   } catch (error) {
-    if (error instanceof XiaomiTTSError) {
+    if (error instanceof TTSError) {
       return {
         success: false,
         errorCode: error.code,
@@ -830,7 +1461,7 @@ async function handleTestTTSConnection(): Promise<TestTTSConnectionResponse> {
 /**
  * 处理 SYNTHESIZE_SPEECH 消息
  *
- * 调用小米 TTS 生成音频。
+ * 按优先级调用 AI TTS 生成音频。
  */
 async function handleSynthesizeSpeech(
   text: string
@@ -844,13 +1475,13 @@ async function handleSynthesizeSpeech(
       };
     }
 
-    const data = await requestXiaomiTTSAudio(text.trim());
+    const data = await requestTTSAudioWithPriority(text.trim());
     return {
       success: true,
       data,
     };
   } catch (error) {
-    if (error instanceof XiaomiTTSError) {
+    if (error instanceof TTSError) {
       return {
         success: false,
         errorCode: error.code,
@@ -2717,7 +3348,9 @@ chrome.runtime.onMessage.addListener(
           break;
 
         case MessageType.TEST_TTS_CONNECTION:
-          response = await handleTestTTSConnection();
+          response = await handleTestTTSConnection(
+            message.payload?.provider || "xiaomi"
+          );
           break;
 
         case MessageType.ANALYZE_DIFFICULTY:

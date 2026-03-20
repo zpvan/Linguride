@@ -40,7 +40,8 @@
   "host_permissions": [
     "https://api.deepseek.com/*",
     "https://*.openai.com/*",
-    "https://api.xiaomimimo.com/*"
+    "https://api.xiaomimimo.com/*",
+    "https://api.minimax.io/*"
   ],
   "web_accessible_resources": [
     {

@@ -129,6 +129,11 @@ export interface AlibabaASRConfig {
 }
 
 /**
+ * 语音合成服务标识
+ */
+export type TTSProviderId = "minimax" | "xiaomi";
+
+/**
  * 小米语音合成配置
  *
  * 用于 OpenAI 兼容 Chat Completions 音频输出接口。
@@ -159,6 +164,31 @@ export interface XiaomiTTSConfig {
 
   /** 可选风格，留空时不添加额外风格标签 */
   styles?: XiaomiTTSStyleSelection;
+}
+
+/**
+ * MiniMax TTS 可选模型
+ */
+export type MiniMaxTTSModel =
+  | "speech-2.8-hd"
+  | "speech-2.8-turbo"
+  | "speech-2.6-hd"
+  | "speech-2.6-turbo"
+  | "speech-02-hd"
+  | "speech-02-turbo";
+
+/**
+ * MiniMax 语音合成配置
+ */
+export interface MiniMaxTTSConfig {
+  /** MiniMax API Key */
+  api_key: string;
+
+  /** 可选模型，留空时使用默认模型 */
+  model?: MiniMaxTTSModel;
+
+  /** 可选音色 ID，留空时使用默认音色 */
+  voice_id?: string;
 }
 
 /**
@@ -206,7 +236,25 @@ export interface LingridConfig {
 
   /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */
   xiaomi_tts?: XiaomiTTSConfig;
+
+  /** MiniMax AI 语音合成配置（可选，不配置则不参与优先级调度） */
+  minimax_tts?: MiniMaxTTSConfig;
 }
+
+/**
+ * MiniMax TTS 固定基础端点
+ */
+export const MINIMAX_TTS_API_BASE_URL = "https://api.minimax.io/v1";
+
+/**
+ * MiniMax TTS 默认模型
+ */
+export const MINIMAX_TTS_DEFAULT_MODEL: MiniMaxTTSModel = "speech-2.8-hd";
+
+/**
+ * MiniMax TTS 默认音色
+ */
+export const MINIMAX_TTS_DEFAULT_VOICE_ID = "English_expressive_narrator";
 
 /**
  * 小米 TTS 固定基础端点

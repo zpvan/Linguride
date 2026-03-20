@@ -57,7 +57,7 @@ interface ModeConfig {
 
 const MAX_TUTOR_INPUT_CHARS = 5000;
 const TTS_FALLBACK_WARNING_MESSAGE =
-  "小米语音合成暂不可用，已切换为浏览器朗读";
+  "AI 语音合成暂不可用，已切换为浏览器朗读";
 const TTS_PLAYBACK_ERROR_MESSAGE =
   "朗读失败，请检查语音合成配置或浏览器语音能力";
 
@@ -104,7 +104,11 @@ let userConfig: LingridConfig | null = null;
 /** 当前全局 TTS 语速 */
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
 const tutorTTSPlayer = createHybridTTSPlayer({
-  isAIEnabled: () => !!userConfig?.xiaomi_tts?.api_key?.trim(),
+  isAIEnabled: () =>
+    Boolean(
+      userConfig?.minimax_tts?.api_key?.trim() ||
+      userConfig?.xiaomi_tts?.api_key?.trim()
+    ),
 });
 
 shadow.injectTTSPlayer(tutorTTSPlayer);
@@ -673,6 +677,7 @@ function handleTTSSpeedStorageChange(
   if (userConfig) {
     userConfig = {
       ...userConfig,
+      minimax_tts: nextConfig.minimax_tts,
       xiaomi_tts: nextConfig.xiaomi_tts,
       tts_speed: nextSpeed,
     };

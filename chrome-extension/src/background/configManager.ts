@@ -68,6 +68,7 @@ export async function getConfig(): Promise<LingridConfig> {
       tencent_asr: stored.tencent_asr || DEFAULT_CONFIG.tencent_asr,
       alibaba_asr: stored.alibaba_asr || DEFAULT_CONFIG.alibaba_asr,
       xiaomi_tts: stored.xiaomi_tts || DEFAULT_CONFIG.xiaomi_tts,
+      minimax_tts: stored.minimax_tts || DEFAULT_CONFIG.minimax_tts,
     };
 
     return config;

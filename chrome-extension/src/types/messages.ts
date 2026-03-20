@@ -14,7 +14,7 @@
  * @since 1.0.0
  */
 
-import { LingridConfig } from "./config";
+import { LingridConfig, TTSProviderId } from "./config";
 import { CEFRLevel, DifficultyResult } from "./difficulty";
 import { SentenceAnalysisResult } from "./sentenceAnalysis";
 import { PronunciationAssessmentResult } from "./pronunciationAssessment";
@@ -55,7 +55,7 @@ export enum MessageType {
   // ====== 连接测试 ======
   /** 测试 API 连接 */
   TEST_CONNECTION = "TEST_CONNECTION",
-  /** 测试小米 TTS 连接 */
+  /** 测试指定 TTS 服务连接 */
   TEST_TTS_CONNECTION = "TEST_TTS_CONNECTION",
 
   // ====== 难度分析 ======
@@ -195,10 +195,14 @@ export interface TestConnectionMessage {
 }
 
 /**
- * 小米 TTS 测试连接消息
+ * TTS 测试连接消息
  */
 export interface TestTTSConnectionMessage {
   type: MessageType.TEST_TTS_CONNECTION;
+  payload: {
+    /** 待测试的 TTS 服务 */
+    provider: TTSProviderId;
+  };
 }
 
 /**
@@ -547,7 +551,7 @@ export interface TestConnectionResponse extends BaseResponse {
 }
 
 /**
- * 小米 TTS 服务错误码
+ * TTS 服务错误码
  */
 export type TTSServiceErrorCode =
   | "TTS_NOT_CONFIGURED"
@@ -564,7 +568,7 @@ export type TTSServiceErrorCode =
   | "TTS_UNKNOWN_ERROR";
 
 /**
- * 小米 TTS 服务错误细分提示
+ * TTS 服务错误细分提示
  *
  * 仅用于前台生成更具体的错误提示，不作为稳定主错误码使用。
  */
@@ -666,6 +670,10 @@ export interface SynthesizeSpeechResponse extends BaseResponse {
     audioBase64: string;
     /** 音频 MIME 类型 */
     mimeType: string;
+    /** 实际命中的 AI TTS 服务 */
+    provider: TTSProviderId;
+    /** 服务间回退时的轻提示 */
+    fallbackWarningMessage?: string;
   };
   /** 错误代码（用于前台决定是否静默回退） */
   errorCode?: TTSServiceErrorCode;

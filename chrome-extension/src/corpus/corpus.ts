@@ -63,7 +63,7 @@ const ERROR_TYPE_LABELS: Record<string, string> = {
   speed: "语速适应",
 };
 const TTS_FALLBACK_WARNING_MESSAGE =
-  "小米语音合成暂不可用，已切换为浏览器朗读";
+  "AI 语音合成暂不可用，已切换为浏览器朗读";
 const TTS_PLAYBACK_ERROR_MESSAGE =
   "朗读失败，请检查语音合成配置或浏览器语音能力";
 
@@ -129,9 +129,9 @@ let userLevel: CEFRLevel = "A2";
 let state: CorpusState | null = null;
 let isTTSAvailable = true;
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
-let xiaomiTTSEnabled = false;
+let aiTTSEnabled = false;
 const corpusTTSPlayer = createHybridTTSPlayer({
-  isAIEnabled: () => xiaomiTTSEnabled,
+  isAIEnabled: () => aiTTSEnabled,
 });
 
 // ====== 初始化 ======
@@ -160,13 +160,15 @@ function checkTTSAvailability(): void {
   }
 }
 
-function applyXiaomiTTSConfig(config: Partial<LingridConfig>): void {
-  xiaomiTTSEnabled = !!config.xiaomi_tts?.api_key?.trim();
+function applyAITTSConfig(config: Partial<LingridConfig>): void {
+  aiTTSEnabled = Boolean(
+    config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
+  );
   updateTTSAvailability();
 }
 
 function updateTTSAvailability(): void {
-  isTTSAvailable = xiaomiTTSEnabled || "speechSynthesis" in window;
+  isTTSAvailable = aiTTSEnabled || "speechSynthesis" in window;
 }
 
 /**
@@ -184,7 +186,7 @@ async function loadUserConfig(): Promise<void> {
         updateLevelBadge(userLevel);
       }
 
-      applyXiaomiTTSConfig(response.data);
+      applyAITTSConfig(response.data);
       applyTTSSpeed(resolveTTSSpeed(response.data.tts_speed));
     }
   } catch (error) {
@@ -243,7 +245,7 @@ function handleTTSSpeedStorageChange(
     (configChange.newValue as Partial<LingridConfig>).tts_speed
   );
   applyTTSSpeed(nextSpeed);
-  applyXiaomiTTSConfig(configChange.newValue as Partial<LingridConfig>);
+  applyAITTSConfig(configChange.newValue as Partial<LingridConfig>);
 }
 
 function handleTTSSpeedMessage(message: {
