@@ -972,6 +972,113 @@ body {
   box-shadow: 0 0 0 1px var(--accent);
 }
 
+.oauth-panel {
+  margin: 0 var(--space-lg) var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.oauth-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.oauth-status-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.oauth-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.18);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.oauth-status-badge.connected {
+  background: rgba(48, 209, 88, 0.14);
+  color: var(--success);
+}
+
+.oauth-status-badge.pending {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.oauth-status-badge.expired {
+  background: rgba(255, 214, 10, 0.14);
+  color: var(--warning);
+}
+
+.oauth-status-badge.missing {
+  background: rgba(255, 69, 58, 0.14);
+  color: var(--error);
+}
+
+.oauth-status-text {
+  margin-bottom: var(--space-md);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.oauth-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.oauth-action-btn {
+  margin: 0;
+  width: auto;
+  flex: 1;
+}
+
+.oauth-disconnect-btn {
+  background: rgba(255, 69, 58, 0.12);
+  color: var(--error);
+}
+
+.oauth-disconnect-btn:hover {
+  background: rgba(255, 69, 58, 0.18);
+}
+
+.oauth-callback-input {
+  width: 100%;
+  min-height: 88px;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.oauth-callback-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.oauth-callback-input:focus {
+  border-color: rgba(10, 132, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(10, 132, 255, 0.35);
+}
+
 /* Settings divider - iOS Inset Separator */
 .settings-divider {
   height: 0.5px;

@@ -87,7 +87,7 @@
         <p class="mode-desc" id="modeDesc">选择一种阅读模式开始学习</p>
         <!-- API Key 未配置提示 -->
         <div id="configHint" class="config-hint" style="display: none;">
-          <span>需要先配置 API 服务</span>
+          <span id="configHintText">需要先配置 API 服务</span>
           <button id="configHintBtn" class="link-btn">前往设置</button>
         </div>
       </section>
@@ -179,13 +179,21 @@
                   <option value="custom">自定义...</option>
                 </select>
               </div>
-              <div class="settings-divider"></div>
-              <div class="settings-row">
+              <div id="openaiAuthModeDivider" class="settings-divider" style="display: none;"></div>
+              <div id="openaiAuthModeRow" class="settings-row" style="display: none;">
+                <label class="settings-label" for="openaiAuthModeSelect">方式</label>
+                <select id="openaiAuthModeSelect" class="settings-select">
+                  <option value="api_key">API Key</option>
+                  <option value="oauth">ChatGPT OAuth</option>
+                </select>
+              </div>
+              <div id="apiBaseUrlDivider" class="settings-divider"></div>
+              <div id="apiBaseUrlRow" class="settings-row">
                 <label class="settings-label" for="apiBaseUrl">端点</label>
                 <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
               </div>
-              <div class="settings-divider"></div>
-              <div class="settings-row">
+              <div id="apiKeyDivider" class="settings-divider"></div>
+              <div id="apiKeyRow" class="settings-row">
                 <label class="settings-label" for="apiKey">密钥</label>
                 <div class="password-input">
                   <input type="password" id="apiKey" class="settings-input" placeholder="sk-...">
@@ -203,6 +211,25 @@
                 </select>
               </div>
               <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
+              <div id="openaiOauthPanel" class="oauth-panel" style="display: none;">
+                <div class="oauth-status-row">
+                  <span class="oauth-status-label">状态</span>
+                  <span id="openaiOauthStatusBadge" class="oauth-status-badge">未连接</span>
+                </div>
+                <p id="openaiOauthStatusText" class="oauth-status-text">
+                  使用 ChatGPT 账号登录后，完成浏览器授权，并把 localhost 回调地址粘贴回这里。
+                </p>
+                <div class="oauth-actions">
+                  <button id="startOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn">开始登录</button>
+                  <button id="disconnectOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn oauth-disconnect-btn">断开连接</button>
+                </div>
+                <textarea
+                  id="openaiOauthCallbackInput"
+                  class="oauth-callback-input"
+                  placeholder="粘贴 http://localhost:1455/auth/callback?... 或 code"
+                ></textarea>
+                <button id="completeOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn">完成登录</button>
+              </div>
               <div class="settings-divider"></div>
               <button id="testConnectionBtn" class="settings-action-btn">测试连接</button>
               <div id="connectionStatus" class="status-message"></div>

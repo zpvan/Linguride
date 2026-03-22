@@ -39,7 +39,7 @@ import {
   ANALYZE_LISTENING_PROMPTS,
   SEGMENT_CORPUS_PROMPTS,
 } from "../constants/corpusPrompts";
-import { DeepSeekProvider } from "../providers";
+import type { ITranslateProvider } from "../providers";
 import {
   AlibabaASRStartResponse,
   AlibabaASRStopResponse,
@@ -50,11 +50,14 @@ import {
   calculateTargetLevel,
   CEFRLevel,
   ChineseToEnglishResponse,
+  CompleteOpenAIOAuthResponse,
+  DisconnectOpenAIOAuthResponse,
   DifficultyResult,
   EnglishDefinitionResponse,
   EnglishDefinitionResult,
   EnglishToChineseResponse,
   ExtractPageTextResponse,
+  GetOpenAIOAuthStatusResponse,
   GetConfigResponse,
   GetMixedTranslateStateResponse,
   GetParaphraseStateResponse,
@@ -71,6 +74,7 @@ import {
   MixedTranslateResponse,
   ParaphraseResponse,
   PronunciationAssessmentResult,
+  ProviderConfig,
   SaveConfigResponse,
   SegmentCorpusResponse,
   SegmentCorpusResult,
@@ -78,6 +82,7 @@ import {
   ShadowAssessmentResult,
   ShadowAssessResponse,
   SplitSentencesResponse,
+  StartOpenAIOAuthResponse,
   SplitSentencesResult,
   SynthesizeSpeechResponse,
   TencentASRSignResponse,
@@ -92,12 +97,15 @@ import {
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
 } from "../types";
+import { assertAiProviderReady, createAIProvider } from "./aiProvider";
+import { getConfig, saveConfig } from "./configManager";
 import {
-  getConfig,
-  getProviderConfig,
-  isConfigValid,
-  saveConfig,
-} from "./configManager";
+  completeOpenAICodexOAuth,
+  disconnectOpenAICodexOAuth,
+  getOpenAICodexOAuthStatus,
+  OpenAICodexAuthError,
+  startOpenAICodexOAuth,
+} from "./openaiCodexAuth";
 import {
   getMixedTranslateState,
   getParaphraseState,
@@ -146,6 +154,12 @@ interface TTSAudioData {
 interface TTSProviderRequestContext {
   config: LingridConfig;
   text: string;
+}
+
+interface PreparedAIProviderContext {
+  config: LingridConfig;
+  provider: ITranslateProvider;
+  providerConfig: ProviderConfig;
 }
 
 interface XiaomiTTSChatCompletionResponse {
@@ -1233,6 +1247,98 @@ async function handleSaveConfig(
   }
 }
 
+async function getAiReadinessError(): Promise<string | null> {
+  const config = await getConfig();
+  const readiness = await assertAiProviderReady(config);
+  return readiness.ok ? null : readiness.error;
+}
+
+async function prepareAIProvider(): Promise<PreparedAIProviderContext> {
+  const config = await getConfig();
+  const readiness = await assertAiProviderReady(config);
+
+  if (!readiness.ok) {
+    throw new Error(readiness.error);
+  }
+
+  return {
+    config,
+    providerConfig: readiness.providerConfig,
+    provider: await createAIProvider(config),
+  };
+}
+
+function buildOpenAIOAuthErrorResponse(error: unknown): {
+  success: false;
+  error: string;
+  errorCode?: OpenAICodexAuthError["code"];
+} {
+  if (error instanceof OpenAICodexAuthError) {
+    return {
+      success: false,
+      error: error.message,
+      errorCode: error.code,
+    };
+  }
+
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : "OpenAI OAuth 操作失败",
+  };
+}
+
+async function handleStartOpenAIOAuth(): Promise<StartOpenAIOAuthResponse> {
+  try {
+    const data = await startOpenAICodexOAuth();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return buildOpenAIOAuthErrorResponse(error);
+  }
+}
+
+async function handleCompleteOpenAIOAuth(
+  callbackInput: string
+): Promise<CompleteOpenAIOAuthResponse> {
+  try {
+    const data = await completeOpenAICodexOAuth(callbackInput);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return buildOpenAIOAuthErrorResponse(error);
+  }
+}
+
+async function handleGetOpenAIOAuthStatus(): Promise<GetOpenAIOAuthStatusResponse> {
+  try {
+    const data = await getOpenAICodexOAuthStatus();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return buildOpenAIOAuthErrorResponse(error);
+  }
+}
+
+async function handleDisconnectOpenAIOAuth(): Promise<DisconnectOpenAIOAuthResponse> {
+  try {
+    await disconnectOpenAICodexOAuth();
+    return {
+      success: true,
+      data: {
+        disconnected: true,
+      },
+    };
+  } catch (error) {
+    return buildOpenAIOAuthErrorResponse(error);
+  }
+}
+
 /**
  * 处理 TOGGLE_TRANSLATION 消息
  *
@@ -1243,13 +1349,14 @@ async function handleToggleTranslation(
   enabled: boolean
 ): Promise<GetTranslationStateResponse> {
   try {
-    // 检查配置是否有效
-    const config = await getConfig();
-    if (enabled && !isConfigValid(config)) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
+    if (enabled) {
+      const readinessError = await getAiReadinessError();
+      if (readinessError) {
+        return {
+          success: false,
+          error: readinessError,
+        };
+      }
     }
 
     // 更新状态
@@ -1340,24 +1447,12 @@ async function handleTranslate(
   );
 
   try {
-    // 获取 Provider 配置
-    const providerConfig = await getProviderConfig();
+    const { provider, providerConfig } = await prepareAIProvider();
     console.log(
-      `[Lingride] Provider 配置: baseUrl=${providerConfig.apiBaseUrl}, model=${providerConfig.model}`
+      `[Lingride] Provider 配置: provider=${provider.name}, model=${providerConfig.model}`
     );
 
-    // 验证配置
-    if (!providerConfig.apiKey) {
-      console.error("[Lingride] API Key 未配置");
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    // 创建 Provider 并翻译
     console.log("[Lingride] 开始调用 API...");
-    const provider = new DeepSeekProvider(providerConfig);
     const translations = await provider.translate(texts);
     console.log(`[Lingride] API 返回成功: ${translations.length}条翻译`);
 
@@ -1384,16 +1479,7 @@ async function handleTranslate(
  */
 async function handleTestConnection(): Promise<TestConnectionResponse> {
   try {
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    const provider = new DeepSeekProvider(providerConfig);
+    const { provider, providerConfig } = await prepareAIProvider();
     const result = await provider.testConnection();
 
     if (result.success) {
@@ -1516,15 +1602,7 @@ async function handleSynthesizeSpeech(
 async function handleAnalyzeDifficulty(): Promise<AnalyzeDifficultyResponse> {
   try {
     // 1. 获取配置并验证
-    const config = await getConfig();
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { config, provider } = await prepareAIProvider();
 
     // 2. 获取当前活动 Tab
     const [activeTab] = await chrome.tabs.query({
@@ -1602,7 +1680,6 @@ async function handleAnalyzeDifficulty(): Promise<AnalyzeDifficultyResponse> {
 
     // 5. 调用 AI 进行分析
     console.log("[Lingride] 开始难度分析...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 6. 解析 JSON 响应
@@ -1654,11 +1731,14 @@ async function handleToggleParaphrase(
   try {
     // 检查配置是否有效
     const config = await getConfig();
-    if (enabled && !isConfigValid(config)) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
+    if (enabled) {
+      const readinessError = await getAiReadinessError();
+      if (readinessError) {
+        return {
+          success: false,
+          error: readinessError,
+        };
+      }
     }
 
     // 更新状态（TabState 内部处理互斥逻辑）
@@ -1759,17 +1839,7 @@ async function handleParaphrase(
 
   try {
     // 获取配置
-    const config = await getConfig();
-    const providerConfig = await getProviderConfig();
-
-    // 验证配置
-    if (!providerConfig.apiKey) {
-      console.error("[Lingride] API Key 未配置");
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { config, provider } = await prepareAIProvider();
 
     // 获取用户水平和目标水平
     const userLevel = config.user_english_level || "A2";
@@ -1792,7 +1862,6 @@ async function handleParaphrase(
 
     // 调用 AI
     console.log("[Lingride] 开始调用释义 API...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 解析响应（编号格式）
@@ -1872,11 +1941,14 @@ async function handleToggleMixedTranslate(
   try {
     // 检查配置是否有效
     const config = await getConfig();
-    if (enabled && !isConfigValid(config)) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
+    if (enabled) {
+      const readinessError = await getAiReadinessError();
+      if (readinessError) {
+        return {
+          success: false,
+          error: readinessError,
+        };
+      }
     }
 
     // 更新状态（TabState 内部处理互斥逻辑）
@@ -1981,17 +2053,7 @@ async function handleMixedTranslate(
 
   try {
     // 获取配置
-    const config = await getConfig();
-    const providerConfig = await getProviderConfig();
-
-    // 验证配置
-    if (!providerConfig.apiKey) {
-      console.error("[Lingride] API Key 未配置");
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { config, provider } = await prepareAIProvider();
 
     // 获取用户水平和保留比例
     const userLevel = config.user_english_level || "A2";
@@ -2017,7 +2079,6 @@ async function handleMixedTranslate(
 
     // 调用 AI
     console.log("[Lingride] 开始调用混杂中英翻译 API...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 解析响应（编号格式）
@@ -2059,15 +2120,7 @@ async function handleAnalyzeSentence(
 ): Promise<AnalyzeSentenceResponse> {
   try {
     // 1. 获取配置并验证
-    const config = await getConfig();
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { config, provider } = await prepareAIProvider();
 
     // 2. 获取 Prompt 配置（用户自定义或默认）
     const prompts =
@@ -2079,7 +2132,6 @@ async function handleAnalyzeSentence(
 
     // 3. 调用 AI 进行分析
     console.log("[Lingride] 开始长难句分析...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 4. 解析 JSON 响应（三级 fallback 策略）
@@ -2132,14 +2184,7 @@ async function handleAssessPronunciation(
 ): Promise<AssessPronunciationResponse> {
   try {
     // 1. 获取配置并验证
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { provider } = await prepareAIProvider();
 
     // 2. 获取 Prompt 配置
     const prompts = DEFAULT_PRONUNCIATION_PROMPTS;
@@ -2149,7 +2194,6 @@ async function handleAssessPronunciation(
 
     // 3. 调用 AI 进行分析
     console.log("[Lingride] 开始发音评估...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 4. 解析 JSON 响应（三级 fallback 策略）
@@ -2194,14 +2238,7 @@ async function handleChineseToEnglish(
 ): Promise<ChineseToEnglishResponse> {
   try {
     // 1. 获取 Provider 配置
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { provider } = await prepareAIProvider();
 
     // 2. 构建 Prompt
     const userPrompt = CHINESE_TO_ENGLISH_PROMPTS.user_prompt_template.replace(
@@ -2211,7 +2248,6 @@ async function handleChineseToEnglish(
 
     // 3. 调用 AI
     console.log("[Lingride] 开始中译英...");
-    const provider = new DeepSeekProvider(providerConfig);
     const translation = await provider.chat(
       CHINESE_TO_ENGLISH_PROMPTS.system_prompt,
       userPrompt
@@ -2242,14 +2278,7 @@ async function handleEnglishToChinese(
 ): Promise<EnglishToChineseResponse> {
   try {
     // 1. 获取 Provider 配置
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { provider } = await prepareAIProvider();
 
     // 2. 构建 Prompt
     const userPrompt = ENGLISH_TO_CHINESE_PROMPTS.user_prompt_template.replace(
@@ -2259,7 +2288,6 @@ async function handleEnglishToChinese(
 
     // 3. 调用 AI
     console.log("[Lingride] 开始英译中...");
-    const provider = new DeepSeekProvider(providerConfig);
     const translation = await provider.chat(
       ENGLISH_TO_CHINESE_PROMPTS.system_prompt,
       userPrompt
@@ -2291,14 +2319,7 @@ async function handleEnglishDefinition(
 ): Promise<EnglishDefinitionResponse> {
   try {
     // 1. 获取 Provider 配置
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
+    const { provider } = await prepareAIProvider();
 
     // 2. 构建 Prompt
     const userPrompt = ENGLISH_DEFINITION_PROMPTS.user_prompt_template
@@ -2307,7 +2328,6 @@ async function handleEnglishDefinition(
 
     // 3. 调用 AI
     console.log(`[Lingride] 开始英英释义 (${userLevel})...`);
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(
       ENGLISH_DEFINITION_PROMPTS.system_prompt,
       userPrompt
@@ -2369,17 +2389,7 @@ async function handleSplitSentences(
   text: string
 ): Promise<SplitSentencesResponse> {
   try {
-    // 1. 获取配置并验证
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    // 2. 验证输入
+    // 1. 验证输入
     const trimmedText = text.trim();
     if (!trimmedText) {
       return {
@@ -2387,6 +2397,9 @@ async function handleSplitSentences(
         error: "输入文本不能为空",
       };
     }
+
+    // 2. 获取配置并验证
+    const { provider } = await prepareAIProvider();
 
     // 3. 构建 Prompt
     const userPrompt = SPLIT_SENTENCES_PROMPTS.user_prompt_template.replace(
@@ -2396,7 +2409,6 @@ async function handleSplitSentences(
 
     // 4. 调用 AI 进行分句
     console.log("[Lingride] 开始智能分句...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(
       SPLIT_SENTENCES_PROMPTS.system_prompt,
       userPrompt
@@ -2456,23 +2468,16 @@ async function handleShadowAssess(
   recognized: string
 ): Promise<ShadowAssessResponse> {
   try {
-    // 1. 获取配置并验证
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    // 2. 验证输入
+    // 1. 验证输入
     if (!original.trim() || !recognized.trim()) {
       return {
         success: false,
         error: "原文和识别文本不能为空",
       };
     }
+
+    // 2. 获取配置并验证
+    const { provider } = await prepareAIProvider();
 
     // 3. 构建 Prompt
     const userPrompt = SHADOW_ASSESS_PROMPTS.user_prompt_template
@@ -2481,7 +2486,6 @@ async function handleShadowAssess(
 
     // 4. 调用 AI 进行分析
     console.log("[Lingride] 开始影子跟读评估...");
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(
       SHADOW_ASSESS_PROMPTS.system_prompt,
       userPrompt
@@ -2554,17 +2558,7 @@ async function handleSegmentCorpus(
   userLevel: CEFRLevel
 ): Promise<SegmentCorpusResponse> {
   try {
-    // 1. 获取配置并验证
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    // 2. 验证输入
+    // 1. 验证输入
     const trimmedText = text.trim();
     if (!trimmedText) {
       return {
@@ -2573,6 +2567,9 @@ async function handleSegmentCorpus(
       };
     }
 
+    // 2. 获取配置并验证
+    const { provider } = await prepareAIProvider();
+
     // 3. 构建 Prompt
     const userPrompt = SEGMENT_CORPUS_PROMPTS.user_prompt_template
       .replace("{{userLevel}}", userLevel)
@@ -2580,7 +2577,6 @@ async function handleSegmentCorpus(
 
     // 4. 调用 AI 进行断句
     console.log(`[Lingride] 开始语料断句 (${userLevel})...`);
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(
       SEGMENT_CORPUS_PROMPTS.system_prompt,
       userPrompt
@@ -2640,23 +2636,16 @@ async function handleAnalyzeListening(
   userLevel: CEFRLevel
 ): Promise<AnalyzeListeningResponse> {
   try {
-    // 1. 获取配置并验证
-    const providerConfig = await getProviderConfig();
-
-    if (!providerConfig.apiKey) {
-      return {
-        success: false,
-        error: "请先配置 API Key",
-      };
-    }
-
-    // 2. 验证输入
+    // 1. 验证输入
     if (!original.trim()) {
       return {
         success: false,
         error: "原文不能为空",
       };
     }
+
+    // 2. 获取配置并验证
+    const { provider } = await prepareAIProvider();
 
     // 3. 构建 Prompt
     const userPrompt = ANALYZE_LISTENING_PROMPTS.user_prompt_template
@@ -2666,7 +2655,6 @@ async function handleAnalyzeListening(
 
     // 4. 调用 AI 进行分析
     console.log(`[Lingride] 开始听力分析 (${userLevel})...`);
-    const provider = new DeepSeekProvider(providerConfig);
     const aiResponse = await provider.chat(
       ANALYZE_LISTENING_PROMPTS.system_prompt,
       userPrompt
@@ -3291,6 +3279,24 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.SAVE_CONFIG:
           response = await handleSaveConfig(message.payload as LingridConfig);
+          break;
+
+        case MessageType.START_OPENAI_OAUTH:
+          response = await handleStartOpenAIOAuth();
+          break;
+
+        case MessageType.COMPLETE_OPENAI_OAUTH:
+          response = await handleCompleteOpenAIOAuth(
+            message.payload.callbackInput
+          );
+          break;
+
+        case MessageType.GET_OPENAI_OAUTH_STATUS:
+          response = await handleGetOpenAIOAuthStatus();
+          break;
+
+        case MessageType.DISCONNECT_OPENAI_OAUTH:
+          response = await handleDisconnectOpenAIOAuth();
           break;
 
         case MessageType.TTS_SPEED_CHANGED:

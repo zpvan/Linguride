@@ -39,6 +39,14 @@ export enum MessageType {
   GET_CONFIG = "GET_CONFIG",
   /** 保存配置 */
   SAVE_CONFIG = "SAVE_CONFIG",
+  /** 启动 OpenAI OAuth 登录 */
+  START_OPENAI_OAUTH = "START_OPENAI_OAUTH",
+  /** 完成 OpenAI OAuth 登录 */
+  COMPLETE_OPENAI_OAUTH = "COMPLETE_OPENAI_OAUTH",
+  /** 获取 OpenAI OAuth 状态 */
+  GET_OPENAI_OAUTH_STATUS = "GET_OPENAI_OAUTH_STATUS",
+  /** 断开 OpenAI OAuth */
+  DISCONNECT_OPENAI_OAUTH = "DISCONNECT_OPENAI_OAUTH",
   /** 全局 TTS 语速已变更（Background -> Extension Pages） */
   TTS_SPEED_CHANGED = "TTS_SPEED_CHANGED",
 
@@ -144,6 +152,51 @@ export interface GetConfigMessage {
 export interface SaveConfigMessage {
   type: MessageType.SAVE_CONFIG;
   payload: LingridConfig;
+}
+
+/**
+ * OpenAI OAuth 状态
+ */
+export type OpenAIOAuthStatus = "missing" | "pending" | "connected" | "expired";
+
+/**
+ * OpenAI OAuth 错误码
+ */
+export type OpenAIOAuthErrorCode =
+  | "STATE_MISMATCH"
+  | "MISSING_CODE"
+  | "TOKEN_EXCHANGE_FAILED"
+  | "OAUTH_NOT_CONNECTED";
+
+/**
+ * 启动 OpenAI OAuth 消息
+ */
+export interface StartOpenAIOAuthMessage {
+  type: MessageType.START_OPENAI_OAUTH;
+}
+
+/**
+ * 完成 OpenAI OAuth 消息
+ */
+export interface CompleteOpenAIOAuthMessage {
+  type: MessageType.COMPLETE_OPENAI_OAUTH;
+  payload: {
+    callbackInput: string;
+  };
+}
+
+/**
+ * 获取 OpenAI OAuth 状态消息
+ */
+export interface GetOpenAIOAuthStatusMessage {
+  type: MessageType.GET_OPENAI_OAUTH_STATUS;
+}
+
+/**
+ * 断开 OpenAI OAuth 消息
+ */
+export interface DisconnectOpenAIOAuthMessage {
+  type: MessageType.DISCONNECT_OPENAI_OAUTH;
 }
 
 /**
@@ -460,6 +513,10 @@ export interface AnalyzeListeningMessage {
 export type Message =
   | GetConfigMessage
   | SaveConfigMessage
+  | StartOpenAIOAuthMessage
+  | CompleteOpenAIOAuthMessage
+  | GetOpenAIOAuthStatusMessage
+  | DisconnectOpenAIOAuthMessage
   | TTSSpeedChangedMessage
   | ToggleTranslationMessage
   | GetTranslationStateMessage
@@ -515,6 +572,51 @@ export interface GetConfigResponse extends BaseResponse {
  * 保存配置响应
  */
 export interface SaveConfigResponse extends BaseResponse {}
+
+/**
+ * 启动 OpenAI OAuth 响应
+ */
+export interface StartOpenAIOAuthResponse extends BaseResponse {
+  data?: {
+    authorizeUrl: string;
+    pending: true;
+  };
+  errorCode?: OpenAIOAuthErrorCode;
+}
+
+/**
+ * 完成 OpenAI OAuth 响应
+ */
+export interface CompleteOpenAIOAuthResponse extends BaseResponse {
+  data?: {
+    connected: true;
+    expiresAt: number;
+    accountId: string;
+  };
+  errorCode?: OpenAIOAuthErrorCode;
+}
+
+/**
+ * 获取 OpenAI OAuth 状态响应
+ */
+export interface GetOpenAIOAuthStatusResponse extends BaseResponse {
+  data?: {
+    status: OpenAIOAuthStatus;
+    expiresAt?: number;
+    accountId?: string;
+  };
+  errorCode?: OpenAIOAuthErrorCode;
+}
+
+/**
+ * 断开 OpenAI OAuth 响应
+ */
+export interface DisconnectOpenAIOAuthResponse extends BaseResponse {
+  data?: {
+    disconnected: true;
+  };
+  errorCode?: OpenAIOAuthErrorCode;
+}
 
 /**
  * 翻译状态响应
@@ -796,6 +898,10 @@ export interface AnalyzeListeningResponse extends BaseResponse {
 export type Response =
   | GetConfigResponse
   | SaveConfigResponse
+  | StartOpenAIOAuthResponse
+  | CompleteOpenAIOAuthResponse
+  | GetOpenAIOAuthStatusResponse
+  | DisconnectOpenAIOAuthResponse
   | GetTranslationStateResponse
   | TranslateResponse
   | TestConnectionResponse

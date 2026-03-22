@@ -18,6 +18,9 @@ import {
   DEFAULT_CONFIG,
   LingridConfig,
   ProviderConfig,
+  resolveConfigApiProvider,
+  resolveConfigModel,
+  resolveConfigOpenAIAuthMode,
   STORAGE_KEY,
   toProviderConfig,
 } from "../types";
@@ -41,6 +44,12 @@ export async function getConfig(): Promise<LingridConfig> {
 
     // 合并存储配置与默认配置，确保新增字段有默认值
     const config: LingridConfig = {
+      api_provider:
+        stored.api_provider || DEFAULT_CONFIG.api_provider,
+      openai_auth_mode:
+        stored.openai_auth_mode || DEFAULT_CONFIG.openai_auth_mode,
+      openai_oauth_model:
+        stored.openai_oauth_model || DEFAULT_CONFIG.openai_oauth_model,
       api_base_url: stored.api_base_url || DEFAULT_CONFIG.api_base_url,
       api_key: stored.api_key || DEFAULT_CONFIG.api_key,
       model: stored.model || DEFAULT_CONFIG.model,
@@ -123,7 +132,19 @@ export async function getProviderConfig(): Promise<ProviderConfig> {
  * @returns 配置是否有效
  */
 export function isConfigValid(config: LingridConfig): boolean {
-  return !!config.api_base_url && !!config.api_key && !!config.model;
+  const providerId = resolveConfigApiProvider(config);
+  const authMode = resolveConfigOpenAIAuthMode(config);
+  const model = resolveConfigModel(config);
+
+  if (!model.trim()) {
+    return false;
+  }
+
+  if (providerId === "openai" && authMode === "oauth") {
+    return true;
+  }
+
+  return !!config.api_base_url?.trim() && !!config.api_key?.trim();
 }
 
 /**

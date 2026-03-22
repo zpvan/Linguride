@@ -9,5 +9,6 @@
  */
 
 export { DeepSeekProvider } from "./DeepSeekProvider";
+export { OpenAICodexProvider } from "./OpenAICodexProvider";
 export { BaseTranslateProvider } from "./ITranslateProvider";
 export type { ITranslateProvider } from "./ITranslateProvider";
