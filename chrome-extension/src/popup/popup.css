@@ -1320,6 +1320,49 @@ body {
   margin-bottom: var(--space-sm);
 }
 
+/* Shared explanation preset */
+.prompt-preset-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.prompt-preset-select {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 13px;
+  outline: none;
+}
+
+.prompt-preset-select:focus {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.prompt-preset-status {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-quaternary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.prompt-preset-status.customized {
+  background: rgba(255, 159, 10, 0.14);
+  color: #b96b00;
+}
+
+.prompt-reset-link {
+  margin-top: var(--space-sm);
+}
+
 /* ====== Form Group (inside accordion) ====== */
 .form-group {
   margin-bottom: var(--space-md);

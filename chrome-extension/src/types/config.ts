@@ -95,6 +95,32 @@ export interface ParaphrasePromptConfig {
 }
 
 /**
+ * 英英释义 Prompt 配置
+ *
+ * 存储用户自定义的英英释义 Prompt 设置。
+ * 用于对单词、短语或句子进行英文解释。
+ */
+export interface EnglishDefinitionPromptConfig {
+  /** 系统提示词，定义 AI 的角色和英英释义规则 */
+  system_prompt: string;
+
+  /**
+   * 用户提示词模板
+   * 可用占位符：
+   * - {{text}}: 待释义的英文文本
+   * - {{user_level}}: 用户当前 CEFR 等级
+   */
+  user_prompt_template: string;
+}
+
+/**
+ * 释义预设 ID
+ *
+ * 用于标识当前共享释义 Prompt 的基准预设。
+ */
+export type ExplanationPromptPresetId = "prompt1" | "prompt2" | "prompt3";
+
+/**
  * 混杂中英翻译 Prompt 配置
  *
  * 存储用户自定义的混杂中英翻译 Prompt 设置。
@@ -247,6 +273,12 @@ export interface LingridConfig {
   /** 释义 Prompt 配置（可选，使用默认值） */
   paraphrase_prompts?: ParaphrasePromptConfig;
 
+  /** 英英释义 Prompt 配置（可选，使用默认值） */
+  english_definition_prompts?: EnglishDefinitionPromptConfig;
+
+  /** 当前释义共享 Prompt 的基准预设 */
+  explanation_prompt_preset_id?: ExplanationPromptPresetId;
+
   /** 混杂中英翻译 Prompt 配置（可选，使用默认值） */
   mixed_translate_prompts?: MixedTranslatePromptConfig;
 
@@ -339,6 +371,7 @@ export const DEFAULT_CONFIG: LingridConfig = {
     system_prompt: DEFAULT_SYSTEM_PROMPT,
     user_prompt_template: DEFAULT_USER_PROMPT_TEMPLATE,
   },
+  explanation_prompt_preset_id: "prompt1",
   user_english_level: DEFAULT_USER_ENGLISH_LEVEL,
   tts_speed: DEFAULT_TTS_SPEED,
 };

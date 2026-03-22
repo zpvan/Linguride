@@ -37,6 +37,8 @@ export type {
   AIProviderId,
   AlibabaASRConfig,
   CEFRLevel,
+  EnglishDefinitionPromptConfig,
+  ExplanationPromptPresetId,
   LingridConfig,
   MixedTranslatePromptConfig,
   OpenAIAuthMode,

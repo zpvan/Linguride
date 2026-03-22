@@ -20,13 +20,16 @@ import {
   DEFAULT_MIXED_TRANSLATE_USER_PROMPT,
 } from "../constants/mixedTranslatePrompts";
 import {
-  DEFAULT_PARAPHRASE_SYSTEM_PROMPT,
-  DEFAULT_PARAPHRASE_USER_PROMPT,
-} from "../constants/paraphrasePrompts";
-import {
   DEFAULT_SENTENCE_ANALYSIS_SYSTEM_PROMPT,
   DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT,
 } from "../constants/sentenceAnalysisPrompts";
+import {
+  DEFAULT_EXPLANATION_PROMPT_PRESET_ID,
+  getExplanationPromptPreset,
+  inferExplanationPromptPresetId,
+  isExplanationPromptPresetId,
+  matchesExplanationPromptPreset,
+} from "../constants/explanationPromptPresets";
 import {
   AIProviderId,
   AnalyzeDifficultyResponse,
@@ -36,6 +39,8 @@ import {
   DEFAULT_USER_ENGLISH_LEVEL,
   DEFAULT_USER_PROMPT_TEMPLATE,
   DifficultyResult,
+  EnglishDefinitionPromptConfig,
+  ExplanationPromptPresetId,
   LingridConfig,
   MINIMAX_TTS_DEFAULT_MODEL,
   MessageType,
@@ -45,6 +50,7 @@ import {
   OpenAIModelCatalogScope,
   OpenAIModelItem,
   OpenAIOAuthStatus,
+  ParaphrasePromptConfig,
   resolveConfigApiProvider,
   resolveConfigOpenAIAuthMode,
   TestTTSConnectionResponse,
@@ -295,11 +301,26 @@ const difficultySystemPromptTextarea = document.getElementById(
 const difficultyUserPromptTextarea = document.getElementById(
   "difficultyUserPrompt"
 ) as HTMLTextAreaElement;
+const explanationPromptPresetSelect = document.getElementById(
+  "explanationPromptPreset"
+) as HTMLSelectElement;
+const explanationPromptStatus = document.getElementById(
+  "explanationPromptStatus"
+) as HTMLElement;
+const resetExplanationPresetBtn = document.getElementById(
+  "resetExplanationPresetBtn"
+) as HTMLButtonElement;
 const paraphraseSystemPromptTextarea = document.getElementById(
   "paraphraseSystemPrompt"
 ) as HTMLTextAreaElement;
 const paraphraseUserPromptTextarea = document.getElementById(
   "paraphraseUserPrompt"
+) as HTMLTextAreaElement;
+const englishDefinitionSystemPromptTextarea = document.getElementById(
+  "englishDefinitionSystemPrompt"
+) as HTMLTextAreaElement;
+const englishDefinitionUserPromptTextarea = document.getElementById(
+  "englishDefinitionUserPrompt"
 ) as HTMLTextAreaElement;
 const mixedTranslateSystemPromptTextarea = document.getElementById(
   "mixedTranslateSystemPrompt"
@@ -409,6 +430,125 @@ function getCurrentApiProvider(): ApiProviderType {
 
 function getCurrentOpenAIAuthMode(): OpenAIAuthMode {
   return resolveConfigOpenAIAuthMode(currentConfig);
+}
+
+function ensureExplanationPromptPresetId(): ExplanationPromptPresetId {
+  if (isExplanationPromptPresetId(currentConfig.explanation_prompt_preset_id)) {
+    return currentConfig.explanation_prompt_preset_id;
+  }
+
+  const inferredPresetId = inferExplanationPromptPresetId(
+    currentConfig.paraphrase_prompts,
+    currentConfig.english_definition_prompts
+  );
+
+  const presetId =
+    inferredPresetId || DEFAULT_EXPLANATION_PROMPT_PRESET_ID;
+  currentConfig.explanation_prompt_preset_id = presetId;
+
+  return presetId;
+}
+
+function getCurrentExplanationPromptPresetId(): ExplanationPromptPresetId {
+  return ensureExplanationPromptPresetId();
+}
+
+function getCurrentParaphrasePromptConfig(): ParaphrasePromptConfig {
+  const preset = getExplanationPromptPreset(
+    getCurrentExplanationPromptPresetId()
+  );
+  return currentConfig.paraphrase_prompts || preset.paraphrase;
+}
+
+function getCurrentEnglishDefinitionPromptConfig(): EnglishDefinitionPromptConfig {
+  const preset = getExplanationPromptPreset(
+    getCurrentExplanationPromptPresetId()
+  );
+  return currentConfig.english_definition_prompts || preset.englishDefinition;
+}
+
+function getExplanationPromptFormSnapshot(): {
+  paraphrasePrompts: ParaphrasePromptConfig;
+  englishDefinitionPrompts: EnglishDefinitionPromptConfig;
+} {
+  return {
+    paraphrasePrompts: {
+      system_prompt: paraphraseSystemPromptTextarea.value,
+      user_prompt_template: paraphraseUserPromptTextarea.value,
+    },
+    englishDefinitionPrompts: {
+      system_prompt: englishDefinitionSystemPromptTextarea.value,
+      user_prompt_template: englishDefinitionUserPromptTextarea.value,
+    },
+  };
+}
+
+function applyExplanationPromptPresetValues(
+  presetId: ExplanationPromptPresetId
+): void {
+  const preset = getExplanationPromptPreset(presetId);
+
+  currentConfig.paraphrase_prompts = {
+    system_prompt: preset.paraphrase.system_prompt,
+    user_prompt_template: preset.paraphrase.user_prompt_template,
+  };
+  currentConfig.english_definition_prompts = {
+    system_prompt: preset.englishDefinition.system_prompt,
+    user_prompt_template: preset.englishDefinition.user_prompt_template,
+  };
+  paraphraseSystemPromptTextarea.value = preset.paraphrase.system_prompt;
+  paraphraseUserPromptTextarea.value = preset.paraphrase.user_prompt_template;
+  englishDefinitionSystemPromptTextarea.value =
+    preset.englishDefinition.system_prompt;
+  englishDefinitionUserPromptTextarea.value =
+    preset.englishDefinition.user_prompt_template;
+  explanationPromptPresetSelect.value = presetId;
+  currentConfig.explanation_prompt_preset_id = presetId;
+}
+
+function updateExplanationPromptPresetUI(): void {
+  const presetId = getCurrentExplanationPromptPresetId();
+  const preset = getExplanationPromptPreset(presetId);
+  const { paraphrasePrompts, englishDefinitionPrompts } =
+    getExplanationPromptFormSnapshot();
+  const isCustomized = !matchesExplanationPromptPreset(
+    paraphrasePrompts,
+    englishDefinitionPrompts,
+    presetId
+  );
+
+  explanationPromptPresetSelect.value = presetId;
+  explanationPromptStatus.textContent = isCustomized ? "已自定义" : "原版";
+  explanationPromptStatus.classList.toggle("customized", isCustomized);
+  resetExplanationPresetBtn.textContent = `还原 ${preset.label} 原版`;
+}
+
+async function handleExplanationPromptPresetChange(): Promise<void> {
+  const presetId = explanationPromptPresetSelect.value;
+  if (!isExplanationPromptPresetId(presetId)) {
+    return;
+  }
+
+  applyExplanationPromptPresetValues(presetId);
+  updateExplanationPromptPresetUI();
+  await autoSave();
+  showStatus(
+    connectionStatus,
+    `已切换到 ${getExplanationPromptPreset(presetId).label}`,
+    "success"
+  );
+}
+
+async function handleResetExplanationPromptPreset(): Promise<void> {
+  const presetId = getCurrentExplanationPromptPresetId();
+  applyExplanationPromptPresetValues(presetId);
+  updateExplanationPromptPresetUI();
+  await autoSave();
+  showStatus(
+    connectionStatus,
+    `已还原 ${getExplanationPromptPreset(presetId).label} 原版`,
+    "success"
+  );
 }
 
 function isOpenAIOAuthMode(): boolean {
@@ -1139,6 +1279,8 @@ function bindEvents(): void {
     difficultyUserPromptTextarea,
     paraphraseSystemPromptTextarea,
     paraphraseUserPromptTextarea,
+    englishDefinitionSystemPromptTextarea,
+    englishDefinitionUserPromptTextarea,
     mixedTranslateSystemPromptTextarea,
     mixedTranslateUserPromptTextarea,
     sentenceAnalysisSystemPromptTextarea,
@@ -1146,6 +1288,20 @@ function bindEvents(): void {
   ];
   promptTextareas.forEach((textarea) => {
     textarea.addEventListener("blur", autoSave);
+  });
+  [
+    paraphraseSystemPromptTextarea,
+    paraphraseUserPromptTextarea,
+    englishDefinitionSystemPromptTextarea,
+    englishDefinitionUserPromptTextarea,
+  ].forEach((textarea) => {
+    textarea.addEventListener("input", updateExplanationPromptPresetUI);
+  });
+  explanationPromptPresetSelect.addEventListener("change", () => {
+    void handleExplanationPromptPresetChange();
+  });
+  resetExplanationPresetBtn.addEventListener("click", () => {
+    void handleResetExplanationPromptPreset();
   });
 
   // Settings - 恢复默认
@@ -1600,6 +1756,15 @@ function collectFormData(): void {
     system_prompt: paraphraseSystemPromptTextarea.value,
     user_prompt_template: paraphraseUserPromptTextarea.value,
   };
+  currentConfig.english_definition_prompts = {
+    system_prompt: englishDefinitionSystemPromptTextarea.value,
+    user_prompt_template: englishDefinitionUserPromptTextarea.value,
+  };
+  currentConfig.explanation_prompt_preset_id = isExplanationPromptPresetId(
+    explanationPromptPresetSelect.value
+  )
+    ? explanationPromptPresetSelect.value
+    : DEFAULT_EXPLANATION_PROMPT_PRESET_ID;
   currentConfig.mixed_translate_prompts = {
     system_prompt: mixedTranslateSystemPromptTextarea.value,
     user_prompt_template: mixedTranslateUserPromptTextarea.value,
@@ -1700,12 +1865,16 @@ function updateSettingsForm(): void {
     DEFAULT_DIFFICULTY_USER_PROMPT;
 
   // 释义 Prompt
-  paraphraseSystemPromptTextarea.value =
-    currentConfig.paraphrase_prompts?.system_prompt ||
-    DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
+  const paraphrasePromptConfig = getCurrentParaphrasePromptConfig();
+  const englishDefinitionPromptConfig = getCurrentEnglishDefinitionPromptConfig();
+  paraphraseSystemPromptTextarea.value = paraphrasePromptConfig.system_prompt;
   paraphraseUserPromptTextarea.value =
-    currentConfig.paraphrase_prompts?.user_prompt_template ||
-    DEFAULT_PARAPHRASE_USER_PROMPT;
+    paraphrasePromptConfig.user_prompt_template;
+  englishDefinitionSystemPromptTextarea.value =
+    englishDefinitionPromptConfig.system_prompt;
+  englishDefinitionUserPromptTextarea.value =
+    englishDefinitionPromptConfig.user_prompt_template;
+  updateExplanationPromptPresetUI();
 
   // 混杂中英 Prompt
   mixedTranslateSystemPromptTextarea.value =
@@ -2314,8 +2483,8 @@ function resetDefaults(): void {
   difficultyUserPromptTextarea.value = DEFAULT_DIFFICULTY_USER_PROMPT;
 
   // 释义 Prompt
-  paraphraseSystemPromptTextarea.value = DEFAULT_PARAPHRASE_SYSTEM_PROMPT;
-  paraphraseUserPromptTextarea.value = DEFAULT_PARAPHRASE_USER_PROMPT;
+  applyExplanationPromptPresetValues(DEFAULT_EXPLANATION_PROMPT_PRESET_ID);
+  updateExplanationPromptPresetUI();
 
   // 混杂中英 Prompt
   mixedTranslateSystemPromptTextarea.value =

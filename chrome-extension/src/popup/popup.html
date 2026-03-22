@@ -586,6 +586,20 @@
           </button>
           <div class="accordion-body" id="paraphrase-prompt">
             <div class="accordion-inner">
+              <p class="settings-desc">选择 Prompt1、Prompt2、Prompt3 会同时影响阅读模式释义、划词英英释义和语境英英释义。</p>
+              <div class="form-group">
+                <label for="explanationPromptPreset">共享预设</label>
+                <div class="prompt-preset-row">
+                  <select id="explanationPromptPreset" class="prompt-preset-select">
+                    <option value="prompt1">Prompt1</option>
+                    <option value="prompt2">Prompt2</option>
+                    <option value="prompt3">Prompt3</option>
+                  </select>
+                  <span id="explanationPromptStatus" class="prompt-preset-status">原版</span>
+                </div>
+                <button id="resetExplanationPresetBtn" class="link-btn prompt-reset-link" type="button">还原 Prompt1 原版</button>
+              </div>
+              <p class="settings-desc nested-desc">阅读模式释义</p>
               <div class="form-group">
                 <label for="paraphraseSystemPrompt">System Prompt</label>
                 <textarea id="paraphraseSystemPrompt" rows="4"></textarea>
@@ -594,6 +608,16 @@
                 <label for="paraphraseUserPrompt">User Prompt</label>
                 <textarea id="paraphraseUserPrompt" rows="3"></textarea>
                 <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code></p>
+              </div>
+              <p class="settings-desc nested-desc">英英释义（划词 / 语境）</p>
+              <div class="form-group">
+                <label for="englishDefinitionSystemPrompt">System Prompt</label>
+                <textarea id="englishDefinitionSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="englishDefinitionUserPrompt">User Prompt</label>
+                <textarea id="englishDefinitionUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{text}}</code>、<code>{{user_level}}</code></p>
               </div>
             </div>
           </div>

@@ -68,6 +68,12 @@ export async function getConfig(): Promise<LingridConfig> {
         stored.difficulty_prompts || DEFAULT_CONFIG.difficulty_prompts,
       paraphrase_prompts:
         stored.paraphrase_prompts || DEFAULT_CONFIG.paraphrase_prompts,
+      english_definition_prompts:
+        stored.english_definition_prompts ||
+        DEFAULT_CONFIG.english_definition_prompts,
+      explanation_prompt_preset_id:
+        stored.explanation_prompt_preset_id ||
+        DEFAULT_CONFIG.explanation_prompt_preset_id,
       mixed_translate_prompts:
         stored.mixed_translate_prompts ||
         DEFAULT_CONFIG.mixed_translate_prompts,

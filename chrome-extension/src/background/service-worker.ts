@@ -2359,19 +2359,18 @@ async function handleEnglishDefinition(
 ): Promise<EnglishDefinitionResponse> {
   try {
     // 1. 获取 Provider 配置
-    const { provider } = await prepareAIProvider();
+    const { config, provider } = await prepareAIProvider();
+    const prompts =
+      config.english_definition_prompts || ENGLISH_DEFINITION_PROMPTS;
 
     // 2. 构建 Prompt
-    const userPrompt = ENGLISH_DEFINITION_PROMPTS.user_prompt_template
+    const userPrompt = prompts.user_prompt_template
       .replace(/\{\{text\}\}/g, text)
       .replace(/\{\{user_level\}\}/g, userLevel);
 
     // 3. 调用 AI
     console.log(`[Lingride] 开始英英释义 (${userLevel})...`);
-    const aiResponse = await provider.chat(
-      ENGLISH_DEFINITION_PROMPTS.system_prompt,
-      userPrompt
-    );
+    const aiResponse = await provider.chat(prompts.system_prompt, userPrompt);
 
     // 4. 解析 JSON 响应（三级 fallback 策略）
     let result: EnglishDefinitionResult;
