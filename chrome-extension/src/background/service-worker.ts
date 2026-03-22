@@ -57,6 +57,7 @@ import {
   EnglishDefinitionResult,
   EnglishToChineseResponse,
   ExtractPageTextResponse,
+  GetOpenAIModelCatalogResponse,
   GetOpenAIOAuthStatusResponse,
   GetConfigResponse,
   GetMixedTranslateStateResponse,
@@ -75,6 +76,7 @@ import {
   ParaphraseResponse,
   PronunciationAssessmentResult,
   ProviderConfig,
+  RefreshOpenAIModelCatalogResponse,
   SaveConfigResponse,
   SegmentCorpusResponse,
   SegmentCorpusResult,
@@ -106,6 +108,10 @@ import {
   OpenAICodexAuthError,
   startOpenAICodexOAuth,
 } from "./openaiCodexAuth";
+import {
+  getOpenAIModelCatalog,
+  refreshOpenAIModelCatalog,
+} from "./openaiModelCatalog";
 import {
   getMixedTranslateState,
   getParaphraseState,
@@ -1243,6 +1249,40 @@ async function handleSaveConfig(
     return {
       success: false,
       error: error instanceof Error ? error.message : "保存配置失败",
+    };
+  }
+}
+
+async function handleGetOpenAIModelCatalog(): Promise<GetOpenAIModelCatalogResponse> {
+  try {
+    const config = await getConfig();
+    const data = await getOpenAIModelCatalog(config);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "获取 OpenAI 模型目录失败",
+    };
+  }
+}
+
+async function handleRefreshOpenAIModelCatalog(): Promise<RefreshOpenAIModelCatalogResponse> {
+  try {
+    const config = await getConfig();
+    const data = await refreshOpenAIModelCatalog(config);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "刷新 OpenAI 模型目录失败",
     };
   }
 }
@@ -3279,6 +3319,14 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.SAVE_CONFIG:
           response = await handleSaveConfig(message.payload as LingridConfig);
+          break;
+
+        case MessageType.GET_OPENAI_MODEL_CATALOG:
+          response = await handleGetOpenAIModelCatalog();
+          break;
+
+        case MessageType.REFRESH_OPENAI_MODEL_CATALOG:
+          response = await handleRefreshOpenAIModelCatalog();
           break;
 
         case MessageType.START_OPENAI_OAUTH:

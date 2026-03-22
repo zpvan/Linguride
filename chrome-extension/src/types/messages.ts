@@ -39,6 +39,10 @@ export enum MessageType {
   GET_CONFIG = "GET_CONFIG",
   /** 保存配置 */
   SAVE_CONFIG = "SAVE_CONFIG",
+  /** 获取 OpenAI 官方模型目录 */
+  GET_OPENAI_MODEL_CATALOG = "GET_OPENAI_MODEL_CATALOG",
+  /** 强制刷新 OpenAI 官方模型目录 */
+  REFRESH_OPENAI_MODEL_CATALOG = "REFRESH_OPENAI_MODEL_CATALOG",
   /** 启动 OpenAI OAuth 登录 */
   START_OPENAI_OAUTH = "START_OPENAI_OAUTH",
   /** 完成 OpenAI OAuth 登录 */
@@ -152,6 +156,63 @@ export interface GetConfigMessage {
 export interface SaveConfigMessage {
   type: MessageType.SAVE_CONFIG;
   payload: LingridConfig;
+}
+
+/**
+ * OpenAI 模型目录作用域
+ */
+export type OpenAIModelCatalogScope = "api" | "oauth";
+
+/**
+ * OpenAI 模型目录校验状态
+ */
+export type OpenAIModelCatalogVerificationState =
+  | "docs_only"
+  | "verified_by_api_key";
+
+/**
+ * OpenAI 官方模型目录项
+ */
+export interface OpenAIModelItem {
+  /** 模型 ID，作为真实请求值 */
+  id: string;
+  /** 展示标签 */
+  label: string;
+  /** 当前目录所属通道 */
+  channel: OpenAIModelCatalogScope;
+  /** 官方模型页中的分组标题 */
+  section: string;
+  /** 是否已弃用 */
+  deprecated: boolean;
+  /** 目录来源 */
+  source: "docs" | "docs+api";
+}
+
+/**
+ * OpenAI 官方模型目录响应数据
+ */
+export interface OpenAIModelCatalogResponseData {
+  items: OpenAIModelItem[];
+  fetchedAt: number;
+  expiresAt: number;
+  stale: boolean;
+  lastError?: string;
+  scope: OpenAIModelCatalogScope;
+  verificationState: OpenAIModelCatalogVerificationState;
+}
+
+/**
+ * 获取 OpenAI 官方模型目录消息
+ */
+export interface GetOpenAIModelCatalogMessage {
+  type: MessageType.GET_OPENAI_MODEL_CATALOG;
+}
+
+/**
+ * 强制刷新 OpenAI 官方模型目录消息
+ */
+export interface RefreshOpenAIModelCatalogMessage {
+  type: MessageType.REFRESH_OPENAI_MODEL_CATALOG;
 }
 
 /**
@@ -513,6 +574,8 @@ export interface AnalyzeListeningMessage {
 export type Message =
   | GetConfigMessage
   | SaveConfigMessage
+  | GetOpenAIModelCatalogMessage
+  | RefreshOpenAIModelCatalogMessage
   | StartOpenAIOAuthMessage
   | CompleteOpenAIOAuthMessage
   | GetOpenAIOAuthStatusMessage
@@ -572,6 +635,20 @@ export interface GetConfigResponse extends BaseResponse {
  * 保存配置响应
  */
 export interface SaveConfigResponse extends BaseResponse {}
+
+/**
+ * 获取 OpenAI 官方模型目录响应
+ */
+export interface GetOpenAIModelCatalogResponse extends BaseResponse {
+  data?: OpenAIModelCatalogResponseData;
+}
+
+/**
+ * 强制刷新 OpenAI 官方模型目录响应
+ */
+export interface RefreshOpenAIModelCatalogResponse extends BaseResponse {
+  data?: OpenAIModelCatalogResponseData;
+}
 
 /**
  * 启动 OpenAI OAuth 响应
@@ -898,6 +975,8 @@ export interface AnalyzeListeningResponse extends BaseResponse {
 export type Response =
   | GetConfigResponse
   | SaveConfigResponse
+  | GetOpenAIModelCatalogResponse
+  | RefreshOpenAIModelCatalogResponse
   | StartOpenAIOAuthResponse
   | CompleteOpenAIOAuthResponse
   | GetOpenAIOAuthStatusResponse

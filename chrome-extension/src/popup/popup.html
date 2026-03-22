@@ -211,6 +211,21 @@
                 </select>
               </div>
               <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
+              <div id="openaiModelCatalogPanel" class="model-catalog-panel" style="display: none;">
+                <div class="model-catalog-header">
+                  <span class="model-catalog-label">官方模型表</span>
+                  <button
+                    type="button"
+                    id="refreshOpenAIModelCatalogBtn"
+                    class="model-catalog-refresh-btn"
+                  >
+                    刷新列表
+                  </button>
+                </div>
+                <p id="openaiModelCatalogStatus" class="model-catalog-status">
+                  正在同步 OpenAI 官方模型目录...
+                </p>
+              </div>
               <div id="openaiOauthPanel" class="oauth-panel" style="display: none;">
                 <div class="oauth-status-row">
                   <span class="oauth-status-label">状态</span>

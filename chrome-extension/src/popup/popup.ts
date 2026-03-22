@@ -41,6 +41,9 @@ import {
   MessageType,
   MiniMaxTTSModel,
   OpenAIAuthMode,
+  OpenAIModelCatalogResponseData,
+  OpenAIModelCatalogScope,
+  OpenAIModelItem,
   OpenAIOAuthStatus,
   resolveConfigApiProvider,
   resolveConfigOpenAIAuthMode,
@@ -71,6 +74,8 @@ interface OpenAIOAuthState {
   accountId?: string;
 }
 
+interface OpenAIModelCatalogState extends OpenAIModelCatalogResponseData {}
+
 /** 模式描述映射 */
 const MODE_DESCRIPTIONS: Record<string, string> = {
   paraphrase: "将英文改写为适合您水平的版本",
@@ -90,13 +95,10 @@ const DEEPSEEK_MODEL_OPTIONS: ModelOption[] = [
   { value: "deepseek-reasoner", label: "DeepSeek Reasoner" },
   { value: "custom", label: "自定义..." },
 ];
-const OPENAI_OAUTH_MODEL_OPTIONS: ModelOption[] = [
-  { value: "gpt-5.3-codex", label: "gpt-5.3-codex" },
-  { value: "gpt-5.3-codex-spark", label: "gpt-5.3-codex-spark" },
-  { value: "custom", label: "自定义..." },
-];
 const OPENAI_API_MODEL_PLACEHOLDER = "如 gpt-5.1-codex";
 const CUSTOM_MODEL_PLACEHOLDER = "输入模型名称";
+const OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS = 2000;
+const OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS = 5;
 const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
 const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
   "speed",
@@ -243,6 +245,15 @@ const modelSelect = document.getElementById("modelSelect") as HTMLSelectElement;
 const customModelInput = document.getElementById(
   "customModel"
 ) as HTMLInputElement;
+const openaiModelCatalogPanel = document.getElementById(
+  "openaiModelCatalogPanel"
+) as HTMLElement;
+const openaiModelCatalogStatus = document.getElementById(
+  "openaiModelCatalogStatus"
+) as HTMLElement;
+const refreshOpenAIModelCatalogBtn = document.getElementById(
+  "refreshOpenAIModelCatalogBtn"
+) as HTMLButtonElement;
 const openaiOauthPanel = document.getElementById(
   "openaiOauthPanel"
 ) as HTMLElement;
@@ -380,11 +391,17 @@ const resetDefaultsBtn = document.getElementById(
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
 let currentOpenAIOAuthStatus: OpenAIOAuthState = { status: "missing" };
+let currentOpenAIModelCatalog: OpenAIModelCatalogState | null = null;
 let currentMode: ReadingMode = null;
 let minimaxTTSResetTimer: number | null = null;
 let xiaomiTTSResetTimer: number | null = null;
 let isTestingMiniMaxTTS = false;
 let isTestingXiaomiTTS = false;
+let openAIModelCatalogPollTimer: number | null = null;
+let openAIModelCatalogPollAttempt = 0;
+let isRefreshingOpenAIModelCatalog = false;
+let isLoadingOpenAIModelCatalog = false;
+let openAIModelCatalogInlineError: string | null = null;
 
 function getCurrentApiProvider(): ApiProviderType {
   return resolveConfigApiProvider(currentConfig);
@@ -454,6 +471,226 @@ function formatOpenAIOAuthExpiry(expiresAt?: number): string {
     minute: "2-digit",
   });
   return formatter.format(new Date(expiresAt));
+}
+
+function formatCatalogSyncTime(timestamp?: number): string {
+  if (!timestamp) {
+    return "";
+  }
+
+  const formatter = new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return formatter.format(new Date(timestamp));
+}
+
+function clearOpenAIModelCatalogPoll(): void {
+  if (openAIModelCatalogPollTimer !== null) {
+    window.clearTimeout(openAIModelCatalogPollTimer);
+    openAIModelCatalogPollTimer = null;
+  }
+  openAIModelCatalogPollAttempt = 0;
+}
+
+function getActiveOpenAIModelCatalogScope(): OpenAIModelCatalogScope {
+  return getCurrentOpenAIAuthMode() === "oauth" ? "oauth" : "api";
+}
+
+function getCurrentOpenAIModelValue(): string {
+  if (getCurrentOpenAIAuthMode() === "oauth") {
+    return (
+      currentConfig.openai_oauth_model?.trim() ||
+      DEFAULT_CONFIG.openai_oauth_model ||
+      "gpt-5.3-codex"
+    );
+  }
+
+  return currentConfig.model?.trim() || "";
+}
+
+function getOpenAIModelCatalogItemsForActiveScope(): OpenAIModelItem[] {
+  if (!currentOpenAIModelCatalog) {
+    return [];
+  }
+
+  if (currentOpenAIModelCatalog.scope !== getActiveOpenAIModelCatalogScope()) {
+    return [];
+  }
+
+  return currentOpenAIModelCatalog.items;
+}
+
+function buildOpenAIModelOptions(currentValue: string): ModelOption[] {
+  const options: ModelOption[] = [];
+  const currentItems = getOpenAIModelCatalogItemsForActiveScope();
+
+  if (
+    currentValue &&
+    !currentItems.some((item) => item.id === currentValue)
+  ) {
+    options.push({
+      value: currentValue,
+      label: `当前值：${currentValue}`,
+    });
+  }
+
+  currentItems.forEach((item) => {
+    options.push({
+      value: item.id,
+      label: item.label,
+    });
+  });
+
+  options.push({ value: "custom", label: "自定义..." });
+  return options;
+}
+
+function getOpenAIModelCatalogStatusLines(): string[] {
+  if (getCurrentApiProvider() !== "openai") {
+    return [];
+  }
+
+  const scope = getActiveOpenAIModelCatalogScope();
+  const catalog = currentOpenAIModelCatalog;
+  const isScopeMatched = catalog?.scope === scope;
+
+  if (isLoadingOpenAIModelCatalog && !isScopeMatched) {
+    return ["正在同步 OpenAI 官方模型目录..."];
+  }
+
+  if (openAIModelCatalogInlineError) {
+    return [openAIModelCatalogInlineError];
+  }
+
+  if (!catalog || !isScopeMatched) {
+    return ["尚未加载当前方式对应的官方模型目录。"];
+  }
+
+  const lines: string[] = [];
+
+  if (scope === "api") {
+    if (catalog.verificationState === "verified_by_api_key") {
+      lines.push(
+        `已按当前 API Key 校验，当前可见 ${catalog.items.length} 个兼容模型。`
+      );
+    } else if (currentConfig.api_key?.trim()) {
+      lines.push("当前显示官方预览列表，保存并校验 API Key 后会收敛为账号可用模型。");
+    } else {
+      lines.push("当前显示官方预览列表，填写并保存 API Key 后会收敛为账号可用模型。");
+    }
+  } else {
+    lines.push("当前显示官方 Coding / Codex 候选，不保证你的订阅一定可用。");
+  }
+
+  const syncTime = formatCatalogSyncTime(catalog.fetchedAt);
+  if (syncTime) {
+    lines.push(`最近同步：${syncTime}`);
+  }
+
+  if (catalog.stale) {
+    lines.push("正在后台刷新目录...");
+  }
+
+  if (catalog.lastError) {
+    lines.push(`最近同步失败：${catalog.lastError}`);
+  }
+
+  return lines;
+}
+
+function updateOpenAIModelCatalogUI(): void {
+  if (getCurrentApiProvider() !== "openai") {
+    openaiModelCatalogPanel.style.display = "none";
+    return;
+  }
+
+  openaiModelCatalogPanel.style.display = "block";
+  openaiModelCatalogStatus.textContent = getOpenAIModelCatalogStatusLines().join(
+    "\n"
+  );
+  refreshOpenAIModelCatalogBtn.disabled = isRefreshingOpenAIModelCatalog;
+  refreshOpenAIModelCatalogBtn.textContent = isRefreshingOpenAIModelCatalog
+    ? "刷新中..."
+    : "刷新列表";
+}
+
+async function loadOpenAIModelCatalog(options?: {
+  force?: boolean;
+  backgroundPoll?: boolean;
+}): Promise<void> {
+  if (getCurrentApiProvider() !== "openai") {
+    clearOpenAIModelCatalogPoll();
+    updateOpenAIModelCatalogUI();
+    return;
+  }
+
+  const force = options?.force === true;
+  const backgroundPoll = options?.backgroundPoll === true;
+  const requestedScope = getActiveOpenAIModelCatalogScope();
+
+  if (force) {
+    isRefreshingOpenAIModelCatalog = true;
+  }
+  if (!backgroundPoll) {
+    isLoadingOpenAIModelCatalog = true;
+  }
+  updateOpenAIModelCatalogUI();
+
+  try {
+    openAIModelCatalogInlineError = null;
+    const response = (await chrome.runtime.sendMessage({
+      type: force
+        ? MessageType.REFRESH_OPENAI_MODEL_CATALOG
+        : MessageType.GET_OPENAI_MODEL_CATALOG,
+    })) as {
+      success: boolean;
+      data?: OpenAIModelCatalogResponseData;
+      error?: string;
+    };
+
+    if (response.success && response.data) {
+      currentOpenAIModelCatalog = response.data;
+      updateAiServiceForm();
+
+      if (
+        response.data.scope === requestedScope &&
+        response.data.stale &&
+        openAIModelCatalogPollAttempt < OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS
+      ) {
+        if (openAIModelCatalogPollTimer !== null) {
+          window.clearTimeout(openAIModelCatalogPollTimer);
+          openAIModelCatalogPollTimer = null;
+        }
+        openAIModelCatalogPollAttempt += 1;
+        openAIModelCatalogPollTimer = window.setTimeout(() => {
+          void loadOpenAIModelCatalog({ backgroundPoll: true });
+        }, OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS);
+      } else {
+        clearOpenAIModelCatalogPoll();
+      }
+
+      return;
+    }
+
+    clearOpenAIModelCatalogPoll();
+    if (response.error) {
+      openAIModelCatalogInlineError = response.error;
+    }
+  } catch (error) {
+    clearOpenAIModelCatalogPoll();
+    openAIModelCatalogInlineError = "获取 OpenAI 模型目录失败";
+  } finally {
+    if (!backgroundPoll) {
+      isLoadingOpenAIModelCatalog = false;
+    }
+    if (force) {
+      isRefreshingOpenAIModelCatalog = false;
+    }
+    updateOpenAIModelCatalogUI();
+  }
 }
 
 function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
@@ -700,6 +937,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Lingride] Popup 已加载");
 
   await Promise.all([loadConfig(), loadOpenAIOAuthStatus()]);
+  if (getCurrentApiProvider() === "openai") {
+    await loadOpenAIModelCatalog();
+  }
 
   updateSettingsForm();
   updateLevelSelector();
@@ -804,9 +1044,13 @@ function bindEvents(): void {
   apiProviderSelect.addEventListener("change", handleApiProviderChange);
   openaiAuthModeSelect.addEventListener("change", handleOpenAIAuthModeChange);
   apiBaseUrlInput.addEventListener("blur", autoSave);
-  apiKeyInput.addEventListener("blur", autoSave);
+  apiKeyInput.addEventListener("blur", handleApiKeyBlur);
   modelSelect.addEventListener("change", handleModelChange);
   customModelInput.addEventListener("blur", autoSave);
+  refreshOpenAIModelCatalogBtn.addEventListener(
+    "click",
+    handleRefreshOpenAIModelCatalog
+  );
   startOpenAIOAuthBtn.addEventListener("click", handleStartOpenAIOAuth);
   completeOpenAIOAuthBtn.addEventListener("click", handleCompleteOpenAIOAuth);
   disconnectOpenAIOAuthBtn.addEventListener(
@@ -912,6 +1156,9 @@ function bindEvents(): void {
 
 function showSettings(): void {
   viewport.classList.add("show-settings");
+  if (getCurrentApiProvider() === "openai" && !currentOpenAIModelCatalog) {
+    void loadOpenAIModelCatalog();
+  }
 }
 
 function showMain(): void {
@@ -1294,18 +1541,21 @@ function updateAiServiceForm(): void {
     );
   } else if (providerType === "openai" && authMode === "oauth") {
     showPresetModelControl(
-      OPENAI_OAUTH_MODEL_OPTIONS,
-      currentConfig.openai_oauth_model ||
-        DEFAULT_CONFIG.openai_oauth_model ||
-        "gpt-5.3-codex",
+      buildOpenAIModelOptions(getCurrentOpenAIModelValue()),
+      getCurrentOpenAIModelValue(),
       "输入 Codex 模型名称"
     );
   } else if (providerType === "openai") {
-    showDirectModelInput(currentConfig.model || "", OPENAI_API_MODEL_PLACEHOLDER);
+    showPresetModelControl(
+      buildOpenAIModelOptions(getCurrentOpenAIModelValue()),
+      getCurrentOpenAIModelValue(),
+      OPENAI_API_MODEL_PLACEHOLDER
+    );
   } else {
     showDirectModelInput(currentConfig.model || "", CUSTOM_MODEL_PLACEHOLDER);
   }
 
+  updateOpenAIModelCatalogUI();
   updateOpenAIOAuthUI();
 }
 
@@ -1814,22 +2064,58 @@ function handleModelChange(): void {
   }
 }
 
-function handleApiProviderChange(): void {
+async function handleApiProviderChange(): Promise<void> {
   const providerType = apiProviderSelect.value as ApiProviderType;
   currentConfig.api_provider = providerType;
+  if (providerType !== "openai") {
+    clearOpenAIModelCatalogPoll();
+  }
   updateAiServiceForm();
 
   if (providerType === "custom") {
+    await autoSave();
     apiBaseUrlInput.focus();
-  } else {
-    autoSave();
+    return;
+  }
+
+  await autoSave();
+
+  if (providerType === "openai") {
+    await loadOpenAIModelCatalog();
   }
 }
 
-function handleOpenAIAuthModeChange(): void {
+async function handleOpenAIAuthModeChange(): Promise<void> {
   currentConfig.openai_auth_mode = openaiAuthModeSelect.value as OpenAIAuthMode;
+  clearOpenAIModelCatalogPoll();
   updateAiServiceForm();
-  autoSave();
+  await autoSave();
+
+  if (getCurrentApiProvider() === "openai") {
+    await loadOpenAIModelCatalog();
+  }
+}
+
+async function handleApiKeyBlur(): Promise<void> {
+  await autoSave();
+
+  if (
+    getCurrentApiProvider() === "openai" &&
+    getCurrentOpenAIAuthMode() === "api_key"
+  ) {
+    await loadOpenAIModelCatalog({ force: true });
+  }
+}
+
+async function handleRefreshOpenAIModelCatalog(event: Event): Promise<void> {
+  event.preventDefault();
+
+  if (getCurrentApiProvider() !== "openai") {
+    return;
+  }
+
+  await autoSave();
+  await loadOpenAIModelCatalog({ force: true });
 }
 
 function applyApiProviderSelection(
@@ -1904,6 +2190,9 @@ async function handleCompleteOpenAIOAuth(): Promise<void> {
       openaiOauthCallbackInput.value = "";
       updateAiServiceForm();
       updateBadge();
+      if (isOpenAIOAuthMode()) {
+        await loadOpenAIModelCatalog();
+      }
       showStatus(connectionStatus, "OpenAI OAuth 已连接", "success");
       return;
     }
@@ -1927,6 +2216,7 @@ async function handleDisconnectOpenAIOAuth(): Promise<void> {
       openaiOauthCallbackInput.value = "";
       updateAiServiceForm();
       updateBadge();
+      updateOpenAIModelCatalogUI();
       showStatus(connectionStatus, "OpenAI OAuth 已断开", "success");
       return;
     }

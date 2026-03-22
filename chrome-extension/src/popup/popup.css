@@ -972,6 +972,56 @@ body {
   box-shadow: 0 0 0 1px var(--accent);
 }
 
+.model-catalog-panel {
+  margin: 0 var(--space-lg) var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.model-catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.model-catalog-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.model-catalog-refresh-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.18);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s var(--ease-out);
+}
+
+.model-catalog-refresh-btn:hover {
+  background: rgba(118, 118, 128, 0.24);
+}
+
+.model-catalog-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.model-catalog-status {
+  margin-top: var(--space-sm);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+
 .oauth-panel {
   margin: 0 var(--space-lg) var(--space-md);
   padding: var(--space-md);
