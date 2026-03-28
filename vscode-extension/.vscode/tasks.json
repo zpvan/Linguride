@@ -1,0 +1,46 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "compile",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [
+				"$tsc"
+			],
+			"label": "npm: compile",
+			"detail": "Compile TypeScript to JavaScript"
+		},
+		{
+			"type": "npm",
+			"script": "watch",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"label": "npm: watch",
+			"detail": "Watch TypeScript files for changes and compile automatically"
+		},
+		{
+			"type": "npm",
+			"script": "lint",
+			"group": "build",
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"label": "npm: lint",
+			"detail": "Run ESLint to check code quality"
+		},
+		{
+			"type": "npm",
+			"script": "package",
+			"group": "build",
+			"label": "npm: package",
+			"detail": "Package extension into VSIX file"
+		}
+	]
+}

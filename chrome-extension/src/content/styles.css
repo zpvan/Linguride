@@ -1,0 +1,459 @@
+/**
+ * @file styles.css
+ * @description Content Script 注入样式 — iOS Style
+ * 
+ * 定义三种模式（翻译、释义、混杂中英）的结果展示样式，
+ * 包括成功、错误和加载状态，以及暗色模式适配。
+ * 
+ * 颜色体系（模式区分）：
+ * - 翻译：灰色边框（#ddd）
+ * - 释义：绿色边框（#4caf50 / iOS Green）
+ * - 混杂中英：蓝紫色边框（#6366f1），英文蓝色高亮（#0A84FF / iOS Blue）
+ * 
+ * 与 popup.css 保持 iOS 设计语言一致性
+ */
+
+/* ====== 翻译成功样式 ====== */
+.lingride-translation {
+  color: #666;
+  font-style: italic;
+  margin: 0.5em 0;
+  padding-left: 0.5em;
+  border-left: 2px solid #ddd;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .lingride-translation {
+    color: #aaa;
+    border-left-color: #444;
+  }
+}
+
+/* ====== 翻译错误样式 ====== */
+.lingride-error {
+  color: #f44336;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+  padding: 0.3em 0.5em;
+  background: rgba(244, 67, 54, 0.1);
+  border-left: 2px solid #f44336;
+  border-radius: 2px;
+}
+
+/* ====== 翻译中状态 ====== */
+.lingride-loading {
+  color: #999;
+  font-style: italic;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+}
+
+.lingride-loading::after {
+  content: '...';
+  animation: lingride-dots 1.5s infinite;
+}
+
+@keyframes lingride-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* ====== 释义样式 ====== */
+
+/* 释义成功样式 - 使用绿色边框区分 */
+.lingride-paraphrase {
+  color: #2e7d32;
+  font-style: normal;
+  margin: 0.5em 0;
+  padding: 0.5em 0.75em;
+  border-left: 3px solid #4caf50;
+  background: rgba(76, 175, 80, 0.05);
+  font-size: 0.95em;
+  line-height: 1.6;
+  border-radius: 0 4px 4px 0;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .lingride-paraphrase {
+    color: #81c784;
+    border-left-color: #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+  }
+}
+
+/* 释义错误样式 */
+.lingride-paraphrase-error {
+  color: #f44336;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+  padding: 0.3em 0.5em;
+  background: rgba(244, 67, 54, 0.1);
+  border-left: 3px solid #f44336;
+  border-radius: 0 2px 2px 0;
+}
+
+/* 释义加载中状态 */
+.lingride-paraphrase-loading {
+  color: #4caf50;
+  font-style: italic;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+}
+
+.lingride-paraphrase-loading::after {
+  content: '...';
+  animation: lingride-dots 1.5s infinite;
+}
+
+/* ====== 混杂中英翻译样式 ====== */
+
+/* 混杂翻译容器 - 蓝紫色边框区分 */
+.lingride-mixed-translate {
+  color: #374151;
+  font-style: normal;
+  margin: 0.5em 0;
+  padding: 0.5em 0.75em;
+  border-left: 3px solid #6366f1;
+  background: rgba(99, 102, 241, 0.05);
+  font-size: 0.95em;
+  line-height: 1.8;
+  border-radius: 0 4px 4px 0;
+}
+
+/* 英文高亮 - iOS 系统蓝加粗显示 */
+.lingride-en-highlight {
+  color: #0A84FF;
+  font-weight: 500;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .lingride-mixed-translate {
+    color: #d1d5db;
+    border-left-color: #818cf8;
+    background: rgba(99, 102, 241, 0.1);
+  }
+  .lingride-en-highlight {
+    color: #0A84FF;
+  }
+}
+
+/* 混杂翻译错误样式 */
+.lingride-mixed-translate-error {
+  color: #f44336;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+  padding: 0.3em 0.5em;
+  background: rgba(244, 67, 54, 0.1);
+  border-left: 3px solid #f44336;
+  border-radius: 0 2px 2px 0;
+}
+
+/* 混杂翻译加载中状态 */
+.lingride-mixed-translate-loading {
+  color: #6366f1;
+  font-style: italic;
+  font-size: 0.85em;
+  margin: 0.3em 0;
+}
+
+.lingride-mixed-translate-loading::after {
+  content: '...';
+  animation: lingride-dots 1.5s infinite;
+}
+
+/* ====== 内联代码格式保留 ====== */
+
+/* 译文中保留的 <code> 词汇样式 */
+.lingride-inline-code {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: rgba(127, 127, 127, 0.15);
+  border-radius: 3px;
+}
+
+/* ====== 划词工具条 ====== */
+
+.lingride-selection-root {
+  position: fixed;
+  z-index: 2147483646;
+  width: min(420px, calc(100vw - 24px));
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    sans-serif;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.lingride-selection-root.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.lingride-selection-toolbar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(28, 28, 30, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.lingride-selection-button {
+  border: none;
+  border-radius: 8px;
+  height: 32px;
+  background: transparent;
+  color: rgba(235, 235, 245, 0.88);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lingride-selection-button:hover:not(:disabled) {
+  background: rgba(10, 132, 255, 0.15);
+  color: #ffffff;
+}
+
+.lingride-selection-button.is-active {
+  background: rgba(10, 132, 255, 0.22);
+  color: #ffffff;
+}
+
+.lingride-selection-button.is-speaking {
+  background: rgba(48, 209, 88, 0.24);
+  color: #ffffff;
+}
+
+.lingride-selection-button:disabled {
+  color: rgba(235, 235, 245, 0.35);
+  cursor: not-allowed;
+}
+
+.lingride-selection-message {
+  display: none;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff9f0a;
+  text-align: center;
+}
+
+.lingride-selection-message.is-visible {
+  display: block;
+}
+
+.lingride-selection-card {
+  margin-top: 8px;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(28, 28, 30, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+}
+
+.lingride-selection-card-title {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lingride-selection-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lingride-selection-card-header .lingride-selection-card-title {
+  margin: 0;
+}
+
+.lingride-selection-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lingride-selection-card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(235, 235, 245, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lingride-selection-card-action-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.lingride-selection-card-action-btn:active {
+  transform: scale(0.96);
+}
+
+.lingride-selection-speak-btn.is-speaking {
+  background: #0a84ff;
+  color: #ffffff;
+}
+
+.lingride-selection-copy-btn.copied {
+  background: #30d158;
+  color: #ffffff;
+}
+
+.lingride-selection-loading {
+  color: rgba(235, 235, 245, 0.7);
+  font-size: 13px;
+}
+
+.lingride-selection-error {
+  color: #ff6961;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lingride-selection-section {
+  margin-top: 10px;
+}
+
+.lingride-selection-section-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(235, 235, 245, 0.62);
+}
+
+.lingride-selection-paragraph,
+.lingride-selection-inline {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lingride-selection-list {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.lingride-selection-list li {
+  margin-bottom: 4px;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.lingride-selection-structure {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lingride-selection-structure-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(10, 132, 255, 0.15);
+}
+
+.lingride-selection-structure-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0a84ff;
+}
+
+.lingride-selection-structure-value {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (prefers-color-scheme: light) {
+  .lingride-selection-toolbar,
+  .lingride-selection-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .lingride-selection-button {
+    color: rgba(22, 22, 24, 0.86);
+  }
+
+  .lingride-selection-button:hover:not(:disabled) {
+    color: #0a84ff;
+  }
+
+  .lingride-selection-button.is-active {
+    color: #0a84ff;
+    background: rgba(10, 132, 255, 0.12);
+  }
+
+  .lingride-selection-button.is-speaking {
+    color: #0a84ff;
+    background: rgba(10, 132, 255, 0.16);
+  }
+
+  .lingride-selection-button:disabled {
+    color: rgba(22, 22, 24, 0.36);
+  }
+
+  .lingride-selection-card-action-btn {
+    background: rgba(60, 60, 67, 0.12);
+    color: rgba(28, 28, 30, 0.8);
+  }
+
+  .lingride-selection-card-action-btn:hover {
+    background: rgba(60, 60, 67, 0.18);
+    color: rgba(28, 28, 30, 0.96);
+  }
+
+  .lingride-selection-speak-btn.is-speaking {
+    background: rgba(10, 132, 255, 0.16);
+    color: #0a84ff;
+  }
+
+  .lingride-selection-card-title,
+  .lingride-selection-paragraph,
+  .lingride-selection-inline,
+  .lingride-selection-list,
+  .lingride-selection-structure-value {
+    color: rgba(28, 28, 30, 0.9);
+  }
+
+  .lingride-selection-section-title {
+    color: rgba(60, 60, 67, 0.6);
+  }
+
+  .lingride-selection-loading {
+    color: rgba(60, 60, 67, 0.72);
+  }
+
+  .lingride-selection-error {
+    color: #d93025;
+  }
+}

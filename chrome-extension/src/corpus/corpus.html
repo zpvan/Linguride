@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>语料库听力训练</title>
+  <link rel="stylesheet" href="corpus.css">
+</head>
+<body>
+  <div class="corpus-container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title">语料库听力训练</h1>
+      <div class="level-badge-wrapper" id="levelBadgeWrapper">
+        <button class="level-badge" id="levelBadge">Lv.A2</button>
+        <div class="level-dropdown" id="levelDropdown">
+          <button class="level-option" data-level="A1">
+            <span class="level-code">A1</span>
+            <span class="level-desc">初中入门</span>
+          </button>
+          <button class="level-option" data-level="A2">
+            <span class="level-code">A2</span>
+            <span class="level-desc">中考水平</span>
+          </button>
+          <button class="level-option" data-level="B1">
+            <span class="level-code">B1</span>
+            <span class="level-desc">高考水平</span>
+          </button>
+          <button class="level-option" data-level="B2">
+            <span class="level-code">B2</span>
+            <span class="level-desc">四六级</span>
+          </button>
+          <button class="level-option" data-level="C1">
+            <span class="level-code">C1</span>
+            <span class="level-desc">考研/专八</span>
+          </button>
+          <button class="level-option" data-level="C2">
+            <span class="level-code">C2</span>
+            <span class="level-desc">专业翻译</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 语料输入区域 -->
+    <section id="inputSection" class="card">
+      <h2 class="section-label">粘贴英文语料</h2>
+      <p class="section-desc">粘贴一段英文文章，AI 会根据你的水平智能分句，进行 i+1 难度听写训练。</p>
+      <div class="corpus-input-wrapper">
+        <textarea id="corpusInput" class="corpus-input"
+          placeholder="在此粘贴英文文章...&#10;&#10;例如：The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet and is often used for typing practice." 
+          rows="8"></textarea>
+        <span id="corpusWordCount" class="word-count">0 词</span>
+      </div>
+      <div class="input-actions">
+        <button id="startPracticeBtn" class="btn-primary" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          开始练习
+        </button>
+      </div>
+      <div id="inputStatus" class="status-message"></div>
+    </section>
+
+    <!-- 练习区域（初始隐藏） -->
+    <section id="practiceSection" class="card practice-section" style="display: none;">
+      <!-- 进度指示 -->
+      <div class="practice-progress">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <span id="progressText" class="progress-text">句子 1/1</span>
+        <span id="overallAccuracy" class="overall-accuracy">准确率 --%</span>
+      </div>
+
+      <!-- 当前句子卡片 -->
+      <div class="sentence-card">
+        <div class="sentence-header">
+          <span class="sentence-label">第 <span id="currentSentenceNum">1</span> 句</span>
+          <button id="toggleOriginalBtn" class="btn-toggle-original" title="显示/隐藏原文">
+            <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- 原文显示（默认隐藏，答案提交后显示） -->
+        <div id="originalTextArea" class="original-text-area" style="display: none;">
+          <p id="originalText" class="original-text"></p>
+          <div id="sentenceTips" class="sentence-tips">
+            <span class="tips-label">听写提示：</span>
+            <span id="listeningTips" class="tips-content"></span>
+          </div>
+        </div>
+
+        <!-- 朗读控制 -->
+        <div class="tts-controls">
+          <button id="playBtn" class="btn-tts btn-play" title="朗读句子">
+            <svg class="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <svg class="icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+          </button>
+          <button id="replayBtn" class="btn-tts btn-replay" title="重新朗读">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 4v6h6"></path>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+          </button>
+          <div class="speed-control">
+            <label for="speedSelect">语速</label>
+            <select id="speedSelect" class="speed-select">
+              <option value="1">1.0x</option>
+              <option value="0.9">0.9x</option>
+              <option value="0.8">0.8x</option>
+              <option value="0.7">0.7x</option>
+            </select>
+          </div>
+          <span id="playCount" class="play-count">已播放 0 次</span>
+        </div>
+
+        <!-- 听写输入 -->
+        <div class="dictation-input-wrapper">
+          <textarea id="dictationInput" class="dictation-input" 
+            placeholder="输入你听到的内容..." rows="3"></textarea>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="dictation-actions">
+          <button id="submitAnswerBtn" class="btn-submit" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            提交答案
+          </button>
+          <button id="skipBtn" class="btn-skip" title="跳过此句">
+            跳过
+          </button>
+        </div>
+      </div>
+
+      <div id="practiceStatus" class="status-message"></div>
+    </section>
+
+    <!-- 单句分析结果（初始隐藏） -->
+    <section id="resultSection" class="card result-section" style="display: none;">
+      <div class="result-header">
+        <h3 class="result-title">听写分析</h3>
+        <div class="accuracy-badge">
+          <span class="accuracy-label">准确率</span>
+          <span id="sentenceAccuracy" class="accuracy-value">--</span>
+        </div>
+      </div>
+
+      <!-- 文本对比 -->
+      <div class="comparison-area">
+        <div class="comparison-row">
+          <span class="comparison-label">原文</span>
+          <p id="comparisonOriginal" class="comparison-text original"></p>
+        </div>
+        <div class="comparison-row">
+          <span class="comparison-label">你的答案</span>
+          <p id="comparisonUser" class="comparison-text user"></p>
+        </div>
+      </div>
+
+      <!-- 错误列表 -->
+      <div id="errorsSection" class="errors-section" style="display: none;">
+        <h4 class="errors-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          听力问题
+        </h4>
+        <div id="errorsList" class="errors-list"></div>
+      </div>
+
+      <!-- 建议 -->
+      <div id="suggestionsSection" class="suggestions-section" style="display: none;">
+        <h4 class="suggestions-title">改进建议</h4>
+        <ul id="suggestionsList" class="suggestions-list"></ul>
+      </div>
+
+      <!-- 鼓励语 -->
+      <div class="encouragement-area">
+        <p id="encouragementText" class="encouragement-text"></p>
+      </div>
+
+      <!-- 下一句操作 -->
+      <div class="next-actions">
+        <button id="retryBtn" class="btn-retry">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 4v6h6"></path>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          重新听写
+        </button>
+        <button id="nextSentenceBtn" class="btn-next btn-primary">
+          下一句
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- 练习完成面板（初始隐藏） -->
+    <section id="completeSection" class="card complete-section" style="display: none;">
+      <div class="complete-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h3 class="complete-title">练习完成！</h3>
+      <div class="complete-stats">
+        <div class="stat-item">
+          <span class="stat-value" id="totalSentences">0</span>
+          <span class="stat-label">总句数</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="avgAccuracy">0%</span>
+          <span class="stat-label">平均准确率</span>
+        </div>
+      </div>
+
+      <!-- 听力盲区总结 -->
+      <div id="blindSpotsSection" class="blind-spots-section" style="display: none;">
+        <h4 class="blind-spots-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          你的听力盲区
+        </h4>
+        <ul id="blindSpotsList" class="blind-spots-list"></ul>
+      </div>
+
+      <!-- 练习建议 -->
+      <div id="practiceAdviceSection" class="practice-advice-section" style="display: none;">
+        <h4 class="advice-title">后续练习建议</h4>
+        <ul id="practiceAdviceList" class="advice-list"></ul>
+      </div>
+
+      <div class="complete-actions">
+        <button id="newPracticeBtn" class="btn-new-practice btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          开始新练习
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="corpus.ts"></script>
+</body>
+</html>
