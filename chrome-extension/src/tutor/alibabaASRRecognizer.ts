@@ -278,6 +278,7 @@ export class AlibabaASRRecognizer implements ISpeechRecognizer {
       1, // 输入声道数
       1 // 输出声道数
     );
+    const audioContext = this.audioContext;
 
     // 音频数据缓冲区（用于定时发送）
     let audioBuffer: Int16Array[] = [];
@@ -292,10 +293,10 @@ export class AlibabaASRRecognizer implements ISpeechRecognizer {
 
       // 如果采样率不是 16kHz，需要重采样
       let pcmData: Float32Array;
-      if (this.audioContext!.sampleRate !== TARGET_SAMPLE_RATE) {
+      if (audioContext.sampleRate !== TARGET_SAMPLE_RATE) {
         pcmData = this.resample(
           inputData,
-          this.audioContext!.sampleRate,
+          audioContext.sampleRate,
           TARGET_SAMPLE_RATE
         );
       } else {

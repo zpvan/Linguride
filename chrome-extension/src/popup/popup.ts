@@ -80,7 +80,7 @@ interface OpenAIOAuthState {
   accountId?: string;
 }
 
-interface OpenAIModelCatalogState extends OpenAIModelCatalogResponseData {}
+type OpenAIModelCatalogState = OpenAIModelCatalogResponseData;
 
 /** 模式描述映射 */
 const MODE_DESCRIPTIONS: Record<string, string> = {
@@ -1484,7 +1484,7 @@ function handleLevelOptionClick(e: Event): void {
   currentConfig.user_english_level = level;
 
   // 立即保存并刷新模式
-  handleEnglishLevelChange(level);
+  handleEnglishLevelChange();
 }
 
 /**
@@ -1509,7 +1509,7 @@ function updateLevelSelector(): void {
   updateLevelBadge(level);
 }
 
-async function handleEnglishLevelChange(_newLevel: CEFRLevel): Promise<void> {
+async function handleEnglishLevelChange(): Promise<void> {
   try {
     const response = await chrome.runtime.sendMessage({
       type: MessageType.SAVE_CONFIG,

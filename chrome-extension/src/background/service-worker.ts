@@ -738,7 +738,15 @@ async function requestXiaomiTTSAudio(
     });
   }
 
-  const apiKey = config.xiaomi_tts!.api_key.trim();
+  const xiaomiTTSConfig = config.xiaomi_tts;
+  if (!xiaomiTTSConfig) {
+    throw createTTSError({
+      provider: "xiaomi",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const apiKey = xiaomiTTSConfig.api_key.trim();
   const assistantContent = buildXiaomiTTSAssistantContent(text, config);
   const requestBody = {
     model: XIAOMI_TTS_MODEL,
@@ -892,7 +900,15 @@ async function createMiniMaxTTSTask(
     });
   }
 
-  const apiKey = config.minimax_tts!.api_key.trim();
+  const minimaxTTSConfig = config.minimax_tts;
+  if (!minimaxTTSConfig) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const apiKey = minimaxTTSConfig.api_key.trim();
   const requestBody: Record<string, unknown> = {
     model: getMiniMaxTTSModel(config),
     language_boost: "auto",
@@ -1962,7 +1978,7 @@ function parseNumberedResponse(
   // 清理可能的序号前缀
   return paragraphs.slice(0, expectedCount).map((p) => {
     // 移除可能的序号前缀，如 "1. " 或 "1) " 或 "1---"
-    return p.replace(/^\d+[\.\)\-]+\s*/, "").trim();
+    return p.replace(/^\d+[.)-]+\s*/, "").trim();
   });
 }
 
@@ -3060,7 +3076,7 @@ function handleAlibabaASREvent(
       session.startReject = undefined;
       break;
 
-    case "result-generated":
+    case "result-generated": {
       const text = event.payload?.output?.sentence?.text || "";
       const isFinal = event.payload?.output?.sentence?.sentence_end === true;
 
@@ -3086,6 +3102,7 @@ function handleAlibabaASREvent(
         console.warn("[Lingride] 推送阿里云 ASR 结果失败:", e);
       }
       break;
+    }
 
     case "task-finished":
       console.log("[Lingride] 阿里云 ASR 任务已完成");
@@ -3274,19 +3291,21 @@ chrome.runtime.onConnect.addListener((port) => {
     // 监听来自 Tutor 的消息
     port.onMessage.addListener(async (message: Message) => {
       switch (message.type) {
-        case MessageType.ALIBABA_ASR_START:
+        case MessageType.ALIBABA_ASR_START: {
           const startResponse = await handleAlibabaASRStart(tabId, port);
           port.postMessage({ type: "ALIBABA_ASR_START_RESPONSE", ...startResponse });
           break;
+        }
 
         case MessageType.ALIBABA_ASR_AUDIO:
           handleAlibabaASRAudio(tabId, (message as { payload: { audioData: string } }).payload.audioData);
           break;
 
-        case MessageType.ALIBABA_ASR_STOP:
+        case MessageType.ALIBABA_ASR_STOP: {
           const stopResponse = await handleAlibabaASRStop(tabId);
           port.postMessage({ type: "ALIBABA_ASR_STOP_RESPONSE", ...stopResponse });
           break;
+        }
       }
     });
   }

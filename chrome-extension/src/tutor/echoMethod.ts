@@ -43,7 +43,7 @@ let currentRecordingBlob: Blob | null = null;
 let currentRecordingUrl: string | null = null;
 
 /** 录音开始时间 */
-let recordingStartTime: number = 0;
+let recordingStartTime = 0;
 
 /** 当前播放的 Audio 元素 */
 let currentAudio: HTMLAudioElement | null = null;
@@ -145,7 +145,9 @@ export async function stopRecording(): Promise<Blob | null> {
       return;
     }
 
-    mediaRecorder.onstop = () => {
+    const activeRecorder = mediaRecorder;
+
+    activeRecorder.onstop = () => {
       // 清理旧的录音 URL
       if (currentRecordingUrl) {
         URL.revokeObjectURL(currentRecordingUrl);
@@ -154,7 +156,7 @@ export async function stopRecording(): Promise<Blob | null> {
 
       // 创建新的录音 Blob
       currentRecordingBlob = new Blob(audioChunks, {
-        type: mediaRecorder!.mimeType,
+        type: activeRecorder.mimeType,
       });
 
       // 创建 Object URL 供播放使用
@@ -176,7 +178,7 @@ export async function stopRecording(): Promise<Blob | null> {
       resolve(currentRecordingBlob);
     };
 
-    mediaRecorder.stop();
+    activeRecorder.stop();
   });
 }
 

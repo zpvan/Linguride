@@ -100,7 +100,7 @@ let mixedTranslateEpoch = 0;
 let currentUserLevel = "A2";
 
 /** 当前页面的可翻译元素 */
-let translatableElements: Map<string, TranslatableElement> = new Map();
+const translatableElements: Map<string, TranslatableElement> = new Map();
 
 /** 批量管理器实例 */
 const batchManager = new BatchManager();

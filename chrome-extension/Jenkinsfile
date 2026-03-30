@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    tools {
+        // 使用你在 Global Tool Configuration 中配置的名称
+        nodejs 'node-25' 
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                dir('chrome-extension') { // 只有 package.json 在子目录下才需要
+                    // 安装项目依赖
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Type Check') {
+            steps {
+                dir('chrome-extension') { // 只有 package.json 在子目录下才需要
+                    // 仅执行类型检查，不生成文件（CI 必备，防止代码带错提交）
+                    sh 'npx tsc --noEmit'
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                dir('chrome-extension') { // 只有 package.json 在子目录下才需要
+                    // 运行 ESLint 检查代码规范
+                    sh 'npm run lint'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('chrome-extension') { // 只有 package.json 在子目录下才需要
+                    // 编译 TypeScript 为 JavaScript
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('chrome-extension') { // 只有 package.json 在子目录下才需要
+                    // 当前仓库未强制要求 test 脚本；存在则执行，不存在则跳过
+                    echo 'Run npm test if present; skip when package.json has no test script.'
+                    sh 'npm run test --if-present'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // 清理或发送通知
+            echo 'Build process completed.'
+        }
+    }
+}

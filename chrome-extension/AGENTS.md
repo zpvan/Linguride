@@ -1,37 +1,110 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Core extension code is in `src/`, grouped by runtime surface: `background/` (service worker + tab/config state), `content/` (page extraction/injection), `popup/` (main UI), `tutor/`, `corpus/`, and `permissions/` (extra HTML entry points). Shared logic lives in `providers/`, `constants/`, and `types/`. Static assets are under `public/icons/`. Automation scripts are in `scripts/`. Treat `dist/` as build output and `release/` as packaged artifacts; do not edit either directly.
+Core extension code lives in `src/`, organized by runtime surface:
+
+- `background/`: service worker message routing, provider selection, OpenAI OAuth, model catalog sync, config and tab state
+- `content/`: page extraction, translation/paraphrase/mixed-mode injection, caching, viewport handling, selection toolbar
+- `popup/`: main entry UI for reading modes, difficulty analysis, settings, and links into tutor/corpus pages
+- `tutor/`: standalone learning page for translation, sentence analysis, shadowing, pronunciation, and speaking practice
+- `corpus/`: standalone corpus listening workflow with segmentation, dictation, and feedback
+- `permissions/`: permission helper pages such as microphone authorization
+
+Shared code is primarily in:
+
+- `providers/`: AI provider implementations and adapters
+- `shared/`: cross-surface helpers such as hybrid TTS playback
+- `constants/`: default prompts and static configuration
+- `types/`: extension config, message contracts, result models, and feature types
+
+Other important directories:
+
+- `public/icons/`: extension icons and static assets
+- `scripts/`: install helpers and asset generation scripts
+- `docs/`: UI and design guidance
+- `feat-docs/`: feature design notes and implementation references
+
+Treat `dist/` as build output and `release/` as packaged artifacts; do not edit either directly.
 
 ## Build, Test, and Development Commands
-- `npm install`: install dependencies.
-- `npm run dev`: start Vite dev workflow for the extension.
-- `npm run build`: run `tsc` then bundle to `dist/`.
-- `npm run preview`: preview the built bundle.
-- `npm run install:mac`: build, open `chrome://extensions/`, and copy the `dist` path.
 
-Optional Bun flow is supported in scripts (`bun install`, `bun run build`).
+- `npm install`: install dependencies
+- `npm run dev`: start the Vite development workflow for the extension
+- `npm run build`: run `tsc` and bundle into `dist/`
+- `npm run preview`: preview the built bundle
+- `npm run install:mac`: build, open `chrome://extensions/`, and copy the `dist` path
+
+Optional Bun flow is supported:
+
+- `bun install`
+- `bun run build`
 
 ## Coding Style & Naming Conventions
-TypeScript is configured with strict checks (`strict`, `noUnusedLocals`, `noUnusedParameters`). Match existing code style: 2-space indentation, semicolons, and double quotes. Use:
-- `camelCase` for variables/functions and most file names (for example, `translationInjector.ts`).
-- `PascalCase` for classes/types/interfaces (for example, `DeepSeekProvider`, `ITranslateProvider`).
-- Clear feature boundaries: keep feature logic in its folder, shared contracts in `src/types`.
+TypeScript is configured with strict checks including `strict`, `noUnusedLocals`, and `noUnusedParameters`.
 
-No lint/format script is currently enforced, so consistency with neighboring files is expected.
+Match the existing code style:
+
+- 2-space indentation
+- semicolons
+- double quotes
+
+Naming conventions:
+
+- `camelCase` for variables, functions, and most file names such as `translationInjector.ts`
+- `PascalCase` for classes, interfaces, and types such as `DeepSeekProvider` and `ITranslateProvider`
+- keep feature-specific logic inside its runtime folder and shared contracts in `src/types`
+
+No lint or formatter command is enforced in this repo. Keep edits consistent with neighboring files.
 
 ## Testing Guidelines
-There is no automated test framework or `npm test` script yet. Minimum PR validation:
-1. Run `npm run build` with zero TypeScript errors.
-2. Load unpacked `dist/` in Chrome.
-3. Manually verify changed flows (popup controls, content translation injection, and any touched tutor/corpus pages).
+There is no automated `npm test` script yet. Minimum validation depends on the surface you change.
 
-If you add automated tests, place `*.test.ts` files under `src/**` and add the corresponding script in `package.json`.
+Always run:
+
+1. `npm run build`
+
+Then manually verify the affected flows in Chrome using unpacked `dist/`:
+
+1. Popup and settings changes:
+   Check provider selection, OpenAI auth mode, connection testing, Prompt edits, and any ASR/TTS settings you touched.
+2. Content script changes:
+   Verify translation, paraphrase, mixed mode, page extraction, and any selection-toolbar behavior you touched.
+3. Tutor changes:
+   Verify the relevant mode such as translation, definition, sentence analysis, shadowing, pronunciation, microphone flow, or TTS playback.
+4. Corpus changes:
+   Verify segmentation, playback, answer submission, analysis, retry, skip, and completion summary.
+5. Permissions changes:
+   Verify the standalone permission page and browser permission prompt behavior.
+
+If you add automated tests, place `*.test.ts` under `src/**` and add the script to `package.json`.
 
 ## Commit & Pull Request Guidelines
-Follow the observed Conventional Commit style: `feat(scope): ...`, `fix(scope): ...`, `style(scope): ...`, `refactor(scope): ...` (scopes commonly include `chrome-extension`, `popup`, `tutor`). Keep commits single-purpose.
+Follow the existing Conventional Commit style:
 
-PRs should include a concise description, linked issue/task, UI screenshots or GIFs for visual changes, and manual verification notes.
+- `feat(scope): ...`
+- `fix(scope): ...`
+- `style(scope): ...`
+- `refactor(scope): ...`
+
+Common scopes include `chrome-extension`, `popup`, `tutor`, and `corpus`. Keep commits single-purpose.
+
+PRs should include:
+
+- a concise summary
+- linked task or issue
+- screenshots or GIFs for visual changes
+- manual verification notes listing the flows you exercised
 
 ## Security & Configuration Tips
-Never commit real API keys or ASR credentials. Review permission-related edits carefully in `src/manifest.json`. Regenerate build output from source instead of patching `dist/`.
+
+- Never commit real API keys, OAuth tokens, ASR secrets, or TTS credentials.
+- Treat OpenAI OAuth callback data and stored credentials as sensitive material.
+- Review `src/manifest.json` carefully for any permission, host permission, or web-accessible-resource changes.
+- Regenerate build output from source instead of patching `dist/`.
+- Be careful when changing provider defaults, auth flows, microphone behavior, or cloud speech-service priorities because they affect multiple runtime surfaces.
+
+## Documentation Maintenance
+
+- When setup steps, user-facing behavior, provider options, or verification flows change, update `README.md` in the same change.
+- When feature behavior or UI contracts change materially, sync the relevant documents under `docs/` or `feat-docs/` if they would otherwise become misleading.
+- Keep naming consistent with the current product spelling used by the extension: `Lingride`.

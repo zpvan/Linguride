@@ -552,7 +552,7 @@ function highlightEnglishParts(text: string): string {
   // 中间字符：字母、数字、空格、逗号、句号、撇号、连字符
   // 结束字符：字母或数字
   return escaped.replace(
-    /([a-zA-Z0-9](?:[a-zA-Z0-9\s,.'\u2019\-]*[a-zA-Z0-9])?)/g,
+    /([a-zA-Z0-9](?:[a-zA-Z0-9\s,.'\u2019-]*[a-zA-Z0-9])?)/g,
     '<span class="lingride-en-highlight">$1</span>'
   );
 }

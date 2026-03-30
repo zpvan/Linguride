@@ -634,7 +634,7 @@ export interface GetConfigResponse extends BaseResponse {
 /**
  * 保存配置响应
  */
-export interface SaveConfigResponse extends BaseResponse {}
+export type SaveConfigResponse = BaseResponse;
 
 /**
  * 获取 OpenAI 官方模型目录响应
@@ -939,7 +939,7 @@ export interface TencentASRSignResponse extends BaseResponse {
 /**
  * 阿里云 ASR 启动响应
  */
-export interface AlibabaASRStartResponse extends BaseResponse {}
+export type AlibabaASRStartResponse = BaseResponse;
 
 /**
  * 阿里云 ASR 停止响应

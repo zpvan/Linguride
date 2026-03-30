@@ -146,10 +146,13 @@ export class OpenAICodexProvider extends BaseTranslateProvider {
       }
     };
 
-    while (true) {
+    let streamDone = false;
+
+    while (!streamDone) {
       const { done, value } = await reader.read();
       if (done) {
-        break;
+        streamDone = true;
+        continue;
       }
 
       buffer += decoder.decode(value, { stream: true });
