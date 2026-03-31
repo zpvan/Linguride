@@ -1,29 +1,22 @@
-use serde::{Deserialize, Serialize};
+pub mod capture;
+pub mod config;
+pub mod corpus;
+pub mod errors;
+pub mod oauth;
+pub mod reader;
+pub mod session;
+pub mod tutor;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct TextAnalysisHighlight {
-    pub title: String,
-    pub detail: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct TextAnalysisMetrics {
-    pub character_count: usize,
-    pub word_count: usize,
-    pub sentence_count: usize,
-    pub paragraph_count: usize,
-    pub average_word_length: f32,
-    pub average_sentence_length: f32,
-    pub estimated_reading_minutes: f32,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct TextAnalysisSummary {
-    pub normalized_text: String,
-    pub excerpt: String,
-    pub metrics: TextAnalysisMetrics,
-    pub highlights: Vec<TextAnalysisHighlight>,
-}
+pub use capture::{
+    CaptureEnvelope, CaptureRecord, CaptureSourceApp, CaptureType, PreferredSurface,
+};
+pub use config::{CefrLevel, LingurideConfig, OpenAiAuthMode, ProviderKind};
+pub use corpus::{CorpusAction, CorpusResult};
+pub use errors::{LingurideError, LingurideErrorCode};
+pub use oauth::{OpenAiOAuthCredentials, OpenAiOAuthStart, OpenAiOAuthStatus};
+pub use reader::{
+    DifficultyReport, DifficultyTier, ReaderBlock, ReaderDocument, ReaderMode, ReaderResult,
+    TextAnalysisHighlight, TextAnalysisMetrics, TextAnalysisSummary,
+};
+pub use session::{SessionKind, SessionRecord, SessionStatus};
+pub use tutor::{TutorAction, TutorResult};

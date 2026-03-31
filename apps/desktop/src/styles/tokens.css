@@ -1,0 +1,85 @@
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #1c1c1e;
+  --bg-tertiary: #2c2c2e;
+  --bg-quaternary: #3a3a3c;
+  --bg-elevated: #1c1c1e;
+
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(235, 235, 245, 0.6);
+  --text-tertiary: rgba(235, 235, 245, 0.3);
+
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.15);
+  --accent-hover: rgba(10, 132, 255, 0.22);
+  --accent-tinted-bg: rgba(10, 132, 255, 0.12);
+
+  --success: #30d158;
+  --error: #ff453a;
+  --warning: #ffd60a;
+  --separator: rgba(84, 84, 88, 0.36);
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-card: 12px;
+  --radius-pill: 18px;
+  --radius-segment: 8px;
+
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --card-border: 0.5px solid rgba(255, 255, 255, 0.06);
+
+  --font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, sans-serif;
+
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration: 0.25s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 15px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent);
+}

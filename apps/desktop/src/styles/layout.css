@@ -1,0 +1,119 @@
+.desktop-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(10, 132, 255, 0.08), transparent 22%),
+    linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(8, 8, 10, 1));
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.sidebar-nav {
+  padding: var(--space-xl) var(--space-lg);
+  border-right: 0.5px solid var(--separator);
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.96), rgba(0, 0, 0, 0.98));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.sidebar-brand,
+.sidebar-section-head,
+.topbar,
+.card-head,
+.toggle-row,
+.capture-card-header,
+.capture-card-meta,
+.topbar-meta,
+.action-stack {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.sidebar-brand h1,
+.topbar h2,
+.content-card h3,
+.context-card h3 {
+  margin: 0;
+}
+
+.workspace-nav,
+.shell-body,
+.view-stack,
+.context-stack,
+.stacked-list,
+.stacked-kv,
+.settings-subsection,
+.sidebar-section {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.shell-body {
+  padding: var(--space-xl);
+  gap: var(--space-lg);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--space-lg);
+  min-height: 0;
+}
+
+.main-panel,
+.context-panel {
+  min-width: 0;
+}
+
+.section-label {
+  margin: 0;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+}
+
+.topbar-copy,
+.muted-copy,
+.empty-copy {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1280px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-nav {
+    border-right: 0;
+    border-bottom: 0.5px solid var(--separator);
+  }
+
+  .workspace-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .shell-body,
+  .sidebar-nav {
+    padding: var(--space-lg);
+  }
+
+  .workspace-nav {
+    grid-template-columns: 1fr;
+  }
+}

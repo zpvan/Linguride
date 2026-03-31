@@ -31,6 +31,11 @@ import {
   matchesExplanationPromptPreset,
 } from "../constants/explanationPromptPresets";
 import {
+  buildDesktopHandoffEnvelope,
+  buildDesktopHandoffUrl,
+} from "../shared/desktopHandoff";
+import { loadRustCoreHost } from "../shared/rustCoreHost";
+import {
   AIProviderId,
   AnalyzeDifficultyResponse,
   CEFRLevel,
@@ -41,6 +46,7 @@ import {
   DifficultyResult,
   EnglishDefinitionPromptConfig,
   ExplanationPromptPresetId,
+  ExtractPageTextResponse,
   LingridConfig,
   MINIMAX_TTS_DEFAULT_MODEL,
   MessageType,
@@ -201,8 +207,14 @@ const levelDropdown = document.getElementById("levelDropdown") as HTMLElement;
 const analyzeDifficultyBtn = document.getElementById(
   "analyzeDifficultyBtn"
 ) as HTMLButtonElement;
+const openDesktopBtn = document.getElementById(
+  "openDesktopBtn"
+) as HTMLButtonElement;
 const difficultyStatus = document.getElementById(
   "difficultyStatus"
+) as HTMLElement;
+const desktopHandoffStatus = document.getElementById(
+  "desktopHandoffStatus"
 ) as HTMLElement;
 const difficultyResult = document.getElementById(
   "difficultyResult"
@@ -1179,6 +1191,9 @@ function bindEvents(): void {
 
   // 难度分析
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
+  openDesktopBtn.addEventListener("click", () => {
+    void handleOpenDesktopHandoff();
+  });
 
   // Settings - API 配置自动保存
   apiProviderSelect.addEventListener("change", handleApiProviderChange);
@@ -2530,6 +2545,77 @@ async function handleAnalyzeDifficulty(): Promise<void> {
     analyzeDifficultyBtn.disabled = false;
     analyzeDifficultyBtn.textContent = "当前页面";
   }
+}
+
+async function handleOpenDesktopHandoff(): Promise<void> {
+  openDesktopBtn.disabled = true;
+  showStatus(desktopHandoffStatus, "正在为桌面端准备页面内容...", "loading");
+
+  try {
+    const activeTab = await getActiveTab();
+    if (!activeTab?.id) {
+      showStatus(desktopHandoffStatus, "无法获取当前标签页", "error");
+      return;
+    }
+
+    const response = (await chrome.tabs.sendMessage(activeTab.id, {
+      type: MessageType.EXTRACT_PAGE_TEXT,
+    })) as ExtractPageTextResponse;
+
+    if (!response.success || !response.data?.text?.trim()) {
+      showStatus(
+        desktopHandoffStatus,
+        response.error || "当前页面没有可导入的正文",
+        "error"
+      );
+      return;
+    }
+
+    const envelope = buildDesktopHandoffEnvelope({
+      title: activeTab.title || "Linguride Desktop Handoff",
+      originUrl: activeTab.url,
+      text: response.data.text,
+      readerMode: currentMode || "translate",
+      preferredSurface: "reader",
+      userLevel: currentConfig.user_english_level || DEFAULT_USER_ENGLISH_LEVEL,
+    });
+
+    const rustCore = await loadRustCoreHost();
+    await rustCore.ingestHandoff(JSON.stringify(envelope));
+
+    await navigator.clipboard.writeText(JSON.stringify(envelope));
+    openDesktopHandoffUrl(buildDesktopHandoffUrl(envelope));
+
+    showStatus(
+      desktopHandoffStatus,
+      envelope.truncated
+        ? "已复制并唤起桌面端，内容过长已截断"
+        : "已复制并尝试唤起桌面端",
+      "success"
+    );
+  } catch (error) {
+    console.error("[Linguride] 桌面端 handoff 失败:", error);
+    showStatus(desktopHandoffStatus, "发送到桌面端失败", "error");
+  } finally {
+    openDesktopBtn.disabled = false;
+  }
+}
+
+async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
+  const tabs = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  return tabs[0];
+}
+
+function openDesktopHandoffUrl(url: string): void {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noreferrer";
+  anchor.click();
 }
 
 function renderDifficultyResult(result: DifficultyResult): void {

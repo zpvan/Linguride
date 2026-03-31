@@ -4550,6 +4550,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "web-core"
+version = "0.1.0"
+dependencies = [
+ "linguride-core",
+ "linguride-domain",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "web-sys"
 version = "0.3.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
