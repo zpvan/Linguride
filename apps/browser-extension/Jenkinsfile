@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node-25'
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Type Check') {
+            steps {
+                sh 'npx tsc --noEmit'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Run npm test if present; skip when package.json has no test script.'
+                sh 'npm run test --if-present'
+            }
+        }
+    }
+
+    post {
+        always {
+            // 清理或发送通知
+            echo 'Build process completed.'
+        }
+    }
+}

@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+This extension now lives under `apps/browser-extension` in the repository.
+
 ## Project Structure & Module Organization
 Core extension code lives in `src/`, organized by runtime surface:
 
@@ -86,7 +88,7 @@ Follow the existing Conventional Commit style:
 - `style(scope): ...`
 - `refactor(scope): ...`
 
-Common scopes include `chrome-extension`, `popup`, `tutor`, and `corpus`. Keep commits single-purpose.
+Common scopes include `browser-extension`, `popup`, `tutor`, and `corpus`. Keep commits single-purpose.
 
 PRs should include:
 

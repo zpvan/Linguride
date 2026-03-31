@@ -1,0 +1,13 @@
+{
+  "name": "linguride-monorepo",
+  "private": true,
+  "scripts": {
+    "install:browser-extension": "npm --prefix apps/browser-extension install",
+    "dev:browser-extension": "npm --prefix apps/browser-extension run dev",
+    "typecheck:browser-extension": "npm --prefix apps/browser-extension exec -- tsc -p apps/browser-extension/tsconfig.json --noEmit",
+    "lint:browser-extension": "npm --prefix apps/browser-extension run lint",
+    "build:browser-extension": "npm --prefix apps/browser-extension run build",
+    "install:desktop": "echo 'Phase 1: desktop orchestration is not implemented yet.'",
+    "install:vscode": "echo 'Phase 1: vscode orchestration is not implemented yet.'"
+  }
+}

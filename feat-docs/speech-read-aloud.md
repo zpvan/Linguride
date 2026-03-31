@@ -110,6 +110,6 @@ if (speechSynthesis.speaking) {
 
 ## 相关文件
 
-- `chrome-extension/src/popup/popup.html` — 第 116-130 行
-- `chrome-extension/src/popup/popup.css` — 第 401-465 行
-- `chrome-extension/src/popup/popup.ts` — 第 144-148, 291-302, 838-877 行
+- `apps/browser-extension/src/popup/popup.html` — 第 116-130 行
+- `apps/browser-extension/src/popup/popup.css` — 第 401-465 行
+- `apps/browser-extension/src/popup/popup.ts` — 第 144-148, 291-302, 838-877 行

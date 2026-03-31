@@ -19,22 +19,40 @@ Lingride 是一个面向英语学习场景的 Chrome 扩展，覆盖网页阅读
 
 ### 方式一：使用安装脚本
 
+在扩展目录中执行：
+
 ```bash
 npm install
 npm run install:mac
+```
+
+或者从仓库根目录执行：
+
+```bash
+npm run install:browser-extension
+cd apps/browser-extension && npm run install:mac
 ```
 
 `npm run install:mac` 会：
 
 1. 构建扩展
 2. 打开 `chrome://extensions/`
-3. 复制 `dist/` 路径到剪贴板
+3. 复制 `apps/browser-extension/dist` 路径到剪贴板
 
 ### 方式二：手动安装
+
+在扩展目录中执行：
 
 ```bash
 npm install
 npm run build
+```
+
+或者从仓库根目录执行：
+
+```bash
+npm run install:browser-extension
+npm run build:browser-extension
 ```
 
 然后在 Chrome 中：
@@ -42,13 +60,22 @@ npm run build
 1. 打开 `chrome://extensions/`
 2. 开启“开发者模式”
 3. 点击“加载已解压的扩展程序”
-4. 选择仓库内的 `dist/` 目录
+4. 选择仓库内的 `apps/browser-extension/dist/` 目录
 
 ## 开发
+
+在扩展目录中执行：
 
 ```bash
 npm install
 npm run dev
+```
+
+或者从仓库根目录执行：
+
+```bash
+npm run install:browser-extension
+npm run dev:browser-extension
 ```
 
 常用命令：
@@ -140,7 +167,7 @@ bun run build
 ## 项目结构
 
 ```text
-chrome-extension/
+apps/browser-extension/
 ├── src/
 │   ├── background/   # Service worker、provider 路由、OAuth、模型目录、配置状态
 │   ├── content/      # 网页注入、提取、缓存、批处理、选择工具条
