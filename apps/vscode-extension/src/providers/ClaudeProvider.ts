@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { parseDifficultyAnalysisContent } from '@linguride/text-assistant-core';
 import { BaseProvider } from './ILLMProvider';
 import { AnalysisOptions, AnalysisResult, ProviderConfig } from '../types';
 import { ConfigurationManager } from '../utils/configuration';
@@ -77,127 +78,15 @@ export class ClaudeProvider extends BaseProvider {
 				throw new Error('API响应中缺少内容');
 			}
 
-			// 解析JSON响应
-			let parsedData;
-			try {
-				parsedData = JSON.parse(content);
-			} catch (parseError) {
-				// 尝试提取JSON部分（如果响应包含其他文本）
-				const jsonMatch = content.match(/\{[\s\S]*\}/);
-				if (jsonMatch) {
-					parsedData = JSON.parse(jsonMatch[0]);
-				} else {
-					throw new Error('无法解析JSON响应');
-				}
-			}
-
-			// 验证必需字段
-			const requiredFields = ['difficultyLevel', 'cefrLevel', 'score'];
-			for (const field of requiredFields) {
-				if (parsedData[field] === undefined) {
-					throw new Error(`响应中缺少必需字段: ${field}`);
-				}
-			}
-
-			// 构建分析结果
-			const result: AnalysisResult = {
-				difficultyLevel: this.normalizeDifficultyLevel(parsedData.difficultyLevel),
-				cefrLevel: this.normalizeCEFRLevel(parsedData.cefrLevel),
-				score: this.clampScore(parsedData.score),
-
-				vocabularyComplexity: {
-					rareWordCount: parsedData.vocabularyComplexity?.rareWordCount || 0,
-					academicWordCount: parsedData.vocabularyComplexity?.academicWordCount || 0,
-					avgWordLength: parsedData.vocabularyComplexity?.avgWordLength || 0,
-					uniqueWordRatio: this.clampRatio(parsedData.vocabularyComplexity?.uniqueWordRatio),
-					readabilityScore: this.clampScore(parsedData.vocabularyComplexity?.readabilityScore)
-				},
-
-				sentenceComplexity: {
-					avgSentenceLength: parsedData.sentenceComplexity?.avgSentenceLength || 0,
-					complexSentenceRatio: this.clampRatio(parsedData.sentenceComplexity?.complexSentenceRatio),
-					avgClausesPerSentence: parsedData.sentenceComplexity?.avgClausesPerSentence || 0,
-					passiveVoiceRatio: this.clampRatio(parsedData.sentenceComplexity?.passiveVoiceRatio)
-				},
-
-				estimatedReadingTime: Math.max(0.1, parsedData.estimatedReadingTime || 1),
-				suggestions: Array.isArray(parsedData.suggestions) ? parsedData.suggestions.slice(0, 5) : [],
-
-				analysisDate: new Date(),
-				textLength: originalText.length,
-				wordCount: this.countWords(originalText),
-
+			return parseDifficultyAnalysisContent(content, originalText, {
 				providerId: this.id,
 				model: this.config.model
-			};
-
-			return result;
+			});
 
 		} catch (error) {
 			console.error('解析Claude响应失败:', error);
 			throw new Error(`解析响应失败: ${error instanceof Error ? error.message : '未知错误'}`);
 		}
-	}
-
-	/**
-	 * 标准化难度等级
-	 */
-	private normalizeDifficultyLevel(level: string): AnalysisResult['difficultyLevel'] {
-		const normalized = level.toLowerCase();
-		if (normalized.includes('beginner')) return 'Beginner';
-		if (normalized.includes('intermediate')) return 'Intermediate';
-		if (normalized.includes('advanced')) return 'Advanced';
-		if (normalized.includes('expert')) return 'Expert';
-
-		// 默认值
-		return 'Intermediate';
-	}
-
-	/**
-	 * 标准化CEFR等级
-	 */
-	private normalizeCEFRLevel(level: string): AnalysisResult['cefrLevel'] {
-		const normalized = level.toUpperCase();
-		if (['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(normalized)) {
-			return normalized as AnalysisResult['cefrLevel'];
-		}
-
-		// 根据难度等级推断CEFR等级
-		const difficultyLevel = this.normalizeDifficultyLevel(level);
-		switch (difficultyLevel) {
-			case 'Beginner': return 'A1';
-			case 'Intermediate': return 'B1';
-			case 'Advanced': return 'C1';
-			case 'Expert': return 'C2';
-			default: return 'B1';
-		}
-	}
-
-	/**
-	 * 限制分数在0-100范围内
-	 */
-	private clampScore(score: number): number {
-		if (typeof score !== 'number' || isNaN(score)) {
-			return 50; // 默认值
-		}
-		return Math.max(0, Math.min(100, score));
-	}
-
-	/**
-	 * 限制比例在0-1范围内
-	 */
-	private clampRatio(ratio: number): number {
-		if (typeof ratio !== 'number' || isNaN(ratio)) {
-			return 0.5; // 默认值
-		}
-		return Math.max(0, Math.min(1, ratio));
-	}
-
-	/**
-	 * 计算词数
-	 */
-	private countWords(text: string): number {
-		return text.trim().split(/\s+/).length;
 	}
 
 	/**

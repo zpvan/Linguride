@@ -240,6 +240,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@linguride/contracts-ts": "0.1.0",
+    "@linguride/prompt-kits": "0.1.0",
+    "@linguride/text-assistant-core": "0.1.0",
     "axios": "^1.6.0"
   },
   "repository": {

@@ -6,11 +6,17 @@ This document provides an overview of the Linguride project, its structure, and 
 
 **Linguride** is an AI-powered ecosystem for English language learning, centered around the "Bicycle Method" – an immersive, conversational approach to language acquisition. The project aims to help users move from passive knowledge to active, instinctual use of English.
 
-The repository is a monorepo containing three primary, independent application directories under `apps/`:
+The repository is a monorepo containing three primary application directories under `apps/` and a set of shared TypeScript packages under `packages/`:
 
 1.  **`apps/browser-extension`**: A Chrome browser extension for web reading, translation, tutor, and corpus workflows.
 2.  **`apps/desktop`**: The core cross-platform desktop application where users practice speaking with an AI.
 3.  **`apps/vscode-extension`**: A Visual Studio Code extension that analyzes the difficulty of English text, acting as a supplementary tool for learners or content creators.
+
+Shared packages currently include:
+
+*   **`packages/contracts-ts`**: Shared DTOs and config contracts for analysis and prompt configuration.
+*   **`packages/prompt-kits`**: Shared prompt template resolution, variable substitution, and validation helpers.
+*   **`packages/text-assistant-core`**: Shared analysis result parsing, history management, and pure text orchestration logic.
 
 ### Key Documentation
 *   **Product Requirements (PRD)**: `docs/Linguride-PRD.md` contains the vision, user personas, feature breakdown, and technical architecture.

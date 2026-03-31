@@ -1,4 +1,12 @@
 import { ExtensionConfig } from '../types';
+import {
+    getSupportedVariables as getSharedSupportedVariables,
+    getSystemPrompt as getSharedSystemPrompt,
+    getUserPrompt as getSharedUserPrompt,
+    validatePromptConfig as validateSharedPromptConfig,
+    validateTemplate as validateSharedTemplate
+} from '@linguride/prompt-kits';
+import { DEFAULT_PROMPT_TEMPLATES } from '../constants/defaults';
 
 /**
  * Prompt构建工具类
@@ -13,14 +21,7 @@ export class PromptBuilder {
      * @returns 系统提示字符串
      */
     static getSystemPrompt(providerId: string, config: ExtensionConfig): string {
-        // 1. 尝试获取provider特定配置
-        const providerConfig = config.providers[providerId as keyof typeof config.providers];
-        if (providerConfig?.promptTemplates?.system) {
-            return providerConfig.promptTemplates.system;
-        }
-
-        // 2. 使用全局配置（由ConfigurationManager确保不为空）
-        return config.analysis.promptTemplates!.system as string;
+        return getSharedSystemPrompt(providerId, config, DEFAULT_PROMPT_TEMPLATES);
     }
 
     /**
@@ -38,52 +39,13 @@ export class PromptBuilder {
         config: ExtensionConfig,
         language: string = 'en'
     ): string {
-        let template: string;
-
-        // 1. 尝试获取provider特定配置
-        const providerConfig = config.providers[providerId as keyof typeof config.providers];
-        if (providerConfig?.promptTemplates?.user) {
-            template = providerConfig.promptTemplates.user;
-        }
-        // 2. 使用全局配置（由ConfigurationManager确保不为空）
-        else {
-            template = config.analysis.promptTemplates!.user as string;
-        }
-
-        // 执行变量替换
-        return this.replaceVariables(template, {
+        return getSharedUserPrompt({
             text,
+            providerId,
+            config,
             language,
-            date: new Date().toISOString().split('T')[0] // YYYY-MM-DD格式
+            fallbackTemplates: DEFAULT_PROMPT_TEMPLATES
         });
-    }
-
-    /**
-     * 变量替换
-     * 将模板中的占位符（如{text}）替换为实际值
-     * @param template 原始模板字符串
-     * @param variables 变量映射对象
-     * @returns 替换后的字符串
-     */
-    private static replaceVariables(
-        template: string,
-        variables: Record<string, string>
-    ): string {
-        let result = template;
-        for (const [key, value] of Object.entries(variables)) {
-            const placeholder = `{${key}}`;
-            // 使用全局替换，处理可能出现的多个相同占位符
-            result = result.replace(new RegExp(this.escapeRegExp(placeholder), 'g'), value);
-        }
-        return result;
-    }
-
-    /**
-     * 转义正则表达式特殊字符
-     * 用于安全地创建正则表达式
-     */
-    private static escapeRegExp(string: string): string {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     /**
@@ -96,19 +58,7 @@ export class PromptBuilder {
         template: string,
         requiredPlaceholders: string[] = ['text']
     ): { isValid: boolean; missingPlaceholders: string[] } {
-        const missing: string[] = [];
-
-        for (const placeholder of requiredPlaceholders) {
-            const regex = new RegExp(`\\{${this.escapeRegExp(placeholder)}\\}`);
-            if (!regex.test(template)) {
-                missing.push(placeholder);
-            }
-        }
-
-        return {
-            isValid: missing.length === 0,
-            missingPlaceholders: missing
-        };
+        return validateSharedTemplate(template, requiredPlaceholders);
     }
 
     /**
@@ -116,23 +66,7 @@ export class PromptBuilder {
      * @returns 支持的变量描述对象
      */
     static getSupportedVariables(): Array<{ name: string; description: string; example: string }> {
-        return [
-            {
-                name: 'text',
-                description: '用户输入的英文文本',
-                example: '{text}'
-            },
-            {
-                name: 'language',
-                description: '分析语言代码',
-                example: '{language}'
-            },
-            {
-                name: 'date',
-                description: '当前日期（YYYY-MM-DD格式）',
-                example: '{date}'
-            }
-        ];
+        return getSharedSupportedVariables();
     }
 
     /**
@@ -145,22 +79,6 @@ export class PromptBuilder {
         isValid: boolean;
         missingConfigs: string[];
     } {
-        const missingConfigs: string[] = [];
-
-        // 由于ConfigurationManager已确保全局配置完整，只需检查provider特定配置
-        const providerConfig = config.providers[providerId as keyof typeof config.providers];
-
-        if (!providerConfig?.promptTemplates?.system && !config.analysis.promptTemplates?.system) {
-            missingConfigs.push(`系统提示模板`);
-        }
-
-        if (!providerConfig?.promptTemplates?.user && !config.analysis.promptTemplates?.user) {
-            missingConfigs.push(`用户提示模板`);
-        }
-
-        return {
-            isValid: missingConfigs.length === 0,
-            missingConfigs
-        };
+        return validateSharedPromptConfig(config, providerId, DEFAULT_PROMPT_TEMPLATES);
     }
 }

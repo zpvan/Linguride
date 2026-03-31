@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TextAnalysisService } from '@linguride/text-assistant-core';
 import { ILLMProvider } from '../providers/ILLMProvider';
 import { AnalysisOptions, AnalysisResult } from '../types';
 
@@ -7,12 +8,10 @@ import { AnalysisOptions, AnalysisResult } from '../types';
  * 负责协调文本处理、LLM调用和结果管理
  */
 export class DifficultyAnalyzer {
-	private provider: ILLMProvider;
-	private history: AnalysisResult[] = [];
-	private readonly maxHistorySize = 50;
+	private readonly service: TextAnalysisService;
 
 	constructor(provider: ILLMProvider) {
-		this.provider = provider;
+		this.service = new TextAnalysisService(provider, 50);
 	}
 
 	/**
@@ -43,16 +42,7 @@ export class DifficultyAnalyzer {
 		}
 
 		try {
-			// 调用LLM提供商进行分析
-			const result = await this.provider.analyze(analysisOptions);
-
-			// 添加提供商信息
-			result.providerId = this.provider.id;
-
-			// 添加到历史记录
-			this.addToHistory(result);
-
-			return result;
+			return await this.service.analyzeText(analysisOptions.text, analysisOptions);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : '未知错误';
 			throw new Error(`难度分析失败: ${errorMessage}`);
@@ -114,7 +104,6 @@ export class DifficultyAnalyzer {
 		}
 
 		const results: AnalysisResult[] = [];
-		const total = texts.length;
 
 		// 显示进度
 		await vscode.window.withProgress(
@@ -124,40 +113,24 @@ export class DifficultyAnalyzer {
 				cancellable: true
 			},
 			async (progress, token) => {
-				for (let i = 0; i < total; i++) {
-					if (token.isCancellationRequested) {
-						break;
-					}
-
-					try {
+				const batchResults = await this.service.analyzeBatch(texts, {
+					isCancelled: () => token.isCancellationRequested,
+					onProgress: ({ current, total }) => {
 						progress.report({
-							message: `正在分析第 ${i + 1}/${total} 个文本`,
-							increment: (100 / total)
+							message: `正在分析第 ${current}/${total} 个文本`,
+							increment: 100 / total
 						});
-
-						const result = await this.analyzeText(texts[i]);
-						results.push(result);
-					} catch (error) {
-						console.error(`分析第 ${i + 1} 个文本失败:`, error);
-						// 继续分析下一个文本
+					},
+					onError: (error, context) => {
+						console.error(`分析第 ${context.index + 1} 个文本失败:`, error);
 					}
-				}
+				});
+
+				results.push(...batchResults);
 			}
 		);
 
 		return results;
-	}
-
-	/**
-	 * 添加到历史记录
-	 */
-	private addToHistory(result: AnalysisResult): void {
-		this.history.unshift(result); // 添加到开头
-
-		// 限制历史记录大小
-		if (this.history.length > this.maxHistorySize) {
-			this.history = this.history.slice(0, this.maxHistorySize);
-		}
 	}
 
 	/**
@@ -166,17 +139,14 @@ export class DifficultyAnalyzer {
 	 * @returns 历史记录数组
 	 */
 	getHistory(limit?: number): AnalysisResult[] {
-		if (limit && limit > 0) {
-			return this.history.slice(0, limit);
-		}
-		return [...this.history];
+		return this.service.getHistory(limit);
 	}
 
 	/**
 	 * 清除历史记录
 	 */
 	clearHistory(): void {
-		this.history = [];
+		this.service.clearHistory();
 	}
 
 	/**
@@ -188,41 +158,7 @@ export class DifficultyAnalyzer {
 		avgScore: number;
 		byProvider: Record<string, number>;
 	} {
-		const stats = {
-			total: this.history.length,
-			byDifficulty: {
-				Beginner: 0,
-				Intermediate: 0,
-				Advanced: 0,
-				Expert: 0
-			},
-			avgScore: 0,
-			byProvider: {} as Record<string, number>
-		};
-
-		if (this.history.length === 0) {
-			return stats;
-		}
-
-		let totalScore = 0;
-
-		for (const result of this.history) {
-			// 统计难度等级
-			stats.byDifficulty[result.difficultyLevel] =
-				(stats.byDifficulty[result.difficultyLevel] || 0) + 1;
-
-			// 累计分数
-			totalScore += result.score;
-
-			// 统计提供商
-			const provider = result.providerId || 'unknown';
-			stats.byProvider[provider] = (stats.byProvider[provider] || 0) + 1;
-		}
-
-		// 计算平均分数
-		stats.avgScore = totalScore / this.history.length;
-
-		return stats;
+		return this.service.getHistoryStats();
 	}
 
 	/**
@@ -231,48 +167,7 @@ export class DifficultyAnalyzer {
 	 * @returns 导出的数据
 	 */
 	exportHistory(format: 'json' | 'csv' = 'json'): string {
-		if (format === 'csv') {
-			return this.exportHistoryAsCSV();
-		}
-		return JSON.stringify(this.history, null, 2);
-	}
-
-	/**
-	 * 导出为CSV格式
-	 */
-	private exportHistoryAsCSV(): string {
-		if (this.history.length === 0) {
-			return '';
-		}
-
-		const headers = [
-			'Date',
-			'Difficulty Level',
-			'CEFR Level',
-			'Score',
-			'Text Length',
-			'Word Count',
-			'Reading Time (min)',
-			'Provider'
-		];
-
-		const rows = this.history.map(result => [
-			result.analysisDate.toISOString(),
-			result.difficultyLevel,
-			result.cefrLevel,
-			result.score.toString(),
-			result.textLength.toString(),
-			result.wordCount.toString(),
-			result.estimatedReadingTime.toString(),
-			result.providerId
-		]);
-
-		const csvContent = [
-			headers.join(','),
-			...rows.map(row => row.join(','))
-		].join('\n');
-
-		return csvContent;
+		return this.service.exportHistory(format);
 	}
 
 	/**
@@ -287,14 +182,6 @@ export class DifficultyAnalyzer {
 			academicWords: number;
 		};
 	} {
-		return {
-			scoreDifference: result2.score - result1.score,
-			difficultyChange: `${result1.difficultyLevel} → ${result2.difficultyLevel}`,
-			readingTimeRatio: result2.estimatedReadingTime / result1.estimatedReadingTime,
-			vocabularyComparison: {
-				rareWords: result2.vocabularyComplexity.rareWordCount - result1.vocabularyComplexity.rareWordCount,
-				academicWords: result2.vocabularyComplexity.academicWordCount - result1.vocabularyComplexity.academicWordCount
-			}
-		};
+		return this.service.compareResults(result1, result2);
 	}
 }
