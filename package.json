@@ -7,7 +7,16 @@
     "typecheck:browser-extension": "npm --prefix apps/browser-extension exec -- tsc -p apps/browser-extension/tsconfig.json --noEmit",
     "lint:browser-extension": "npm --prefix apps/browser-extension run lint",
     "build:browser-extension": "npm --prefix apps/browser-extension run build",
-    "install:desktop": "echo 'Phase 1: desktop orchestration is not implemented yet.'",
-    "install:vscode": "echo 'Phase 1: vscode orchestration is not implemented yet.'"
+    "install:desktop": "npm --prefix apps/desktop install",
+    "dev:desktop": "npm --prefix apps/desktop run dev",
+    "build:desktop": "npm --prefix apps/desktop run build",
+    "preview:desktop": "npm --prefix apps/desktop run preview",
+    "tauri:desktop": "npm --prefix apps/desktop run tauri",
+    "install:vscode": "npm --prefix apps/vscode-extension install",
+    "compile:vscode": "npm --prefix apps/vscode-extension run compile",
+    "watch:vscode": "npm --prefix apps/vscode-extension run watch",
+    "lint:vscode": "npm --prefix apps/vscode-extension run lint",
+    "test:vscode": "npm --prefix apps/vscode-extension run test",
+    "package:vscode": "npm --prefix apps/vscode-extension run package"
   }
 }
