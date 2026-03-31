@@ -4,18 +4,25 @@ This desktop application now lives under `apps/desktop` in the repository.
 
 ## Common Commands
 
-Run from the desktop app directory:
+Install dependencies once from the repository root:
 
 ```bash
 npm install
-npm run build
 ```
 
-Or run from the repository root:
+Then run desktop commands from the repository root:
 
 ```bash
-npm run install:desktop
 npm run build:desktop
+npm run tauri:dev:desktop
+npm run tauri:build:desktop
+```
+
+Or run from the desktop app directory after the root install:
+
+```bash
+cd apps/desktop
+npm run build
 ```
 
 ## Template Notes

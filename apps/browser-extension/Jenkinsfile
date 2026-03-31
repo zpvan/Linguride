@@ -14,26 +14,26 @@ pipeline {
 
         stage('Type Check') {
             steps {
-                sh 'npx tsc --noEmit'
+                sh 'npm run typecheck:browser-extension'
             }
         }
 
         stage('Lint') {
             steps {
-                sh 'npm run lint'
+                sh 'npm run lint:browser-extension'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh 'npm run build:browser-extension'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Run npm test if present; skip when package.json has no test script.'
-                sh 'npm run test --if-present'
+                sh 'npm run test --workspace apps/browser-extension --if-present'
             }
         }
     }

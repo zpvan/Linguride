@@ -12,23 +12,23 @@ This extension now lives under `apps/vscode-extension` in the monorepo.
 
 ### Building and Compilation
 ```bash
-# Install dependencies
+# Install dependencies once from the repository root
 npm install
 
 # Compile TypeScript to JavaScript (outputs to ./out/)
-npm run compile
+npm run compile:vscode
 
 # Watch mode - automatically recompile on changes
-npm run watch
+npm run watch:vscode
 
 # Package extension into VSIX file for distribution
-npm run package
+npm run package:vscode
 
 # Run ESLint for code quality checks
-npm run lint
+npm run lint:vscode
 
 # Run tests (requires compiled code)
-npm run test
+npm run test:vscode
 ```
 
 ### Development and Debugging
@@ -42,7 +42,7 @@ npm run test
 ### Extension Testing
 ```bash
 # Run the test suite (compiles first, then runs tests)
-npm test
+npm run test:vscode
 ```
 
 ## Architecture Overview

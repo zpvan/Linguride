@@ -41,26 +41,26 @@ A VS Code extension that analyzes the difficulty of English articles using AI. T
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd apps/vscode-extension
+   cd <repository-root>
    ```
 
-2. Install dependencies:
+2. Install workspace dependencies from the repository root:
    ```bash
    npm install
    ```
 
 3. Compile the extension:
    ```bash
-   npm run compile
+   npm run compile:vscode
    ```
 
 4. Press F5 to launch the extension in a new VS Code window.
 
-You can also use the repository root commands:
+You can also work inside the extension directory after the root install:
 
 ```bash
-npm run install:vscode
-npm run compile:vscode
+cd apps/vscode-extension
+npm run compile
 ```
 
 ## Configuration
@@ -167,20 +167,20 @@ apps/vscode-extension/
 ### Building and Testing
 
 ```bash
-# Install dependencies
+# Install dependencies once from the repository root
 npm install
 
-# Compile TypeScript
-npm run compile
+# Compile TypeScript for the VS Code extension
+npm run compile:vscode
 
 # Watch mode (auto-compile on changes)
-npm run watch
+npm run watch:vscode
 
 # Run linter
-npm run lint
+npm run lint:vscode
 
 # Package extension for distribution
-npm run package
+npm run package:vscode
 
 # Run extension in development mode
 # Press F5 in VS Code

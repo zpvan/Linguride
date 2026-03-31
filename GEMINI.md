@@ -40,20 +40,17 @@ This is the main user-facing application.
 
 **Key Commands (from `apps/desktop/package.json`):**
 
-*   **Install dependencies:**
+*   **Install dependencies once from the repository root:**
     ```bash
-    cd apps/desktop
     npm install
     ```
 *   **Run in development mode:** This will launch the Tauri app with hot-reloading for the frontend.
     ```bash
-    cd apps/desktop
-    npm run tauri dev
+    npm run tauri:dev:desktop
     ```
 *   **Build the application:** This compiles the frontend and bundles it into a final executable.
     ```bash
-    cd apps/desktop
-    npm run tauri build
+    npm run tauri:build:desktop
     ```
 
 ### 2.3. Development Conventions
@@ -86,26 +83,22 @@ A tool for developers and writers to analyze the complexity of English text with
 
 **Key Commands (from `apps/vscode-extension/package.json`):**
 
-*   **Install dependencies:**
+*   **Install dependencies once from the repository root:**
     ```bash
-    cd apps/vscode-extension
     npm install
     ```
 *   **Run in development mode:** This compiles the TypeScript and opens a new VS Code "Extension Development Host" window with the extension loaded.
     ```bash
-    cd apps/vscode-extension
-    npm run watch # In a separate terminal
+    npm run watch:vscode # In a separate terminal
     # Then, in VS Code, press F5 to launch the debugger.
     ```
 *   **Compile the code:**
      ```bash
-    cd apps/vscode-extension
-    npm run compile
+    npm run compile:vscode
     ```
 *   **Package the extension:** This creates a `.vsix` file for installation or distribution.
     ```bash
-    cd apps/vscode-extension
-    npm run package
+    npm run package:vscode
     ```
 
 ### 3.3. Development Conventions

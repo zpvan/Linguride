@@ -30,11 +30,13 @@ Treat `dist/` as build output and `release/` as packaged artifacts; do not edit 
 
 ## Build, Test, and Development Commands
 
-- `npm install`: install dependencies
-- `npm run dev`: start the Vite development workflow for the extension
-- `npm run build`: run `tsc` and bundle into `dist/`
-- `npm run preview`: preview the built bundle
-- `npm run install:mac`: build, open `chrome://extensions/`, and copy the `dist` path
+Install dependencies from the repository root with `npm install`. Then use either the root workspace commands or run scripts directly inside `apps/browser-extension`.
+
+- `npm run dev:browser-extension`: start the Vite development workflow from the repo root
+- `npm run typecheck:browser-extension`: run the TypeScript no-emit check from the repo root
+- `npm run build:browser-extension`: run `tsc` and bundle into `dist/` from the repo root
+- `npm run lint:browser-extension`: run ESLint from the repo root
+- `cd apps/browser-extension && npm run install:mac`: build, open `chrome://extensions/`, and copy the `dist` path
 
 Optional Bun flow is supported:
 
