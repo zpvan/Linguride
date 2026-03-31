@@ -6,7 +6,7 @@ This document provides an overview of the Linguride project, its structure, and 
 
 **Linguride** is an AI-powered ecosystem for English language learning, centered around the "Bicycle Method" – an immersive, conversational approach to language acquisition. The project aims to help users move from passive knowledge to active, instinctual use of English.
 
-The repository is a monorepo containing three primary application directories under `apps/` and a set of shared TypeScript packages under `packages/`:
+The repository is a monorepo containing three primary application directories under `apps/`, a set of shared TypeScript packages under `packages/`, and a Rust workspace for desktop-first core logic under `crates/`:
 
 1.  **`apps/browser-extension`**: A Chrome browser extension for web reading, translation, tutor, and corpus workflows.
 2.  **`apps/desktop`**: The core cross-platform desktop application where users practice speaking with an AI.
@@ -17,6 +17,13 @@ Shared packages currently include:
 *   **`packages/contracts-ts`**: Shared DTOs and config contracts for analysis and prompt configuration.
 *   **`packages/prompt-kits`**: Shared prompt template resolution, variable substitution, and validation helpers.
 *   **`packages/text-assistant-core`**: Shared analysis result parsing, history management, and pure text orchestration logic.
+
+Rust workspace crates currently include:
+
+*   **`crates/linguride-domain`**: Shared Rust-side DTOs for desktop-facing core responses.
+*   **`crates/linguride-core`**: Desktop-first Rust core logic currently consumed by the Tauri backend.
+
+The `bindings/` directory exists only as a placeholder for future non-desktop integrations. Browser runtime remains TypeScript-only.
 
 ### Key Documentation
 *   **Product Requirements (PRD)**: `docs/Linguride-PRD.md` contains the vision, user personas, feature breakdown, and technical architecture.
@@ -33,6 +40,7 @@ This is the main user-facing application.
 *   **Function**: A cross-platform (macOS, Windows, Linux) desktop application for conversational English practice.
 *   **Frontend**: React with TypeScript, built with Vite.
 *   **Backend/Wrapper**: Tauri (using a Rust backend), which provides a lightweight webview.
+*   **Rust Core Boundary**: The Tauri backend is now the first consumer of the shared Rust workspace. Reusable logic belongs in `crates/linguride-core`, not directly in the browser extension.
 *   **Styling**: The PRD specifies Tailwind CSS.
 *   **State Management**: The PRD specifies Zustand.
 *   **Build/Package Toolchain**: The PRD specifies Bun.
@@ -62,8 +70,9 @@ This is the main user-facing application.
 ### 2.3. Development Conventions
 
 *   The frontend code resides in `apps/desktop/src`.
-*   The Tauri-specific Rust code is in `apps/desktop/src-tauri`.
-*   Tauri commands (Rust functions callable from the frontend) are defined in `apps/desktop/src-tauri/src/main.rs`.
+*   The Tauri-specific Rust bridge code is in `apps/desktop/src-tauri`.
+*   Shared Rust domain and core logic live in `crates/linguride-domain` and `crates/linguride-core`.
+*   Tauri commands (Rust functions callable from the frontend) are defined in `apps/desktop/src-tauri/src/lib.rs`.
 
 ---
 

@@ -1,0 +1,9 @@
+[package]
+name = "linguride-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+linguride-domain = { path = "../linguride-domain" }

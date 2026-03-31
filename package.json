@@ -6,6 +6,8 @@
     "packages/*"
   ],
   "scripts": {
+    "check:rust": "cargo check --workspace",
+    "test:rust-core": "cargo test -p linguride-core",
     "build:contracts-ts": "npm run build --workspace @linguride/contracts-ts",
     "build:prompt-kits": "npm run build --workspace @linguride/prompt-kits",
     "build:text-assistant-core": "npm run build --workspace @linguride/text-assistant-core",

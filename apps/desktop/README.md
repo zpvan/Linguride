@@ -1,16 +1,27 @@
 # Linguride Desktop App
 
-This desktop application now lives under `apps/desktop` in the repository.
+The desktop application lives under `apps/desktop` and is now the first runtime
+consumer of the shared Rust core introduced in Phase 5.
+
+## Architecture
+
+- `apps/desktop/src`: React + Vite desktop shell
+- `apps/desktop/src-tauri`: Tauri backend and command bridge
+- `crates/linguride-domain`: shared Rust DTOs returned to the desktop shell
+- `crates/linguride-core`: reusable Rust analysis logic consumed by Tauri
+
+The desktop shell is the only Rust consumer for now. Browser runtime remains
+TypeScript-only, and mobile bindings are intentionally deferred.
 
 ## Common Commands
 
-Install dependencies once from the repository root:
+Install JavaScript dependencies once from the repository root:
 
 ```bash
 npm install
 ```
 
-Then run desktop commands from the repository root:
+Run frontend or packaged desktop commands from the repository root:
 
 ```bash
 npm run build:desktop
@@ -18,16 +29,12 @@ npm run tauri:dev:desktop
 npm run tauri:build:desktop
 ```
 
-Or run from the desktop app directory after the root install:
+Validate the Rust workspace from the repository root:
 
 ```bash
-cd apps/desktop
-npm run build
+npm run check:rust
+npm run test:rust-core
 ```
-
-## Template Notes
-
-This template should help get you started developing with Tauri, React and Typescript in Vite.
 
 ## Recommended IDE Setup
 
