@@ -1,0 +1,43 @@
+# Infra Scripts
+
+`infra_scripts/` 提供面向产物的构建、测试、打包和 CI 适配脚本。
+
+## 目录结构
+
+- `bin/`：公开入口脚本。
+- `lib/`：公共函数、路径解析、日志和环境检查。
+- `artifacts/`：按产物拆分的脚本实现。
+- `ci/`：GitHub 和 Jenkins 的薄适配层。
+- `out/`：统一的打包产物输出目录。
+
+## 当前支持的产物
+
+- `chrome-extension`
+- `macos-app`
+- `vscode-extension`
+
+## 入口命令
+
+- `infra_scripts/bin/doctor.sh [artifact]`
+- `infra_scripts/bin/bootstrap.sh [artifact]`
+- `infra_scripts/bin/list-artifacts.sh [--json]`
+- `infra_scripts/bin/build-artifact.sh <artifact>`
+- `infra_scripts/bin/test-artifact.sh <artifact>`
+- `infra_scripts/bin/package-artifact.sh <artifact>`
+- `infra_scripts/bin/smoke-artifact.sh <artifact>`
+- `infra_scripts/bin/clean.sh <artifact|all>`
+
+## 设计约束
+
+- 所有脚本都从仓库根解析路径，不依赖当前 shell 目录。
+- 所有产物脚本都只处理自己的产物逻辑，不跨目录混写。
+- `ci/` 目录只做 CI 适配，不复制产物逻辑。
+- 打包产物统一写入 `infra_scripts/out/<artifact>/`。
+
+## 当前测试门禁定义
+
+- `chrome-extension`：`typecheck + lint + build`，外加可选的 `npm test --if-present`
+- `macos-app`：`build:desktop + check:rust + test:rust-core`
+- `vscode-extension`：`compile`，外加可选 extension-host tests
+
+`vscode-extension` 当前没有可运行的 `src/test/runTest` 入口，而且现有 lint 规则也未清债，因此默认 test gate 不把 `lint` 和 `npm run test:vscode` 作为强制通过项。等该工程补齐绿色基线后，再把它们提升为强制门禁。
