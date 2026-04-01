@@ -27,6 +27,20 @@
 - `infra_scripts/bin/smoke-artifact.sh <artifact>`
 - `infra_scripts/bin/clean.sh <artifact|all>`
 
+## GitHub Actions
+
+- 入口 workflow 为 `.github/workflows/ci.yml`
+- `pull_request`：运行 `chrome-extension` 与 `macos-app` 的 test gate
+- `push` 到 `main` / `dev_rustify`，以及 `workflow_dispatch`：在 test gate 通过后继续打包并上传 `infra_scripts/out/<artifact>/`
+- workflow 只负责编排；实际逻辑仍通过 `infra_scripts/ci/github/*.sh` 转发到 artifact 脚本
+
+## CI 安装约定
+
+- 本地默认使用 `npm install`
+- 当 `CI=true` 且根目录存在 `package-lock.json` 时，`bootstrap.sh` 自动切换到 `npm ci`
+- npm cache 统一落到 `infra_scripts/out/.npm-cache`，避免依赖宿主机的全局 `~/.npm`
+- `chrome-extension` 的 CI 会自动补齐 Rust/WASM 前置依赖：`wasm32-unknown-unknown` target 与 `./.tools/bin/wasm-bindgen`
+
 ## 设计约束
 
 - 所有脚本都从仓库根解析路径，不依赖当前 shell 目录。
@@ -41,3 +55,10 @@
 - `vscode-extension`：`compile`，外加可选 extension-host tests
 
 `vscode-extension` 当前没有可运行的 `src/test/runTest` 入口，而且现有 lint 规则也未清债，因此默认 test gate 不把 `lint` 和 `npm run test:vscode` 作为强制通过项。等该工程补齐绿色基线后，再把它们提升为强制门禁。
+
+## 本地对等验证
+
+- `bash infra_scripts/ci/github/test.sh chrome-extension`
+- `bash infra_scripts/ci/github/test.sh macos-app`
+- `bash infra_scripts/ci/github/package.sh chrome-extension && bash infra_scripts/ci/github/smoke.sh chrome-extension`
+- `bash infra_scripts/ci/github/package.sh macos-app && bash infra_scripts/ci/github/smoke.sh macos-app`

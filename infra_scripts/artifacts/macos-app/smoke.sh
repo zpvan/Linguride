@@ -12,11 +12,11 @@ require_os macos
 log_section "macOS app smoke"
 assert_dir_exists "$OUTPUT_DIR"
 
-app_count="$(find "$OUTPUT_DIR" -maxdepth 2 -type d -name '*.app' | wc -l | tr -d ' ')"
 dmg_count="$(find "$OUTPUT_DIR" -maxdepth 2 -type f -name '*.dmg' | wc -l | tr -d ' ')"
+archive_count="$(find "$OUTPUT_DIR" -maxdepth 2 -type f -name '*.tar.gz' | wc -l | tr -d ' ')"
 
-if [[ "$app_count" -eq 0 && "$dmg_count" -eq 0 ]]; then
-  die "No .app or .dmg artifact found in $OUTPUT_DIR"
+if [[ "$archive_count" -eq 0 && "$dmg_count" -eq 0 ]]; then
+  die "No downloadable macOS artifact (.tar.gz or .dmg) found in $OUTPUT_DIR"
 fi
 
 log_info "macOS app smoke checks passed"

@@ -65,7 +65,11 @@ doctor_artifact() {
 
   case "$artifact" in
     chrome-extension)
+      require_command cargo
+      require_command rustup
       require_command zip
+      print_command_version cargo
+      print_command_version rustup
       print_command_version zip
       ;;
     macos-app)
