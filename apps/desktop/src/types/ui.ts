@@ -1,8 +1,7 @@
 export type DesktopView =
-  | "inbox"
+  | "home"
   | "reader"
-  | "tutor"
-  | "corpus"
+  | "review"
   | "settings";
 
 export type WorkspaceStatus = "ready" | "empty" | "loading" | "unavailable";

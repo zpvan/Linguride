@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { AppShell } from "./components/AppShell";
 import { ContextPanel } from "./components/ContextPanel";
-import { desktopCapabilities, isViewUnavailable } from "./lib/capabilities";
+import { desktopCapabilities } from "./lib/capabilities";
 import {
   ingestManualCapture,
   loadWorkspaceSnapshot,
@@ -21,24 +21,23 @@ import type {
   StatusBannerState,
   WorkspaceStatus,
 } from "./types/ui";
-import { CorpusView } from "./views/CorpusView";
-import { InboxView } from "./views/InboxView";
+import { HomeView } from "./views/HomeView";
 import { ReaderView } from "./views/ReaderView";
+import { ReviewView } from "./views/ReviewView";
 import { SettingsView } from "./views/SettingsView";
-import { TutorView } from "./views/TutorView";
 import "./App.css";
 
-const SAMPLE_CAPTURE = `Linguride is moving to a Rust-first core so the browser extension and desktop app can share the same business contracts.
-The browser keeps a TypeScript shell for DOM, permissions, and UI, while the desktop app consumes the same reader workflow natively through Tauri.`;
+const SAMPLE_CAPTURE = `Reading in a second language becomes easier when the text is just slightly above your comfort zone.
+You do not need perfect understanding on the first pass. What matters is repeated contact with real sentences, clear feedback on what blocks you, and a short loop that turns input into something you can notice again tomorrow.`;
 
 function App() {
   const [workspace, setWorkspace] = useState<WorkspaceSnapshot | null>(null);
-  const [activeView, setActiveView] = useState<DesktopView>("inbox");
+  const [activeView, setActiveView] = useState<DesktopView>("home");
   const [workspaceStatus, setWorkspaceStatus] = useState<WorkspaceStatus>("loading");
   const [selectedCaptureId, setSelectedCaptureId] = useState("");
   const [readerResult, setReaderResult] = useState<ReaderResult | null>(null);
   const [captureDraft, setCaptureDraft] = useState(SAMPLE_CAPTURE);
-  const [titleDraft, setTitleDraft] = useState("Rust-First Capture");
+  const [titleDraft, setTitleDraft] = useState("Why Reading Still Matters");
   const [mode, setMode] = useState<ReaderMode>("translate");
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingCapture, setIsSavingCapture] = useState(false);
@@ -71,8 +70,7 @@ function App() {
       const snapshot = await loadWorkspaceSnapshot();
       const preferredCaptureId =
         options?.selectedCaptureId || selectedCaptureId || snapshot.captures[0]?.id || "";
-      const defaultView =
-        options?.nextView || (snapshot.captures.length > 0 ? "reader" : "inbox");
+      const defaultView = options?.nextView || "home";
 
       setWorkspace(snapshot);
       setSelectedCaptureId(preferredCaptureId);
@@ -218,6 +216,7 @@ function App() {
 
   const header = getViewHeader(activeView, workspace, readerResult);
   const currentLevel = workspace?.config.userLevel || "A2";
+  const sessionCount = workspace?.sessions.length ?? 0;
   const mainContent = renderMainView();
 
   return (
@@ -228,6 +227,7 @@ function App() {
       currentLevel={currentLevel}
       capabilities={desktopCapabilities}
       workspaceStatus={workspaceStatus}
+      sessionCount={sessionCount}
       title={header.title}
       subtitle={header.subtitle}
       banner={banner}
@@ -245,10 +245,14 @@ function App() {
           isRunningReader={isRunningReader}
           workspaceStatus={workspaceStatus}
           capabilities={desktopCapabilities}
+          selectedCaptureId={selectedCaptureId}
           onModeChange={(nextMode) => {
             void handleModeChange(nextMode);
           }}
           onSelectView={handleSelectView}
+          onSelectCapture={(capture) => {
+            void handleSelectCapture(capture);
+          }}
         />
       }
     />
@@ -262,27 +266,22 @@ function App() {
             readerResult={readerResult}
             isLoading={isLoading}
             isRunningReader={isRunningReader}
-          />
-        );
-      case "tutor":
-        return (
-          <TutorView
-            onGoToReader={() => {
-              setActiveView("reader");
-            }}
-            onGoToInbox={() => {
-              setActiveView("inbox");
+            onOpenReview={() => {
+              setActiveView("review");
             }}
           />
         );
-      case "corpus":
+      case "review":
         return (
-          <CorpusView
+          <ReviewView
+            readerResult={readerResult}
+            isLoading={isLoading}
+            isRunningReader={isRunningReader}
             onGoToReader={() => {
               setActiveView("reader");
             }}
-            onGoToInbox={() => {
-              setActiveView("inbox");
+            onGoHome={() => {
+              setActiveView("home");
             }}
           />
         );
@@ -300,18 +299,24 @@ function App() {
             readerResult={null}
             isLoading={isLoading}
             isRunningReader={false}
+            onOpenReview={() => {
+              setActiveView("review");
+            }}
           />
         );
-      case "inbox":
+      case "home":
       default:
         return (
-          <InboxView
+          <HomeView
             titleDraft={titleDraft}
             captureDraft={captureDraft}
             isSavingCapture={isSavingCapture}
             fileImportEnabled={desktopCapabilities.fileImport}
             captures={workspace?.captures ?? []}
+            sessions={workspace?.sessions ?? []}
             selectedCaptureId={selectedCaptureId}
+            currentLevel={currentLevel}
+            defaultMode={mode}
             onTitleChange={setTitleDraft}
             onCaptureChange={setCaptureDraft}
             onCreateCapture={() => {
@@ -339,15 +344,15 @@ function deriveWorkspaceStatus(input: {
     return "loading";
   }
 
-  if (isViewUnavailable(input.activeView, desktopCapabilities)) {
-    return "unavailable";
-  }
-
   if (input.activeView === "reader" && !input.readerResult) {
     return "empty";
   }
 
-  if (input.activeView === "inbox" && !(input.workspace?.captures.length ?? 0)) {
+  if (input.activeView === "review" && !input.readerResult) {
+    return "empty";
+  }
+
+  if (input.activeView === "home" && !(input.workspace?.captures.length ?? 0)) {
     return "empty";
   }
 
@@ -360,36 +365,37 @@ function getViewHeader(
   readerResult: ReaderResult | null
 ) {
   switch (activeView) {
+    case "home":
+      return {
+        title: "Today",
+        subtitle:
+          workspace?.captures.length
+            ? "继续最近一段材料，或者把新的文本带进今天的输入循环。"
+            : "从一段真实文本开始，先建立你的桌面学习工作区。",
+      };
     case "reader":
       return {
         title: "Reader",
         subtitle: readerResult
-          ? `当前正在阅读：${readerResult.document.title}`
-          : "阅读、难度分析与学习建议。",
+          ? `当前材料：${readerResult.document.title}`
+          : "并排阅读原文与输出，把内容快速读透。",
       };
-    case "tutor":
+    case "review":
       return {
-        title: "Tutor",
-        subtitle: "翻译、句法分析、发音与跟读的桌面入口。",
-      };
-    case "corpus":
-      return {
-        title: "Corpus",
-        subtitle: "语料切分与听力分析的桌面入口。",
+        title: "Review",
+        subtitle: readerResult
+          ? "把这次输入收拢成难点、亮点和下一步练习。"
+          : "先让 Reader 处理一段材料，再回来复盘。",
       };
     case "settings":
       return {
-        title: "Settings",
-        subtitle: "连接配置、用户级别与桌面偏好。",
+        title: "Preferences",
+        subtitle: "维护模型连接、学习级别和桌面偏好。",
       };
-    case "inbox":
     default:
       return {
-        title: "Inbox",
-        subtitle:
-          workspace?.captures.length
-            ? "导入新文本，或继续最近一次的阅读。"
-            : "从粘贴文本开始，建立你的本地工作区。",
+        title: "Today",
+        subtitle: "继续最近一段材料，或者导入新的文本。",
       };
   }
 }

@@ -17,6 +17,7 @@ interface AppShellProps {
   currentLevel: CefrLevel;
   capabilities: DesktopCapabilities;
   workspaceStatus: WorkspaceStatus;
+  sessionCount: number;
   title: string;
   subtitle: string;
   banner: StatusBannerState | null;
@@ -33,6 +34,7 @@ export function AppShell({
   currentLevel,
   capabilities,
   workspaceStatus,
+  sessionCount,
   title,
   subtitle,
   banner,
@@ -50,6 +52,8 @@ export function AppShell({
           selectedCaptureId={selectedCaptureId}
           currentLevel={currentLevel}
           capabilities={capabilities}
+          workspaceStatus={workspaceStatus}
+          sessionCount={sessionCount}
           onSelectView={onSelectView}
           onSelectCapture={onSelectCapture}
         />
@@ -57,12 +61,12 @@ export function AppShell({
         <div className="shell-body">
           <header className="topbar">
             <div>
-              <p className="section-label">Linguride Desktop</p>
+              <p className="section-label">Learning Workspace</p>
               <h2>{title}</h2>
               <p className="topbar-copy">{subtitle}</p>
             </div>
             <div className="topbar-meta">
-              <span className="level-badge">Lv.{currentLevel}</span>
+              <span className="level-badge">CEFR {currentLevel}</span>
               <span className={`workspace-status-badge ${workspaceStatus}`}>
                 {statusLabel(workspaceStatus)}
               </span>
@@ -88,7 +92,7 @@ function statusLabel(status: WorkspaceStatus): string {
     case "empty":
       return "空";
     case "unavailable":
-      return "未接通";
+      return "稍后开放";
     case "ready":
     default:
       return "就绪";

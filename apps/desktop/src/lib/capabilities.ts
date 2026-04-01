@@ -12,13 +12,7 @@ export function isViewUnavailable(
   view: DesktopView,
   capabilities: DesktopCapabilities
 ): boolean {
-  if (view === "tutor") {
-    return !capabilities.tutor;
-  }
-
-  if (view === "corpus") {
-    return !capabilities.corpus;
-  }
-
+  void view;
+  void capabilities;
   return false;
 }

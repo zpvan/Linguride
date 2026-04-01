@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "linguride-app",
+  "productName": "Linguride Desktop",
   "version": "0.1.0",
   "identifier": "com.knox.linguride-app",
   "build": {
@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "linguride-app",
-        "width": 800,
-        "height": 600
+        "title": "Linguride Desktop Preview",
+        "width": 1440,
+        "height": 960,
+        "minWidth": 1180,
+        "minHeight": 820
       }
     ],
     "security": {

@@ -1,5 +1,11 @@
+import { CaptureList } from "./CaptureList";
 import { SegmentedModeControl } from "./SegmentedModeControl";
-import type { ReaderMode, ReaderResult, WorkspaceSnapshot } from "../types/rustCore";
+import type {
+  CaptureRecord,
+  ReaderMode,
+  ReaderResult,
+  WorkspaceSnapshot,
+} from "../types/rustCore";
 import type { DesktopCapabilities, DesktopView, WorkspaceStatus } from "../types/ui";
 
 interface ContextPanelProps {
@@ -10,8 +16,10 @@ interface ContextPanelProps {
   isRunningReader: boolean;
   workspaceStatus: WorkspaceStatus;
   capabilities: DesktopCapabilities;
+  selectedCaptureId?: string;
   onModeChange: (nextMode: ReaderMode) => void;
   onSelectView: (view: DesktopView) => void;
+  onSelectCapture: (capture: CaptureRecord) => void;
 }
 
 export function ContextPanel({
@@ -22,9 +30,13 @@ export function ContextPanel({
   isRunningReader,
   workspaceStatus,
   capabilities,
+  selectedCaptureId,
   onModeChange,
   onSelectView,
+  onSelectCapture,
 }: ContextPanelProps) {
+  const captures = workspace?.captures ?? [];
+
   if (activeView === "reader") {
     return (
       <div className="context-stack">
@@ -39,8 +51,8 @@ export function ContextPanel({
         </section>
 
         <section className="context-card">
-          <p className="section-label">Difficulty</p>
-          <h3>{readerResult ? "难度速览" : "等待内容"}</h3>
+          <p className="section-label">Quick Read</p>
+          <h3>{readerResult ? "当前材料强度" : "等待内容"}</h3>
           {readerResult ? (
             <div className="metric-grid compact">
               <MetricCard label="Tier" value={readerResult.difficulty.tier} />
@@ -52,50 +64,34 @@ export function ContextPanel({
               />
             </div>
           ) : (
-            <p className="muted-copy">先在 Inbox 导入文本，或从左侧选择一条 capture。</p>
+            <p className="muted-copy">先在 Today 导入文本，或从侧栏选择一条材料。</p>
           )}
         </section>
 
         <section className="context-card">
-          <p className="section-label">Highlights</p>
-          <h3>学习建议</h3>
-          {readerResult ? (
-            <ul className="stacked-list">
-              {readerResult.difficulty.suggestions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-              {readerResult.summary.highlights.map((item) => (
-                <li key={item.title}>
-                  <strong>{item.title}</strong> {item.detail}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="muted-copy">Reader 运行后会在这里显示建议与重点。</p>
-          )}
+          <p className="section-label">Capture Queue</p>
+          <h3>切换到其他材料</h3>
+          <CaptureList
+            captures={captures}
+            selectedCaptureId={selectedCaptureId}
+            emptyLabel="导入后的材料会显示在这里。"
+            onSelect={onSelectCapture}
+            limit={3}
+            compact
+          />
         </section>
       </div>
     );
   }
 
-  if (activeView === "inbox") {
+  if (activeView === "home") {
     return (
       <div className="context-stack">
         <section className="context-card">
-          <p className="section-label">导入说明</p>
-          <h3>当前支持</h3>
-          <ul className="stacked-list">
-            <li>粘贴文本后直接导入本地工作区。</li>
-            <li>Chrome 扩展 handoff 会把 capture 写入同一个本地工作区。</li>
-            <li>文件导入入口会保留，但当前明确标记为未接通。</li>
-          </ul>
-        </section>
-
-        <section className="context-card">
-          <p className="section-label">Workspace</p>
-          <h3>当前状态</h3>
+          <p className="section-label">Today At A Glance</p>
+          <h3>桌面端已经能稳定承接的流程</h3>
           <div className="metric-grid compact">
-            <MetricCard label="Captures" value={String(workspace?.captures.length ?? 0)} />
+            <MetricCard label="Captures" value={String(captures.length)} />
             <MetricCard label="Sessions" value={String(workspace?.sessions.length ?? 0)} />
             <MetricCard
               label="Handoff"
@@ -103,6 +99,61 @@ export function ContextPanel({
             />
             <MetricCard label="状态" value={statusLabel(workspaceStatus)} />
           </div>
+        </section>
+
+        <section className="context-card">
+          <p className="section-label">Input Notes</p>
+          <h3>建议这样使用当前版本</h3>
+          <ul className="stacked-list">
+            <li>先导入一段短而真实的英文，再让 Reader 跑第一遍。</li>
+            <li>用 Review 收拢难点，不要在一屏里塞太多操作。</li>
+            <li>扩展 handoff 已接通，文件导入会在后续补上。</li>
+          </ul>
+        </section>
+      </div>
+    );
+  }
+
+  if (activeView === "review") {
+    return (
+      <div className="context-stack">
+        <section className="context-card">
+          <p className="section-label">Next Move</p>
+          <h3>把复盘接回主流程</h3>
+          <div className="action-stack">
+            <button
+              type="button"
+              className="tinted-button"
+              onClick={() => {
+                onSelectView("reader");
+              }}
+            >
+              回 Reader
+            </button>
+            <button
+              type="button"
+              className="ghost-button"
+              onClick={() => {
+                onSelectView("home");
+              }}
+            >
+              回 Today
+            </button>
+          </div>
+        </section>
+
+        <section className="context-card">
+          <p className="section-label">Review Status</p>
+          <h3>{readerResult ? "已生成复盘信息" : "等待阅读结果"}</h3>
+          {readerResult ? (
+            <ul className="stacked-list">
+              {readerResult.difficulty.suggestions.slice(0, 3).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted-copy">先运行一次 Reader，这里才会出现复盘重点。</p>
+          )}
         </section>
       </div>
     );
@@ -135,8 +186,22 @@ export function ContextPanel({
         </section>
 
         <section className="context-card">
-          <p className="section-label">高级项</p>
-          <h3>当前策略</h3>
+          <p className="section-label">Workspace</p>
+          <h3>当前工作区规模</h3>
+          <div className="metric-grid compact">
+            <MetricCard label="Captures" value={String(captures.length)} />
+            <MetricCard label="Sessions" value={String(workspace?.sessions.length ?? 0)} />
+            <MetricCard
+              label="Handoff"
+              value={capabilities.handoff ? "Enabled" : "Off"}
+            />
+            <MetricCard label="状态" value={statusLabel(workspaceStatus)} />
+          </div>
+        </section>
+
+        <section className="context-card">
+          <p className="section-label">Advanced</p>
+          <h3>本轮保持克制</h3>
           <p className="muted-copy">
             ASR、TTS、Prompt 和调试项本轮只展示为说明区，不渲染可编辑假配置。
           </p>
@@ -145,46 +210,7 @@ export function ContextPanel({
     );
   }
 
-  const targetLabel = activeView === "tutor" ? "Tutor" : "Corpus";
-
-  return (
-    <div className="context-stack">
-      <section className="context-card">
-        <p className="section-label">能力状态</p>
-        <h3>{targetLabel} 暂未接通</h3>
-        <p className="muted-copy">
-          {activeView === "tutor" && !capabilities.tutor
-            ? "翻译、句法分析、发音与跟读的桌面调用面还未接到 Rust core。"
-            : "语料切分和听力分析的桌面调用面还未接到 Rust core。"}
-        </p>
-      </section>
-
-      <section className="context-card">
-        <p className="section-label">下一步</p>
-        <h3>继续当前工作</h3>
-        <div className="action-stack">
-          <button
-            type="button"
-            className="tinted-button"
-            onClick={() => {
-              onSelectView("reader");
-            }}
-          >
-            去 Reader
-          </button>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => {
-              onSelectView("inbox");
-            }}
-          >
-            回 Inbox
-          </button>
-        </div>
-      </section>
-    </div>
-  );
+  return null;
 }
 
 interface MetricCardProps {
@@ -208,7 +234,7 @@ function statusLabel(status: WorkspaceStatus): string {
     case "empty":
       return "空";
     case "unavailable":
-      return "未接通";
+      return "稍后开放";
     case "ready":
     default:
       return "就绪";

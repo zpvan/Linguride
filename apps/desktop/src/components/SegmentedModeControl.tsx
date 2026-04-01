@@ -7,9 +7,9 @@ interface SegmentedModeControlProps {
 }
 
 const MODE_LABELS: Record<ReaderMode, string> = {
-  translate: "翻译",
+  translate: "对照",
   paraphrase: "释义",
-  mixed: "混杂",
+  mixed: "双语",
 };
 
 export function SegmentedModeControl({
