@@ -13,11 +13,22 @@ source "$COMMON_LIB_DIR/artifacts.sh"
 # shellcheck source=infra_scripts/lib/preflight.sh
 source "$COMMON_LIB_DIR/preflight.sh"
 
+repo_tools_bin_dir() {
+  printf '%s/.tools/bin\n' "$REPO_ROOT"
+}
+
 run_repo_cmd() {
+  local tools_bin_dir
+
+  tools_bin_dir="$(repo_tools_bin_dir)"
   log_info "Running: $*"
   (
     cd "$REPO_ROOT"
-    "$@"
+    if [[ -d "$tools_bin_dir" ]]; then
+      PATH="$tools_bin_dir:$PATH" "$@"
+    else
+      "$@"
+    fi
   )
 }
 

@@ -127,10 +127,11 @@ ensure_wasm_target() {
 }
 
 ensure_wasm_bindgen_cli() {
-  local bindgen_bin="$REPO_ROOT/.tools/bin/wasm-bindgen"
+  local bindgen_bin
   local expected_version
   local current_version=""
 
+  bindgen_bin="$(repo_tools_bin_dir)/wasm-bindgen"
   expected_version="$(resolve_wasm_bindgen_version)"
   [[ -n "$expected_version" ]] || die "Failed to resolve wasm-bindgen version from Cargo.lock"
 
@@ -150,6 +151,14 @@ ensure_wasm_bindgen_cli() {
   fi
 
   run_repo_cmd cargo install --root ./.tools wasm-bindgen-cli --version "$expected_version" --locked --force
+}
+
+ensure_wasm_bindgen_test_runner() {
+  local runner_bin
+
+  runner_bin="$(repo_tools_bin_dir)/wasm-bindgen-test-runner"
+  [[ -x "$runner_bin" ]] || die "Missing wasm-bindgen-test-runner at $runner_bin after installing wasm-bindgen-cli"
+  log_info "Verified wasm-bindgen test runner: $runner_bin"
 }
 
 if [[ -n "$artifact" ]]; then
@@ -176,6 +185,7 @@ fi
 if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]] || [[ "$artifact" == "macos-app" ]]; }; then
   ensure_wasm_target
   ensure_wasm_bindgen_cli
+  ensure_wasm_bindgen_test_runner
 fi
 
 log_info "Bootstrap completed"
