@@ -40,7 +40,7 @@
 - 当 `CI=true` 且根目录存在 `package-lock.json` 时，`bootstrap.sh` 自动切换到 `npm ci`
 - 当 `bootstrap.sh` 带 `artifact` 参数执行时，只安装该产物需要的 workspaces；不带参数时仍执行全仓安装
 - npm cache 统一落到 `infra_scripts/out/.npm-cache`，避免依赖宿主机的全局 `~/.npm`
-- `chrome-extension` 的 CI 会自动补齐 Rust/WASM 前置依赖：`wasm32-unknown-unknown` target 与 `./.tools/bin/wasm-bindgen`
+- `chrome-extension` 与 `macos-app` 的 CI 会自动补齐 Rust/WASM 前置依赖：`wasm32-unknown-unknown` target 与 `./.tools/bin/wasm-bindgen`
 
 ## 设计约束
 
@@ -52,7 +52,7 @@
 ## 当前测试门禁定义
 
 - `chrome-extension`：`typecheck + lint + build`，外加可选的 `npm test --if-present`
-- `macos-app`：`build:desktop + check:rust + test:rust-core`
+- `macos-app`：`build:desktop + test:rust + test:web-core:wasm`
 - `vscode-extension`：`compile`，外加可选 extension-host tests
 
 `vscode-extension` 当前没有可运行的 `src/test/runTest` 入口，而且现有 lint 规则也未清债，因此默认 test gate 不把 `lint` 和 `npm run test:vscode` 作为强制通过项。等该工程补齐绿色基线后，再把它们提升为强制门禁。

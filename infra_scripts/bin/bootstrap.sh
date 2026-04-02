@@ -173,7 +173,7 @@ if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ 
   run_repo_cmd cargo fetch --locked
 fi
 
-if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]]; }; then
+if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]] || [[ "$artifact" == "macos-app" ]]; }; then
   ensure_wasm_target
   ensure_wasm_bindgen_cli
 fi
