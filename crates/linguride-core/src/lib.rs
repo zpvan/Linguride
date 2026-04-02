@@ -8,6 +8,7 @@ pub mod reader;
 pub mod session;
 pub mod support;
 pub mod tutor;
+pub mod workspace;
 
 pub use linguride_domain::{
     CaptureEnvelope, CaptureRecord, CaptureSourceApp, CaptureType, CefrLevel, CorpusAction,
@@ -17,6 +18,7 @@ pub use linguride_domain::{
     ReaderResult, SessionKind, SessionRecord, SessionStatus, TextAnalysisHighlight,
     TextAnalysisMetrics, TextAnalysisSummary, TutorAction, TutorResult,
 };
+pub use workspace::{ManualCaptureInput, WorkspaceService, WorkspaceSnapshot};
 
 pub const MAX_CAPTURE_CHARS: usize = 200_000;
 

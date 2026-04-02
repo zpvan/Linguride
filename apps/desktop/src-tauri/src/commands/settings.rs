@@ -1,15 +1,15 @@
-use linguride_core::{config, LingurideConfig};
+use linguride_core::LingurideConfig;
 use tauri::AppHandle;
 
-use crate::adapters::capture_store::{load_workspace, save_workspace};
+use crate::commands::workspace_service;
 
 #[tauri::command]
 pub fn save_workspace_config(
     app: AppHandle,
     next_config: LingurideConfig,
 ) -> Result<LingurideConfig, String> {
-    let mut snapshot = load_workspace(&app).map_err(|error| error.message)?;
-    snapshot.config = config::normalize_config(next_config);
-    save_workspace(&app, &snapshot).map_err(|error| error.message)?;
-    Ok(snapshot.config)
+    workspace_service(&app)
+        .map_err(|error| error.message)?
+        .save_workspace_config(next_config)
+        .map_err(|error| error.message)
 }

@@ -223,3 +223,117 @@ fn round_to(value: f32, decimals: u32) -> f32 {
     let factor = 10_f32.powi(decimals as i32);
     (value * factor).round() / factor
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use linguride_domain::{CaptureSourceApp, CaptureType, PreferredSurface};
+
+    fn capture(text: &str) -> CaptureRecord {
+        CaptureRecord {
+            id: "capture-1".into(),
+            source_app: CaptureSourceApp::ManualInput,
+            capture_type: CaptureType::Manual,
+            preferred_surface: PreferredSurface::Reader,
+            origin_url: Some("https://example.com".into()),
+            title: "Sample".into(),
+            text: text.into(),
+            preview: text.into(),
+            content_hash: "hash".into(),
+            created_at: 1,
+            truncated: false,
+        }
+    }
+
+    fn summary_with_metrics(
+        word_count: usize,
+        average_word_length: f32,
+        average_sentence_length: f32,
+    ) -> TextAnalysisSummary {
+        TextAnalysisSummary {
+            normalized_text: String::new(),
+            excerpt: String::new(),
+            highlights: Vec::new(),
+            metrics: TextAnalysisMetrics {
+                character_count: 0,
+                word_count,
+                sentence_count: 1,
+                paragraph_count: 1,
+                average_word_length,
+                average_sentence_length,
+                estimated_reading_minutes: 0.5,
+            },
+        }
+    }
+
+    #[test]
+    fn analyzes_text_overview_metrics_and_normalization() {
+        let summary = analyze_text_overview("Don't stop.\n\nKeep going!")
+            .expect("analysis should succeed");
+
+        assert_eq!(summary.normalized_text, "Don't stop. Keep going!");
+        assert_eq!(summary.metrics.word_count, 4);
+        assert_eq!(summary.metrics.sentence_count, 2);
+        assert_eq!(summary.metrics.paragraph_count, 2);
+        assert_eq!(summary.metrics.average_word_length, 4.5);
+        assert_eq!(summary.metrics.average_sentence_length, 2.0);
+        assert_eq!(summary.metrics.estimated_reading_minutes, 0.1);
+        assert_eq!(summary.highlights.len(), 3);
+    }
+
+    #[test]
+    fn rejects_empty_text_overview() {
+        let error = analyze_text_overview(" \n ").expect_err("empty text should fail");
+        assert_eq!(error.code, LingurideErrorCode::EmptyText);
+    }
+
+    #[test]
+    fn maps_difficulty_tiers_at_boundaries() {
+        let cases = [
+            (summary_with_metrics(0, 1.0, 10.0), DifficultyTier::Foundation, CefrLevel::A2, 30),
+            (summary_with_metrics(8, 1.0, 10.0), DifficultyTier::Guided, CefrLevel::B1, 31),
+            (summary_with_metrics(48, 2.0, 15.0), DifficultyTier::Guided, CefrLevel::B1, 55),
+            (summary_with_metrics(56, 2.0, 15.0), DifficultyTier::Stretch, CefrLevel::B2, 56),
+            (summary_with_metrics(80, 4.0, 15.0), DifficultyTier::Stretch, CefrLevel::B2, 75),
+            (summary_with_metrics(88, 4.0, 15.0), DifficultyTier::Intensive, CefrLevel::C1, 76),
+        ];
+
+        for (summary, expected_tier, expected_level, expected_score) in cases {
+            let difficulty = analyze_difficulty_from_summary(&summary);
+            assert_eq!(difficulty.tier, expected_tier);
+            assert_eq!(difficulty.cefr_level, expected_level);
+            assert_eq!(difficulty.score, expected_score);
+            assert_eq!(difficulty.reading_time_minutes, 0.5);
+            assert_eq!(difficulty.suggestions.len(), 2);
+        }
+    }
+
+    #[test]
+    fn renders_reader_blocks_for_requested_mode() {
+        let result = run_reader_mode(&capture("Paragraph one.\n\nParagraph two."), ReaderMode::Mixed)
+            .expect("reader should succeed");
+
+        assert_eq!(result.document.blocks.len(), 2);
+        assert_eq!(result.document.blocks[0].id, "capture-1-0");
+        assert_eq!(
+            result.document.blocks[0].rendered_text,
+            "混杂辅助待接入：Paragraph one."
+        );
+        assert_eq!(result.document.mode, ReaderMode::Mixed);
+    }
+
+    #[test]
+    fn highlights_longest_sentence_when_it_exceeds_threshold() {
+        let text = (0..24)
+            .map(|index| format!("word{index}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let summary = analyze_text_overview(&format!("{text}."))
+            .expect("analysis should succeed");
+
+        assert_eq!(
+            summary.highlights[1].detail,
+            "The longest sentence runs to 24 words."
+        );
+    }
+}

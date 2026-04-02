@@ -17,3 +17,25 @@ pub fn normalize_config(config: LingurideConfig) -> LingurideConfig {
 
     normalized
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn returns_default_config() {
+        assert_eq!(default_config(), LingurideConfig::default());
+    }
+
+    #[test]
+    fn normalizes_empty_api_base_url_and_model() {
+        let normalized = normalize_config(LingurideConfig {
+            api_base_url: " ".into(),
+            model: String::new(),
+            ..LingurideConfig::default()
+        });
+
+        assert_eq!(normalized.api_base_url, "https://api.deepseek.com");
+        assert_eq!(normalized.model, "deepseek-chat");
+    }
+}

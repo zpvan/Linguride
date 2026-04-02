@@ -7,6 +7,8 @@
   ],
   "scripts": {
     "check:rust": "cargo check --workspace",
+    "test:rust": "cargo test --workspace",
+    "test:web-core:wasm": "cargo test -p web-core --target wasm32-unknown-unknown",
     "build:web-core-wasm": "bash scripts/build-web-core-wasm.sh",
     "test:rust-core": "cargo test -p linguride-core",
     "build:contracts-ts": "npm run build --workspace @linguride/contracts-ts",
