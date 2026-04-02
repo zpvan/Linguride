@@ -32,6 +32,8 @@ Treat `dist/` as build output and `release/` as packaged artifacts; do not edit 
 
 Install dependencies from the repository root with `npm install`. Then use either the root workspace commands or run scripts directly inside `apps/browser-extension`.
 
+When you need to update and commit `package-lock.json`, regenerate it from the repository root with a full `npm install`. Do not commit a lockfile produced by `npm install --workspace ...`, because npm can omit Rollup's platform-specific optional packages.
+
 - `npm run dev:browser-extension`: start the Vite development workflow from the repo root
 - `npm run typecheck:browser-extension`: run the TypeScript no-emit check from the repo root
 - `npm run build:browser-extension`: run `tsc` and bundle into `dist/` from the repo root
