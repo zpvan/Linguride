@@ -49,7 +49,6 @@ require_os macos
 log_section "macOS app package"
 reset_dir "$OUTPUT_DIR"
 clean_macos_bundles
-run_repo_cmd npm run build:packages
 run_repo_cmd npm --workspace apps/desktop run tauri -- build --bundles app
 
 copied=0

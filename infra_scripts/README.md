@@ -38,6 +38,7 @@
 
 - 本地默认使用 `npm install`
 - 当 `CI=true` 且根目录存在 `package-lock.json` 时，`bootstrap.sh` 自动切换到 `npm ci`
+- 当 `bootstrap.sh` 带 `artifact` 参数执行时，只安装该产物需要的 workspaces；不带参数时仍执行全仓安装
 - npm cache 统一落到 `infra_scripts/out/.npm-cache`，避免依赖宿主机的全局 `~/.npm`
 - `chrome-extension` 的 CI 会自动补齐 Rust/WASM 前置依赖：`wasm32-unknown-unknown` target 与 `./.tools/bin/wasm-bindgen`
 

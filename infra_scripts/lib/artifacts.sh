@@ -56,6 +56,28 @@ artifact_required_os() {
   esac
 }
 
+artifact_install_workspaces() {
+  local artifact="$1"
+  case "$artifact" in
+    chrome-extension)
+      printf 'apps/browser-extension\n'
+      printf 'packages/contracts-ts\n'
+      ;;
+    macos-app)
+      printf 'apps/desktop\n'
+      ;;
+    vscode-extension)
+      printf 'apps/vscode-extension\n'
+      printf 'packages/contracts-ts\n'
+      printf 'packages/prompt-kits\n'
+      printf 'packages/text-assistant-core\n'
+      ;;
+    *)
+      die "Unsupported artifact: $artifact"
+      ;;
+  esac
+}
+
 artifact_output_dir() {
   local artifact="$1"
   printf '%s/infra_scripts/out/%s\n' "$REPO_ROOT" "$artifact"

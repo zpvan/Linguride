@@ -8,6 +8,30 @@ artifact="${1:-}"
 wasm_target="wasm32-unknown-unknown"
 npm_cache_dir="${NPM_CONFIG_CACHE:-$REPO_ROOT/infra_scripts/out/.npm-cache}"
 
+install_npm_dependencies() {
+  local npm_subcommand
+  local workspace
+  local -a npm_cmd
+
+  if [[ -n "${CI:-}" ]] && [[ -f "$REPO_ROOT/package-lock.json" ]]; then
+    npm_subcommand="ci"
+  else
+    npm_subcommand="install"
+  fi
+
+  npm_cmd=(env "NPM_CONFIG_CACHE=$npm_cache_dir" npm "$npm_subcommand")
+
+  if [[ -n "$artifact" ]]; then
+    npm_cmd+=(--include-workspace-root)
+    while IFS= read -r workspace; do
+      [[ -n "$workspace" ]] || continue
+      npm_cmd+=(--workspace "$workspace")
+    done < <(artifact_install_workspaces "$artifact")
+  fi
+
+  run_repo_cmd "${npm_cmd[@]}"
+}
+
 resolve_browser_extension_rollup_version() {
   node - "$REPO_ROOT" <<'NODE'
 const fs = require("node:fs");
@@ -51,9 +75,9 @@ ensure_browser_extension_linux_rollup_native() {
   local rollup_version
   local current_arch
 
-  [[ -n "${CI:-}" ]] || return
-  [[ "$artifact" == "chrome-extension" ]] || return
-  [[ "$(detect_os)" == "linux" ]] || return
+  [[ -n "${CI:-}" ]] || return 0
+  [[ "$artifact" == "chrome-extension" ]] || return 0
+  [[ "$(detect_os)" == "linux" ]] || return 0
 
   current_arch="$(uname -m)"
   case "$current_arch" in
@@ -140,11 +164,7 @@ fi
 ensure_dir "$npm_cache_dir"
 log_info "Using npm cache: $npm_cache_dir"
 
-if [[ -n "${CI:-}" ]] && [[ -f "$REPO_ROOT/package-lock.json" ]]; then
-  run_repo_cmd env NPM_CONFIG_CACHE="$npm_cache_dir" npm ci
-else
-  run_repo_cmd env NPM_CONFIG_CACHE="$npm_cache_dir" npm install
-fi
+install_npm_dependencies
 
 ensure_browser_extension_linux_rollup_native
 
