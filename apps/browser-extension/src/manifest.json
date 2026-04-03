@@ -36,7 +36,8 @@
     "activeTab",
     "tabs",
     "scripting",
-    "clipboardWrite"
+    "clipboardWrite",
+    "offscreen"
   ],
   "host_permissions": [
     "https://api.deepseek.com/*",

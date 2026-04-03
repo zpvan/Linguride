@@ -127,6 +127,8 @@ export type {
   ShadowAssessResponse,
   SplitSentencesMessage,
   SplitSentencesResponse,
+  StopTTSPlaybackMessage,
+  StopTTSPlaybackResponse,
   SynthesizeSpeechMessage,
   SynthesizeSpeechResponse,
   TencentASRSignMessage,

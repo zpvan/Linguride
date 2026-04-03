@@ -103,6 +103,8 @@ export enum MessageType {
   // ====== 语音合成 ======
   /** 合成语音 */
   SYNTHESIZE_SPEECH = "SYNTHESIZE_SPEECH",
+  /** 停止当前 AI 语音播放 */
+  STOP_TTS_PLAYBACK = "STOP_TTS_PLAYBACK",
 
   // ====== 发音评估 ======
   /** 评估发音 */
@@ -420,6 +422,13 @@ export interface SynthesizeSpeechMessage {
 }
 
 /**
+ * 停止 AI 语音播放消息
+ */
+export interface StopTTSPlaybackMessage {
+  type: MessageType.STOP_TTS_PLAYBACK;
+}
+
+/**
  * 发音评估消息
  */
 export interface AssessPronunciationMessage {
@@ -596,6 +605,7 @@ export type Message =
   | MixedTranslateMessage
   | AnalyzeSentenceMessage
   | SynthesizeSpeechMessage
+  | StopTTSPlaybackMessage
   | AssessPronunciationMessage
   | ChineseToEnglishMessage
   | EnglishToChineseMessage
@@ -743,6 +753,7 @@ export type TTSServiceErrorCode =
   | "TTS_RATE_LIMIT"
   | "TTS_SERVER_ERROR"
   | "TTS_SERVER_BUSY"
+  | "TTS_PLAYBACK_ERROR"
   | "TTS_AUDIO_INVALID"
   | "TTS_UNKNOWN_ERROR";
 
@@ -845,10 +856,6 @@ export interface AnalyzeSentenceResponse extends BaseResponse {
  */
 export interface SynthesizeSpeechResponse extends BaseResponse {
   data?: {
-    /** Base64 编码的音频 */
-    audioBase64: string;
-    /** 音频 MIME 类型 */
-    mimeType: string;
     /** 实际命中的 AI TTS 服务 */
     provider: TTSProviderId;
     /** 服务间回退时的轻提示 */
@@ -863,6 +870,11 @@ export interface SynthesizeSpeechResponse extends BaseResponse {
   /** 原始错误详情（如有） */
   errorDetail?: string;
 }
+
+/**
+ * 停止 AI 语音播放响应
+ */
+export type StopTTSPlaybackResponse = BaseResponse;
 
 /**
  * 发音评估响应
@@ -993,6 +1005,7 @@ export type Response =
   | MixedTranslateResponse
   | AnalyzeSentenceResponse
   | SynthesizeSpeechResponse
+  | StopTTSPlaybackResponse
   | AssessPronunciationResponse
   | ChineseToEnglishResponse
   | EnglishToChineseResponse

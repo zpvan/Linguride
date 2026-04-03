@@ -85,11 +85,13 @@ import {
   ShadowAssessResponse,
   SplitSentencesResponse,
   StartOpenAIOAuthResponse,
+  StopTTSPlaybackResponse,
   SplitSentencesResult,
   SynthesizeSpeechResponse,
   TencentASRSignResponse,
   TestTTSConnectionResponse,
   TestConnectionResponse,
+  TTSSpeed,
   TTSProviderId,
   TTSServiceErrorCode,
   TTSServiceErrorHint,
@@ -99,6 +101,12 @@ import {
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
 } from "../types";
+import {
+  OFFSCREEN_TTS_PLAY,
+  OFFSCREEN_TTS_STOP,
+  OffscreenTTSMessage,
+  OffscreenTTSResponse,
+} from "../shared/offscreenTTSProtocol";
 import { assertAiProviderReady, createAIProvider } from "./aiProvider";
 import { getConfig, saveConfig } from "./configManager";
 import {
@@ -142,6 +150,11 @@ const MINIMAX_TTS_TEXT_MAX_CHARS = 50000;
 const MINIMAX_TTS_POLL_INTERVAL_MS = 500;
 const MINIMAX_TTS_POLL_TIMEOUT_MS = 20000;
 const MINIMAX_TTS_UPLOAD_PURPOSE = "t2a_async_input";
+const OFFSCREEN_TTS_DOCUMENT_PATH = "src/offscreen/tts-offscreen.html";
+const OFFSCREEN_TTS_CONTEXT_TYPE = "OFFSCREEN_DOCUMENT";
+const OFFSCREEN_TTS_AUDIO_REASON = "AUDIO_PLAYBACK";
+const OFFSCREEN_TTS_JUSTIFICATION =
+  "Play AI-generated speech in extension context to avoid page CSP restrictions.";
 type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
 type XiaomiTTSStyleValue = NonNullable<
   XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
@@ -149,6 +162,34 @@ type XiaomiTTSStyleValue = NonNullable<
 type MiniMaxTaskId = string | number;
 type MiniMaxFileId = string | number;
 type MiniMaxTaskStatus = "processing" | "success" | "failed" | "expired";
+
+type RuntimeWithContexts = typeof chrome.runtime & {
+  getContexts?: (filter?: {
+    contextTypes?: string[];
+    documentUrls?: string[];
+  }) => Promise<Array<{ documentUrl?: string }>>;
+};
+
+type ChromeWithOffscreen = typeof chrome & {
+  offscreen?: {
+    createDocument(options: {
+      url: string;
+      reasons: string[];
+      justification: string;
+    }): Promise<void>;
+  };
+};
+
+type WindowClientLike = {
+  url: string;
+};
+
+type GlobalClientsLike = {
+  matchAll(options: {
+    type: "window";
+    includeUncontrolled: boolean;
+  }): Promise<WindowClientLike[]>;
+};
 
 interface TTSAudioData {
   audioBase64: string;
@@ -161,6 +202,9 @@ interface TTSProviderRequestContext {
   config: LingridConfig;
   text: string;
 }
+
+let offscreenDocumentPromise: Promise<void> | null = null;
+let ttsPlaybackEpoch = 0;
 
 interface PreparedAIProviderContext {
   config: LingridConfig;
@@ -323,6 +367,8 @@ function getTTSErrorMessage(
       return `${providerLabel}服务内部异常`;
     case "TTS_SERVER_BUSY":
       return `${providerLabel}服务繁忙，请稍后重试`;
+    case "TTS_PLAYBACK_ERROR":
+      return "扩展内音频播放失败";
     case "TTS_AUDIO_INVALID":
       return "服务返回了无效音频数据";
     case "TTS_UNKNOWN_ERROR":
@@ -711,6 +757,136 @@ function ensureMiniMaxBaseResponseSuccess(
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function nextTTSPlaybackEpoch(): number {
+  ttsPlaybackEpoch += 1;
+  return ttsPlaybackEpoch;
+}
+
+function isCurrentTTSPlaybackEpoch(epoch: number): boolean {
+  return epoch === ttsPlaybackEpoch;
+}
+
+function getOffscreenDocumentUrl(): string {
+  return chrome.runtime.getURL(OFFSCREEN_TTS_DOCUMENT_PATH);
+}
+
+function getOffscreenApi(): NonNullable<ChromeWithOffscreen["offscreen"]> {
+  const offscreenApi = (chrome as ChromeWithOffscreen).offscreen;
+  if (!offscreenApi) {
+    throw new Error("当前浏览器不支持扩展内音频播放");
+  }
+
+  return offscreenApi;
+}
+
+async function hasTTSOffscreenDocument(): Promise<boolean> {
+  const documentUrl = getOffscreenDocumentUrl();
+  const runtime = chrome.runtime as RuntimeWithContexts;
+
+  if (typeof runtime.getContexts === "function") {
+    const contexts = await runtime.getContexts({
+      contextTypes: [OFFSCREEN_TTS_CONTEXT_TYPE],
+      documentUrls: [documentUrl],
+    });
+
+    return contexts.some((context) => context.documentUrl === documentUrl);
+  }
+
+  const globalClients = (
+    globalThis as typeof globalThis & { clients?: GlobalClientsLike }
+  ).clients;
+  if (!globalClients) {
+    return false;
+  }
+
+  const windowClients = await globalClients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+  return windowClients.some((client) => client.url === documentUrl);
+}
+
+async function ensureTTSOffscreenDocument(): Promise<void> {
+  if (await hasTTSOffscreenDocument()) {
+    return;
+  }
+
+  if (!offscreenDocumentPromise) {
+    const offscreenApi = getOffscreenApi();
+    offscreenDocumentPromise = (async () => {
+      try {
+        await offscreenApi.createDocument({
+          url: OFFSCREEN_TTS_DOCUMENT_PATH,
+          reasons: [OFFSCREEN_TTS_AUDIO_REASON],
+          justification: OFFSCREEN_TTS_JUSTIFICATION,
+        });
+      } catch (error) {
+        if (await hasTTSOffscreenDocument()) {
+          return;
+        }
+
+        throw error;
+      }
+    })().finally(() => {
+      offscreenDocumentPromise = null;
+    });
+  }
+
+  await offscreenDocumentPromise;
+}
+
+async function sendOffscreenTTSMessage(
+  message: OffscreenTTSMessage
+): Promise<OffscreenTTSResponse> {
+  await ensureTTSOffscreenDocument();
+
+  const response = (await chrome.runtime.sendMessage(
+    message
+  )) as OffscreenTTSResponse | undefined;
+
+  if (!response) {
+    throw new Error("扩展内音频播放未返回响应");
+  }
+
+  return response;
+}
+
+async function stopOffscreenTTSPlayback(): Promise<void> {
+  if (!(await hasTTSOffscreenDocument())) {
+    return;
+  }
+
+  await chrome.runtime.sendMessage({
+    type: OFFSCREEN_TTS_STOP,
+  } as OffscreenTTSMessage);
+}
+
+async function playTTSAudioInOffscreen(
+  audioData: TTSAudioData,
+  rate: TTSSpeed
+): Promise<void> {
+  const response = await sendOffscreenTTSMessage({
+    type: OFFSCREEN_TTS_PLAY,
+    payload: {
+      audioBase64: audioData.audioBase64,
+      mimeType: audioData.mimeType,
+      rate,
+    },
+  });
+
+  if (response.success) {
+    return;
+  }
+
+  throw createTTSError({
+    provider: audioData.provider,
+    code: "TTS_PLAYBACK_ERROR",
+    detail: response.detail || response.error,
+    message: response.error || "扩展内音频播放失败",
+  });
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -1606,8 +1782,11 @@ async function handleTestTTSConnection(
  * 按优先级调用 AI TTS 生成音频。
  */
 async function handleSynthesizeSpeech(
-  text: string
+  text: string,
+  rate: TTSSpeed
 ): Promise<SynthesizeSpeechResponse> {
+  const playbackEpoch = nextTTSPlaybackEpoch();
+
   try {
     if (!text.trim()) {
       return {
@@ -1618,9 +1797,29 @@ async function handleSynthesizeSpeech(
     }
 
     const data = await requestTTSAudioWithPriority(text.trim());
+    if (!isCurrentTTSPlaybackEpoch(playbackEpoch)) {
+      return {
+        success: false,
+        errorCode: "TTS_UNKNOWN_ERROR",
+        error: "朗读已取消",
+      };
+    }
+
+    await playTTSAudioInOffscreen(data, rate);
+    if (!isCurrentTTSPlaybackEpoch(playbackEpoch)) {
+      return {
+        success: false,
+        errorCode: "TTS_UNKNOWN_ERROR",
+        error: "朗读已取消",
+      };
+    }
+
     return {
       success: true,
-      data,
+      data: {
+        provider: data.provider,
+        fallbackWarningMessage: data.fallbackWarningMessage,
+      },
     };
   } catch (error) {
     if (error instanceof TTSError) {
@@ -1639,6 +1838,21 @@ async function handleSynthesizeSpeech(
       errorCode: "TTS_UNKNOWN_ERROR",
       error: error instanceof Error ? error.message : "语音合成失败",
       errorDetail: error instanceof Error ? error.message : undefined,
+    };
+  }
+}
+
+async function handleStopTTSPlayback(): Promise<StopTTSPlaybackResponse> {
+  try {
+    nextTTSPlaybackEpoch();
+    await stopOffscreenTTSPlayback();
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "停止 AI 语音播放失败",
     };
   }
 }
@@ -3320,7 +3534,14 @@ chrome.runtime.onConnect.addListener((port) => {
  * 分发到对应的处理函数。
  */
 chrome.runtime.onMessage.addListener(
-  (message: Message, sender, sendResponse) => {
+  (message: Message | OffscreenTTSMessage, sender, sendResponse) => {
+    if (
+      message.type === OFFSCREEN_TTS_PLAY ||
+      message.type === OFFSCREEN_TTS_STOP
+    ) {
+      return false;
+    }
+
     // 获取发送消息的 Tab ID
     const tabId = sender.tab?.id;
 
@@ -3526,7 +3747,14 @@ chrome.runtime.onMessage.addListener(
           break;
 
         case MessageType.SYNTHESIZE_SPEECH:
-          response = await handleSynthesizeSpeech(message.payload.text);
+          response = await handleSynthesizeSpeech(
+            message.payload.text,
+            message.payload.rate
+          );
+          break;
+
+        case MessageType.STOP_TTS_PLAYBACK:
+          response = await handleStopTTSPlayback();
           break;
 
         case MessageType.ASSESS_PRONUNCIATION:

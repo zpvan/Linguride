@@ -24,6 +24,10 @@ import {
   MessageType,
   TranslatableElement,
 } from "../types";
+import {
+  OFFSCREEN_TTS_PLAY,
+  OFFSCREEN_TTS_STOP,
+} from "../shared/offscreenTTSProtocol";
 import { BatchManager } from "./batchManager";
 import {
   clearProcessedMarks,
@@ -984,6 +988,13 @@ if (!__lingride_already_loaded__) {
      * 处理来自 Background 的消息
      */
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (
+        message.type === OFFSCREEN_TTS_PLAY ||
+        message.type === OFFSCREEN_TTS_STOP
+      ) {
+        return false;
+      }
+
       console.log("[Lingride] Content Script 收到消息:", message.type);
 
       switch (message.type) {

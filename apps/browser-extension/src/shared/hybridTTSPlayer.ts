@@ -13,7 +13,6 @@ const DEFAULT_FALLBACK_WARNING =
   "AI 语音合成暂不可用，已切换为浏览器朗读";
 
 interface ActivePlayback {
-  audio?: HTMLAudioElement;
   utterance?: SpeechSynthesisUtterance;
   resolve: () => void;
   settled: boolean;
@@ -76,22 +75,29 @@ export function createHybridTTSPlayer(
     playback.resolve();
   }
 
+  function requestStopAIPlayback(): void {
+    void chrome.runtime
+      .sendMessage({
+        type: MessageType.STOP_TTS_PLAYBACK,
+      })
+      .catch(() => {
+        // Service worker 可能已休眠，忽略停止失败并保持前台状态可恢复。
+      });
+  }
+
   function stop(): void {
     runToken += 1;
     activeRunToken = null;
 
-    const playback = activePlayback;
-    if (!playback) return;
+    requestStopAIPlayback();
 
-    if (playback.audio) {
-      playback.audio.pause();
-      playback.audio.currentTime = 0;
-      playback.audio.src = "";
-    }
+    const playback = activePlayback;
 
     if (isBrowserTTSAvailable()) {
       window.speechSynthesis.cancel();
     }
+
+    if (!playback) return;
 
     finishPlayback(playback, false);
   }
@@ -107,67 +113,6 @@ export function createHybridTTSPlayer(
     if (activeRunToken === token) {
       activeRunToken = null;
     }
-  }
-
-  async function playAudioFromBase64(
-    audioBase64: string,
-    mimeType: string,
-    rate: TTSSpeed,
-    token: number,
-    onStart?: () => void,
-    onEnd?: () => void
-  ): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
-      if (!isCurrentRun(token)) {
-        resolve();
-        return;
-      }
-
-      const audio = new Audio(`data:${mimeType};base64,${audioBase64}`);
-      audio.preload = "auto";
-      audio.playbackRate = rate;
-
-      const playback: ActivePlayback = {
-        audio,
-        resolve,
-        settled: false,
-        onEnd,
-      };
-      activePlayback = playback;
-
-      audio.onended = () => {
-        finishPlayback(playback, true);
-      };
-
-      audio.onerror = () => {
-        if (playback.settled) return;
-        if (activePlayback === playback) {
-          activePlayback = null;
-        }
-        playback.settled = true;
-        reject(new Error("AI 语音播放失败"));
-      };
-
-      audio
-        .play()
-        .then(() => {
-          if (!isCurrentRun(token)) {
-            finishPlayback(playback, false);
-            return;
-          }
-          onStart?.();
-        })
-        .catch((error) => {
-          if (playback.settled) return;
-          if (activePlayback === playback) {
-            activePlayback = null;
-          }
-          playback.settled = true;
-          reject(
-            error instanceof Error ? error : new Error("AI 语音播放失败")
-          );
-        });
-    });
   }
 
   async function playBrowserText(
@@ -222,6 +167,35 @@ export function createHybridTTSPlayer(
     });
   }
 
+  async function playAISpeech(
+    text: string,
+    rate: TTSSpeed,
+    token: number,
+    onStart?: () => void,
+    onEnd?: () => void
+  ): Promise<SynthesizeSpeechResponse> {
+    if (!isCurrentRun(token)) {
+      return {
+        success: false,
+        errorCode: "TTS_UNKNOWN_ERROR",
+        error: "朗读已取消",
+      };
+    }
+
+    onStart?.();
+
+    const response: SynthesizeSpeechResponse = await chrome.runtime.sendMessage({
+      type: MessageType.SYNTHESIZE_SPEECH,
+      payload: { text, rate },
+    });
+
+    if (response.success && isCurrentRun(token)) {
+      onEnd?.();
+    }
+
+    return response;
+  }
+
   async function playTextInternal(
     token: number,
     playOptions: PlayTextOptions
@@ -242,12 +216,7 @@ export function createHybridTTSPlayer(
 
     if (shouldTryAI) {
       try {
-        const response: SynthesizeSpeechResponse = await chrome.runtime.sendMessage(
-          {
-            type: MessageType.SYNTHESIZE_SPEECH,
-            payload: { text, rate },
-          }
-        );
+        const response = await playAISpeech(text, rate, token, onStart, onEnd);
 
         if (!isCurrentRun(token)) return;
 
@@ -256,15 +225,6 @@ export function createHybridTTSPlayer(
             fallbackWarningShown = true;
             onFallbackWarning?.(response.data.fallbackWarningMessage);
           }
-
-          await playAudioFromBase64(
-            response.data.audioBase64,
-            response.data.mimeType,
-            rate,
-            token,
-            onStart,
-            onEnd
-          );
           return;
         }
 
