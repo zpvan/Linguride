@@ -1,0 +1,256 @@
+{
+  "name": "linguride-english-difficulty-analyzer",
+  "displayName": "Linguride English Difficulty Analyzer",
+  "description": "AI-powered English article difficulty analyzer with multi-LLM support (OpenAI, Claude, DeepSeek)",
+  "version": "0.1.0",
+  "publisher": "linguride",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Education",
+    "AI"
+  ],
+  "keywords": [
+    "english",
+    "difficulty",
+    "analysis",
+    "ai",
+    "llm",
+    "learning",
+    "readability",
+    "deepseek",
+    "claude",
+    "openai"
+  ],
+  "icon": "media/icon.png",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:linguride.analyzeDifficulty",
+    "onView:lingurideAnalysisView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "linguride.analyzeDifficulty",
+        "title": "Analyze English Difficulty",
+        "category": "Linguride"
+      },
+      {
+        "command": "linguride.configure",
+        "title": "Configure Linguride",
+        "category": "Linguride"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "linguride.analyzeDifficulty",
+          "when": "editorHasSelection && (editorLangId == markdown || editorLangId == plaintext || editorLangId == text)",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "linguride.analyzeDifficulty",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "linguride.configure"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "lingurideAnalysisView",
+          "name": "English Analysis",
+          "when": "workbenchState != empty"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Linguride",
+      "properties": {
+        "linguride.defaultProvider": {
+          "type": "string",
+          "enum": ["openai", "claude", "deepseek"],
+          "default": "deepseek",
+          "description": "Default LLM provider for English difficulty analysis"
+        },
+        "linguride.providers.openai": {
+          "type": "object",
+          "default": {},
+          "description": "OpenAI API configuration",
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "description": "OpenAI API key (starts with 'sk-')"
+            },
+            "model": {
+              "type": "string",
+              "default": "gpt-4-turbo-preview",
+              "description": "OpenAI model to use for analysis"
+            },
+            "endpoint": {
+              "type": "string",
+              "default": "https://api.openai.com/v1/chat/completions",
+              "description": "OpenAI API endpoint (optional)"
+            },
+            "promptTemplates": {
+              "type": "object",
+              "default": {},
+              "description": "Provider-specific prompt templates (overrides global templates)",
+              "properties": {
+                "system": {
+                  "type": "string",
+                  "description": "System prompt template for OpenAI"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "User prompt template for OpenAI"
+                }
+              }
+            }
+          }
+        },
+        "linguride.providers.claude": {
+          "type": "object",
+          "default": {},
+          "description": "Claude API configuration",
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "description": "Claude API key"
+            },
+            "model": {
+              "type": "string",
+              "default": "claude-3-sonnet-20240229",
+              "description": "Claude model to use for analysis"
+            },
+            "endpoint": {
+              "type": "string",
+              "default": "https://api.anthropic.com/v1/messages",
+              "description": "Claude API endpoint (optional)"
+            },
+            "promptTemplates": {
+              "type": "object",
+              "default": {},
+              "description": "Provider-specific prompt templates (overrides global templates)",
+              "properties": {
+                "system": {
+                  "type": "string",
+                  "description": "System prompt template for Claude"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "User prompt template for Claude"
+                }
+              }
+            }
+          }
+        },
+        "linguride.providers.deepseek": {
+          "type": "object",
+          "default": {},
+          "description": "DeepSeek API configuration",
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "description": "DeepSeek API key"
+            },
+            "model": {
+              "type": "string",
+              "default": "deepseek-chat",
+              "description": "DeepSeek model to use for analysis"
+            },
+            "endpoint": {
+              "type": "string",
+              "default": "https://api.deepseek.com/chat/completions",
+              "description": "DeepSeek API endpoint (optional)"
+            },
+            "promptTemplates": {
+              "type": "object",
+              "default": {},
+              "description": "Provider-specific prompt templates (overrides global templates)",
+              "properties": {
+                "system": {
+                  "type": "string",
+                  "description": "System prompt template for DeepSeek"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "User prompt template for DeepSeek"
+                }
+              }
+            }
+          }
+        },
+        "linguride.analysis.defaultLanguage": {
+          "type": "string",
+          "default": "en",
+          "description": "Default language for analysis (currently only 'en' supported)"
+        },
+        "linguride.analysis.includeSuggestions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include improvement suggestions in analysis results"
+        },
+        "linguride.analysis.maxHistoryItems": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of analysis results to keep in history"
+        },
+        "linguride.analysis.promptTemplates": {
+          "type": "object",
+          "default": {},
+          "description": "Global prompt templates for all providers",
+          "properties": {
+            "system": {
+              "type": "string",
+              "default": "你是一个专业的英文语言评估专家。请分析英文文本的难度，并返回结构化的评估结果。",
+              "description": "System prompt template for all providers"
+            },
+            "user": {
+              "type": "string",
+              "default": "请分析以下英文文本的难度，并返回JSON格式的结果：\n\n文本内容：\n\"\"\"\n{text}\n\"\"\"\n\n请提供以下信息的JSON响应：\n1. difficultyLevel: 难度等级（Beginner/Intermediate/Advanced/Expert）\n2. cefrLevel: CEFR等级（A1/A2/B1/B2/C1/C2）\n3. score: 综合分数（0-100）\n4. vocabularyComplexity: 词汇复杂度分析，包含：\n   - rareWordCount: 罕见词数量\n   - academicWordCount: 学术词汇数量\n   - avgWordLength: 平均词长\n   - uniqueWordRatio: 唯一词比例（0-1）\n   - readabilityScore: 可读性分数（0-100）\n5. sentenceComplexity: 句子复杂度分析，包含：\n   - avgSentenceLength: 平均句长（词数）\n   - complexSentenceRatio: 复杂句式比例（0-1）\n   - avgClausesPerSentence: 每句平均子句数\n   - passiveVoiceRatio: 被动语态比例（0-1）\n6. estimatedReadingTime: 预计阅读时间（分钟）\n7. suggestions: 改进建议数组（至少3条）\n\n请确保返回纯JSON格式，不要包含其他文本。",
+              "description": "User prompt template for all providers"
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext .ts",
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@linguride/contracts-ts": "0.1.0",
+    "@linguride/prompt-kits": "0.1.0",
+    "@linguride/text-assistant-core": "0.1.0",
+    "axios": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linguride/linguride-english-difficulty-analyzer"
+  },
+  "bugs": {
+    "url": "https://github.com/linguride/linguride-english-difficulty-analyzer/issues"
+  },
+  "license": "MIT"
+}

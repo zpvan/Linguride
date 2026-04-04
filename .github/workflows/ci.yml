@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev_rustify
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  NPM_CONFIG_CACHE: ${{ github.workspace }}/infra_scripts/out/.npm-cache
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validate:
+    name: validate (${{ matrix.artifact }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: chrome-extension
+            runner: ubuntu-latest
+          - artifact: macos-app
+            runner: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Restore Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run validate gate
+        run: bash infra_scripts/ci/github/test.sh "${{ matrix.artifact }}"
+
+  package:
+    name: package (${{ matrix.artifact }})
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: chrome-extension
+            runner: ubuntu-latest
+          - artifact: macos-app
+            runner: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Restore Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build package
+        run: bash infra_scripts/ci/github/package.sh "${{ matrix.artifact }}"
+
+      - name: Run smoke checks
+        run: bash infra_scripts/ci/github/smoke.sh "${{ matrix.artifact }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-${{ github.sha }}
+          path: infra_scripts/out/${{ matrix.artifact }}/
+          if-no-files-found: error
+          retention-days: 14

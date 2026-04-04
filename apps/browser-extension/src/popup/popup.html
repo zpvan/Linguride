@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingride</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="viewport">
+    <!-- ====== Main View - 学习控制中心 ====== -->
+    <div id="mainView" class="view main-view active">
+      <!-- Header -->
+      <header class="header">
+        <h1 class="brand">Lingride</h1>
+        <div class="level-badge-wrapper" id="levelBadgeWrapper">
+          <button class="level-badge" id="levelBadge">Lv.A2</button>
+          <div class="level-dropdown" id="levelDropdown">
+            <button class="level-option" data-level="A1">
+              <span class="level-code">A1</span>
+              <span class="level-desc">初中入门</span>
+            </button>
+            <button class="level-option" data-level="A2">
+              <span class="level-code">A2</span>
+              <span class="level-desc">中考水平</span>
+            </button>
+            <button class="level-option" data-level="B1">
+              <span class="level-code">B1</span>
+              <span class="level-desc">高考水平</span>
+            </button>
+            <button class="level-option" data-level="B2">
+              <span class="level-code">B2</span>
+              <span class="level-desc">四六级</span>
+            </button>
+            <button class="level-option" data-level="C1">
+              <span class="level-code">C1</span>
+              <span class="level-desc">考研/专八</span>
+            </button>
+            <button class="level-option" data-level="C2">
+              <span class="level-code">C2</span>
+              <span class="level-desc">专业翻译</span>
+            </button>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="corpusBtn" class="icon-btn corpus-btn" aria-label="语料库" title="语料库">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <!-- 书本 -->
+              <path d="M3 4C3 3.44772 3.44772 3 4 3H9V17H4C3.44772 17 3 16.5523 3 16V4Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M9 3H16C16.5523 3 17 3.44772 17 4V16C17 16.5523 16.5523 17 16 17H9V3Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M9 3V17" stroke="currentColor" stroke-width="1.5"/>
+              <!-- 耳机（右上角小图标） -->
+              <path d="M13 7V6.5C13 5.5 13.5 5 14.5 5C15.5 5 16 5.5 16 6.5V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <rect x="12.5" y="7" width="1.5" height="2" rx="0.5" stroke="currentColor" stroke-width="0.8"/>
+              <rect x="15" y="7" width="1.5" height="2" rx="0.5" stroke="currentColor" stroke-width="0.8"/>
+            </svg>
+          </button>
+          <button id="tutorBtn" class="icon-btn tutor-btn" aria-label="语镜" title="语镜">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <!-- 毕业帽 -->
+              <path d="M10 3L2 7L10 11L18 7L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M5 8.5V13C5 13 7 15 10 15C13 15 15 13 15 13V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- 对话气泡（小） -->
+              <circle cx="16" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M14.5 6L15.5 7.5" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+          <button id="settingsBtn" class="icon-btn" aria-label="设置">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M16.18 12.32a1.25 1.25 0 00.25 1.38l.04.05a1.52 1.52 0 11-2.15 2.14l-.04-.04a1.26 1.26 0 00-2.13.89v.11a1.52 1.52 0 01-3.03 0v-.06a1.25 1.25 0 00-.82-1.15 1.25 1.25 0 00-1.38.25l-.05.04a1.52 1.52 0 11-2.14-2.15l.04-.04a1.26 1.26 0 00-.89-2.13h-.11a1.52 1.52 0 010-3.03h.06a1.25 1.25 0 001.15-.82 1.25 1.25 0 00-.25-1.38l-.04-.05A1.52 1.52 0 116.83 4.98l.04.04a1.25 1.25 0 001.38.25h.06a1.25 1.25 0 00.76-1.15v-.11a1.52 1.52 0 013.03 0v.06a1.26 1.26 0 002.13.89l.05-.04a1.52 1.52 0 112.14 2.15l-.04.04a1.25 1.25 0 00-.25 1.38v.06a1.25 1.25 0 001.15.76h.11a1.52 1.52 0 010 3.03h-.06a1.25 1.25 0 00-1.15.76z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span id="settingsBadge" class="badge" style="display: none;"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 模式选择器 -->
+      <section class="card">
+        <h2 class="section-label">阅读模式</h2>
+        <div class="segmented-control" id="modeSelector">
+          <div class="segment-indicator" id="segmentIndicator"></div>
+          <button class="segment" data-mode="paraphrase">释义</button>
+          <button class="segment" data-mode="mixed">混杂</button>
+          <button class="segment" data-mode="translate">翻译</button>
+        </div>
+        <p class="mode-desc" id="modeDesc">选择一种阅读模式开始学习</p>
+        <!-- API Key 未配置提示 -->
+        <div id="configHint" class="config-hint" style="display: none;">
+          <span id="configHintText">需要先配置 API 服务</span>
+          <button id="configHintBtn" class="link-btn">前往设置</button>
+        </div>
+      </section>
+
+      <!-- 难度分析 -->
+      <section class="card">
+        <h2 class="section-label">难度分析</h2>
+        <div class="sentence-actions">
+          <button id="analyzeDifficultyBtn" class="btn-analyze">
+            当前页面
+          </button>
+          <button id="openDesktopBtn" class="btn-analyze">
+            继续到桌面
+          </button>
+        </div>
+        <div id="difficultyStatus" class="status-message"></div>
+        <div id="desktopHandoffStatus" class="status-message"></div>
+
+        <!-- 分析结果（初始隐藏） -->
+        <div id="difficultyResult" class="difficulty-result" style="display: none;">
+          <div class="result-header">
+            <span id="difficultyBadge" class="difficulty-badge"></span>
+            <span id="cefrBadge" class="cefr-badge"></span>
+          </div>
+          <div class="result-score">
+            <div class="score-bar">
+              <div id="scoreProgress" class="score-progress"></div>
+            </div>
+            <div class="score-labels">
+              <span>简单</span>
+              <span id="scoreValue" class="score-value">0</span>
+              <span>困难</span>
+            </div>
+          </div>
+          <div class="result-metrics">
+            <div class="metric">
+              <span class="metric-label">词汇复杂度</span>
+              <span id="vocabMetric" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">句子复杂度</span>
+              <span id="sentenceMetric" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">阅读时间</span>
+              <span id="readingTime" class="metric-value">-</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">采样词数</span>
+              <span id="wordCount" class="metric-value">-</span>
+            </div>
+          </div>
+          <div class="result-suggestions">
+            <h4>学习建议</h4>
+            <ul id="suggestionsList"></ul>
+          </div>
+          <div id="selectionHint" class="selection-hint" style="display: none;">
+            分析基于选中文本
+          </div>
+        </div>
+      </section>
+
+    
+    </div>
+
+    <!-- ====== Settings View - 配置面板 ====== -->
+    <div id="settingsView" class="view settings-view">
+      <!-- Settings Header -->
+      <header class="header">
+        <button id="backBtn" class="icon-btn back-btn" aria-label="返回">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="header-title">设置</h1>
+        <div class="header-spacer"></div>
+      </header>
+
+      <!-- AI 服务配置 -->
+      <section class="card settings-group">
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="ai-service">
+            <span>AI 服务</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="ai-service">
+            <div class="accordion-inner">
+              <div class="settings-row">
+                <label class="settings-label" for="apiProviderSelect">服务商</label>
+                <select id="apiProviderSelect" class="settings-select">
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="custom">自定义...</option>
+                </select>
+              </div>
+              <div id="openaiAuthModeDivider" class="settings-divider" style="display: none;"></div>
+              <div id="openaiAuthModeRow" class="settings-row" style="display: none;">
+                <label class="settings-label" for="openaiAuthModeSelect">方式</label>
+                <select id="openaiAuthModeSelect" class="settings-select">
+                  <option value="api_key">API Key</option>
+                  <option value="oauth">ChatGPT OAuth</option>
+                </select>
+              </div>
+              <div id="apiBaseUrlDivider" class="settings-divider"></div>
+              <div id="apiBaseUrlRow" class="settings-row">
+                <label class="settings-label" for="apiBaseUrl">端点</label>
+                <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
+              </div>
+              <div id="apiKeyDivider" class="settings-divider"></div>
+              <div id="apiKeyRow" class="settings-row">
+                <label class="settings-label" for="apiKey">密钥</label>
+                <div class="password-input">
+                  <input type="password" id="apiKey" class="settings-input" placeholder="sk-...">
+                  <button type="button" id="showKeyBtn" class="show-key-btn">显示</button>
+                </div>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-row">
+                <label class="settings-label" for="modelSelect">模型</label>
+                <select id="modelSelect" class="settings-select">
+                  <option value="deepseek-chat">DeepSeek Chat</option>
+                  <option value="deepseek-coder">DeepSeek Coder</option>
+                  <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                  <option value="custom">自定义...</option>
+                </select>
+              </div>
+              <input type="text" id="customModel" class="custom-model-input" style="display: none;" placeholder="输入模型名称">
+              <div id="openaiModelCatalogPanel" class="model-catalog-panel" style="display: none;">
+                <div class="model-catalog-header">
+                  <span class="model-catalog-label">官方模型表</span>
+                  <button
+                    type="button"
+                    id="refreshOpenAIModelCatalogBtn"
+                    class="model-catalog-refresh-btn"
+                  >
+                    刷新列表
+                  </button>
+                </div>
+                <p id="openaiModelCatalogStatus" class="model-catalog-status">
+                  正在同步 OpenAI 官方模型目录...
+                </p>
+              </div>
+              <div id="openaiOauthPanel" class="oauth-panel" style="display: none;">
+                <div class="oauth-status-row">
+                  <span class="oauth-status-label">状态</span>
+                  <span id="openaiOauthStatusBadge" class="oauth-status-badge">未连接</span>
+                </div>
+                <p id="openaiOauthStatusText" class="oauth-status-text">
+                  使用 ChatGPT 账号登录后，完成浏览器授权，并把 localhost 回调地址粘贴回这里。
+                </p>
+                <div class="oauth-actions">
+                  <button id="startOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn">开始登录</button>
+                  <button id="disconnectOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn oauth-disconnect-btn">断开连接</button>
+                </div>
+                <textarea
+                  id="openaiOauthCallbackInput"
+                  class="oauth-callback-input"
+                  placeholder="粘贴 http://localhost:1455/auth/callback?... 或 code"
+                ></textarea>
+                <button id="completeOpenAIOAuthBtn" class="settings-action-btn oauth-action-btn">完成登录</button>
+              </div>
+              <div class="settings-divider"></div>
+              <button id="testConnectionBtn" class="settings-action-btn">测试连接</button>
+              <div id="connectionStatus" class="status-message"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 语音识别服务 -->
+      <section class="card settings-group">
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="speech-service">
+            <span>语音识别服务</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="speech-service">
+            <div class="accordion-inner">
+              <p class="settings-desc nested-desc">配置云端 ASR 可提高影子跟读的语音识别准确率。优先级：腾讯云 → 阿里云 → 浏览器内置。</p>
+              <!-- 嵌套 accordion: 腾讯云 -->
+              <div class="accordion-item nested">
+                <button class="accordion-header nested-header" data-accordion="tencent-asr" data-nested="true">
+                  <span>腾讯云</span>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="accordion-body nested-body" id="tencent-asr">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentAppId">AppID</label>
+                      <input type="text" id="tencentAppId" class="settings-input" placeholder="腾讯云 AppID">
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentSecretId">SecretID</label>
+                      <input type="text" id="tencentSecretId" class="settings-input" placeholder="腾讯云 SecretID">
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="tencentSecretKey">SecretKey</label>
+                      <div class="password-input">
+                        <input type="password" id="tencentSecretKey" class="settings-input" placeholder="腾讯云 SecretKey">
+                        <button type="button" id="showTencentKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <p class="settings-hint">
+                      <a href="https://console.cloud.tencent.com/cam/capi" target="_blank" rel="noopener">获取腾讯云密钥 →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- 嵌套 accordion: 阿里云 -->
+              <div class="accordion-item nested">
+                <button class="accordion-header nested-header" data-accordion="alibaba-asr" data-nested="true">
+                  <span>阿里云</span>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="accordion-body nested-body" id="alibaba-asr">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="alibabaApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="alibabaApiKey" class="settings-input" placeholder="阿里云百炼 API Key">
+                        <button type="button" id="showAlibabaKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <p class="settings-hint">
+                      <a href="https://bailian.console.aliyun.com/?apiKey=1" target="_blank" rel="noopener">获取阿里云百炼 API Key →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 语音合成服务 -->
+      <section class="card settings-group">
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="speech-synthesis-service">
+            <span>语音合成服务</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="speech-synthesis-service">
+            <div class="accordion-inner">
+              <p class="settings-desc nested-desc">填写 API Key 后优先使用 AI 语音合成。固定优先级：MiniMax → 小米 → 浏览器朗读。</p>
+              <div class="accordion-item nested">
+                <div class="accordion-header nested-header with-test" data-accordion="minimax-tts" data-nested="true" role="button" tabindex="0">
+                  <div class="accordion-header-main">
+                    <span>MiniMax</span>
+                    <button
+                      type="button"
+                      id="testMiniMaxTTSBtn"
+                      class="service-test-btn is-disabled"
+                      disabled
+                      title="填写 API Key 后可测试"
+                      aria-label="测试 MiniMax 语音合成服务"
+                    ></button>
+                  </div>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div id="minimaxTTSStatus" class="status-message service-test-status"></div>
+                <div class="accordion-body nested-body" id="minimax-tts">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSBaseUrl">端点</label>
+                      <input
+                        type="text"
+                        id="minimaxTTSBaseUrl"
+                        class="settings-input"
+                        value="https://api.minimax.io/v1"
+                        readonly
+                      >
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="minimaxTTSApiKey" class="settings-input" placeholder="MiniMax API Key">
+                        <button type="button" id="showMiniMaxTTSKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSModel">模型</label>
+                      <select id="minimaxTTSModel" class="settings-select">
+                        <option value="speech-2.8-hd">speech-2.8-hd</option>
+                        <option value="speech-2.8-turbo">speech-2.8-turbo</option>
+                        <option value="speech-2.6-hd">speech-2.6-hd</option>
+                        <option value="speech-2.6-turbo">speech-2.6-turbo</option>
+                        <option value="speech-02-hd">speech-02-hd</option>
+                        <option value="speech-02-turbo">speech-02-turbo</option>
+                      </select>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="minimaxTTSVoiceId">音色ID</label>
+                      <input
+                        type="text"
+                        id="minimaxTTSVoiceId"
+                        class="settings-input"
+                        placeholder="English_expressive_narrator"
+                      >
+                    </div>
+                    <p class="settings-hint">留空时使用默认音色 English_expressive_narrator。</p>
+                    <p class="settings-hint">
+                      <a href="https://platform.minimax.io/docs/guides/speech-t2a-async" target="_blank" rel="noopener">查看 MiniMax TTS 文档 →</a>
+                    </p>
+                    <p class="settings-hint">
+                      <a href="https://platform.minimax.io/docs/faq/system-voice-id" target="_blank" rel="noopener">查看 MiniMax Voice ID 列表 →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item nested">
+                <div class="accordion-header nested-header with-test" data-accordion="xiaomi-tts" data-nested="true" role="button" tabindex="0">
+                  <div class="accordion-header-main">
+                    <span>小米</span>
+                    <button
+                      type="button"
+                      id="testXiaomiTTSBtn"
+                      class="service-test-btn is-disabled"
+                      disabled
+                      title="填写 API Key 后可测试"
+                      aria-label="测试小米语音合成服务"
+                    ></button>
+                  </div>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div id="xiaomiTTSStatus" class="status-message service-test-status"></div>
+                <div class="accordion-body nested-body" id="xiaomi-tts">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="xiaomiTTSBaseUrl">端点</label>
+                      <input
+                        type="text"
+                        id="xiaomiTTSBaseUrl"
+                        class="settings-input"
+                        value="https://api.xiaomimimo.com/v1"
+                        readonly
+                      >
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="xiaomiTTSApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="xiaomiTTSApiKey" class="settings-input" placeholder="小米 API Key">
+                        <button type="button" id="showXiaomiTTSKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-row">
+                      <label class="settings-label" for="xiaomiTTSVoice">音色</label>
+                      <select id="xiaomiTTSVoice" class="settings-select">
+                        <option value="mimo_default">默认</option>
+                        <option value="default_zh">中文女声</option>
+                        <option value="default_en">英文女声</option>
+                      </select>
+                    </div>
+                    <div class="settings-divider"></div>
+                    <div class="xiaomi-tts-style-section">
+                      <div class="xiaomi-tts-style-header">
+                        <span class="settings-label">风格</span>
+                        <button
+                          type="button"
+                          id="clearXiaomiTTSStylesBtn"
+                          class="link-btn xiaomi-tts-style-clear"
+                        >
+                          清空
+                        </button>
+                      </div>
+                      <div id="xiaomiTTSStyleSummary" class="xiaomi-tts-style-summary"></div>
+                      <div class="xiaomi-tts-style-groups">
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">语速控制</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="speed" data-xiaomi-tts-style-value="faster">变快</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="speed" data-xiaomi-tts-style-value="slower">变慢</button>
+                          </div>
+                        </div>
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">情绪变化</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="emotion" data-xiaomi-tts-style-value="happy">开心</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="emotion" data-xiaomi-tts-style-value="sad">悲伤</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="emotion" data-xiaomi-tts-style-value="angry">生气</button>
+                          </div>
+                        </div>
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">角色扮演</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="role" data-xiaomi-tts-style-value="sunwukong">孙悟空</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="role" data-xiaomi-tts-style-value="lindaiyu">林黛玉</button>
+                          </div>
+                        </div>
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">风格变化</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="tone" data-xiaomi-tts-style-value="whisper">悄悄话</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="tone" data-xiaomi-tts-style-value="jiazi">夹子音</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="tone" data-xiaomi-tts-style-value="taiwan">台湾腔</button>
+                          </div>
+                        </div>
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">方言</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="dialect" data-xiaomi-tts-style-value="dongbei">东北话</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="dialect" data-xiaomi-tts-style-value="sichuan">四川话</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="dialect" data-xiaomi-tts-style-value="henan">河南话</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-xiaomi-tts-style-group="dialect" data-xiaomi-tts-style-value="cantonese">粤语</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="settings-hint">风格仅对 AI 语音合成生效；回退到浏览器朗读时不生效。</p>
+                    <p class="settings-hint">
+                      <a href="https://platform.xiaomimimo.com/" target="_blank" rel="noopener">查看小米开放平台 →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Prompt 配置 (Accordion) -->
+      <section class="card settings-group">
+        <h2 class="section-label">Prompt 配置</h2>
+
+        <!-- 翻译 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="translate-prompt">
+            <span>翻译 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="translate-prompt">
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="systemPrompt">System Prompt</label>
+                <textarea id="systemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="userPrompt">User Prompt</label>
+                <textarea id="userPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code> 表示待翻译文本</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 难度分析 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="difficulty-prompt">
+            <span>难度分析 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="difficulty-prompt">
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="difficultySystemPrompt">System Prompt</label>
+                <textarea id="difficultySystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="difficultyUserPrompt">User Prompt</label>
+                <textarea id="difficultyUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{text}</code> 表示待分析文本</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 释义 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="paraphrase-prompt">
+            <span>释义 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="paraphrase-prompt">
+            <div class="accordion-inner">
+              <p class="settings-desc">选择 Prompt1、Prompt2、Prompt3 会同时影响阅读模式释义、划词英英释义和语境英英释义。</p>
+              <div class="form-group">
+                <label for="explanationPromptPreset">共享预设</label>
+                <div class="prompt-preset-row">
+                  <select id="explanationPromptPreset" class="prompt-preset-select">
+                    <option value="prompt1">Prompt1</option>
+                    <option value="prompt2">Prompt2</option>
+                    <option value="prompt3">Prompt3</option>
+                  </select>
+                  <span id="explanationPromptStatus" class="prompt-preset-status">原版</span>
+                </div>
+                <button id="resetExplanationPresetBtn" class="link-btn prompt-reset-link" type="button">还原 Prompt1 原版</button>
+              </div>
+              <p class="settings-desc nested-desc">阅读模式释义</p>
+              <div class="form-group">
+                <label for="paraphraseSystemPrompt">System Prompt</label>
+                <textarea id="paraphraseSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="paraphraseUserPrompt">User Prompt</label>
+                <textarea id="paraphraseUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{target_level}}</code></p>
+              </div>
+              <p class="settings-desc nested-desc">英英释义（划词 / 语境）</p>
+              <div class="form-group">
+                <label for="englishDefinitionSystemPrompt">System Prompt</label>
+                <textarea id="englishDefinitionSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="englishDefinitionUserPrompt">User Prompt</label>
+                <textarea id="englishDefinitionUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{text}}</code>、<code>{{user_level}}</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 混杂中英 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="mixed-prompt">
+            <span>混杂中英 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="mixed-prompt">
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="mixedTranslateSystemPrompt">System Prompt</label>
+                <textarea id="mixedTranslateSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="mixedTranslateUserPrompt">User Prompt</label>
+                <textarea id="mixedTranslateUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{texts}}</code>、<code>{{user_level}}</code>、<code>{{retention_percent}}</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+
+        <!-- 长难句分析 Prompt -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-accordion="sentence-analysis-prompt">
+            <span>长难句分析 Prompt</span>
+            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="accordion-body" id="sentence-analysis-prompt">
+            <div class="accordion-inner">
+              <div class="form-group">
+                <label for="sentenceAnalysisSystemPrompt">System Prompt</label>
+                <textarea id="sentenceAnalysisSystemPrompt" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="sentenceAnalysisUserPrompt">User Prompt</label>
+                <textarea id="sentenceAnalysisUserPrompt" rows="3"></textarea>
+                <p class="hint">使用 <code>{{sentence}}</code> 表示待分析句子</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 恢复默认 -->
+      <section class="reset-section">
+        <button id="resetDefaultsBtn" class="reset-btn">恢复所有默认设置</button>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="popup.ts"></script>
+</body>
+</html>

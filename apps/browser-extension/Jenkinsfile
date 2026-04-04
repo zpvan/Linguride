@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'node-25'
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Type Check') {
+            steps {
+                sh 'npm run typecheck:browser-extension'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint:browser-extension'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build:browser-extension'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Run npm test if present; skip when package.json has no test script.'
+                sh 'npm run test --workspace apps/browser-extension --if-present'
+            }
+        }
+    }
+
+    post {
+        always {
+            // 清理或发送通知
+            echo 'Build process completed.'
+        }
+    }
+}

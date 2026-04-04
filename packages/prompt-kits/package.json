@@ -1,0 +1,20 @@
+{
+  "name": "@linguride/prompt-kits",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@linguride/contracts-ts": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
+}

@@ -1,0 +1,21 @@
+[package]
+name = "web-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+linguride-core = { path = "../../crates/linguride-core" }
+linguride-domain = { path = "../../crates/linguride-domain" }
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
