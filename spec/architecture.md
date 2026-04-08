@@ -10,11 +10,13 @@
 
 ## 2. 当前架构结论
 
-Linguride 当前采用 `Rust-first core + TypeScript platform shells`。
+Linguride 当前采用 `Rust-first core + platform shells`。
 
 - `crates/linguride-domain`：跨端 DTO、错误码、配置结构、capture/session 契约。
 - `crates/linguride-core`：Reader、Tutor、Corpus、OAuth、capture、session、provider 等业务核心。
+- `bindings/mobile-core`：Android 侧 JNI 绑定入口，服务 `apps/android`。
 - `bindings/web-core`：浏览器侧 WASM 绑定入口，服务 `apps/browser-extension`。
+- `apps/android`：Android 平台壳，负责 Activity、Compose UI、share intent、Room/DataStore 和 JNI bridge 接入。
 - `apps/browser-extension`：Chrome Extension 平台壳，负责生命周期、DOM 注入、扩展 UI、权限和浏览器专属 API。
 - `apps/desktop`：Tauri 桌面壳，负责窗口、命令桥、本地存储、桌面 UI 和系统能力接入。
 - `packages/*`：仍保留历史纯 TS 包，但已经从“核心业务承载层”降级为迁移期兼容层和 UI/工具层。
@@ -22,19 +24,21 @@ Linguride 当前采用 `Rust-first core + TypeScript platform shells`。
 当前 workspace：
 
 - npm workspace：`apps/*` + `packages/*`
-- Cargo workspace：`apps/desktop/src-tauri` + `crates/linguride-domain` + `crates/linguride-core` + `bindings/web-core`
+- Cargo workspace：`apps/desktop/src-tauri` + `crates/linguride-domain` + `crates/linguride-core` + `bindings/mobile-core` + `bindings/web-core`
 
 ## 3. 核心依赖方向
 
 Rust 依赖方向固定为：
 
-`linguride-domain <- linguride-core <- { bindings/web-core, apps/desktop/src-tauri }`
+`linguride-domain <- linguride-core <- { bindings/mobile-core, bindings/web-core, apps/desktop/src-tauri }`
 
 工程约束：
 
 - `linguride-domain` 不能依赖 Tauri、WASM、HTTP client、SQLite、文件系统、Chrome API。
 - `linguride-core` 不能依赖 `tauri`、`wasm-bindgen`、DOM、`chrome.*` 或平台存储实现；只能通过 ports 接外部能力。
+- `bindings/mobile-core` 只能把 Android/JNI host 能力桥接进 Rust core，不能新增业务分支。
 - `bindings/web-core` 只能把浏览器 host 能力桥接进 Rust core，不能新增业务分支。
+- `apps/android` 只能做 Activity、Compose、Room/DataStore、网络接线和 JNI adapter，不能自己复制 Reader/Tutor/Corpus 的核心规则。
 - `apps/desktop/src-tauri` 只能做 Tauri commands 和 adapter，不能自己拼 prompt、解析业务响应或实现 Reader/Tutor/Corpus 规则。
 - 平台壳都不能绕过 Rust core 复制一套业务逻辑。
 
@@ -121,7 +125,31 @@ Rust 依赖方向固定为：
 - 手动导入、handoff ingest、Reader 执行、配置保存已经走 Rust core。
 - SQLite、Stronghold、deep link plugin、speech bridge 仍属于后续实现项。
 
-### 4.7 `packages/`
+### 4.7 `apps/android/`
+
+Android 端平台壳：
+
+- `app/`：Application、Activity、Compose host、share intent handling 和导航入口。
+- `core-mobile-bridge/`：Kotlin JNI wrapper，负责加载 `bindings/mobile-core` 产物。
+- `data-local/`：Room 和 DataStore 持久化。
+- `data-network/`：URL fetch / clean reader extract 与固定 provider 网络调用。
+- `feature-import/`、`feature-reader/`、`feature-settings/`：Android V1 的 UI 与状态模块。
+- `scripts/build-rust-android.sh`：构建 `bindings/mobile-core` 并复制 JNI 产物到 `core-mobile-bridge`。
+
+当前状态：
+
+- 已落地最小 share-import、manual paste、reader shell 和 settings 流程。
+- Android 仍是 V1 骨架，尚未接入完整账号体系、同步和 richer reader orchestration。
+
+### 4.8 `bindings/mobile-core/`
+
+Android JNI 绑定层：
+
+- Rust crate 编译为 Android `cdylib`，通过 JNI 暴露给 Kotlin 层调用。
+- 提供面向移动端的稳定 JSON API，封装 `linguride-core` 的 capture 与 reader 分析。
+- 产物由 `apps/android/scripts/build-rust-android.sh` 输出到 `apps/android/core-mobile-bridge/build/generated/jniLibs/`。
+
+### 4.9 `packages/`
 
 `packages/*` 保持纯 TypeScript，但不再是跨端业务核心的目标归宿。
 
@@ -140,6 +168,7 @@ Rust 依赖方向固定为：
 
 - `cargo check --workspace`
 - `cargo test -p linguride-core`
+- `cargo test -p mobile-core`
 - `cargo check -p web-core --target wasm32-unknown-unknown`
 
 ### 5.2 Browser Extension
@@ -157,9 +186,18 @@ Rust 依赖方向固定为：
 - `npm run tauri:dev:desktop`
 - `npm run tauri:build:desktop`
 
-### 5.4 主要产物路径
+### 5.4 Android
+
+- `bash apps/android/scripts/build-rust-android.sh`
+- `cd apps/android && ./gradlew :app:assembleDebug`
+- `cd apps/android && ./gradlew :app:testDebugUnitTest`
+- `cd apps/android && ./gradlew :app:connectedDebugAndroidTest`
+
+### 5.5 主要产物路径
 
 - `target/`：Rust workspace 编译产物。
+- `apps/android/core-mobile-bridge/build/generated/jniLibs/`：Android JNI 共享库输出目录。
+- `apps/android/app/build/outputs/`：Android APK 与测试 APK 产物。
 - `apps/browser-extension/public/web-core/`：浏览器侧 Rust WASM 绑定生成目录。
 - `apps/browser-extension/dist/`：Chrome Extension 构建产物。
 - `apps/desktop/dist/`：桌面前端 bundle。
@@ -167,9 +205,10 @@ Rust 依赖方向固定为：
 
 ## 6. 当前非目标与迁移状态
 
-- 当前没有 iOS/Android 工程。
+- 当前没有 iOS 工程。
 - `apps/vscode-extension` 未纳入本轮 Rust-first 实施范围。
 - 桌面端尚未落地 SQLite、Stronghold、deep link plugin、speech bridge 的正式实现。
+- Android 端尚未落地账号同步、正式 release pipeline 和更完整的 reader orchestration。
 - 浏览器扩展尚未完成全部 Reader/Tutor/Corpus 逻辑迁入 Rust；目前处于“老 TS 逻辑继续可用，新 Rust 接口开始接入”的迁移期。
 - `packages/contracts-ts` 还没有完全切到 Rust 自动生成，这是后续迁移项，不代表 Rust-first 方向回退。
 
@@ -177,6 +216,7 @@ Rust 依赖方向固定为：
 
 - 新增跨端业务逻辑时，优先进入 `crates/linguride-core`。
 - 新增跨端稳定 DTO 时，优先进入 `crates/linguride-domain`。
+- 新增 Android/JNI 桥接能力时，优先进入 `bindings/mobile-core` 或 `apps/android/core-mobile-bridge`，不要把业务规则留在 Kotlin 层。
 - 新增浏览器专属能力时，放在 `apps/browser-extension`，不要反向污染 Rust core。
 - 新增桌面专属能力时，放在 `apps/desktop/src-tauri/src/adapters` 或前端 `src/`，不要在 command 层复制业务规则。
 - 修改 workspace 成员、核心依赖方向或绑定构建链时，必须同步更新本文档。

@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "apps/desktop/src-tauri",
+  "bindings/mobile-core",
   "bindings/web-core",
   "crates/linguride-domain",
   "crates/linguride-core",
