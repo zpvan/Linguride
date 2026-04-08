@@ -12,4 +12,5 @@
 /apps/android/.android/
 /apps/android/.kotlin/
 /apps/android/local.properties
+/apps/android/analytics.settings
 /apps/android/**/build/

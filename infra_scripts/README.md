@@ -30,9 +30,10 @@
 ## GitHub Actions
 
 - 入口 workflow 为 `.github/workflows/ci.yml`
-- `pull_request`：运行 `chrome-extension` 与 `macos-app` 的 test gate
-- `push` 到 `main` / `dev_rustify`，以及 `workflow_dispatch`：在 test gate 通过后继续打包并上传 `infra_scripts/out/<artifact>/`
-- workflow 只负责编排；实际逻辑仍通过 `infra_scripts/ci/github/*.sh` 转发到 artifact 脚本
+- Android 使用独立 workflow `.github/workflows/android-ci.yml`
+- `pull_request`：`.github/workflows/ci.yml` 运行 `chrome-extension` 与 `macos-app` 的 test gate；Android 相关改动，以及影响 shared mobile-core / shared Rust core / Cargo lock / shared infra helper 的变更，额外运行 `android-ci.yml`
+- `push` 到 `main` / `dev_rustify`，以及 `workflow_dispatch`：通用 CI 继续打包现有 artifact；Android workflow 仅运行 validate gate
+- workflow 只负责编排；实际逻辑仍通过 `infra_scripts/ci/github/*.sh` 转发到 artifact 脚本或 Android validate 脚本
 
 ## CI 安装约定
 
@@ -62,5 +63,6 @@
 
 - `bash infra_scripts/ci/github/test.sh chrome-extension`
 - `bash infra_scripts/ci/github/test.sh macos-app`
+- `bash infra_scripts/ci/github/android-validate.sh`
 - `bash infra_scripts/ci/github/package.sh chrome-extension && bash infra_scripts/ci/github/smoke.sh chrome-extension`
 - `bash infra_scripts/ci/github/package.sh macos-app && bash infra_scripts/ci/github/smoke.sh macos-app`
