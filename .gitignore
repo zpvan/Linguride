@@ -4,3 +4,13 @@
 /packages/*/dist/
 /target/
 /.tools/
+/.worktrees/
+/.superpowers/
+/.gradle-user-home/
+/apps/android/.gradle/
+/apps/android/.gradle-user-home/
+/apps/android/.android/
+/apps/android/.kotlin/
+/apps/android/local.properties
+/apps/android/analytics.settings
+/apps/android/**/build/
