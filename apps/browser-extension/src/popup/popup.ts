@@ -1733,7 +1733,7 @@ function collectFormData(): void {
   const apiBaseUrl =
     selectedProvider === "custom"
       ? apiBaseUrlInput.value.trim()
-      : AI_PROVIDER_BASE_URL_PRESETS[selectedProvider];
+      : getPresetApiBaseUrl(selectedProvider);
   const modelValue =
     modelSelect.style.display === "none"
       ? customModelInput.value.trim()
@@ -2330,7 +2330,13 @@ function applyApiProviderSelection(
   }
 
   apiBaseUrlInput.readOnly = true;
-  apiBaseUrlInput.value = AI_PROVIDER_BASE_URL_PRESETS[providerType];
+  apiBaseUrlInput.value = getPresetApiBaseUrl(providerType);
+}
+
+function getPresetApiBaseUrl(
+  providerType: Exclude<ApiProviderType, "custom">
+): string {
+  return AI_PROVIDER_BASE_URL_PRESETS[providerType];
 }
 
 async function handleStartOpenAIOAuth(): Promise<void> {
