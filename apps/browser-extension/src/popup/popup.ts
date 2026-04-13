@@ -643,11 +643,15 @@ function getActiveOpenAIModelCatalogScope(): OpenAIModelCatalogScope {
 }
 
 function getCurrentOpenAIModelValue(): string {
-  return getDefaultModelForProvider(
-    "openai",
-    getCurrentOpenAIAuthMode(),
-    currentConfig.openai_oauth_model
-  );
+  if (getCurrentOpenAIAuthMode() === "oauth") {
+    return getDefaultModelForProvider(
+      "openai",
+      "oauth",
+      currentConfig.openai_oauth_model
+    );
+  }
+
+  return currentConfig.model?.trim() || "";
 }
 
 function getOpenAIModelCatalogItemsForActiveScope(): OpenAIModelItem[] {
