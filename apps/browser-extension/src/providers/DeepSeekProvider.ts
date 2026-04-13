@@ -89,7 +89,7 @@ interface ApiErrorResponse {
  */
 export class DeepSeekProvider extends BaseTranslateProvider {
   /** 服务名称标识 */
-  readonly name = "DeepSeek";
+  readonly name: string = "DeepSeek";
 
   /** 默认超时时间（毫秒） */
   private readonly timeout = 60000;
@@ -102,9 +102,19 @@ export class DeepSeekProvider extends BaseTranslateProvider {
    *
    * @returns 完整的 API 端点 URL
    */
-  private getApiUrl(): string {
+  protected getEndpointPath(): string {
+    return "/v1/chat/completions";
+  }
+
+  protected getApiUrl(): string {
     const baseUrl = this.config.apiBaseUrl.replace(/\/$/, "");
-    return `${baseUrl}/v1/chat/completions`;
+    return `${baseUrl}${this.getEndpointPath()}`;
+  }
+
+  protected formatProviderError(message: string): string {
+    return message.startsWith(`[${this.name}]`)
+      ? message
+      : `[${this.name}] ${message}`;
   }
 
   /**
@@ -120,7 +130,7 @@ export class DeepSeekProvider extends BaseTranslateProvider {
     messages: ChatMessage[]
   ): Promise<ChatCompletionResponse> {
     const url = this.getApiUrl();
-    console.log(`[Lingride] 发送请求到: ${url}`);
+    console.log(`[Lingride] [${this.name}] 发送请求到: ${url}`);
 
     const requestBody: ChatCompletionRequest = {
       model: this.config.model,
@@ -133,7 +143,7 @@ export class DeepSeekProvider extends BaseTranslateProvider {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      console.log("[Lingride] 正在等待 API 响应...");
+      console.log(`[Lingride] [${this.name}] 正在等待 API 响应...`);
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -146,40 +156,48 @@ export class DeepSeekProvider extends BaseTranslateProvider {
 
       // 清除超时定时器
       clearTimeout(timeoutId);
-      console.log(`[Lingride] 收到响应: status=${response.status}`);
+      console.log(
+        `[Lingride] [${this.name}] 收到响应: status=${response.status}`
+      );
 
       // 检查 HTTP 状态码
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`[Lingride] API 错误: ${errorText}`);
+        console.error(`[Lingride] [${this.name}] API 错误: ${errorText}`);
         try {
           const errorData = JSON.parse(errorText) as ApiErrorResponse;
           throw new Error(
-            `API 请求失败 (${response.status}): ${
+            `[${this.name}] API 请求失败 (${response.status}): ${
               errorData.error?.message || response.statusText
             }`
           );
         } catch {
-          throw new Error(`API 请求失败 (${response.status}): ${errorText}`);
+          throw new Error(
+            `[${this.name}] API 请求失败 (${response.status}): ${errorText}`
+          );
         }
       }
 
       const data = (await response.json()) as ChatCompletionResponse;
-      console.log(`[Lingride] API 成功, choices=${data.choices?.length}`);
+      console.log(
+        `[Lingride] [${this.name}] API 成功, choices=${data.choices?.length}`
+      );
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
-      console.error("[Lingride] 请求异常:", error);
+      console.error(`[Lingride] [${this.name}] 请求异常:`, error);
 
       // 处理特定错误类型
       if (error instanceof Error) {
         if (error.name === "AbortError") {
-          throw new Error(`请求超时（${this.timeout / 1000}秒）`);
+          throw new Error(
+            this.formatProviderError(`请求超时（${this.timeout / 1000}秒）`)
+          );
         }
-        throw error;
+        throw new Error(this.formatProviderError(error.message));
       }
 
-      throw new Error("未知请求错误");
+      throw new Error(this.formatProviderError("未知请求错误"));
     }
   }
 
@@ -216,13 +234,13 @@ export class DeepSeekProvider extends BaseTranslateProvider {
           const delay = Math.pow(2, attempt) * 1000;
           await new Promise((resolve) => setTimeout(resolve, delay));
           console.log(
-            `[Lingride] 重试请求 (${attempt + 1}/${this.maxRetries})...`
+            `[Lingride] [${this.name}] 重试请求 (${attempt + 1}/${this.maxRetries})...`
           );
         }
       }
     }
 
-    throw lastError || new Error("请求失败");
+    throw lastError || new Error(this.formatProviderError("请求失败"));
   }
 
   /**
@@ -263,18 +281,22 @@ export class DeepSeekProvider extends BaseTranslateProvider {
     ];
 
     // 发送请求
-    console.log(`[Lingride] 发送翻译请求，共 ${texts.length} 段文本`);
+    console.log(
+      `[Lingride] [${this.name}] 发送翻译请求，共 ${texts.length} 段文本`
+    );
     const response = await this.sendRequestWithRetry(messages);
 
     // 提取响应内容
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error("API 返回空响应");
+      throw new Error(this.formatProviderError("API 返回空响应"));
     }
 
     // 解析翻译结果
     const translations = this.parseResponse(content, texts.length);
-    console.log(`[Lingride] 翻译完成，成功解析 ${translations.length} 段结果`);
+    console.log(
+      `[Lingride] [${this.name}] 翻译完成，成功解析 ${translations.length} 段结果`
+    );
 
     return translations;
   }
@@ -319,7 +341,7 @@ export class DeepSeekProvider extends BaseTranslateProvider {
         return {
           success: false,
           latency,
-          error: "API 返回无效响应",
+          error: this.formatProviderError("API 返回无效响应"),
         };
       }
 
@@ -329,7 +351,10 @@ export class DeepSeekProvider extends BaseTranslateProvider {
       };
     } catch (error) {
       const latency = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : "未知错误";
+      const errorMessage =
+        error instanceof Error
+          ? this.formatProviderError(error.message)
+          : this.formatProviderError("未知错误");
 
       return {
         success: false,
@@ -363,15 +388,15 @@ export class DeepSeekProvider extends BaseTranslateProvider {
       { role: "user", content: userPrompt },
     ];
 
-    console.log("[Lingride] 发送 chat 请求");
+    console.log(`[Lingride] [${this.name}] 发送 chat 请求`);
     const response = await this.sendRequestWithRetry(messages);
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error("API 返回空响应");
+      throw new Error(this.formatProviderError("API 返回空响应"));
     }
 
-    console.log("[Lingride] chat 请求成功");
+    console.log(`[Lingride] [${this.name}] chat 请求成功`);
     return content;
   }
 }

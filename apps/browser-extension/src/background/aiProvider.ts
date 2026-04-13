@@ -1,5 +1,6 @@
 import type { ITranslateProvider } from "../providers";
 import { DeepSeekProvider } from "../providers/DeepSeekProvider";
+import { GLMProvider } from "../providers/GLMProvider";
 import {
   OpenAICodexAuthAdapter,
   OpenAICodexProvider,
@@ -129,6 +130,10 @@ export async function createAIProvider(
       providerConfig,
       getOpenAICodexAuthAdapter()
     );
+  }
+
+  if (providerConfig.providerId === "glm") {
+    return new GLMProvider(providerConfig);
   }
 
   return new DeepSeekProvider(providerConfig);
