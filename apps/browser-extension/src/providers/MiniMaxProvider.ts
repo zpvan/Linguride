@@ -48,6 +48,25 @@ export class MiniMaxProvider extends BaseTranslateProvider {
       : `[${this.name}] ${message}`;
   }
 
+  private getApiErrorMessage(
+    status: number,
+    statusText: string,
+    errorText: string
+  ): string {
+    let apiMessage: string | undefined;
+
+    try {
+      const errorData = JSON.parse(errorText) as ApiErrorResponse;
+      apiMessage = errorData.error?.message;
+    } catch {
+      apiMessage = undefined;
+    }
+
+    return this.formatProviderError(
+      `API 请求失败 (${status}): ${apiMessage || errorText || statusText}`
+    );
+  }
+
   private extractTextContent(response: MessagesResponse): string {
     const text = (response.content ?? [])
       .filter((block) => block.type === "text" && typeof block.text === "string")
@@ -96,22 +115,13 @@ export class MiniMaxProvider extends BaseTranslateProvider {
 
       if (!response.ok) {
         const errorText = await response.text();
-        try {
-          const errorData = JSON.parse(errorText) as ApiErrorResponse;
-          throw new Error(
-            this.formatProviderError(
-              `API 请求失败 (${response.status}): ${
-                errorData.error?.message || response.statusText
-              }`
-            )
-          );
-        } catch {
-          throw new Error(
-            this.formatProviderError(
-              `API 请求失败 (${response.status}): ${errorText}`
-            )
-          );
-        }
+        throw new Error(
+          this.getApiErrorMessage(
+            response.status,
+            response.statusText,
+            errorText
+          )
+        );
       }
 
       return (await response.json()) as MessagesResponse;

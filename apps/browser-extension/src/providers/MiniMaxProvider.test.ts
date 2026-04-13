@@ -17,6 +17,7 @@ describe("MiniMaxProvider", () => {
   const fetchMock = vi.fn<typeof fetch>();
 
   beforeEach(() => {
+    vi.useRealTimers();
     vi.stubGlobal("fetch", fetchMock);
   });
 
@@ -138,5 +139,101 @@ describe("MiniMaxProvider", () => {
     await expect(provider.testConnection()).resolves.toMatchObject({
       success: true,
     });
+  });
+
+  it("surfaces structured API error messages from json responses", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            message: "invalid api key",
+          },
+        }),
+        {
+          status: 401,
+          statusText: "Unauthorized",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+    );
+
+    const provider = new MiniMaxProvider(providerConfig);
+
+    await expect(provider.chat("system", "user")).rejects.toThrow(
+      "[MiniMax] API 请求失败 (401): invalid api key"
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries on transient failures and then succeeds", async () => {
+    vi.useFakeTimers();
+    fetchMock
+      .mockRejectedValueOnce(new Error("network unavailable"))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            content: [
+              {
+                type: "text",
+                text: "Recovered response",
+              },
+            ],
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+      );
+
+    const provider = new MiniMaxProvider(providerConfig);
+    const request = provider.chat("system", "user");
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    await expect(request).resolves.toBe("Recovered response");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry on 400 responses", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("bad request", {
+        status: 400,
+        statusText: "Bad Request",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      })
+    );
+
+    const provider = new MiniMaxProvider(providerConfig);
+
+    await expect(provider.chat("system", "user")).rejects.toThrow(
+      "[MiniMax] API 请求失败 (400): bad request"
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry on 403 responses", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("forbidden", {
+        status: 403,
+        statusText: "Forbidden",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      })
+    );
+
+    const provider = new MiniMaxProvider(providerConfig);
+
+    await expect(provider.chat("system", "user")).rejects.toThrow(
+      "[MiniMax] API 请求失败 (403): forbidden"
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
