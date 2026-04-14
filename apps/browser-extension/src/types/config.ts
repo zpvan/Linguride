@@ -25,7 +25,7 @@ export type { CEFRLevel } from "./difficulty";
 /**
  * AI 服务提供者标识
  */
-export type AIProviderId = "deepseek" | "openai" | "custom";
+export type AIProviderId = "deepseek" | "openai" | "custom" | "glm";
 
 /**
  * OpenAI 认证模式
@@ -387,7 +387,12 @@ export const STORAGE_KEY = "lingrid_config";
  * 从配置推断当前 AI 服务提供者
  */
 export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provider" | "api_base_url">): AIProviderId {
-  if (config.api_provider === "deepseek" || config.api_provider === "openai" || config.api_provider === "custom") {
+  if (
+    config.api_provider === "deepseek" ||
+    config.api_provider === "openai" ||
+    config.api_provider === "custom" ||
+    config.api_provider === "glm"
+  ) {
     return config.api_provider;
   }
 
@@ -397,6 +402,9 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
   }
   if (normalized === "https://api.openai.com") {
     return "openai";
+  }
+  if (normalized === "https://open.bigmodel.cn/api/paas/v4") {
+    return "glm";
   }
   return "custom";
 }
