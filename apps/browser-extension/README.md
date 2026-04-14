@@ -12,7 +12,7 @@ Lingride 是一个面向英语学习场景的 Chrome 扩展，覆盖网页阅读
   - ASR 优先级：腾讯云 -> 阿里云 -> 浏览器内置识别
   - TTS 优先级：MiniMax -> 小米 -> 浏览器朗读
 - Prompt 可配置：翻译、释义、混杂中英、难度分析、长难句分析都可在设置中调整。
-- 多 provider 支持：DeepSeek、GLM、OpenAI、自定义 OpenAI 兼容端点。
+- 多 provider 支持：DeepSeek、GLM、MiniMax、OpenAI、自定义 OpenAI 兼容端点。
 - OpenAI 两种认证方式：API Key 和 ChatGPT OAuth。
 
 ## 安装
@@ -115,6 +115,7 @@ bun run build
 
 - `DeepSeek`：默认端点为 `https://api.deepseek.com`
 - `GLM`：默认端点为 `https://open.bigmodel.cn/api/paas/v4/`
+- `MiniMax`：默认端点为 `https://api.minimaxi.com/anthropic`，走 Anthropic-compatible Messages 接口
 - `OpenAI`：
   - `API Key` 模式：使用 OpenAI API Key 和模型名
   - `ChatGPT OAuth` 模式：在浏览器完成授权后，将 `localhost` 回调地址或 `code` 粘贴回扩展完成登录

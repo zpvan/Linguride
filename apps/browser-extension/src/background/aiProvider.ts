@@ -1,6 +1,7 @@
 import type { ITranslateProvider } from "../providers";
 import { DeepSeekProvider } from "../providers/DeepSeekProvider";
 import { GLMProvider } from "../providers/GLMProvider";
+import { MiniMaxProvider } from "../providers/MiniMaxProvider";
 import {
   OpenAICodexAuthAdapter,
   OpenAICodexProvider,
@@ -134,6 +135,10 @@ export async function createAIProvider(
 
   if (providerConfig.providerId === "glm") {
     return new GLMProvider(providerConfig);
+  }
+
+  if (providerConfig.providerId === "minimax") {
+    return new MiniMaxProvider(providerConfig);
   }
 
   return new DeepSeekProvider(providerConfig);

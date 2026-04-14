@@ -63,6 +63,14 @@ import {
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
 } from "../types";
+import {
+  AI_PROVIDER_BASE_URL_PRESETS,
+  CUSTOM_MODEL_PLACEHOLDER,
+  getDefaultModelForProvider,
+  getStaticModelOptions,
+  normalizeModelForProviderSwitch,
+  type ModelOption,
+} from "./aiServiceOptions";
 
 // ====== 类型定义 ======
 
@@ -74,11 +82,6 @@ type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
 type XiaomiTTSStyleValue = NonNullable<
   XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
 >;
-
-interface ModelOption {
-  value: string;
-  label: string;
-}
 
 interface OpenAIOAuthState {
   status: OpenAIOAuthStatus;
@@ -96,26 +99,7 @@ const MODE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
-const API_BASE_URL_PRESETS: Record<Exclude<ApiProviderType, "custom">, string> =
-  {
-    deepseek: "https://api.deepseek.com",
-    glm: "https://open.bigmodel.cn/api/paas/v4/",
-    openai: "https://api.openai.com",
-  };
-const DEEPSEEK_MODEL_OPTIONS: ModelOption[] = [
-  { value: "deepseek-chat", label: "DeepSeek Chat" },
-  { value: "deepseek-coder", label: "DeepSeek Coder" },
-  { value: "deepseek-reasoner", label: "DeepSeek Reasoner" },
-  { value: "custom", label: "自定义..." },
-];
-const GLM_MODEL_OPTIONS: ModelOption[] = [
-  { value: "glm-4.5", label: "glm-4.5" },
-  { value: "glm-4.5-air", label: "glm-4.5-air" },
-  { value: "glm-4-air", label: "glm-4-air" },
-  { value: "custom", label: "自定义..." },
-];
 const OPENAI_API_MODEL_PLACEHOLDER = "如 gpt-5.1-codex";
-const CUSTOM_MODEL_PLACEHOLDER = "输入模型名称";
 const OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS = 2000;
 const OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS = 5;
 const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
@@ -660,10 +644,10 @@ function getActiveOpenAIModelCatalogScope(): OpenAIModelCatalogScope {
 
 function getCurrentOpenAIModelValue(): string {
   if (getCurrentOpenAIAuthMode() === "oauth") {
-    return (
-      currentConfig.openai_oauth_model?.trim() ||
-      DEFAULT_CONFIG.openai_oauth_model ||
-      "gpt-5.3-codex"
+    return getDefaultModelForProvider(
+      "openai",
+      "oauth",
+      currentConfig.openai_oauth_model
     );
   }
 
@@ -1640,36 +1624,6 @@ function showDirectModelInput(value: string, placeholder: string): void {
   customModelInput.value = value;
 }
 
-function normalizeModelForProviderSwitch(
-  previousProviderType: ApiProviderType,
-  nextProviderType: ApiProviderType,
-  previousSelectionWasPreset: boolean
-): void {
-  if (!previousSelectionWasPreset || previousProviderType === nextProviderType) {
-    return;
-  }
-
-  if (nextProviderType === "glm") {
-    currentConfig.model = "glm-4.5";
-    return;
-  }
-
-  if (nextProviderType === "deepseek") {
-    currentConfig.model = DEFAULT_CONFIG.model;
-    return;
-  }
-
-  if (nextProviderType === "openai") {
-    const openAIAuthMode = getCurrentOpenAIAuthMode();
-    currentConfig.model =
-      openAIAuthMode === "oauth"
-        ? currentConfig.openai_oauth_model?.trim() ||
-          DEFAULT_CONFIG.openai_oauth_model ||
-          "gpt-5.3-codex"
-        : "";
-  }
-}
-
 function updateOpenAIOAuthUI(): void {
   if (!isOpenAIOAuthMode()) {
     openaiOauthPanel.style.display = "none";
@@ -1724,6 +1678,7 @@ function updateOpenAIOAuthUI(): void {
 function updateAiServiceForm(): void {
   const providerType = getCurrentApiProvider();
   const authMode = getCurrentOpenAIAuthMode();
+  const staticModelOptions = getStaticModelOptions(providerType);
   const showOpenAIAuthMode = providerType === "openai";
   const showApiCredentialRows =
     !(providerType === "openai" && authMode === "oauth");
@@ -1741,16 +1696,15 @@ function updateAiServiceForm(): void {
   applyApiProviderSelection(providerType, currentConfig.api_base_url || "");
   apiKeyInput.value = currentConfig.api_key || "";
 
-  if (providerType === "deepseek") {
+  if (staticModelOptions) {
     showPresetModelControl(
-      DEEPSEEK_MODEL_OPTIONS,
-      currentConfig.model || DEFAULT_CONFIG.model,
-      CUSTOM_MODEL_PLACEHOLDER
-    );
-  } else if (providerType === "glm") {
-    showPresetModelControl(
-      GLM_MODEL_OPTIONS,
-      currentConfig.model || "",
+      staticModelOptions,
+      currentConfig.model ||
+        getDefaultModelForProvider(
+          providerType,
+          authMode,
+          currentConfig.openai_oauth_model
+        ),
       CUSTOM_MODEL_PLACEHOLDER
     );
   } else if (providerType === "openai" && authMode === "oauth") {
@@ -1779,7 +1733,7 @@ function collectFormData(): void {
   const apiBaseUrl =
     selectedProvider === "custom"
       ? apiBaseUrlInput.value.trim()
-      : API_BASE_URL_PRESETS[selectedProvider];
+      : getPresetApiBaseUrl(selectedProvider);
   const modelValue =
     modelSelect.style.display === "none"
       ? customModelInput.value.trim()
@@ -2298,11 +2252,20 @@ async function handleApiProviderChange(): Promise<void> {
     modelSelect.style.display !== "none" && modelSelect.value !== "custom";
 
   currentConfig.api_provider = nextProviderType;
-  normalizeModelForProviderSwitch(
-    previousProviderType,
-    nextProviderType,
-    previousSelectionWasPreset
-  );
+  const nextModel =
+    nextProviderType === "custom"
+      ? null
+      : normalizeModelForProviderSwitch(
+          previousProviderType,
+          nextProviderType,
+          previousSelectionWasPreset,
+          getCurrentOpenAIAuthMode(),
+          currentConfig.openai_oauth_model
+        );
+
+  if (nextModel !== null) {
+    currentConfig.model = nextModel;
+  }
 
   if (nextProviderType !== "openai") {
     clearOpenAIModelCatalogPoll();
@@ -2367,7 +2330,13 @@ function applyApiProviderSelection(
   }
 
   apiBaseUrlInput.readOnly = true;
-  apiBaseUrlInput.value = API_BASE_URL_PRESETS[providerType];
+  apiBaseUrlInput.value = getPresetApiBaseUrl(providerType);
+}
+
+function getPresetApiBaseUrl(
+  providerType: Exclude<ApiProviderType, "custom">
+): string {
+  return AI_PROVIDER_BASE_URL_PRESETS[providerType];
 }
 
 async function handleStartOpenAIOAuth(): Promise<void> {

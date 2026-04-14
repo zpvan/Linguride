@@ -25,7 +25,7 @@ export type { CEFRLevel } from "./difficulty";
 /**
  * AI 服务提供者标识
  */
-export type AIProviderId = "deepseek" | "openai" | "custom" | "glm";
+export type AIProviderId = "deepseek" | "openai" | "custom" | "glm" | "minimax";
 
 /**
  * OpenAI 认证模式
@@ -304,6 +304,11 @@ export interface LingridConfig {
 export const MINIMAX_TTS_API_BASE_URL = "https://api.minimax.io/v1";
 
 /**
+ * MiniMax AI 固定基础端点
+ */
+export const MINIMAX_AI_API_BASE_URL = "https://api.minimaxi.com/anthropic";
+
+/**
  * MiniMax TTS 默认模型
  */
 export const MINIMAX_TTS_DEFAULT_MODEL: MiniMaxTTSModel = "speech-2.8-hd";
@@ -391,7 +396,8 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
     config.api_provider === "deepseek" ||
     config.api_provider === "openai" ||
     config.api_provider === "custom" ||
-    config.api_provider === "glm"
+    config.api_provider === "glm" ||
+    config.api_provider === "minimax"
   ) {
     return config.api_provider;
   }
@@ -405,6 +411,9 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
   }
   if (normalized === "https://open.bigmodel.cn/api/paas/v4") {
     return "glm";
+  }
+  if (normalized === MINIMAX_AI_API_BASE_URL) {
+    return "minimax";
   }
   return "custom";
 }
