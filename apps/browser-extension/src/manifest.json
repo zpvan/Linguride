@@ -45,8 +45,7 @@
     "https://chatgpt.com/*",
     "https://open.bigmodel.cn/*",
     "https://api.xiaomimimo.com/*",
-    "https://api.minimaxi.com/*",
-    "https://api.minimax.io/*"
+    "https://api.minimaxi.com/*"
   ],
   "web_accessible_resources": [
     {
