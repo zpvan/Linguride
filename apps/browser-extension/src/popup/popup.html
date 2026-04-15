@@ -345,7 +345,15 @@
           </button>
           <div class="accordion-body" id="speech-synthesis-service">
             <div class="accordion-inner">
-              <p class="settings-desc nested-desc">填写 API Key 后优先使用 AI 语音合成。固定优先级：MiniMax → 小米 → 浏览器朗读。</p>
+              <p class="settings-desc nested-desc">选择语音合成服务，AI 服务失败后将自动回退到浏览器朗读。</p>
+              <div class="settings-row">
+                <label class="settings-label" for="ttsProviderSelect">语音合成</label>
+                <select id="ttsProviderSelect" class="settings-select">
+                  <option value="browser">浏览器朗读</option>
+                  <option value="minimax">MiniMax</option>
+                  <option value="xiaomi">小米</option>
+                </select>
+              </div>
               <div class="accordion-item nested">
                 <div class="accordion-header nested-header with-test" data-accordion="minimax-tts" data-nested="true" role="button" tabindex="0">
                   <div class="accordion-header-main">
@@ -372,7 +380,7 @@
                         type="text"
                         id="minimaxTTSBaseUrl"
                         class="settings-input"
-                        value="https://api.minimax.io/v1"
+                        value="https://api.minimaxi.com/v1"
                         readonly
                       >
                     </div>
@@ -389,7 +397,6 @@
                       <label class="settings-label" for="minimaxTTSModel">模型</label>
                       <select id="minimaxTTSModel" class="settings-select">
                         <option value="speech-2.8-hd">speech-2.8-hd</option>
-                        <option value="speech-2.8-turbo">speech-2.8-turbo</option>
                         <option value="speech-2.6-hd">speech-2.6-hd</option>
                         <option value="speech-2.6-turbo">speech-2.6-turbo</option>
                         <option value="speech-02-hd">speech-02-hd</option>
@@ -408,10 +415,10 @@
                     </div>
                     <p class="settings-hint">留空时使用默认音色 English_expressive_narrator。</p>
                     <p class="settings-hint">
-                      <a href="https://platform.minimax.io/docs/guides/speech-t2a-async" target="_blank" rel="noopener">查看 MiniMax TTS 文档 →</a>
+                      <a href="https://platform.minimaxi.com/docs/guides/speech-t2a-async" target="_blank" rel="noopener">查看 MiniMax TTS 文档 →</a>
                     </p>
                     <p class="settings-hint">
-                      <a href="https://platform.minimax.io/docs/faq/system-voice-id" target="_blank" rel="noopener">查看 MiniMax Voice ID 列表 →</a>
+                      <a href="https://platform.minimaxi.com/docs/faq/system-voice-id" target="_blank" rel="noopener">查看 MiniMax Voice ID 列表 →</a>
                     </p>
                   </div>
                 </div>

@@ -298,7 +298,6 @@ const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-02-hd",
   "speech-02-turbo",
 ];
-const TTS_PROVIDER_PRIORITY: TTSProviderId[] = ["minimax", "xiaomi"];
 const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
   "speed",
   "emotion",
@@ -707,15 +706,6 @@ function isXiaomiTTSConfigured(config: LingridConfig): boolean {
 
 function isMiniMaxTTSConfigured(config: LingridConfig): boolean {
   return !!config.minimax_tts?.api_key?.trim();
-}
-
-function isTTSProviderConfigured(
-  config: LingridConfig,
-  provider: TTSProviderId
-): boolean {
-  return provider === "minimax"
-    ? isMiniMaxTTSConfigured(config)
-    : isXiaomiTTSConfigured(config);
 }
 
 function parseJSONResponse<T>(
@@ -1348,47 +1338,27 @@ async function requestTTSAudioByProvider(
 
 async function requestTTSAudioWithPriority(text: string): Promise<TTSAudioData> {
   const config = await getConfig();
+  const selection = config.tts_selection || "browser";
   const context: TTSProviderRequestContext = {
     config,
     text,
   };
-  let firstFailure: TTSError | null = null;
 
-  for (const provider of TTS_PROVIDER_PRIORITY) {
-    if (!isTTSProviderConfigured(config, provider)) {
-      continue;
-    }
-
-    try {
-      const result = await requestTTSAudioByProvider(provider, context);
-
-      if (firstFailure) {
-        return {
-          ...result,
-          fallbackWarningMessage: `${getTTSProviderLabel(
-            firstFailure.provider
-          )} 失败，已切换到${getTTSProviderLabel(provider)}语音合成`,
-        };
-      }
-
-      return result;
-    } catch (error) {
-      const normalizedError = normalizeUnknownTTSError(provider, error);
-      if (!firstFailure) {
-        firstFailure = normalizedError;
-      }
-    }
+  // 用户选择浏览器朗读，直接返回未配置错误触发浏览器回退
+  if (selection === "browser") {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NOT_CONFIGURED",
+      message: "使用浏览器朗读",
+    });
   }
 
-  if (firstFailure) {
-    throw firstFailure;
+  // 只尝试用户选择的 AI 提供者，失败时抛出错误触发浏览器回退
+  try {
+    return await requestTTSAudioByProvider(selection, context);
+  } catch (error) {
+    throw normalizeUnknownTTSError(selection, error);
   }
-
-  throw createTTSError({
-    provider: "minimax",
-    code: "TTS_NOT_CONFIGURED",
-    message: "未配置 AI 语音合成服务 API Key",
-  });
 }
 
 // ====== 消息处理 ======

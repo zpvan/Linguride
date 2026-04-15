@@ -47,6 +47,7 @@ export type {
   PromptConfig,
   ProviderConfig,
   TencentASRConfig,
+  TTSSelectionMode,
   TTSProviderId,
   MiniMaxTTSConfig,
   MiniMaxTTSModel,

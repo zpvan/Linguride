@@ -60,6 +60,7 @@ import {
   resolveConfigApiProvider,
   resolveConfigOpenAIAuthMode,
   TestTTSConnectionResponse,
+  TTSSelectionMode,
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
 } from "../types";
@@ -405,6 +406,11 @@ const clearXiaomiTTSStylesBtn = document.getElementById(
 const xiaomiTTSStyleButtons = Array.from(
   document.querySelectorAll("[data-xiaomi-tts-style-group]")
 ) as HTMLButtonElement[];
+
+// Settings - TTS 提供者选择
+const ttsProviderSelect = document.getElementById(
+  "ttsProviderSelect"
+) as HTMLSelectElement;
 
 // Settings - 操作
 const resetDefaultsBtn = document.getElementById(
@@ -1269,6 +1275,11 @@ function bindEvents(): void {
   // Settings - 测试小米 TTS 连接
   testXiaomiTTSBtn.addEventListener("click", handleTestXiaomiTTS);
 
+  // Settings - TTS 提供者选择
+  ttsProviderSelect.addEventListener("change", async () => {
+    await autoSave();
+  });
+
   // Settings - 测试连接
   testConnectionBtn.addEventListener("click", testConnection);
 
@@ -1846,6 +1857,9 @@ function collectFormData(): void {
     delete currentConfig.xiaomi_tts;
   }
 
+  // TTS 提供者选择
+  currentConfig.tts_selection = ttsProviderSelect.value as TTSSelectionMode;
+
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 }
@@ -1926,6 +1940,10 @@ function updateSettingsForm(): void {
     currentConfig.xiaomi_tts?.voice
   );
   applyXiaomiTTSStyleSelection(currentConfig.xiaomi_tts?.styles);
+
+  // TTS 提供者选择
+  ttsProviderSelect.value = currentConfig.tts_selection || "browser";
+
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 }

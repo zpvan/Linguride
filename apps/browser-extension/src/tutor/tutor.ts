@@ -104,11 +104,22 @@ let userConfig: LingridConfig | null = null;
 /** 当前全局 TTS 语速 */
 let currentTTSSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
 const tutorTTSPlayer = createHybridTTSPlayer({
-  isAIEnabled: () =>
-    Boolean(
+  isAIEnabled: () => {
+    const selection = userConfig?.tts_selection;
+    // 用户选择浏览器朗读时跳过 AI
+    if (selection === "browser") {
+      return false;
+    }
+    // 用户选择了 AI 提供者
+    if (selection === "minimax" || selection === "xiaomi") {
+      return true;
+    }
+    // 向后兼容：未设置时检查 API Key 是否存在
+    return Boolean(
       userConfig?.minimax_tts?.api_key?.trim() ||
       userConfig?.xiaomi_tts?.api_key?.trim()
-    ),
+    );
+  },
 });
 
 shadow.injectTTSPlayer(tutorTTSPlayer);

@@ -32,6 +32,7 @@ import {
   SegmentCorpusResponse,
   SegmentCorpusResult,
   STORAGE_KEY,
+  TTSSelectionMode,
   TTSSpeed,
 } from "../types";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
@@ -161,9 +162,19 @@ function checkTTSAvailability(): void {
 }
 
 function applyAITTSConfig(config: Partial<LingridConfig>): void {
-  aiTTSEnabled = Boolean(
-    config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
-  );
+  const selection = config.tts_selection as TTSSelectionMode | undefined;
+  // 用户选择浏览器朗读时跳过 AI
+  if (selection === "browser") {
+    aiTTSEnabled = false;
+  } else if (selection === "minimax" || selection === "xiaomi") {
+    // 用户选择了 AI 提供者
+    aiTTSEnabled = true;
+  } else {
+    // 向后兼容：未设置时检查 API Key 是否存在
+    aiTTSEnabled = Boolean(
+      config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
+    );
+  }
   updateTTSAvailability();
 }
 

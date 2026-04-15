@@ -171,6 +171,16 @@ export interface AlibabaASRConfig {
 }
 
 /**
+ * 语音合成服务选择模式
+ *
+ * 用户手动选择的语音合成服务：
+ * - minimax: MiniMax AI 语音合成
+ * - xiaomi: 小米 AI 语音合成
+ * - browser: 浏览器内置语音合成
+ */
+export type TTSSelectionMode = "minimax" | "xiaomi" | "browser";
+
+/**
  * 语音合成服务标识
  */
 export type TTSProviderId = "minimax" | "xiaomi";
@@ -270,6 +280,9 @@ export interface LingridConfig {
   /** 全局 TTS 语速 */
   tts_speed?: TTSSpeed;
 
+  /** 语音合成服务选择（用户手动选择，失败后回退到浏览器） */
+  tts_selection?: TTSSelectionMode;
+
   /** 释义 Prompt 配置（可选，使用默认值） */
   paraphrase_prompts?: ParaphrasePromptConfig;
 
@@ -301,7 +314,7 @@ export interface LingridConfig {
 /**
  * MiniMax TTS 固定基础端点
  */
-export const MINIMAX_TTS_API_BASE_URL = "https://api.minimax.io/v1";
+export const MINIMAX_TTS_API_BASE_URL = "https://api.minimaxi.com/v1";
 
 /**
  * MiniMax AI 固定基础端点
@@ -379,6 +392,7 @@ export const DEFAULT_CONFIG: LingridConfig = {
   explanation_prompt_preset_id: "prompt1",
   user_english_level: DEFAULT_USER_ENGLISH_LEVEL,
   tts_speed: DEFAULT_TTS_SPEED,
+  tts_selection: "browser",
 };
 
 /**

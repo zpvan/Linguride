@@ -64,6 +64,7 @@ export async function getConfig(): Promise<LingridConfig> {
       user_english_level:
         stored.user_english_level || DEFAULT_CONFIG.user_english_level,
       tts_speed: stored.tts_speed || DEFAULT_CONFIG.tts_speed,
+      tts_selection: stored.tts_selection || DEFAULT_CONFIG.tts_selection,
       difficulty_prompts:
         stored.difficulty_prompts || DEFAULT_CONFIG.difficulty_prompts,
       paraphrase_prompts:
