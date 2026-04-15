@@ -51,6 +51,8 @@ export type {
   TTSProviderId,
   MiniMaxTTSConfig,
   MiniMaxTTSModel,
+  MiniMaxEmotion,
+  MiniMaxVoice,
   XiaomiTTSConfig,
   XiaomiTTSStyleSelection,
   XiaomiTTSVoice,

@@ -51,6 +51,7 @@ import {
   MINIMAX_TTS_DEFAULT_MODEL,
   MessageType,
   MiniMaxTTSModel,
+  MiniMaxEmotion,
   OpenAIAuthMode,
   OpenAIModelCatalogResponseData,
   OpenAIModelCatalogScope,
@@ -371,9 +372,9 @@ const showMiniMaxTTSKeyBtn = document.getElementById(
 const minimaxTTSModelSelect = document.getElementById(
   "minimaxTTSModel"
 ) as HTMLSelectElement;
-const minimaxTTSVoiceIdInput = document.getElementById(
-  "minimaxTTSVoiceId"
-) as HTMLInputElement;
+const minimaxTTSVoiceSelect = document.getElementById(
+  "minimaxTTSVoiceSelect"
+) as HTMLSelectElement;
 const testMiniMaxTTSBtn = document.getElementById(
   "testMiniMaxTTSBtn"
 ) as HTMLButtonElement;
@@ -405,6 +406,17 @@ const clearXiaomiTTSStylesBtn = document.getElementById(
 ) as HTMLButtonElement;
 const xiaomiTTSStyleButtons = Array.from(
   document.querySelectorAll("[data-xiaomi-tts-style-group]")
+) as HTMLButtonElement[];
+
+// Settings - MiniMax TTS 情绪风格
+const minimaxEmotionSummary = document.getElementById(
+  "minimaxEmotionSummary"
+) as HTMLElement;
+const clearMiniMaxEmotionsBtn = document.getElementById(
+  "clearMiniMaxEmotionsBtn"
+) as HTMLButtonElement;
+const minimaxEmotionButtons = Array.from(
+  document.querySelectorAll("[data-minimax-tts-emotion]")
 ) as HTMLButtonElement[];
 
 // Settings - TTS 提供者选择
@@ -999,6 +1011,65 @@ function getXiaomiTTSStylesFromUI(): XiaomiTTSStyleSelection | undefined {
   return hasXiaomiTTSStyles(selection) ? selection : undefined;
 }
 
+// MiniMax TTS 情绪风格
+
+function getMiniMaxEmotionFromUI(): MiniMaxEmotion | undefined {
+  const activeButton = minimaxEmotionButtons.find((btn) =>
+    btn.classList.contains("active")
+  );
+  return activeButton
+    ? (activeButton.dataset.minimaxTtsEmotion as MiniMaxEmotion)
+    : undefined;
+}
+
+function applyMiniMaxEmotionSelection(emotion?: MiniMaxEmotion): void {
+  minimaxEmotionButtons.forEach((button) => {
+    const isActive = button.dataset.minimaxTtsEmotion === emotion;
+    button.classList.toggle("active", isActive);
+  });
+
+  minimaxEmotionSummary.replaceChildren();
+  if (!emotion) {
+    minimaxEmotionSummary.classList.add("is-empty");
+    minimaxEmotionSummary.textContent = "未选择情绪";
+    clearMiniMaxEmotionsBtn.classList.add("is-hidden");
+  } else {
+    const emotionLabels: Record<MiniMaxEmotion, string> = {
+      happy: "开心",
+      sad: "悲伤",
+      angry: "愤怒",
+      fearful: "害怕",
+      disgusted: "厌恶",
+      surprised: "惊讶",
+      calm: "平静",
+      fluent: "生动",
+      whisper: "低语",
+    };
+    minimaxEmotionSummary.classList.remove("is-empty");
+    minimaxEmotionSummary.textContent = emotionLabels[emotion] || emotion;
+    clearMiniMaxEmotionsBtn.classList.remove("is-hidden");
+  }
+}
+
+async function handleClearMiniMaxEmotions(event: Event): Promise<void> {
+  event.preventDefault();
+  applyMiniMaxEmotionSelection();
+  handleMiniMaxTTSConfigInput();
+  await autoSave();
+}
+
+async function handleMiniMaxEmotionClick(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const emotion = button.dataset.minimaxTtsEmotion as MiniMaxEmotion;
+
+  const currentEmotion = getMiniMaxEmotionFromUI();
+  const nextEmotion = currentEmotion === emotion ? undefined : emotion;
+
+  applyMiniMaxEmotionSelection(nextEmotion);
+  handleMiniMaxTTSConfigInput();
+  await autoSave();
+}
+
 function clearServiceTestResetTimer(timer: number | null): void {
   if (timer) {
     clearTimeout(timer);
@@ -1243,8 +1314,7 @@ function bindEvents(): void {
   minimaxTTSApiKeyInput.addEventListener("input", handleMiniMaxTTSConfigInput);
   minimaxTTSApiKeyInput.addEventListener("blur", autoSave);
   minimaxTTSModelSelect.addEventListener("change", handleMiniMaxTTSModelChange);
-  minimaxTTSVoiceIdInput.addEventListener("input", handleMiniMaxTTSConfigInput);
-  minimaxTTSVoiceIdInput.addEventListener("blur", autoSave);
+  minimaxTTSVoiceSelect.addEventListener("change", handleMiniMaxTTSConfigInput);
 
   // Settings - 显示/隐藏 MiniMax API Key
   showMiniMaxTTSKeyBtn.addEventListener("click", () => {
@@ -1274,6 +1344,12 @@ function bindEvents(): void {
 
   // Settings - 测试小米 TTS 连接
   testXiaomiTTSBtn.addEventListener("click", handleTestXiaomiTTS);
+
+  // Settings - MiniMax TTS 情绪风格
+  clearMiniMaxEmotionsBtn.addEventListener("click", handleClearMiniMaxEmotions);
+  minimaxEmotionButtons.forEach((button) => {
+    button.addEventListener("click", handleMiniMaxEmotionClick);
+  });
 
   // Settings - TTS 提供者选择
   ttsProviderSelect.addEventListener("change", async () => {
@@ -1828,14 +1904,16 @@ function collectFormData(): void {
   // MiniMax TTS 配置（API Key 为空视为禁用，但保留模型与音色偏好）
   const minimaxTTSApiKey = minimaxTTSApiKeyInput.value.trim();
   const minimaxTTSModel = normalizeMiniMaxTTSModel(minimaxTTSModelSelect.value);
-  const minimaxTTSVoiceId = minimaxTTSVoiceIdInput.value.trim();
+  const minimaxTTSVoiceId = minimaxTTSVoiceSelect.value.trim();
+  const minimaxEmotion = getMiniMaxEmotionFromUI();
   const hasCustomMiniMaxModel = minimaxTTSModel !== MINIMAX_TTS_DEFAULT_MODEL;
 
-  if (minimaxTTSApiKey || hasCustomMiniMaxModel || minimaxTTSVoiceId) {
+  if (minimaxTTSApiKey || hasCustomMiniMaxModel || minimaxTTSVoiceId || minimaxEmotion) {
     currentConfig.minimax_tts = {
       api_key: minimaxTTSApiKey,
       ...(hasCustomMiniMaxModel ? { model: minimaxTTSModel } : {}),
       ...(minimaxTTSVoiceId ? { voice_id: minimaxTTSVoiceId } : {}),
+      ...(minimaxEmotion ? { emotion: minimaxEmotion } : {}),
     };
   } else {
     delete currentConfig.minimax_tts;
@@ -1931,8 +2009,9 @@ function updateSettingsForm(): void {
   minimaxTTSModelSelect.value = normalizeMiniMaxTTSModel(
     currentConfig.minimax_tts?.model
   );
-  minimaxTTSVoiceIdInput.value =
+  minimaxTTSVoiceSelect.value =
     currentConfig.minimax_tts?.voice_id || "";
+  applyMiniMaxEmotionSelection(currentConfig.minimax_tts?.emotion);
 
   // 小米 TTS 配置
   xiaomiTTSApiKeyInput.value = currentConfig.xiaomi_tts?.api_key || "";

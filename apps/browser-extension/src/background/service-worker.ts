@@ -1089,6 +1089,15 @@ async function createMiniMaxTTSTask(
     },
   };
 
+  // 添加情绪风格（如果有）
+  const emotion = minimaxTTSConfig.emotion;
+  if (emotion) {
+    requestBody.voice_setting = {
+      ...(requestBody.voice_setting as Record<string, unknown>),
+      emotion,
+    };
+  }
+
   if (text.length > MINIMAX_TTS_TEXT_MAX_CHARS) {
     requestBody.text_file_id = await uploadMiniMaxTextInput(apiKey, text);
   } else {

@@ -230,6 +230,54 @@ export type MiniMaxTTSModel =
   | "speech-02-turbo";
 
 /**
+ * MiniMax TTS 情绪风格
+ *
+ * 仅对 speech-2.8-hd, speech-2.8-turbo, speech-2.6-hd, speech-2.6-turbo, speech-02-hd, speech-02-turbo 模型生效
+ */
+export type MiniMaxEmotion =
+  | "happy"
+  | "sad"
+  | "angry"
+  | "fearful"
+  | "disgusted"
+  | "surprised"
+  | "calm"
+  | "fluent"
+  | "whisper";
+
+/**
+ * MiniMax TTS 音色选项（精选女声）
+ */
+export type MiniMaxVoice =
+  // 英文女声
+  | "English_Graceful_Lady"
+  | "English_Whispering_girl"
+  | "Sweet_Girl"
+  | "Attractive_Girl"
+  | "Serene_Woman"
+  | "English_Gentle-voiced_man"
+  // 中文女声
+  | "female-shaonv"
+  | "female-yujie"
+  | "female-tianmei"
+  | "female-chengshu"
+  | "lovely_girl"
+  | "Chinese (Mandarin)_Sweet_Lady"
+  | "Chinese (Mandarin)_Warm_Girl"
+  | "Chinese (Mandarin)_Lyrical_Voice"
+  | "Chinese (Mandarin)_Crisp_Girl"
+  | "Chinese (Mandarin)_Soft_Girl"
+  // 粤语女声
+  | "Cantonese_GentleLady"
+  | "Cantonese_CuteGirl"
+  // 日文女声
+  | "Japanese_KindLady"
+  | "Japanese_CalmLady"
+  // 韩文女声
+  | "Korean_SweetGirl"
+  | "Korean_CalmLady";
+
+/**
  * MiniMax 语音合成配置
  */
 export interface MiniMaxTTSConfig {
@@ -241,6 +289,9 @@ export interface MiniMaxTTSConfig {
 
   /** 可选音色 ID，留空时使用默认音色 */
   voice_id?: string;
+
+  /** 可选情绪风格，留空时不添加情绪 */
+  emotion?: MiniMaxEmotion;
 }
 
 /**

@@ -405,15 +405,47 @@
                     </div>
                     <div class="settings-divider"></div>
                     <div class="settings-row">
-                      <label class="settings-label" for="minimaxTTSVoiceId">音色ID</label>
-                      <input
-                        type="text"
-                        id="minimaxTTSVoiceId"
-                        class="settings-input"
-                        placeholder="English_expressive_narrator"
-                      >
+                      <label class="settings-label label-muted" for="minimaxTTSVoiceSelect">音色</label>
+                      <select id="minimaxTTSVoiceSelect" class="settings-select">
+                        <option value="">默认音色</option>
+                        <option value="English_Graceful_Lady">Graceful Lady</option>
+                        <option value="English_Whispering_girl">Whispering Girl</option>
+                        <option value="Sweet_Girl">Sweet Girl</option>
+                        <option value="Attractive_Girl">Attractive Girl</option>
+                        <option value="Serene_Woman">Serene Woman</option>
+                      </select>
                     </div>
-                    <p class="settings-hint">留空时使用默认音色 English_expressive_narrator。</p>
+                    <div class="settings-divider"></div>
+                    <div class="xiaomi-tts-style-section">
+                      <div class="xiaomi-tts-style-header">
+                        <span class="settings-label label-muted">情绪</span>
+                        <button
+                          type="button"
+                          id="clearMiniMaxEmotionsBtn"
+                          class="link-btn xiaomi-tts-style-clear"
+                        >
+                          清空
+                        </button>
+                      </div>
+                      <div id="minimaxEmotionSummary" class="xiaomi-tts-style-summary"></div>
+                      <div class="xiaomi-tts-style-groups">
+                        <div class="xiaomi-tts-style-group">
+                          <div class="xiaomi-tts-style-group-label">情绪</div>
+                          <div class="xiaomi-tts-style-options">
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="happy">开心</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="sad">悲伤</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="angry">愤怒</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="fearful">害怕</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="disgusted">厌恶</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="surprised">惊讶</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="calm">平静</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="fluent">生动</button>
+                            <button type="button" class="pill xiaomi-tts-style-pill" data-minimax-tts-emotion="whisper">低语</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="settings-hint">情绪仅对 speech-2.8-hd 等模型生效。</p>
                     <p class="settings-hint">
                       <a href="https://platform.minimaxi.com/docs/guides/speech-t2a-async" target="_blank" rel="noopener">查看 MiniMax TTS 文档 →</a>
                     </p>
