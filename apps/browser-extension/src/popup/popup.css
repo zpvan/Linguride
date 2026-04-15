@@ -806,6 +806,10 @@ body {
   flex-shrink: 0;
 }
 
+.label-muted {
+  color: var(--text-tertiary);
+}
+
 .settings-input {
   flex: 1;
   padding: 0;
