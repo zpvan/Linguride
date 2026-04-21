@@ -33,7 +33,7 @@ interface ApiErrorResponse {
 export class MiniMaxProvider extends BaseTranslateProvider {
   readonly name = "MiniMax";
 
-  private readonly timeout = 60000;
+  private readonly timeout = 120000; // 2 minutes
 
   private readonly maxRetries = 2;
 
