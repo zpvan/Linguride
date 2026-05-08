@@ -22,13 +22,6 @@ export const AI_PROVIDER_BASE_URL_PRESETS: Record<Exclude<AIProviderId, "custom"
     openai: "https://api.openai.com",
   };
 
-export const DEEPSEEK_MODEL_OPTIONS: ModelOption[] = [
-  { value: "deepseek-chat", label: "DeepSeek Chat" },
-  { value: "deepseek-coder", label: "DeepSeek Coder" },
-  { value: "deepseek-reasoner", label: "DeepSeek Reasoner" },
-  { value: "custom", label: "自定义..." },
-];
-
 export const DEEPSEEK_MODEL_OPTIONS_FALLBACK: ModelOption[] = [
   { value: "deepseek-chat", label: "DeepSeek Chat" },
   { value: "deepseek-coder", label: "DeepSeek Coder" },
