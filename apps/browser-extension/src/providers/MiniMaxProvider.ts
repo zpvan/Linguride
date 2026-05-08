@@ -105,7 +105,7 @@ export class MiniMaxProvider extends BaseTranslateProvider {
         headers: {
           "Content-Type": "application/json",
           "anthropic-version": "2023-06-01",
-          "x-api-key": this.config.apiKey,
+          Authorization: `Bearer ${this.config.apiKey}`,
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal,

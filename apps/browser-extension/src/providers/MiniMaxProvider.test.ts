@@ -57,7 +57,7 @@ describe("MiniMaxProvider", () => {
     expect(requestInit?.headers).toEqual({
       "Content-Type": "application/json",
       "anthropic-version": "2023-06-01",
-      "x-api-key": "test-api-key",
+      Authorization: "Bearer test-api-key",
     });
     expect(JSON.parse(String(requestInit?.body))).toEqual({
       model: "MiniMax-M1",
