@@ -52,13 +52,13 @@ describe("aiServiceOptions", () => {
     ).toBeNull();
   });
 
-  it("keeps existing OpenAI defaults unchanged", () => {
+  it("keeps existing OpenAI defaults unchanged", async () => {
     expect(getDefaultModelForProvider("openai", "api_key")).toBe("");
     expect(getDefaultModelForProvider("openai", "oauth", "  gpt-5.3-codex  ")).toBe(
       "gpt-5.3-codex"
     );
-    expect(getStaticModelOptions("openai")).toBeNull();
-    expect(getStaticModelOptions("deepseek")).toBe(DEEPSEEK_MODEL_OPTIONS);
-    expect(getStaticModelOptions("glm")).toBe(GLM_MODEL_OPTIONS);
+    expect(await getStaticModelOptions("openai")).toBeNull();
+    expect(await getStaticModelOptions("deepseek")).toBe(DEEPSEEK_MODEL_OPTIONS);
+    expect(await getStaticModelOptions("glm")).toBe(GLM_MODEL_OPTIONS);
   });
 });

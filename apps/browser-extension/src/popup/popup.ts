@@ -1762,10 +1762,10 @@ function updateOpenAIOAuthUI(): void {
     currentOpenAIOAuthStatus.status === "missing";
 }
 
-function updateAiServiceForm(): void {
+async function updateAiServiceForm(): Promise<void> {
   const providerType = getCurrentApiProvider();
   const authMode = getCurrentOpenAIAuthMode();
-  const staticModelOptions = getStaticModelOptions(providerType);
+  const staticModelOptions = await getStaticModelOptions(providerType, currentConfig.api_key);
   const showOpenAIAuthMode = providerType === "openai";
   const showApiCredentialRows =
     !(providerType === "openai" && authMode === "oauth");
