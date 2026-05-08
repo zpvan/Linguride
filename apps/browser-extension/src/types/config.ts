@@ -28,6 +28,14 @@ export type { CEFRLevel } from "./difficulty";
 export type AIProviderId = "deepseek" | "openai" | "custom" | "glm" | "minimax";
 
 /**
+ * 模型选项（用于下拉列表）
+ */
+export interface ModelOption {
+  value: string;
+  label: string;
+}
+
+/**
  * OpenAI 认证模式
  */
 export type OpenAIAuthMode = "api_key" | "oauth";
@@ -579,3 +587,21 @@ const RETENTION_MAP: Record<CEFRLevel, number> = {
 export function getRetentionPercent(level: CEFRLevel): number {
   return RETENTION_MAP[level];
 }
+
+/**
+ * DeepSeek 模型列表缓存
+ */
+export interface DeepSeekModelCache {
+  models: ModelOption[];
+  timestamp: number; // Date.now()
+}
+
+/**
+ * DeepSeek 模型缓存存储键名
+ */
+export const DEEPSEEK_CACHE_KEY = "deepseek_models_cache";
+
+/**
+ * DeepSeek 模型缓存过期时间（24 小时）
+ */
+export const DEEPSEEK_CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000;
