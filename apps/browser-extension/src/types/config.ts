@@ -231,16 +231,23 @@ export interface XiaomiTTSConfig {
  */
 export type MiniMaxTTSModel =
   | "speech-2.8-hd"
-  | "speech-2.8-turbo"
-  | "speech-2.6-hd"
-  | "speech-2.6-turbo"
-  | "speech-02-hd"
-  | "speech-02-turbo";
+  | "speech-2.8-turbo";
+
+/**
+ * 已被收窄的 TTS 模型 ID。仅供 configManager 在内存迁移中以
+ * string[] 形式比对,运行时 stored 中可能仍含这些历史值。
+ */
+export const MINIMAX_TTS_REMOVED_MODELS: readonly string[] = [
+  "speech-2.6-hd",
+  "speech-2.6-turbo",
+  "speech-02-hd",
+  "speech-02-turbo",
+] as const;
 
 /**
  * MiniMax TTS 情绪风格
  *
- * 仅对 speech-2.8-hd, speech-2.8-turbo, speech-2.6-hd, speech-2.6-turbo, speech-02-hd, speech-02-turbo 模型生效
+ * 仅对 speech-2.8-hd、speech-2.8-turbo 模型生效
  */
 export type MiniMaxEmotion =
   | "happy"
@@ -383,7 +390,18 @@ export const MINIMAX_AI_API_BASE_URL = "https://api.minimaxi.com/anthropic";
 /**
  * MiniMax TTS 默认模型
  */
-export const MINIMAX_TTS_DEFAULT_MODEL: MiniMaxTTSModel = "speech-2.8-hd";
+export const MINIMAX_TTS_DEFAULT_MODEL: MiniMaxTTSModel = "speech-2.8-turbo";
+
+/**
+ * 旧 TTS 默认模型,仅用于 configManager 中的一次性迁移识别。
+ */
+export const MINIMAX_TTS_LEGACY_DEFAULT_MODEL: MiniMaxTTSModel = "speech-2.8-hd";
+
+/**
+ * 旧默认 AI 模型,仅用于 configManager 中的一次性迁移识别。
+ * 新用户不会看到此值。
+ */
+export const MINIMAX_LEGACY_DEFAULT_MODEL = "MiniMax-M2.7";
 
 /**
  * MiniMax TTS 默认音色

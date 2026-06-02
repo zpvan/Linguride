@@ -12,7 +12,7 @@ export interface ModelOption {
 }
 
 export const CUSTOM_MODEL_PLACEHOLDER = "输入模型名称";
-export const MINIMAX_DEFAULT_MODEL = "MiniMax-M2.7";
+export const MINIMAX_DEFAULT_MODEL = "MiniMax-M3";
 
 export const AI_PROVIDER_BASE_URL_PRESETS: Record<Exclude<AIProviderId, "custom">, string> =
   {
@@ -37,6 +37,7 @@ export const GLM_MODEL_OPTIONS: ModelOption[] = [
 ];
 
 export const MINIMAX_MODEL_OPTIONS: ModelOption[] = [
+  { value: "MiniMax-M3", label: "MiniMax-M3" },
   { value: "MiniMax-M2.7", label: "MiniMax-M2.7" },
   { value: "MiniMax-M2.7-highspeed", label: "MiniMax-M2.7-highspeed" },
   { value: "MiniMax-M2.5", label: "MiniMax-M2.5" },

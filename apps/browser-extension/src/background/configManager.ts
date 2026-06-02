@@ -17,6 +17,10 @@
 import {
   DEFAULT_CONFIG,
   LingridConfig,
+  MINIMAX_LEGACY_DEFAULT_MODEL,
+  MINIMAX_TTS_DEFAULT_MODEL,
+  MINIMAX_TTS_LEGACY_DEFAULT_MODEL,
+  MINIMAX_TTS_REMOVED_MODELS,
   ProviderConfig,
   resolveConfigApiProvider,
   resolveConfigModel,
@@ -87,7 +91,7 @@ export async function getConfig(): Promise<LingridConfig> {
       minimax_tts: stored.minimax_tts || DEFAULT_CONFIG.minimax_tts,
     };
 
-    return config;
+    return migrateLegacyConfig(config);
   } catch (error) {
     console.error("[Lingride] 读取配置失败:", error);
     return { ...DEFAULT_CONFIG };
@@ -164,4 +168,38 @@ export async function resetConfig(): Promise<LingridConfig> {
   await saveConfig(defaultConfig);
   console.log("[Lingride] 配置已重置为默认值");
   return defaultConfig;
+}
+
+/**
+ * 一次性内存迁移
+ *
+ * 把仍在使用旧默认值或已被收窄的 TTS 模型的配置改写到新默认值。
+ * 不会主动 saveConfig —— 沿用「用户主动改设置时才落盘」惯例。
+ */
+function migrateLegacyConfig(config: LingridConfig): LingridConfig {
+  const next: LingridConfig = { ...config };
+
+  // 迁移 1: AI 文本模型 — 仅在 minimax provider 下,且仍指向旧默认时
+  if (
+    resolveConfigApiProvider(next) === "minimax" &&
+    next.model === MINIMAX_LEGACY_DEFAULT_MODEL
+  ) {
+    next.model = "MiniMax-M3";
+  }
+
+  // 迁移 2: TTS 模型 — 命中旧默认或已被收窄的模型时,改写为新默认
+  const ttsModel = next.minimax_tts?.model;
+  if (
+    typeof ttsModel === "string" &&
+    (ttsModel === MINIMAX_TTS_LEGACY_DEFAULT_MODEL ||
+      MINIMAX_TTS_REMOVED_MODELS.includes(ttsModel))
+  ) {
+    next.minimax_tts = {
+      ...next.minimax_tts,
+      api_key: next.minimax_tts?.api_key ?? "",
+      model: MINIMAX_TTS_DEFAULT_MODEL,
+    };
+  }
+
+  return next;
 }

@@ -130,10 +130,6 @@ const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
 const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-2.8-hd",
   "speech-2.8-turbo",
-  "speech-2.6-hd",
-  "speech-2.6-turbo",
-  "speech-02-hd",
-  "speech-02-turbo",
 ];
 const XIAOMI_TTS_STYLE_OPTIONS: Record<
   XiaomiTTSStyleGroupKey,
