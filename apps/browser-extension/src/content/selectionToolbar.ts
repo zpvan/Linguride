@@ -90,6 +90,7 @@ let disabledReason = "";
 let requestToken = 0;
 let isLoading = false;
 let ignoreSelectionChangeUntil = 0;
+let suppressMouseUpReshow = false;
 let cachedUserLevel: CEFRLevel | null = null;
 let lastSelectionUpdateText = "";
 let lastSelectionUpdateAt = 0;
@@ -188,6 +189,7 @@ export function destroySelectionToolbar(): void {
   requestToken = 0;
   isLoading = false;
   hasPendingInit = false;
+  suppressMouseUpReshow = false;
   lastSelectionUpdateText = "";
   lastSelectionUpdateAt = 0;
 
@@ -309,6 +311,12 @@ function unbindEvents(): void {
 }
 
 function handleMouseUp(event: MouseEvent): void {
+  // 外部点击关闭工具条后，同一次点击的 mouseup 不再按残留选区重新弹出
+  if (suppressMouseUpReshow) {
+    suppressMouseUpReshow = false;
+    return;
+  }
+
   if (!ensureToolbarMounted() || !rootEl) return;
 
   const target = event.target;
@@ -363,6 +371,7 @@ function handleDocumentPointerDown(event: PointerEvent): void {
     return;
   }
 
+  suppressMouseUpReshow = true;
   hideToolbar();
 }
 
