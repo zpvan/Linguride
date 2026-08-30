@@ -48,6 +48,72 @@ function isBrowserTTSAvailable(): boolean {
   );
 }
 
+/**
+ * 系统自带的音效/搞怪声音（如 macOS 的 Whisper、Bells），
+ * 回退朗读时必须排除，否则会播放出诡异的低语或音效声。
+ */
+const NOVELTY_VOICE_KEYWORDS = [
+  "whisper",
+  "albert",
+  "bad news",
+  "bahh",
+  "bells",
+  "boing",
+  "bubbles",
+  "carnival",
+  "cellos",
+  "deranged",
+  "good news",
+  "hysterical",
+  "jester",
+  "organ",
+  "princess",
+  "superstar",
+  "trinoids",
+  "wobble",
+  "zarvox",
+];
+
+function normalizeVoiceLang(lang: string): string {
+  return lang.toLowerCase().replace("_", "-");
+}
+
+/**
+ * 从浏览器可用声音中挑选一个自然朗读声音。
+ *
+ * 优先精确匹配语言（如 en-US），其次匹配语言前缀（如 en）；
+ * 排除音效声音，并优先返回系统默认声音。
+ * 找不到匹配声音时返回 null，由浏览器自行决定。
+ */
+export function selectNaturalBrowserVoice(
+  voices: SpeechSynthesisVoice[],
+  lang: string
+): SpeechSynthesisVoice | null {
+  if (voices.length === 0) return null;
+
+  const normalizedLang = normalizeVoiceLang(lang);
+  const langPrefix = normalizedLang.split("-")[0];
+
+  const exactMatches = voices.filter(
+    (voice) => normalizeVoiceLang(voice.lang) === normalizedLang
+  );
+  const prefixMatches = voices.filter((voice) =>
+    normalizeVoiceLang(voice.lang).startsWith(langPrefix)
+  );
+  const candidates = exactMatches.length > 0 ? exactMatches : prefixMatches;
+  if (candidates.length === 0) return null;
+
+  const natural = candidates.filter(
+    (voice) =>
+      !NOVELTY_VOICE_KEYWORDS.some((keyword) =>
+        voice.name.toLowerCase().includes(keyword)
+      )
+  );
+  const pool = natural.length > 0 ? natural : candidates;
+
+  return pool.find((voice) => voice.default) ?? pool[0];
+}
+
 export function createHybridTTSPlayer(
   options: CreateHybridTTSPlayerOptions
 ): HybridTTSPlayer {
@@ -136,6 +202,14 @@ export function createHybridTTSPlayer(
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang;
       utterance.rate = rate;
+
+      const voice = selectNaturalBrowserVoice(
+        window.speechSynthesis.getVoices(),
+        lang
+      );
+      if (voice) {
+        utterance.voice = voice;
+      }
 
       const playback: ActivePlayback = {
         utterance,
