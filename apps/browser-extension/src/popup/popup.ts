@@ -172,6 +172,9 @@ const tutorBtn = document.getElementById("tutorBtn") as HTMLButtonElement;
 const settingsBtn = document.getElementById("settingsBtn") as HTMLButtonElement;
 const settingsBadge = document.getElementById("settingsBadge") as HTMLElement;
 const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
+const expandSettingsBtn = document.getElementById(
+  "expandSettingsBtn"
+) as HTMLButtonElement;
 
 // 模式选择器
 const modeSelector = document.getElementById("modeSelector") as HTMLElement;
@@ -1237,6 +1240,7 @@ function bindEvents(): void {
   // 视图切换
   settingsBtn.addEventListener("click", showSettings);
   backBtn.addEventListener("click", showMain);
+  expandSettingsBtn.addEventListener("click", showSettings);
   configHintBtn.addEventListener("click", showSettings);
 
   // 语料库标签页入口

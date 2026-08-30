@@ -148,6 +148,12 @@ body {
   width: 32px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 /* ====== Header Actions ====== */
 .header-actions {
   display: flex;
