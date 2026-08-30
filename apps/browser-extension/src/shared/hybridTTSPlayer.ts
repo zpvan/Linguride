@@ -121,6 +121,9 @@ export function createHybridTTSPlayer(
   let activeRunToken: number | null = null;
   let fallbackWarningShown = false;
   let runToken = 0;
+  // 仅当本实例发起过 AI 播放时才为 true，用于避免向 service worker
+  // 发送全局 STOP_TTS_PLAYBACK 时误停其他页面的播放
+  let ownsAIPlayback = false;
 
   function isCurrentRun(token: number): boolean {
     return token === runToken;
@@ -142,6 +145,9 @@ export function createHybridTTSPlayer(
   }
 
   function requestStopAIPlayback(): void {
+    if (!ownsAIPlayback) return;
+    ownsAIPlayback = false;
+
     void chrome.runtime
       .sendMessage({
         type: MessageType.STOP_TTS_PLAYBACK,
@@ -258,16 +264,22 @@ export function createHybridTTSPlayer(
 
     onStart?.();
 
-    const response: SynthesizeSpeechResponse = await chrome.runtime.sendMessage({
-      type: MessageType.SYNTHESIZE_SPEECH,
-      payload: { text, rate },
-    });
+    ownsAIPlayback = true;
+    try {
+      const response: SynthesizeSpeechResponse =
+        await chrome.runtime.sendMessage({
+          type: MessageType.SYNTHESIZE_SPEECH,
+          payload: { text, rate },
+        });
 
-    if (response.success && isCurrentRun(token)) {
-      onEnd?.();
+      if (response.success && isCurrentRun(token)) {
+        onEnd?.();
+      }
+
+      return response;
+    } finally {
+      ownsAIPlayback = false;
     }
-
-    return response;
   }
 
   async function playTextInternal(
