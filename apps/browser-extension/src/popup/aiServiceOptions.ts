@@ -1,6 +1,7 @@
 import {
   DEFAULT_CONFIG,
   MINIMAX_AI_API_BASE_URL,
+  MINIMAX_AI_API_BASE_URL_CN,
   OpenAIAuthMode,
   AIProviderId,
 } from "../types";
@@ -35,6 +36,26 @@ export const GLM_MODEL_OPTIONS: ModelOption[] = [
   { value: "glm-4-air", label: "glm-4-air" },
   { value: "custom", label: "自定义..." },
 ];
+
+/**
+ * MiniMax 端点线路选项：国际线路走代理可用，国内直连不走代理可用。
+ */
+export const MINIMAX_ENDPOINT_OPTIONS: ModelOption[] = [
+  { value: MINIMAX_AI_API_BASE_URL, label: "国际线路 (api.minimaxi.com)" },
+  { value: MINIMAX_AI_API_BASE_URL_CN, label: "国内直连 (api.minimax.cn)" },
+];
+
+/**
+ * 归一化 MiniMax AI 基础端点，仅接受国际/国内两条固定线路，
+ * 其他值一律回退到国际线路。
+ */
+export function normalizeMiniMaxAIBaseUrl(value?: string | null): string {
+  const normalized = value?.trim().replace(/\/+$/, "").toLowerCase();
+  if (normalized === MINIMAX_AI_API_BASE_URL_CN) {
+    return MINIMAX_AI_API_BASE_URL_CN;
+  }
+  return MINIMAX_AI_API_BASE_URL;
+}
 
 export const MINIMAX_MODEL_OPTIONS: ModelOption[] = [
   { value: "MiniMax-M3", label: "MiniMax-M3" },

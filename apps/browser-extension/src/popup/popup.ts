@@ -48,6 +48,8 @@ import {
   ExplanationPromptPresetId,
   ExtractPageTextResponse,
   LingridConfig,
+  MINIMAX_TTS_API_BASE_URL,
+  MINIMAX_TTS_API_BASE_URL_CN,
   MINIMAX_TTS_DEFAULT_MODEL,
   MessageType,
   MiniMaxTTSModel,
@@ -58,6 +60,7 @@ import {
   OpenAIModelItem,
   OpenAIOAuthStatus,
   ParaphrasePromptConfig,
+  normalizeMiniMaxTTSBaseUrl,
   resolveConfigApiProvider,
   resolveConfigOpenAIAuthMode,
   TestTTSConnectionResponse,
@@ -68,8 +71,10 @@ import {
 import {
   AI_PROVIDER_BASE_URL_PRESETS,
   CUSTOM_MODEL_PLACEHOLDER,
+  MINIMAX_ENDPOINT_OPTIONS,
   getDefaultModelForProvider,
   getStaticModelOptions,
+  normalizeMiniMaxAIBaseUrl,
   normalizeModelForProviderSwitch,
   type ModelOption,
 } from "./aiServiceOptions";
@@ -247,6 +252,9 @@ const apiBaseUrlDivider = document.getElementById(
 const apiBaseUrlInput = document.getElementById(
   "apiBaseUrl"
 ) as HTMLInputElement;
+const apiBaseUrlPresetSelect = document.getElementById(
+  "apiBaseUrlPreset"
+) as HTMLSelectElement;
 const apiKeyRow = document.getElementById("apiKeyRow") as HTMLElement;
 const apiKeyDivider = document.getElementById("apiKeyDivider") as HTMLElement;
 const apiKeyInput = document.getElementById("apiKey") as HTMLInputElement;
@@ -362,6 +370,20 @@ const showAlibabaKeyBtn = document.getElementById(
 ) as HTMLButtonElement;
 
 // Settings - MiniMax TTS 配置
+const minimaxTTSBaseUrlSelect = document.getElementById(
+  "minimaxTTSBaseUrl"
+) as HTMLSelectElement;
+
+// MiniMax 端点线路选项（国际/国内直连），AI 与 TTS 各自独立切换
+for (const option of MINIMAX_ENDPOINT_OPTIONS) {
+  apiBaseUrlPresetSelect.appendChild(new Option(option.label, option.value));
+}
+for (const option of [
+  { value: MINIMAX_TTS_API_BASE_URL, label: "国际线路 (api.minimaxi.com)" },
+  { value: MINIMAX_TTS_API_BASE_URL_CN, label: "国内直连 (api.minimax.cn)" },
+]) {
+  minimaxTTSBaseUrlSelect.appendChild(new Option(option.label, option.value));
+}
 const minimaxTTSApiKeyInput = document.getElementById(
   "minimaxTTSApiKey"
 ) as HTMLInputElement;
@@ -1267,6 +1289,7 @@ function bindEvents(): void {
   apiProviderSelect.addEventListener("change", handleApiProviderChange);
   openaiAuthModeSelect.addEventListener("change", handleOpenAIAuthModeChange);
   apiBaseUrlInput.addEventListener("blur", autoSave);
+  apiBaseUrlPresetSelect.addEventListener("change", autoSave);
   apiKeyInput.addEventListener("blur", handleApiKeyBlur);
   modelSelect.addEventListener("change", handleModelChange);
   customModelInput.addEventListener("blur", autoSave);
@@ -1311,6 +1334,7 @@ function bindEvents(): void {
   });
 
   // Settings - MiniMax TTS 配置自动保存
+  minimaxTTSBaseUrlSelect.addEventListener("change", handleMiniMaxTTSModelChange);
   minimaxTTSApiKeyInput.addEventListener("input", handleMiniMaxTTSConfigInput);
   minimaxTTSApiKeyInput.addEventListener("blur", autoSave);
   minimaxTTSModelSelect.addEventListener("change", handleMiniMaxTTSModelChange);
@@ -1820,6 +1844,8 @@ function collectFormData(): void {
   const apiBaseUrl =
     selectedProvider === "custom"
       ? apiBaseUrlInput.value.trim()
+      : selectedProvider === "minimax"
+      ? normalizeMiniMaxAIBaseUrl(apiBaseUrlPresetSelect.value)
       : getPresetApiBaseUrl(selectedProvider);
   const modelValue =
     modelSelect.style.display === "none"
@@ -1907,10 +1933,15 @@ function collectFormData(): void {
   const minimaxTTSVoiceId = minimaxTTSVoiceSelect.value.trim();
   const minimaxEmotion = getMiniMaxEmotionFromUI();
   const hasCustomMiniMaxModel = minimaxTTSModel !== MINIMAX_TTS_DEFAULT_MODEL;
+  const minimaxTTSBaseUrl = normalizeMiniMaxTTSBaseUrl(
+    minimaxTTSBaseUrlSelect.value
+  );
+  const hasCustomMiniMaxBaseUrl = minimaxTTSBaseUrl !== MINIMAX_TTS_API_BASE_URL;
 
-  if (minimaxTTSApiKey || hasCustomMiniMaxModel || minimaxTTSVoiceId || minimaxEmotion) {
+  if (minimaxTTSApiKey || hasCustomMiniMaxModel || minimaxTTSVoiceId || minimaxEmotion || hasCustomMiniMaxBaseUrl) {
     currentConfig.minimax_tts = {
       api_key: minimaxTTSApiKey,
+      ...(hasCustomMiniMaxBaseUrl ? { api_base_url: minimaxTTSBaseUrl } : {}),
       ...(hasCustomMiniMaxModel ? { model: minimaxTTSModel } : {}),
       ...(minimaxTTSVoiceId ? { voice_id: minimaxTTSVoiceId } : {}),
       ...(minimaxEmotion ? { emotion: minimaxEmotion } : {}),
@@ -2005,6 +2036,9 @@ function updateSettingsForm(): void {
   alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
 
   // MiniMax TTS 配置
+  minimaxTTSBaseUrlSelect.value = normalizeMiniMaxTTSBaseUrl(
+    currentConfig.minimax_tts?.api_base_url
+  );
   minimaxTTSApiKeyInput.value = currentConfig.minimax_tts?.api_key || "";
   minimaxTTSModelSelect.value = normalizeMiniMaxTTSModel(
     currentConfig.minimax_tts?.model
@@ -2420,12 +2454,24 @@ function applyApiProviderSelection(
   currentBaseUrl: string
 ): void {
   if (providerType === "custom") {
+    apiBaseUrlInput.style.display = "";
+    apiBaseUrlPresetSelect.style.display = "none";
     apiBaseUrlInput.readOnly = false;
     apiBaseUrlInput.value = currentBaseUrl;
     apiBaseUrlInput.placeholder = "https://api.example.com";
     return;
   }
 
+  if (providerType === "minimax") {
+    // MiniMax 提供国际/国内两条固定线路，按代理环境手动切换
+    apiBaseUrlInput.style.display = "none";
+    apiBaseUrlPresetSelect.style.display = "";
+    apiBaseUrlPresetSelect.value = normalizeMiniMaxAIBaseUrl(currentBaseUrl);
+    return;
+  }
+
+  apiBaseUrlInput.style.display = "";
+  apiBaseUrlPresetSelect.style.display = "none";
   apiBaseUrlInput.readOnly = true;
   apiBaseUrlInput.value = getPresetApiBaseUrl(providerType);
 }

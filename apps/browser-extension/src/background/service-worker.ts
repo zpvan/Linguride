@@ -68,7 +68,7 @@ import {
   ListeningAnalysisResult,
   Message,
   MessageType,
-  MINIMAX_TTS_API_BASE_URL,
+  normalizeMiniMaxTTSBaseUrl,
   MINIMAX_TTS_DEFAULT_MODEL,
   MINIMAX_TTS_DEFAULT_VOICE_ID,
   MiniMaxTTSModel,
@@ -516,6 +516,10 @@ function getXiaomiTTSVoice(config: LingridConfig): XiaomiTTSVoice {
 
 function getMiniMaxTTSModel(config: LingridConfig): MiniMaxTTSModel {
   return normalizeMiniMaxTTSModel(config.minimax_tts?.model);
+}
+
+function getMiniMaxTTSBaseUrl(config: LingridConfig): string {
+  return normalizeMiniMaxTTSBaseUrl(config.minimax_tts?.api_base_url);
 }
 
 function getMiniMaxTTSVoiceId(config: LingridConfig): string {
@@ -987,6 +991,7 @@ async function requestXiaomiTTSAudio(
 }
 
 async function uploadMiniMaxTextInput(
+  baseUrl: string,
   apiKey: string,
   text: string
 ): Promise<MiniMaxFileId> {
@@ -1001,7 +1006,7 @@ async function uploadMiniMaxTextInput(
   let response: globalThis.Response;
 
   try {
-    response = await fetch(buildMiniMaxTTSUploadUrl(MINIMAX_TTS_API_BASE_URL), {
+    response = await fetch(buildMiniMaxTTSUploadUrl(baseUrl), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -1071,6 +1076,7 @@ async function createMiniMaxTTSTask(
   }
 
   const apiKey = minimaxTTSConfig.api_key.trim();
+  const baseUrl = getMiniMaxTTSBaseUrl(config);
   const requestBody: Record<string, unknown> = {
     model: getMiniMaxTTSModel(config),
     language_boost: "auto",
@@ -1095,7 +1101,7 @@ async function createMiniMaxTTSTask(
   }
 
   if (text.length > MINIMAX_TTS_TEXT_MAX_CHARS) {
-    requestBody.text_file_id = await uploadMiniMaxTextInput(apiKey, text);
+    requestBody.text_file_id = await uploadMiniMaxTextInput(baseUrl, apiKey, text);
   } else {
     requestBody.text = text;
   }
@@ -1104,7 +1110,7 @@ async function createMiniMaxTTSTask(
 
   try {
     response = await fetch(
-      buildMiniMaxTTSCreateTaskUrl(MINIMAX_TTS_API_BASE_URL),
+      buildMiniMaxTTSCreateTaskUrl(baseUrl),
       {
         method: "POST",
         headers: {
@@ -1159,6 +1165,7 @@ async function createMiniMaxTTSTask(
 }
 
 async function queryMiniMaxTTSTask(
+  baseUrl: string,
   apiKey: string,
   taskId: MiniMaxTaskId
 ): Promise<MiniMaxTTSQueryTaskResponse> {
@@ -1166,7 +1173,7 @@ async function queryMiniMaxTTSTask(
 
   try {
     response = await fetch(
-      buildMiniMaxTTSQueryUrl(MINIMAX_TTS_API_BASE_URL, taskId),
+      buildMiniMaxTTSQueryUrl(baseUrl, taskId),
       {
         method: "GET",
         headers: {
@@ -1207,6 +1214,7 @@ async function queryMiniMaxTTSTask(
 }
 
 async function waitForMiniMaxTaskFileId(
+  baseUrl: string,
   apiKey: string,
   taskId: MiniMaxTaskId,
   initialFileId?: MiniMaxFileId
@@ -1215,7 +1223,7 @@ async function waitForMiniMaxTaskFileId(
   let fileId = initialFileId;
 
   while (Date.now() - startedAt < MINIMAX_TTS_POLL_TIMEOUT_MS) {
-    const data = await queryMiniMaxTTSTask(apiKey, taskId);
+    const data = await queryMiniMaxTTSTask(baseUrl, apiKey, taskId);
     if (data.file_id) {
       fileId = data.file_id;
     }
@@ -1263,6 +1271,7 @@ async function waitForMiniMaxTaskFileId(
 }
 
 async function downloadMiniMaxTTSAudio(
+  baseUrl: string,
   apiKey: string,
   fileId: MiniMaxFileId
 ): Promise<TTSAudioData> {
@@ -1270,7 +1279,7 @@ async function downloadMiniMaxTTSAudio(
 
   try {
     response = await fetch(
-      buildMiniMaxTTSFileRetrieveUrl(MINIMAX_TTS_API_BASE_URL, fileId),
+      buildMiniMaxTTSFileRetrieveUrl(baseUrl, fileId),
       {
         method: "GET",
         headers: {
@@ -1327,9 +1336,10 @@ async function requestMiniMaxTTSAudio(
     });
   }
 
+  const baseUrl = getMiniMaxTTSBaseUrl(context.config);
   const { taskId, fileId } = await createMiniMaxTTSTask(context);
-  const outputFileId = await waitForMiniMaxTaskFileId(apiKey, taskId, fileId);
-  return downloadMiniMaxTTSAudio(apiKey, outputFileId);
+  const outputFileId = await waitForMiniMaxTaskFileId(baseUrl, apiKey, taskId, fileId);
+  return downloadMiniMaxTTSAudio(baseUrl, apiKey, outputFileId);
 }
 
 async function requestTTSAudioByProvider(

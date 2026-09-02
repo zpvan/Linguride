@@ -105,6 +105,9 @@ export class MiniMaxProvider extends BaseTranslateProvider {
         headers: {
           "Content-Type": "application/json",
           "anthropic-version": "2023-06-01",
+          // MiniMax Anthropic 兼容接口按官方文档以 x-api-key 鉴权,
+          // 同时附带 Authorization 以兼容仍按 Bearer 校验的网关。
+          "x-api-key": this.config.apiKey,
           Authorization: `Bearer ${this.config.apiKey}`,
         },
         body: JSON.stringify(requestBody),

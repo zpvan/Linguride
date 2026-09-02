@@ -206,6 +206,7 @@
               <div id="apiBaseUrlRow" class="settings-row">
                 <label class="settings-label" for="apiBaseUrl">端点</label>
                 <input type="text" id="apiBaseUrl" class="settings-input" placeholder="https://api.deepseek.com">
+                <select id="apiBaseUrlPreset" class="settings-select" style="display: none;"></select>
               </div>
               <div id="apiKeyDivider" class="settings-divider"></div>
               <div id="apiKeyRow" class="settings-row">
@@ -383,13 +384,7 @@
                   <div class="accordion-inner">
                     <div class="settings-row">
                       <label class="settings-label" for="minimaxTTSBaseUrl">端点</label>
-                      <input
-                        type="text"
-                        id="minimaxTTSBaseUrl"
-                        class="settings-input"
-                        value="https://api.minimaxi.com/v1"
-                        readonly
-                      >
+                      <select id="minimaxTTSBaseUrl" class="settings-select"></select>
                     </div>
                     <div class="settings-divider"></div>
                     <div class="settings-row">

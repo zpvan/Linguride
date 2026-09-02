@@ -6,12 +6,14 @@ import {
   DEEPSEEK_MODEL_OPTIONS_FALLBACK,
   GLM_MODEL_OPTIONS,
   MINIMAX_DEFAULT_MODEL,
+  MINIMAX_ENDPOINT_OPTIONS,
   MINIMAX_MODEL_OPTIONS,
   fetchDeepSeekModels,
   getCachedDeepSeekModels,
   getDeepSeekModelOptions,
   getDefaultModelForProvider,
   getStaticModelOptions,
+  normalizeMiniMaxAIBaseUrl,
   normalizeModelForProviderSwitch,
   setCachedDeepSeekModels,
 } from "./aiServiceOptions";
@@ -33,6 +35,37 @@ describe("aiServiceOptions", () => {
       { value: "custom", label: "自定义..." },
     ]);
     expect(CUSTOM_MODEL_PLACEHOLDER).toBe("输入模型名称");
+  });
+
+  it("exposes switchable minimax endpoint lines", () => {
+    expect(MINIMAX_ENDPOINT_OPTIONS).toEqual([
+      {
+        value: "https://api.minimaxi.com/anthropic",
+        label: "国际线路 (api.minimaxi.com)",
+      },
+      {
+        value: "https://api.minimax.cn/anthropic",
+        label: "国内直连 (api.minimax.cn)",
+      },
+    ]);
+  });
+
+  it("normalizes the minimax ai base url to a known endpoint", () => {
+    expect(normalizeMiniMaxAIBaseUrl("https://api.minimax.cn/anthropic")).toBe(
+      "https://api.minimax.cn/anthropic"
+    );
+    expect(normalizeMiniMaxAIBaseUrl("https://api.minimax.cn/anthropic/")).toBe(
+      "https://api.minimax.cn/anthropic"
+    );
+    expect(normalizeMiniMaxAIBaseUrl("https://api.minimaxi.com/anthropic")).toBe(
+      "https://api.minimaxi.com/anthropic"
+    );
+    expect(normalizeMiniMaxAIBaseUrl("https://example.invalid")).toBe(
+      "https://api.minimaxi.com/anthropic"
+    );
+    expect(normalizeMiniMaxAIBaseUrl(undefined)).toBe(
+      "https://api.minimaxi.com/anthropic"
+    );
   });
 
   it("returns the minimax default when switching from a preset selection", () => {

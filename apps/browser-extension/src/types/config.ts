@@ -307,6 +307,9 @@ export interface MiniMaxTTSConfig {
 
   /** 可选情绪风格，留空时不添加情绪 */
   emotion?: MiniMaxEmotion;
+
+  /** 可选基础端点（国际/国内直连），留空时使用默认国际线路 */
+  api_base_url?: string;
 }
 
 /**
@@ -378,14 +381,36 @@ export interface LingridConfig {
 }
 
 /**
- * MiniMax TTS 固定基础端点
+ * MiniMax TTS 基础端点（国际线路，走系统代理时可用）
  */
 export const MINIMAX_TTS_API_BASE_URL = "https://api.minimaxi.com/v1";
 
 /**
- * MiniMax AI 固定基础端点
+ * MiniMax TTS 基础端点（国内直连，不走代理时可用）
+ */
+export const MINIMAX_TTS_API_BASE_URL_CN = "https://api.minimax.cn/v1";
+
+/**
+ * MiniMax AI 基础端点（国际线路，走系统代理时可用）
  */
 export const MINIMAX_AI_API_BASE_URL = "https://api.minimaxi.com/anthropic";
+
+/**
+ * MiniMax AI 基础端点（国内直连，不走代理时可用）
+ */
+export const MINIMAX_AI_API_BASE_URL_CN = "https://api.minimax.cn/anthropic";
+
+/**
+ * 归一化 MiniMax TTS 基础端点，仅接受国际/国内两条固定线路，
+ * 其他值一律回退到国际线路。
+ */
+export function normalizeMiniMaxTTSBaseUrl(value?: string | null): string {
+  const normalized = value?.trim().replace(/\/+$/, "").toLowerCase();
+  if (normalized === MINIMAX_TTS_API_BASE_URL_CN) {
+    return MINIMAX_TTS_API_BASE_URL_CN;
+  }
+  return MINIMAX_TTS_API_BASE_URL;
+}
 
 /**
  * MiniMax TTS 默认模型
@@ -503,7 +528,10 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
   if (normalized === "https://open.bigmodel.cn/api/paas/v4") {
     return "glm";
   }
-  if (normalized === MINIMAX_AI_API_BASE_URL) {
+  if (
+    normalized === MINIMAX_AI_API_BASE_URL ||
+    normalized === MINIMAX_AI_API_BASE_URL_CN
+  ) {
     return "minimax";
   }
   return "custom";
