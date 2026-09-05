@@ -4,9 +4,11 @@
  */
 
 import {
+  GetTTSSynthesisStatusResponse,
   MessageType,
   SynthesizeSpeechResponse,
   TTSSpeed,
+  TTSSynthesisStage,
 } from "../types";
 
 const DEFAULT_FALLBACK_WARNING =
@@ -19,6 +21,12 @@ interface ActivePlayback {
   onEnd?: () => void;
 }
 
+/** AI 合成进度 */
+export interface TTSSynthesisProgress {
+  stage: TTSSynthesisStage;
+  elapsedMs: number;
+}
+
 export interface PlayTextOptions {
   text: string;
   rate: TTSSpeed;
@@ -27,11 +35,17 @@ export interface PlayTextOptions {
   onEnd?: () => void;
   onFallbackWarning?: (message: string) => void;
   fallbackWarningMessage?: string;
+  /** AI 合成进度回调（传入后启用进度跟踪，onStart 延迟到 ready 阶段触发） */
+  onProgress?: (progress: TTSSynthesisProgress) => void;
+  /** AI 合成失败回调，携带具体失败原因 */
+  onAIError?: (message: string) => void;
 }
 
 export interface HybridTTSPlayer {
   playText(options: PlayTextOptions): Promise<void>;
   playTextTwice(options: PlayTextOptions & { gapMs?: number }): Promise<void>;
+  /** 取消正在进行中的 AI 合成（不影响后续的浏览器回退朗读） */
+  cancelAIPlayback(): void;
   stop(): void;
   isPlaying(): boolean;
 }
@@ -124,6 +138,11 @@ export function createHybridTTSPlayer(
   // 仅当本实例发起过 AI 播放时才为 true，用于避免向 service worker
   // 发送全局 STOP_TTS_PLAYBACK 时误停其他页面的播放
   let ownsAIPlayback = false;
+  // AI 合成进度轮询间隔
+  const AI_STATUS_POLL_INTERVAL_MS = 700;
+  // 当前进行中的 AI 合成请求 ID（未启用进度跟踪时为 null）
+  let activeAIRequestId: string | null = null;
+  let aiRequestCounter = 0;
 
   function isCurrentRun(token: number): boolean {
     return token === runToken;
@@ -247,39 +266,119 @@ export function createHybridTTSPlayer(
     });
   }
 
+  interface PlayAICallbacks {
+    onStart?: () => void;
+    onEnd?: () => void;
+    onProgress?: (progress: TTSSynthesisProgress) => void;
+  }
+
+  async function pollAISynthesisStatus(
+    requestId: string,
+    token: number,
+    onProgress: (progress: TTSSynthesisProgress) => void,
+    onReady: () => void
+  ): Promise<void> {
+    try {
+      const response: GetTTSSynthesisStatusResponse =
+        await chrome.runtime.sendMessage({
+          type: MessageType.GET_TTS_SYNTHESIS_STATUS,
+          payload: { requestId },
+        });
+
+      if (!response?.success || !response.data || !isCurrentRun(token)) return;
+      if (response.data.stage === "unknown") return;
+
+      onProgress({
+        stage: response.data.stage,
+        elapsedMs: response.data.elapsedMs,
+      });
+
+      if (response.data.stage === "ready") {
+        onReady();
+      }
+    } catch {
+      // Service worker 休眠等场景，忽略本次轮询
+    }
+  }
+
   async function playAISpeech(
     text: string,
     rate: TTSSpeed,
     token: number,
-    onStart?: () => void,
-    onEnd?: () => void
+    callbacks: PlayAICallbacks
   ): Promise<SynthesizeSpeechResponse> {
+    const { onStart, onEnd, onProgress } = callbacks;
+
     if (!isCurrentRun(token)) {
       return {
         success: false,
-        errorCode: "TTS_UNKNOWN_ERROR",
+        errorCode: "TTS_CANCELLED",
         error: "朗读已取消",
       };
     }
 
-    onStart?.();
+    const trackProgress = typeof onProgress === "function";
+    const requestId = trackProgress
+      ? `tts-${Date.now()}-${++aiRequestCounter}`
+      : undefined;
+    activeAIRequestId = requestId ?? null;
+
+    // 未启用进度跟踪时 onStart 已在请求发出时触发，不再补发 ready 通知
+    let readyNotified = !trackProgress;
+    const notifyReady = () => {
+      if (readyNotified || !isCurrentRun(token)) return;
+      readyNotified = true;
+      onStart?.();
+    };
+
+    // 未启用进度跟踪时保持原行为：请求发出即标记播放中
+    if (!trackProgress) {
+      onStart?.();
+    }
+
+    let pollTimer: ReturnType<typeof setInterval> | undefined;
+    if (requestId && onProgress) {
+      void pollAISynthesisStatus(requestId, token, onProgress, notifyReady);
+      pollTimer = setInterval(() => {
+        void pollAISynthesisStatus(requestId, token, onProgress, notifyReady);
+      }, AI_STATUS_POLL_INTERVAL_MS);
+    }
 
     ownsAIPlayback = true;
     try {
       const response: SynthesizeSpeechResponse =
         await chrome.runtime.sendMessage({
           type: MessageType.SYNTHESIZE_SPEECH,
-          payload: { text, rate },
+          payload: { text, rate, requestId },
         });
 
       if (response.success && isCurrentRun(token)) {
+        notifyReady();
         onEnd?.();
       }
 
       return response;
     } finally {
+      if (pollTimer !== undefined) {
+        clearInterval(pollTimer);
+      }
+      activeAIRequestId = null;
       ownsAIPlayback = false;
     }
+  }
+
+  function cancelAIPlayback(): void {
+    const requestId = activeAIRequestId;
+    if (!requestId) return;
+
+    void chrome.runtime
+      .sendMessage({
+        type: MessageType.CANCEL_TTS_SYNTHESIS,
+        payload: { requestId },
+      })
+      .catch(() => {
+        // Service worker 可能已休眠，忽略取消失败
+      });
   }
 
   async function playTextInternal(
@@ -294,6 +393,8 @@ export function createHybridTTSPlayer(
       lang = "en-US",
       onStart,
       onEnd,
+      onProgress,
+      onAIError,
       onFallbackWarning,
       fallbackWarningMessage = DEFAULT_FALLBACK_WARNING,
     } = playOptions;
@@ -302,7 +403,11 @@ export function createHybridTTSPlayer(
 
     if (shouldTryAI) {
       try {
-        const response = await playAISpeech(text, rate, token, onStart, onEnd);
+        const response = await playAISpeech(text, rate, token, {
+          onStart,
+          onEnd,
+          onProgress,
+        });
 
         if (!isCurrentRun(token)) return;
 
@@ -314,7 +419,13 @@ export function createHybridTTSPlayer(
           return;
         }
 
-        if (
+        // 用户主动取消：静默回退浏览器朗读，不显示警告
+        if (response.errorCode === "TTS_CANCELLED") {
+          // fall through
+        } else if (response.error && onAIError) {
+          fallbackWarningShown = true;
+          onAIError(response.error);
+        } else if (
           response.errorCode !== "TTS_NOT_CONFIGURED" &&
           !fallbackWarningShown
         ) {
@@ -369,6 +480,7 @@ export function createHybridTTSPlayer(
   return {
     playText,
     playTextTwice,
+    cancelAIPlayback,
     stop,
     isPlaying,
   };
