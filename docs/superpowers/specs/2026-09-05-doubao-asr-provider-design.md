@@ -20,7 +20,7 @@
 
 ### 鉴权头注入
 
-浏览器 WebSocket API 不支持自定义 header。manifest 增加 `declarativeNetRequest` 权限，service worker 在启动与配置保存时用 `chrome.declarativeNetRequest.updateSessionRules` 给 `openspeech.bytedance.com/api/v3/sauc/*` 的 WebSocket 握手注入三个头：
+浏览器 WebSocket API 不支持自定义 header。manifest 增加 `declarativeNetRequest` 权限，service worker 在启动与配置保存时用 `chrome.declarativeNetRequest.updateSessionRules` 给 `openspeech.bytedance.com/api/v3/plan/sauc/*` 的 WebSocket 握手注入三个头：
 
 - `X-Api-Key: <doubao_asr.api_key>`
 - `X-Api-Resource-Id: volc.seedasr.sauc.duration`
@@ -47,7 +47,7 @@ payload（compression=1 时 gzip）
 
 ### 会话流程
 
-1. 建连 `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream`
+1. 建连 `wss://openspeech.bytedance.com/api/v3/plan/sauc/bigmodel_nostream`（**注意：方舟 Agent Plan 走 `/api/v3/plan/` 网关路径**；通用 `/api/v3/sauc/` 路径对方舟 key 返回 401，实测确认）
 2. 发 full client request（seq=1，JSON+gzip）：`{ user: { uid }, audio: { format: "pcm", codec: "raw", rate: 16000, bits: 16, channel: 1 }, request: { model_name: "bigmodel", enable_punc: true } }`
 3. 复用现有 `audioCapture` 的 16kHz PCM 采集，每 ~200ms 一帧发 audio only request（seq 递增，gzip PCM）
 4. stop：发负包（seq 取负），等服务端最后一包（sequence < 0）取整句结果

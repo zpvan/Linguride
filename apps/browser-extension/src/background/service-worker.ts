@@ -690,7 +690,7 @@ async function syncDoubaoASRHeaderRule(): Promise<void> {
                 ],
               },
               condition: {
-                urlFilter: "openspeech.bytedance.com/api/v3/sauc/",
+                urlFilter: "openspeech.bytedance.com/api/v3/plan/sauc/",
                 resourceTypes: [
                   chrome.declarativeNetRequest.ResourceType.WEBSOCKET,
                 ],

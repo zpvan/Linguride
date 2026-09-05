@@ -189,9 +189,9 @@ export interface DoubaoASRConfig {
   api_key: string;
 }
 
-/** 豆包 ASR WebSocket 地址（SAUC 单向流式） */
+/** 豆包 ASR WebSocket 地址（方舟 Agent Plan SAUC 单向流式） */
 export const DOUBAO_ASR_WS_URL =
-  "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream";
+  "wss://openspeech.bytedance.com/api/v3/plan/sauc/bigmodel_nostream";
 
 /** 豆包 ASR 资源 ID（volc.seedasr.sauc.duration = 豆包流式语音识别模型 2.0 小时版） */
 export const DOUBAO_ASR_RESOURCE_ID = "volc.seedasr.sauc.duration";

@@ -23,7 +23,7 @@ const wav = new Uint8Array(await Bun.file(wavPath).arrayBuffer());
 const pcm = wav.subarray(44);
 
 const ws = new WebSocket(
-  "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream",
+  "wss://openspeech.bytedance.com/api/v3/plan/sauc/bigmodel_nostream",
   {
     headers: {
       "X-Api-Key": apiKey,
