@@ -48,7 +48,8 @@ CEFR 水平对应：
       "text": "句子原文",
       "difficulty": "i+1 难度说明，如：包含从句结构和一个 B2 级词汇 'comprehensive'",
       "keyWords": ["需要注意的词汇或短语"],
-      "listeningTips": "听写提示，如：注意 'want to' 的连读发音 /wɑnə/"
+      "listeningTips": "听写提示，如：注意 'want to' 的连读发音 /wɑnə/",
+      "phonetics": "整句美式音标，如：/ðə kwɪk braʊn fɑːks dʒʌmps ˈoʊvər ðə ˈleɪzi dɔːɡ/"
     }
   ],
   "overallLevel": "文本整体难度评估，如：B1-B2"
@@ -60,6 +61,7 @@ CEFR 水平对应：
 - difficulty 要具体说明为什么这个句子适合 i+1 学习
 - keyWords 列出 1-3 个关键词汇
 - listeningTips 要指出具体的听力难点（连读、弱读、重音等）
+- phonetics 为整句的美式发音（GA）IPA 音标，斜杠包裹、词间空格分隔
 - 如果输入文本过短（少于 10 词），直接返回原文作为单句`,
 
   user_prompt_template: `用户 CEFR 水平：{{userLevel}}

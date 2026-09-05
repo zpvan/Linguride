@@ -23,6 +23,8 @@ export interface CorpusSentence {
   keyWords: string[];
   /** 听写提示（如：注意连读、弱读等） */
   listeningTips: string;
+  /** 整句美式 IPA 音标（可选，如 /ðə kwɪk braʊn fɑːks/） */
+  phonetics?: string;
 }
 
 /** 断句结果 */
