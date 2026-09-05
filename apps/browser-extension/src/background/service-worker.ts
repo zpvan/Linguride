@@ -99,6 +99,7 @@ import {
   GetTTSSynthesisStatusResponse,
   CancelTTSSynthesisResponse,
   DiagnoseTTSResponse,
+  DoubaoASRPrepareResponse,
   XIAOMI_TTS_API_BASE_URL,
   XIAOMI_TTS_MODEL,
   normalizeXiaomiTTSVoice,
@@ -2193,6 +2194,24 @@ const DIAGNOSE_TTS_TEXT =
   "Hello from Lingride. This is a speech synthesis diagnostic sample.";
 
 /**
+ * 处理 DOUBAO_ASR_PREPARE 消息
+ *
+ * 识别器建连前调用：确保 DNR 鉴权头注入规则就位。
+ * 会话规则在扩展重载/更新后被清空，仅靠 SW 启动时同步存在时序缺口。
+ */
+async function handleDoubaoASRPrepare(): Promise<DoubaoASRPrepareResponse> {
+  try {
+    await syncDoubaoASRHeaderRule();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "豆包 ASR 准备失败",
+    };
+  }
+}
+
+/**
  * 处理 DIAGNOSE_TTS 消息
  *
  * 顺序跑多次采样合成，汇总成功率、耗时与失败原因分布。
@@ -4149,6 +4168,10 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.DIAGNOSE_TTS:
           response = await handleDiagnoseTTS(message.payload.provider);
+          break;
+
+        case MessageType.DOUBAO_ASR_PREPARE:
+          response = await handleDoubaoASRPrepare();
           break;
 
         case MessageType.STOP_TTS_PLAYBACK:

@@ -144,6 +144,10 @@ export enum MessageType {
   /** 阿里云 ASR 实时识别结果（Background -> Tutor，通过 Port） */
   ALIBABA_ASR_RESULT = "ALIBABA_ASR_RESULT",
 
+  // ====== 豆包 ASR ======
+  /** 豆包 ASR 连接前准备（确保 DNR 鉴权头注入规则就位） */
+  DOUBAO_ASR_PREPARE = "DOUBAO_ASR_PREPARE",
+
   // ====== 语料库听力训练 ======
   /** 语料库断句（i+1 难度） */
   SEGMENT_CORPUS = "SEGMENT_CORPUS",
@@ -599,6 +603,21 @@ export interface AlibabaASRResultMessage {
 }
 
 /**
+ * 豆包 ASR 连接前准备消息
+ *
+ * 识别器建连前发送，确保 DNR 鉴权头注入规则就位（会话规则在扩展
+ * 重载/更新后会被清空，仅靠 SW 启动时同步存在时序缺口）。
+ */
+export interface DoubaoASRPrepareMessage {
+  type: MessageType.DOUBAO_ASR_PREPARE;
+}
+
+/**
+ * 豆包 ASR 连接前准备响应
+ */
+export type DoubaoASRPrepareResponse = BaseResponse;
+
+/**
  * 语料库断句消息
  *
  * 请求 AI 根据用户 CEFR 水平对语料文本进行 i+1 难度断句。
@@ -670,6 +689,7 @@ export type Message =
   | AlibabaASRAudioMessage
   | AlibabaASRStopMessage
   | AlibabaASRResultMessage
+  | DoubaoASRPrepareMessage
   | SegmentCorpusMessage
   | AnalyzeListeningMessage
   | GetTTSSynthesisStatusMessage
@@ -1119,5 +1139,6 @@ export type Response =
   | TencentASRSignResponse
   | AlibabaASRStartResponse
   | AlibabaASRStopResponse
+  | DoubaoASRPrepareResponse
   | SegmentCorpusResponse
   | AnalyzeListeningResponse;

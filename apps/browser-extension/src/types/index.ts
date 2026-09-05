@@ -147,6 +147,8 @@ export type {
   CancelTTSSynthesisResponse,
   DiagnoseTTSMessage,
   DiagnoseTTSResponse,
+  DoubaoASRPrepareMessage,
+  DoubaoASRPrepareResponse,
   GetTTSSynthesisStatusMessage,
   GetTTSSynthesisStatusResponse,
   TTSDiagnoseSummary,

@@ -6,7 +6,12 @@
  * 通过 declarativeNetRequest 会话规则注入，页面侧无需感知。
  */
 
-import { DOUBAO_ASR_WS_URL, LingridConfig } from "../types";
+import {
+  DOUBAO_ASR_WS_URL,
+  DoubaoASRPrepareResponse,
+  LingridConfig,
+  MessageType,
+} from "../types";
 import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
 import { acquireStream, releaseStream } from "./audioCapture";
 import {
@@ -58,6 +63,15 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
     this.sequence = 1;
     this.lastPackageReceived = false;
     this._isRecognizing = false;
+
+    // 建连前确保 DNR 鉴权头注入规则就位（会话规则在扩展重载后会被清空，
+    // 仅靠 SW 启动时同步存在时序缺口，连接前主动确认一次）
+    const prepare: DoubaoASRPrepareResponse = await chrome.runtime.sendMessage({
+      type: MessageType.DOUBAO_ASR_PREPARE,
+    });
+    if (!prepare?.success) {
+      throw new Error(prepare?.error || "豆包 ASR 鉴权准备失败");
+    }
 
     await this.connectWebSocket();
     await this.startAudioCapture();
