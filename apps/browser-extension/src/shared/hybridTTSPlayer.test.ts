@@ -197,7 +197,9 @@ describe("createHybridTTSPlayer AI progress", () => {
     const playPromise = player.playText({
       text: "hello world",
       rate: 1,
-      onProgress: () => {},
+      onProgress: () => {
+        // 空实现：仅用于启用进度跟踪
+      },
     });
 
     await vi.advanceTimersByTimeAsync(100);

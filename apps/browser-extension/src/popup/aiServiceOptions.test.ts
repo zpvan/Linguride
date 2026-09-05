@@ -104,9 +104,15 @@ describe("aiServiceOptions", () => {
 describe("DeepSeek 模型列表缓存", () => {
   const mockLocalStorage = {
     getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
+    setItem: () => {
+      // 空实现：测试不关心写入行为
+    },
+    removeItem: () => {
+      // 空实现：测试不关心删除行为
+    },
+    clear: () => {
+      // 空实现：测试不关心清空行为
+    },
   };
 
   beforeEach(() => {
