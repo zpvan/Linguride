@@ -156,6 +156,8 @@ const XIAOMI_TTS_REQUEST_PROMPT =
 const MINIMAX_TTS_TEST_TEXT = "Hello from Lingride.";
 const MINIMAX_TTS_AUDIO_FORMAT = "mp3";
 const MINIMAX_TTS_TEXT_MAX_CHARS = 50000;
+/** 短文本上限：不超过则走同步 t2a_v2（~1s 返回），避免异步任务排队 */
+const MINIMAX_TTS_SYNC_TEXT_MAX_CHARS = 10000;
 const MINIMAX_TTS_POLL_INTERVAL_MS = 500;
 const MINIMAX_TTS_POLL_TIMEOUT_MS = 300000; // 5 minutes
 const MINIMAX_TTS_UPLOAD_PURPOSE = "t2a_async_input";
@@ -260,6 +262,14 @@ interface MiniMaxTTSQueryTaskResponse extends MiniMaxBaseResponsePayload {
   task_id?: MiniMaxTaskId;
   status?: string;
   file_id?: MiniMaxFileId;
+}
+
+/** 同步 t2a_v2 响应：data.audio 为 hex 编码音频 */
+interface MiniMaxTTSSyncResponse extends MiniMaxBaseResponsePayload {
+  data?: {
+    audio?: string;
+    status?: number;
+  };
 }
 
 interface MiniMaxFileUploadResponse extends MiniMaxBaseResponsePayload {
@@ -394,6 +404,10 @@ function buildXiaomiTTSRequestUrl(baseUrl: string): string {
 
 function buildMiniMaxTTSCreateTaskUrl(baseUrl: string): string {
   return buildTTSRequestUrl(baseUrl, "t2a_async_v2");
+}
+
+function buildMiniMaxTTSSyncUrl(baseUrl: string): string {
+  return buildTTSRequestUrl(baseUrl, "t2a_v2");
 }
 
 function buildMiniMaxTTSQueryUrl(
@@ -903,6 +917,22 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
+/** hex 编码音频转 base64（同步 t2a_v2 响应的 data.audio 为 hex） */
+function hexToBase64(hex: string): string {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let index = 0; index < bytes.length; index++) {
+    bytes[index] = parseInt(hex.slice(index * 2, index * 2 + 2), 16);
+  }
+
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  }
+
+  return btoa(binary);
+}
+
 async function requestXiaomiTTSAudio(
   context: TTSProviderRequestContext
 ): Promise<TTSAudioData> {
@@ -1348,6 +1378,107 @@ interface TTSSynthesisProgressContext {
   requestId: string;
 }
 
+/**
+ * 同步 t2a_v2 合成：短文本直接返回 hex 编码音频（实测 ~1s），
+ * 避免异步任务排队导致的长时间等待与偶发挂起。
+ */
+async function requestMiniMaxTTSSyncAudio(
+  context: TTSProviderRequestContext
+): Promise<TTSAudioData> {
+  const { config, text } = context;
+  const minimaxTTSConfig = config.minimax_tts;
+  const apiKey = minimaxTTSConfig?.api_key?.trim();
+  if (!apiKey || !minimaxTTSConfig) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const requestBody: Record<string, unknown> = {
+    model: getMiniMaxTTSModel(config),
+    text,
+    stream: false,
+    language_boost: "auto",
+    voice_setting: {
+      voice_id: getMiniMaxTTSVoiceId(config),
+      speed: 1,
+      vol: 1,
+      pitch: 1,
+    },
+    audio_setting: {
+      format: MINIMAX_TTS_AUDIO_FORMAT,
+    },
+  };
+
+  const emotion = minimaxTTSConfig.emotion;
+  if (emotion) {
+    requestBody.voice_setting = {
+      ...(requestBody.voice_setting as Record<string, unknown>),
+      emotion,
+    };
+  }
+
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(
+      buildMiniMaxTTSSyncUrl(getMiniMaxTTSBaseUrl(config)),
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+  } catch (error) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "minimax",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  const data = parseJSONResponse<MiniMaxTTSSyncResponse>(responseText, {
+    provider: "minimax",
+    code: "TTS_UNKNOWN_ERROR",
+  });
+
+  ensureMiniMaxBaseResponseSuccess(responseText, data, "minimax");
+
+  const audioHex = data.data?.audio;
+  if (!audioHex) {
+    throw createTTSError({
+      provider: "minimax",
+      code: "TTS_AUDIO_INVALID",
+      detail: responseText.trim() || "MiniMax 同步合成未返回音频数据",
+    });
+  }
+
+  return {
+    audioBase64: hexToBase64(audioHex),
+    mimeType: "audio/mpeg",
+    provider: "minimax",
+  };
+}
+
 async function requestMiniMaxTTSAudio(
   context: TTSProviderRequestContext,
   progress?: TTSSynthesisProgressContext
@@ -1358,6 +1489,15 @@ async function requestMiniMaxTTSAudio(
       provider: "minimax",
       code: "TTS_NOT_CONFIGURED",
     });
+  }
+
+  // 短文本走同步接口：~1s 返回，避免异步任务排队
+  if (context.text.length <= MINIMAX_TTS_SYNC_TEXT_MAX_CHARS) {
+    const audio = await requestMiniMaxTTSSyncAudio(context);
+    if (progress) {
+      ttsSynthesisTaskRegistry.advance(progress.requestId, "ready");
+    }
+    return audio;
   }
 
   const baseUrl = getMiniMaxTTSBaseUrl(context.config);

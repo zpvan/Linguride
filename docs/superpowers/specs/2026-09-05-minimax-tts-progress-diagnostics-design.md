@@ -105,6 +105,19 @@ interface TTSSynthesisTaskState {
 - `hybridTTSPlayer`：`onProgress` 轮询节流、`TTS_CANCELLED` 回退浏览器朗读路径、不传回调时行为不变；
 - 诊断 handler：多次采样聚合逻辑（mock fetch）。
 
+## 修订记录
+
+### 2026-09-05 修订：短文本改走同步 t2a_v2 接口
+
+诊断脚本实测结论（5 次采样，speech-2.8-turbo，短句 ~60 字符）：
+
+- 异步 `t2a_async_v2`：合成耗时 6~15s，1/5 排队超过 60s 不完成（processing 挂起）
+- 同步 `t2a_v2`：~1s 稳定返回（3/3 成功）
+
+根因：异步接口面向长文本/批量任务，短句排队被低优先级调度，表现为"等很久才出声，偶尔永远出不来"。
+
+修订内容：`requestMiniMaxTTSAudio` 增加路由——文本 ≤ 10,000 字符走同步 `t2a_v2`（响应 `data.audio` 为 hex 编码，转 base64 后复用现有播放链路）；> 10,000 字符保留异步管线。进度机制下同步路径只有 `submitting → ready` 两个阶段。诊断功能与"测试连接"因采样文本为短句，自动走同步路径。
+
 ## 非目标（YAGNI）
 
 - 不做百分比进度（MiniMax 接口不支持）；
