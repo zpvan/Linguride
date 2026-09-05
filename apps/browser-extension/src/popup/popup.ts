@@ -68,6 +68,8 @@ import {
   TTSSelectionMode,
   XIAOMI_TTS_DEFAULT_VOICE,
   normalizeXiaomiTTSVoice,
+  DOUBAO_TTS_DEFAULT_VOICE,
+  normalizeDoubaoTTSVoice,
 } from "../types";
 import {
   AI_PROVIDER_BASE_URL_PRESETS,
@@ -367,6 +369,21 @@ const testXiaomiTTSBtn = document.getElementById(
 const xiaomiTTSStatus = document.getElementById(
   "xiaomiTTSStatus"
 ) as HTMLElement;
+const doubaoTTSApiKeyInput = document.getElementById(
+  "doubaoTTSApiKey"
+) as HTMLInputElement;
+const showDoubaoTTSKeyBtn = document.getElementById(
+  "showDoubaoTTSKeyBtn"
+) as HTMLButtonElement;
+const doubaoTTSVoiceSelect = document.getElementById(
+  "doubaoTTSVoice"
+) as HTMLSelectElement;
+const testDoubaoTTSBtn = document.getElementById(
+  "testDoubaoTTSBtn"
+) as HTMLButtonElement;
+const doubaoTTSStatus = document.getElementById(
+  "doubaoTTSStatus"
+) as HTMLElement;
 
 // Settings - MiniMax TTS 情绪风格
 const minimaxEmotionSummary = document.getElementById(
@@ -397,8 +414,10 @@ let currentOpenAIModelCatalog: OpenAIModelCatalogState | null = null;
 let currentMode: ReadingMode = null;
 let minimaxTTSResetTimer: number | null = null;
 let xiaomiTTSResetTimer: number | null = null;
+let doubaoTTSResetTimer: number | null = null;
 let isTestingMiniMaxTTS = false;
 let isTestingXiaomiTTS = false;
+let isTestingDoubaoTTS = false;
 let openAIModelCatalogPollTimer: number | null = null;
 let openAIModelCatalogPollAttempt = 0;
 let isRefreshingOpenAIModelCatalog = false;
@@ -1157,6 +1176,21 @@ function bindEvents(): void {
   // Settings - 测试小米 TTS 连接
   testXiaomiTTSBtn.addEventListener("click", handleTestXiaomiTTS);
 
+  // Settings - 豆包 TTS 配置自动保存
+  doubaoTTSApiKeyInput.addEventListener("input", handleDoubaoTTSConfigInput);
+  doubaoTTSApiKeyInput.addEventListener("blur", autoSave);
+  doubaoTTSVoiceSelect.addEventListener("change", handleDoubaoTTSVoiceChange);
+
+  // Settings - 显示/隐藏豆包 API Key
+  showDoubaoTTSKeyBtn.addEventListener("click", () => {
+    const isPassword = doubaoTTSApiKeyInput.type === "password";
+    doubaoTTSApiKeyInput.type = isPassword ? "text" : "password";
+    showDoubaoTTSKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
+  // Settings - 测试豆包 TTS 连接
+  testDoubaoTTSBtn.addEventListener("click", handleTestDoubaoTTS);
+
   // Settings - MiniMax TTS 情绪风格
   clearMiniMaxEmotionsBtn.addEventListener("click", handleClearMiniMaxEmotions);
   minimaxEmotionButtons.forEach((button) => {
@@ -1752,11 +1786,26 @@ function collectFormData(): void {
     delete currentConfig.xiaomi_tts;
   }
 
+  // 豆包 TTS 配置（API Key 为空视为禁用）
+  const doubaoTTSApiKey = doubaoTTSApiKeyInput.value.trim();
+  const doubaoTTSVoice = normalizeDoubaoTTSVoice(doubaoTTSVoiceSelect.value);
+  const hasCustomDoubaoVoice = doubaoTTSVoice !== DOUBAO_TTS_DEFAULT_VOICE;
+
+  if (doubaoTTSApiKey || hasCustomDoubaoVoice) {
+    currentConfig.doubao_tts = {
+      api_key: doubaoTTSApiKey,
+      ...(hasCustomDoubaoVoice ? { voice: doubaoTTSVoice } : {}),
+    };
+  } else {
+    delete currentConfig.doubao_tts;
+  }
+
   // TTS 提供者选择
   currentConfig.tts_selection = ttsProviderSelect.value as TTSSelectionMode;
 
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
+  updateDoubaoTTSButtonAvailability();
 }
 
 // ====== Settings 表单更新 ======
@@ -1764,10 +1813,13 @@ function collectFormData(): void {
 function updateSettingsForm(): void {
   isTestingMiniMaxTTS = false;
   isTestingXiaomiTTS = false;
+  isTestingDoubaoTTS = false;
   clearMiniMaxTTSResetTimer();
   clearXiaomiTTSResetTimer();
+  clearDoubaoTTSResetTimer();
   hideMiniMaxTTSStatus();
   hideXiaomiTTSStatus();
+  hideDoubaoTTSStatus();
 
   updateAiServiceForm();
 
@@ -1839,11 +1891,18 @@ function updateSettingsForm(): void {
     currentConfig.xiaomi_tts?.voice
   );
 
+  // 豆包 TTS 配置
+  doubaoTTSApiKeyInput.value = currentConfig.doubao_tts?.api_key || "";
+  doubaoTTSVoiceSelect.value = normalizeDoubaoTTSVoice(
+    currentConfig.doubao_tts?.voice
+  );
+
   // TTS 提供者选择
   ttsProviderSelect.value = currentConfig.tts_selection || "browser";
 
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
+  updateDoubaoTTSButtonAvailability();
 }
 
 function clearMiniMaxTTSResetTimer(): void {
@@ -1854,6 +1913,42 @@ function clearMiniMaxTTSResetTimer(): void {
 function clearXiaomiTTSResetTimer(): void {
   clearServiceTestResetTimer(xiaomiTTSResetTimer);
   xiaomiTTSResetTimer = null;
+}
+
+function clearDoubaoTTSResetTimer(): void {
+  clearServiceTestResetTimer(doubaoTTSResetTimer);
+  doubaoTTSResetTimer = null;
+}
+
+function showDoubaoTTSStatus(
+  message: string,
+  type: "success" | "error" | "loading"
+): void {
+  showServiceTestStatus(doubaoTTSStatus, message, type);
+}
+
+function hideDoubaoTTSStatus(): void {
+  hideServiceTestStatus(doubaoTTSStatus);
+}
+
+function setDoubaoTTSButtonState(
+  state: ServiceTestState,
+  disabled: boolean,
+  title: string
+): void {
+  setServiceTestButtonState(testDoubaoTTSBtn, state, disabled, title);
+}
+
+function updateDoubaoTTSButtonAvailability(): void {
+  clearDoubaoTTSResetTimer();
+  if (isTestingDoubaoTTS) return;
+
+  if (!doubaoTTSApiKeyInput.value.trim()) {
+    setDoubaoTTSButtonState("idle", true, "填写 API Key 后可测试");
+    return;
+  }
+
+  setDoubaoTTSButtonState("idle", false, "测试豆包语音合成服务");
 }
 
 function showMiniMaxTTSStatus(
@@ -2035,6 +2130,88 @@ function getXiaomiTTSFailureReason(
       return appendTTSErrorDetail("请求失败", response);
     default:
       return appendTTSErrorDetail("请求失败", response);
+  }
+}
+
+function getDoubaoTTSFailureReason(
+  response: TestTTSConnectionResponse
+): string {
+  switch (response.errorCode) {
+    case "TTS_NOT_CONFIGURED":
+      return "请先填写 API Key";
+    case "TTS_BAD_REQUEST":
+      return appendTTSErrorDetail("请求参数不正确", response);
+    case "TTS_AUTH_ERROR":
+      return "API Key 无效或无权限";
+    case "TTS_FORBIDDEN":
+      return "当前地区不可用，或 API Key 被风控";
+    case "TTS_CONTENT_BLOCKED":
+      return "输入内容触发审核拦截";
+    case "TTS_ENDPOINT_ERROR":
+      return appendTTSErrorDetail("端点不可用", response);
+    case "TTS_NETWORK_ERROR":
+      return "网络异常或端点无法访问";
+    case "TTS_RATE_LIMIT":
+      return "请求过于频繁或额度受限";
+    case "TTS_SERVER_ERROR":
+      return "豆包服务内部异常";
+    case "TTS_SERVER_BUSY":
+      return "豆包服务负载过高，请稍后重试";
+    case "TTS_AUDIO_INVALID":
+      return appendTTSErrorDetail("服务返回了无效音频数据", response);
+    default:
+      return appendTTSErrorDetail("请求失败", response);
+  }
+}
+
+function handleDoubaoTTSConfigInput(): void {
+  isTestingDoubaoTTS = false;
+  hideDoubaoTTSStatus();
+  updateDoubaoTTSButtonAvailability();
+}
+
+async function handleDoubaoTTSVoiceChange(): Promise<void> {
+  handleDoubaoTTSConfigInput();
+  await autoSave();
+}
+
+async function handleTestDoubaoTTS(event: Event): Promise<void> {
+  event.stopPropagation();
+
+  if (testDoubaoTTSBtn.disabled || !doubaoTTSApiKeyInput.value.trim()) {
+    return;
+  }
+
+  isTestingDoubaoTTS = true;
+  setDoubaoTTSButtonState("loading", true, "测试中...");
+  showDoubaoTTSStatus("正在测试豆包语音合成服务...", "loading");
+
+  try {
+    await autoSave();
+
+    const response: TestTTSConnectionResponse = await chrome.runtime.sendMessage({
+      type: MessageType.TEST_TTS_CONNECTION,
+      payload: { provider: "doubao" },
+    });
+
+    if (response.success) {
+      showDoubaoTTSStatus("连接成功", "success");
+      setDoubaoTTSButtonState("success", true, "测试成功");
+    } else {
+      const failureReason = getDoubaoTTSFailureReason(response);
+      showDoubaoTTSStatus(`连接失败：${failureReason}`, "error");
+      setDoubaoTTSButtonState("error", true, `连接失败：${failureReason}`);
+    }
+  } catch {
+    showDoubaoTTSStatus("连接失败：测试请求发送失败", "error");
+    setDoubaoTTSButtonState("error", true, "连接失败：测试请求发送失败");
+  } finally {
+    clearDoubaoTTSResetTimer();
+    doubaoTTSResetTimer = window.setTimeout(() => {
+      isTestingDoubaoTTS = false;
+      hideDoubaoTTSStatus();
+      updateDoubaoTTSButtonAvailability();
+    }, 5000);
   }
 }
 
