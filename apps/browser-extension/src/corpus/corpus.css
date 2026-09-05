@@ -513,11 +513,6 @@ body {
   transform: scale(0.95);
 }
 
-.btn-tts.btn-replay {
-  background: var(--bg-quaternary);
-  color: var(--text-primary);
-}
-
 .btn-tts.playing {
   background: var(--error);
 }

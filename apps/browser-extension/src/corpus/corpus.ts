@@ -100,7 +100,6 @@ const originalTextArea = document.getElementById("originalTextArea") as HTMLElem
 const originalText = document.getElementById("originalText") as HTMLElement;
 const listeningTips = document.getElementById("listeningTips") as HTMLElement;
 const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
-const replayBtn = document.getElementById("replayBtn") as HTMLButtonElement;
 const speedSelect = document.getElementById("speedSelect") as HTMLSelectElement;
 const playCount = document.getElementById("playCount") as HTMLElement;
 const ttsProgress = document.getElementById("ttsProgress") as HTMLElement;
@@ -292,7 +291,6 @@ function bindEvents(): void {
   // 练习控制
   toggleOriginalBtn.addEventListener("click", toggleOriginalText);
   playBtn.addEventListener("click", handlePlaySentence);
-  replayBtn.addEventListener("click", handleReplaySentence);
   ttsCancelBtn.addEventListener("click", () => {
     hideTTSProgress();
     corpusTTSPlayer.cancelAIPlayback();
@@ -542,12 +540,10 @@ function renderCurrentSentence(): void {
     originalTextArea.style.display = "block";
     toggleOriginalBtn.style.display = "none";
     playBtn.style.display = "none";
-    replayBtn.style.display = "none";
     showStatus(practiceStatus, "朗读功能不可用，请直接查看原文输入", "warning");
   } else {
     toggleOriginalBtn.style.display = "";
     playBtn.style.display = "";
-    replayBtn.style.display = "";
     hideStatus(practiceStatus);
   }
 
@@ -643,12 +639,7 @@ function handlePlaySentence(): void {
     });
 }
 
-function handleReplaySentence(): void {
-  handlePlaySentence();
-}
-
 // ====== 显示/隐藏原文 ======
-
 function toggleOriginalText(): void {
   const isShowing = originalTextArea.style.display !== "none";
 
