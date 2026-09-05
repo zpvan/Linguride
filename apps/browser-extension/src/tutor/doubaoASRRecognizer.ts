@@ -42,6 +42,10 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
   private finalTranscript = "";
   private connectTimeout: number | null = null;
   private lastPackageReceived = false;
+  /** 发送队列：保证音频帧按序到达（gzip 编码是异步的，直接 .then 会乱序） */
+  private sendQueue: Promise<void> = Promise.resolve();
+  /** 采集缓冲中尚未发送的 PCM 帧 */
+  private pendingChunks: Int16Array[] = [];
 
   /** 实时识别结果回调 */
   onInterimResult?: (text: string) => void;
@@ -65,7 +69,11 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
   async stop(): Promise<string> {
     this._isRecognizing = false;
 
-    // 发送最后一包（负序列号）并等待最终结果
+    // 1. 冲刷采集缓冲中的残余音频（最后一次定时发送可能还没触发）
+    this.flushPendingChunks();
+
+    // 2. 等待所有音频帧按序发完，再发终止包（负序列号）
+    await this.sendQueue;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const lastFrame = await buildAudioFrame(
         new Uint8Array(0),
@@ -75,7 +83,7 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
       this.ws.send(lastFrame);
     }
 
-    // 等待服务端最后一包（sequence < 0）或超时 5s
+    // 3. 等待服务端最后一包（sequence < 0）或超时 5s
     const deadline = Date.now() + 5000;
     while (!this.lastPackageReceived && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -193,7 +201,7 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
     this.processorNode = this.audioContext.createScriptProcessor(4096, 1, 1);
     const audioContext = this.audioContext;
 
-    let audioBuffer: Int16Array[] = [];
+    this.pendingChunks = [];
     let lastSendTime = Date.now();
 
     this.processorNode.onaudioprocess = (event) => {
@@ -211,14 +219,12 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
           ? this.resample(inputData, audioContext.sampleRate, TARGET_SAMPLE_RATE)
           : inputData;
 
-      audioBuffer.push(this.float32ToInt16(pcmData));
+      this.pendingChunks.push(this.float32ToInt16(pcmData));
 
       const now = Date.now();
       if (now - lastSendTime >= AUDIO_SEND_INTERVAL) {
-        const buffer = audioBuffer;
-        audioBuffer = [];
         lastSendTime = now;
-        this.sendAudioData(buffer);
+        this.flushPendingChunks();
       }
     };
 
@@ -226,31 +232,33 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
     this.processorNode.connect(this.audioContext.destination);
   }
 
-  private sendAudioData(chunks: Int16Array[]): void {
-    if (
-      chunks.length === 0 ||
-      !this.ws ||
-      this.ws.readyState !== WebSocket.OPEN
-    ) {
-      return;
-    }
+  /** 把采集缓冲中的 PCM 帧合并后排入发送队列（保证按序到达） */
+  private flushPendingChunks(): void {
+    if (this.pendingChunks.length === 0) return;
 
-    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-    const merged = new Int16Array(totalLength);
-    let offset = 0;
-    for (const chunk of chunks) {
-      merged.set(chunk, offset);
-      offset += chunk.length;
-    }
+    const chunks = this.pendingChunks;
+    this.pendingChunks = [];
 
-    const seq = ++this.sequence;
-    void buildAudioFrame(new Uint8Array(merged.buffer), seq, false).then(
-      (frame) => {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-          this.ws.send(frame);
-        }
+    this.sendQueue = this.sendQueue.then(async () => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
+      const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const merged = new Int16Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        merged.set(chunk, offset);
+        offset += chunk.length;
       }
-    );
+
+      const frame = await buildAudioFrame(
+        new Uint8Array(merged.buffer),
+        ++this.sequence,
+        false
+      );
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(frame);
+      }
+    });
   }
 
   private resample(
