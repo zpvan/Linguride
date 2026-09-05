@@ -33,6 +33,9 @@ export {
   STORAGE_KEY,
   XIAOMI_TTS_API_BASE_URL,
   XIAOMI_TTS_MODEL,
+  XIAOMI_TTS_VOICE_OPTIONS,
+  XIAOMI_TTS_DEFAULT_VOICE,
+  normalizeXiaomiTTSVoice,
   calculateTargetLevel,
   getRetentionPercent,
   resolveConfigApiProvider,
@@ -60,7 +63,6 @@ export type {
   MiniMaxEmotion,
   MiniMaxVoice,
   XiaomiTTSConfig,
-  XiaomiTTSStyleSelection,
   XiaomiTTSVoice,
 } from "./config";
 export {

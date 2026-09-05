@@ -66,8 +66,8 @@ import {
   DiagnoseTTSResponse,
   TestTTSConnectionResponse,
   TTSSelectionMode,
-  XiaomiTTSStyleSelection,
-  XiaomiTTSVoice,
+  XIAOMI_TTS_DEFAULT_VOICE,
+  normalizeXiaomiTTSVoice,
 } from "../types";
 import {
   AI_PROVIDER_BASE_URL_PRESETS,
@@ -86,10 +86,6 @@ import {
 type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
 type ApiProviderType = AIProviderId;
 type ServiceTestState = "idle" | "loading" | "success" | "error";
-type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
-type XiaomiTTSStyleValue = NonNullable<
-  XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
->;
 
 interface OpenAIOAuthState {
   status: OpenAIOAuthStatus;
@@ -110,62 +106,10 @@ const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
 const OPENAI_API_MODEL_PLACEHOLDER = "如 gpt-5.1-codex";
 const OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS = 2000;
 const OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS = 5;
-const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
-const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
-  "speed",
-  "emotion",
-  "role",
-  "tone",
-  "dialect",
-];
-const XIAOMI_TTS_STYLE_GROUP_LABELS: Record<
-  XiaomiTTSStyleGroupKey,
-  string
-> = {
-  speed: "语速控制",
-  emotion: "情绪变化",
-  role: "角色扮演",
-  tone: "风格变化",
-  dialect: "方言",
-};
-const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
-  "mimo_default",
-  "default_zh",
-  "default_en",
-];
 const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-2.8-hd",
   "speech-2.8-turbo",
 ];
-const XIAOMI_TTS_STYLE_OPTIONS: Record<
-  XiaomiTTSStyleGroupKey,
-  Array<{ value: XiaomiTTSStyleValue; label: string }>
-> = {
-  speed: [
-    { value: "faster", label: "变快" },
-    { value: "slower", label: "变慢" },
-  ],
-  emotion: [
-    { value: "happy", label: "开心" },
-    { value: "sad", label: "悲伤" },
-    { value: "angry", label: "生气" },
-  ],
-  role: [
-    { value: "sunwukong", label: "孙悟空" },
-    { value: "lindaiyu", label: "林黛玉" },
-  ],
-  tone: [
-    { value: "whisper", label: "悄悄话" },
-    { value: "jiazi", label: "夹子音" },
-    { value: "taiwan", label: "台湾腔" },
-  ],
-  dialect: [
-    { value: "dongbei", label: "东北话" },
-    { value: "sichuan", label: "四川话" },
-    { value: "henan", label: "河南话" },
-    { value: "cantonese", label: "粤语" },
-  ],
-};
 
 // ====== DOM 元素引用 ======
 
@@ -423,15 +367,6 @@ const testXiaomiTTSBtn = document.getElementById(
 const xiaomiTTSStatus = document.getElementById(
   "xiaomiTTSStatus"
 ) as HTMLElement;
-const xiaomiTTSStyleSummary = document.getElementById(
-  "xiaomiTTSStyleSummary"
-) as HTMLElement;
-const clearXiaomiTTSStylesBtn = document.getElementById(
-  "clearXiaomiTTSStylesBtn"
-) as HTMLButtonElement;
-const xiaomiTTSStyleButtons = Array.from(
-  document.querySelectorAll("[data-xiaomi-tts-style-group]")
-) as HTMLButtonElement[];
 
 // Settings - MiniMax TTS 情绪风格
 const minimaxEmotionSummary = document.getElementById(
@@ -879,14 +814,6 @@ async function loadOpenAIModelCatalog(options?: {
   }
 }
 
-function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
-  if (value && XIAOMI_TTS_VOICE_OPTIONS.includes(value as XiaomiTTSVoice)) {
-    return value as XiaomiTTSVoice;
-  }
-
-  return XIAOMI_TTS_DEFAULT_VOICE;
-}
-
 function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
   if (value && MINIMAX_TTS_MODEL_OPTIONS.includes(value as MiniMaxTTSModel)) {
     return value as MiniMaxTTSModel;
@@ -895,146 +822,6 @@ function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
   return MINIMAX_TTS_DEFAULT_MODEL;
 }
 
-function isValidXiaomiTTSStyleValue(
-  group: XiaomiTTSStyleGroupKey,
-  value?: string | null
-): value is XiaomiTTSStyleValue {
-  if (!value) return false;
-
-  return XIAOMI_TTS_STYLE_OPTIONS[group].some((option) => option.value === value);
-}
-
-function normalizeXiaomiTTSStyles(
-  styles?: XiaomiTTSStyleSelection | null
-): XiaomiTTSStyleSelection | undefined {
-  if (!styles) return undefined;
-
-  const normalized: XiaomiTTSStyleSelection = {};
-
-  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
-    const value = styles[group];
-    if (isValidXiaomiTTSStyleValue(group, value)) {
-      setXiaomiTTSStyleValue(normalized, group, value);
-    }
-  });
-
-  return hasXiaomiTTSStyles(normalized) ? normalized : undefined;
-}
-
-function hasXiaomiTTSStyles(styles?: XiaomiTTSStyleSelection): boolean {
-  if (!styles) return false;
-
-  return XIAOMI_TTS_STYLE_GROUP_ORDER.some((group) => Boolean(styles[group]));
-}
-
-function getXiaomiTTSStyleLabel(
-  group: XiaomiTTSStyleGroupKey,
-  value: XiaomiTTSStyleValue
-): string {
-  const option = XIAOMI_TTS_STYLE_OPTIONS[group].find(
-    (item) => item.value === value
-  );
-  return option?.label || value;
-}
-
-function setXiaomiTTSStyleValue(
-  selection: XiaomiTTSStyleSelection,
-  group: XiaomiTTSStyleGroupKey,
-  value: XiaomiTTSStyleValue
-): void {
-  switch (group) {
-    case "speed":
-      if (value === "faster" || value === "slower") {
-        selection.speed = value;
-      }
-      break;
-    case "emotion":
-      if (value === "happy" || value === "sad" || value === "angry") {
-        selection.emotion = value;
-      }
-      break;
-    case "role":
-      if (value === "sunwukong" || value === "lindaiyu") {
-        selection.role = value;
-      }
-      break;
-    case "tone":
-      if (value === "whisper" || value === "jiazi" || value === "taiwan") {
-        selection.tone = value;
-      }
-      break;
-    case "dialect":
-      if (
-        value === "dongbei" ||
-        value === "sichuan" ||
-        value === "henan" ||
-        value === "cantonese"
-      ) {
-        selection.dialect = value;
-      }
-      break;
-  }
-}
-
-function renderXiaomiTTSStyleSummary(
-  selection?: XiaomiTTSStyleSelection
-): void {
-  xiaomiTTSStyleSummary.replaceChildren();
-
-  if (!hasXiaomiTTSStyles(selection)) {
-    xiaomiTTSStyleSummary.classList.add("is-empty");
-    xiaomiTTSStyleSummary.textContent = "未选择额外风格";
-    clearXiaomiTTSStylesBtn.classList.add("is-hidden");
-    return;
-  }
-
-  xiaomiTTSStyleSummary.classList.remove("is-empty");
-  clearXiaomiTTSStylesBtn.classList.remove("is-hidden");
-
-  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
-    const value = selection?.[group];
-    if (!value) return;
-
-    const tag = document.createElement("span");
-    tag.className = "xiaomi-tts-style-summary-tag";
-    tag.textContent = `${XIAOMI_TTS_STYLE_GROUP_LABELS[group]}：${getXiaomiTTSStyleLabel(
-      group,
-      value
-    )}`;
-    xiaomiTTSStyleSummary.appendChild(tag);
-  });
-}
-
-function applyXiaomiTTSStyleSelection(
-  selection?: XiaomiTTSStyleSelection
-): void {
-  const normalizedSelection = normalizeXiaomiTTSStyles(selection);
-
-  xiaomiTTSStyleButtons.forEach((button) => {
-    const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
-    const value = button.dataset.xiaomiTtsStyleValue as XiaomiTTSStyleValue;
-    button.classList.toggle("active", normalizedSelection?.[group] === value);
-  });
-
-  renderXiaomiTTSStyleSummary(normalizedSelection);
-}
-
-function getXiaomiTTSStylesFromUI(): XiaomiTTSStyleSelection | undefined {
-  const selection: XiaomiTTSStyleSelection = {};
-
-  xiaomiTTSStyleButtons.forEach((button) => {
-    if (!button.classList.contains("active")) return;
-
-    const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
-    const value = button.dataset.xiaomiTtsStyleValue;
-
-    if (isValidXiaomiTTSStyleValue(group, value)) {
-      setXiaomiTTSStyleValue(selection, group, value);
-    }
-  });
-
-  return hasXiaomiTTSStyles(selection) ? selection : undefined;
-}
 
 // MiniMax TTS 情绪风格
 
@@ -1359,10 +1146,6 @@ function bindEvents(): void {
   xiaomiTTSApiKeyInput.addEventListener("input", handleXiaomiTTSApiKeyInput);
   xiaomiTTSApiKeyInput.addEventListener("blur", autoSave);
   xiaomiTTSVoiceSelect.addEventListener("change", handleXiaomiTTSVoiceChange);
-  clearXiaomiTTSStylesBtn.addEventListener("click", handleClearXiaomiTTSStyles);
-  xiaomiTTSStyleButtons.forEach((button) => {
-    button.addEventListener("click", handleXiaomiTTSStyleClick);
-  });
 
   // Settings - 显示/隐藏小米 API Key
   showXiaomiTTSKeyBtn.addEventListener("click", () => {
@@ -1958,14 +1741,12 @@ function collectFormData(): void {
   // 小米 TTS 配置（API Key 为空视为禁用，直接使用浏览器 TTS）
   const xiaomiTTSApiKey = xiaomiTTSApiKeyInput.value.trim();
   const xiaomiTTSVoice = normalizeXiaomiTTSVoice(xiaomiTTSVoiceSelect.value);
-  const xiaomiTTSStyles = getXiaomiTTSStylesFromUI();
   const hasCustomVoice = xiaomiTTSVoice !== XIAOMI_TTS_DEFAULT_VOICE;
 
-  if (xiaomiTTSApiKey || hasCustomVoice || hasXiaomiTTSStyles(xiaomiTTSStyles)) {
+  if (xiaomiTTSApiKey || hasCustomVoice) {
     currentConfig.xiaomi_tts = {
       api_key: xiaomiTTSApiKey,
       ...(hasCustomVoice ? { voice: xiaomiTTSVoice } : {}),
-      ...(xiaomiTTSStyles ? { styles: xiaomiTTSStyles } : {}),
     };
   } else {
     delete currentConfig.xiaomi_tts;
@@ -2057,7 +1838,6 @@ function updateSettingsForm(): void {
   xiaomiTTSVoiceSelect.value = normalizeXiaomiTTSVoice(
     currentConfig.xiaomi_tts?.voice
   );
-  applyXiaomiTTSStyleSelection(currentConfig.xiaomi_tts?.styles);
 
   // TTS 提供者选择
   ttsProviderSelect.value = currentConfig.tts_selection || "browser";
@@ -2164,35 +1944,6 @@ function handleXiaomiTTSConfigInput(): void {
 }
 
 async function handleXiaomiTTSVoiceChange(): Promise<void> {
-  handleXiaomiTTSConfigInput();
-  await autoSave();
-}
-
-async function handleClearXiaomiTTSStyles(event: Event): Promise<void> {
-  event.preventDefault();
-  applyXiaomiTTSStyleSelection();
-  handleXiaomiTTSConfigInput();
-  await autoSave();
-}
-
-async function handleXiaomiTTSStyleClick(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const group = button.dataset.xiaomiTtsStyleGroup as XiaomiTTSStyleGroupKey;
-  const value = button.dataset.xiaomiTtsStyleValue;
-
-  if (!isValidXiaomiTTSStyleValue(group, value)) {
-    return;
-  }
-
-  const nextSelection = getXiaomiTTSStylesFromUI() || {};
-
-  if (nextSelection[group] === value) {
-    delete nextSelection[group];
-  } else {
-    setXiaomiTTSStyleValue(nextSelection, group, value);
-  }
-
-  applyXiaomiTTSStyleSelection(nextSelection);
   handleXiaomiTTSConfigInput();
   await autoSave();
 }

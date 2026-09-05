@@ -101,7 +101,7 @@ import {
   DiagnoseTTSResponse,
   XIAOMI_TTS_API_BASE_URL,
   XIAOMI_TTS_MODEL,
-  XiaomiTTSStyleSelection,
+  normalizeXiaomiTTSVoice,
   XiaomiTTSVoice,
 } from "../types";
 import {
@@ -149,7 +149,6 @@ initTabStateListeners();
 // ====== TTS 服务 ======
 
 const XIAOMI_TTS_AUDIO_FORMAT = "wav";
-const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
 const XIAOMI_TTS_TEST_TEXT = "Hello from Lingride.";
 const XIAOMI_TTS_REQUEST_PROMPT =
   "Please synthesize the assistant message as speech exactly as written.";
@@ -166,10 +165,6 @@ const OFFSCREEN_TTS_CONTEXT_TYPE = "OFFSCREEN_DOCUMENT";
 const OFFSCREEN_TTS_AUDIO_REASON = "AUDIO_PLAYBACK";
 const OFFSCREEN_TTS_JUSTIFICATION =
   "Play AI-generated speech in extension context to avoid page CSP restrictions.";
-type XiaomiTTSStyleGroupKey = keyof XiaomiTTSStyleSelection;
-type XiaomiTTSStyleValue = NonNullable<
-  XiaomiTTSStyleSelection[XiaomiTTSStyleGroupKey]
->;
 type MiniMaxTaskId = string | number;
 type MiniMaxFileId = string | number;
 type MiniMaxTaskStatus = "processing" | "success" | "failed" | "expired";
@@ -304,51 +299,10 @@ class TTSError extends Error {
   }
 }
 
-const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
-  "mimo_default",
-  "default_zh",
-  "default_en",
-];
 const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-2.8-hd",
   "speech-2.8-turbo",
 ];
-const XIAOMI_TTS_STYLE_GROUP_ORDER: XiaomiTTSStyleGroupKey[] = [
-  "speed",
-  "emotion",
-  "role",
-  "tone",
-  "dialect",
-];
-const XIAOMI_TTS_STYLE_PROMPTS: Record<
-  XiaomiTTSStyleGroupKey,
-  Record<string, string>
-> = {
-  speed: {
-    faster: "变快",
-    slower: "变慢",
-  },
-  emotion: {
-    happy: "开心",
-    sad: "悲伤",
-    angry: "生气",
-  },
-  role: {
-    sunwukong: "孙悟空",
-    lindaiyu: "林黛玉",
-  },
-  tone: {
-    whisper: "悄悄话",
-    jiazi: "夹子音",
-    taiwan: "台湾腔",
-  },
-  dialect: {
-    dongbei: "东北话",
-    sichuan: "四川话",
-    henan: "河南话",
-    cantonese: "粤语",
-  },
-};
 
 function getTTSProviderLabel(provider: TTSProviderId): string {
   return provider === "minimax" ? "MiniMax" : "小米";
@@ -432,14 +386,6 @@ function buildMiniMaxTTSFileRetrieveUrl(
   return url.toString();
 }
 
-function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
-  if (value && XIAOMI_TTS_VOICE_OPTIONS.includes(value as XiaomiTTSVoice)) {
-    return value as XiaomiTTSVoice;
-  }
-
-  return XIAOMI_TTS_DEFAULT_VOICE;
-}
-
 function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
   if (value && MINIMAX_TTS_MODEL_OPTIONS.includes(value as MiniMaxTTSModel)) {
     return value as MiniMaxTTSModel;
@@ -464,77 +410,6 @@ function normalizeMiniMaxTaskStatus(
   return null;
 }
 
-function isValidXiaomiTTSStyleValue(
-  group: XiaomiTTSStyleGroupKey,
-  value?: string | null
-): value is XiaomiTTSStyleValue {
-  if (!value) return false;
-
-  return Boolean(XIAOMI_TTS_STYLE_PROMPTS[group][value]);
-}
-
-function normalizeXiaomiTTSStyles(
-  styles?: XiaomiTTSStyleSelection
-): XiaomiTTSStyleSelection | undefined {
-  if (!styles) return undefined;
-
-  const normalized: XiaomiTTSStyleSelection = {};
-
-  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
-    const value = styles[group];
-    if (isValidXiaomiTTSStyleValue(group, value)) {
-      setXiaomiTTSStyleValue(normalized, group, value);
-    }
-  });
-
-  return hasXiaomiTTSStyles(normalized) ? normalized : undefined;
-}
-
-function hasXiaomiTTSStyles(styles?: XiaomiTTSStyleSelection): boolean {
-  if (!styles) return false;
-
-  return XIAOMI_TTS_STYLE_GROUP_ORDER.some((group) => Boolean(styles[group]));
-}
-
-function setXiaomiTTSStyleValue(
-  selection: XiaomiTTSStyleSelection,
-  group: XiaomiTTSStyleGroupKey,
-  value: XiaomiTTSStyleValue
-): void {
-  switch (group) {
-    case "speed":
-      if (value === "faster" || value === "slower") {
-        selection.speed = value;
-      }
-      break;
-    case "emotion":
-      if (value === "happy" || value === "sad" || value === "angry") {
-        selection.emotion = value;
-      }
-      break;
-    case "role":
-      if (value === "sunwukong" || value === "lindaiyu") {
-        selection.role = value;
-      }
-      break;
-    case "tone":
-      if (value === "whisper" || value === "jiazi" || value === "taiwan") {
-        selection.tone = value;
-      }
-      break;
-    case "dialect":
-      if (
-        value === "dongbei" ||
-        value === "sichuan" ||
-        value === "henan" ||
-        value === "cantonese"
-      ) {
-        selection.dialect = value;
-      }
-      break;
-  }
-}
-
 function getXiaomiTTSVoice(config: LingridConfig): XiaomiTTSVoice {
   return normalizeXiaomiTTSVoice(config.xiaomi_tts?.voice);
 }
@@ -549,34 +424,6 @@ function getMiniMaxTTSBaseUrl(config: LingridConfig): string {
 
 function getMiniMaxTTSVoiceId(config: LingridConfig): string {
   return config.minimax_tts?.voice_id?.trim() || MINIMAX_TTS_DEFAULT_VOICE_ID;
-}
-
-function buildXiaomiTTSAssistantContent(
-  text: string,
-  config: LingridConfig
-): string {
-  const styles = normalizeXiaomiTTSStyles(config.xiaomi_tts?.styles);
-  if (!hasXiaomiTTSStyles(styles)) {
-    return text;
-  }
-
-  const promptParts: string[] = [];
-
-  XIAOMI_TTS_STYLE_GROUP_ORDER.forEach((group) => {
-    const value = styles?.[group];
-    if (!value) return;
-
-    const prompt = XIAOMI_TTS_STYLE_PROMPTS[group][value];
-    if (prompt) {
-      promptParts.push(prompt);
-    }
-  });
-
-  if (promptParts.length === 0) {
-    return text;
-  }
-
-  return `<style>${promptParts.join(" ")}</style>${text}`;
 }
 
 function extractTTSErrorMessage(errorText: string): string {
@@ -954,7 +801,7 @@ async function requestXiaomiTTSAudio(
   }
 
   const apiKey = xiaomiTTSConfig.api_key.trim();
-  const assistantContent = buildXiaomiTTSAssistantContent(text, config);
+  const assistantContent = text;
   const requestBody = {
     model: XIAOMI_TTS_MODEL,
     messages: [

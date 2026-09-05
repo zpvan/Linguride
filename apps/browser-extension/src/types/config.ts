@@ -200,19 +200,29 @@ export type TTSProviderId = "minimax" | "xiaomi";
  * API Key 为空表示不启用 AI TTS，直接回落到浏览器 TTS，
  * 但仍可保留音色和风格偏好以供后续恢复。
  */
-export type XiaomiTTSVoice = "mimo_default" | "default_zh" | "default_en";
+export type XiaomiTTSVoice = "mimo_default" | "Mia" | "Chloe" | "Milo" | "Dean";
+
+/** 小米 TTS 可选音色（v2.5，仅开放英文场景音色） */
+export const XIAOMI_TTS_VOICE_OPTIONS: XiaomiTTSVoice[] = [
+  "mimo_default",
+  "Mia",
+  "Chloe",
+  "Milo",
+  "Dean",
+];
+
+/** 小米 TTS 默认音色 */
+export const XIAOMI_TTS_DEFAULT_VOICE: XiaomiTTSVoice = "mimo_default";
 
 /**
- * 小米 TTS 风格选择
- *
- * 每个分类最多选择一个值；跨分类可组合。
+ * 规范化小米 TTS 音色；旧 v2 音色（default_zh/default_en）迁移为 mimo_default
  */
-export interface XiaomiTTSStyleSelection {
-  speed?: "faster" | "slower";
-  emotion?: "happy" | "sad" | "angry";
-  role?: "sunwukong" | "lindaiyu";
-  tone?: "whisper" | "jiazi" | "taiwan";
-  dialect?: "dongbei" | "sichuan" | "henan" | "cantonese";
+export function normalizeXiaomiTTSVoice(value?: string | null): XiaomiTTSVoice {
+  if (value && XIAOMI_TTS_VOICE_OPTIONS.includes(value as XiaomiTTSVoice)) {
+    return value as XiaomiTTSVoice;
+  }
+
+  return XIAOMI_TTS_DEFAULT_VOICE;
 }
 
 export interface XiaomiTTSConfig {
@@ -221,9 +231,6 @@ export interface XiaomiTTSConfig {
 
   /** 可选音色，留空时使用 mimo_default */
   voice?: XiaomiTTSVoice;
-
-  /** 可选风格，留空时不添加额外风格标签 */
-  styles?: XiaomiTTSStyleSelection;
 }
 
 /**
@@ -441,7 +448,7 @@ export const XIAOMI_TTS_API_BASE_URL = "https://api.xiaomimimo.com/v1";
 /**
  * 小米 TTS 固定模型名
  */
-export const XIAOMI_TTS_MODEL = "mimo-v2-tts";
+export const XIAOMI_TTS_MODEL = "mimo-v2.5-tts";
 
 /**
  * 默认 System Prompt
