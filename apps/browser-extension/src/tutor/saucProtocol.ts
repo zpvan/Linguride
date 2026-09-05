@@ -26,15 +26,16 @@ const SERIALIZATION_JSON = 0b0001;
 const COMPRESSION_GZIP = 0b0001;
 
 async function gzipCompress(data: Uint8Array): Promise<Uint8Array> {
-  // 注意：直接传 Uint8Array（Blob 会尊重 view 的偏移），不要传 data.buffer
-  const stream = new Blob([data])
+  // 注意：new Uint8Array(data) 复制出独立 ArrayBuffer（既是 BlobPart 类型要求，
+  // 也避免 subarray 的共享 buffer 问题）
+  const stream = new Blob([new Uint8Array(data)])
     .stream()
     .pipeThrough(new CompressionStream("gzip"));
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
 async function gzipDecompress(data: Uint8Array): Promise<Uint8Array> {
-  const stream = new Blob([data])
+  const stream = new Blob([new Uint8Array(data)])
     .stream()
     .pipeThrough(new DecompressionStream("gzip"));
   return new Uint8Array(await new Response(stream).arrayBuffer());
