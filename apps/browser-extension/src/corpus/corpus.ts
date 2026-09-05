@@ -177,13 +177,19 @@ function applyAITTSConfig(config: Partial<LingridConfig>): void {
   // 用户选择浏览器朗读时跳过 AI
   if (selection === "browser") {
     aiTTSEnabled = false;
-  } else if (selection === "minimax" || selection === "xiaomi") {
+  } else if (
+    selection === "minimax" ||
+    selection === "xiaomi" ||
+    selection === "doubao"
+  ) {
     // 用户选择了 AI 提供者
     aiTTSEnabled = true;
   } else {
     // 向后兼容：未设置时检查 API Key 是否存在
     aiTTSEnabled = Boolean(
-      config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
+      config.minimax_tts?.api_key?.trim() ||
+        config.xiaomi_tts?.api_key?.trim() ||
+        config.doubao_tts?.api_key?.trim()
     );
   }
   updateTTSAvailability();

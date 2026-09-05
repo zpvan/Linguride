@@ -102,6 +102,9 @@ import {
   XIAOMI_TTS_API_BASE_URL,
   XIAOMI_TTS_MODEL,
   normalizeXiaomiTTSVoice,
+  DOUBAO_TTS_API_URL,
+  DOUBAO_TTS_RESOURCE_ID,
+  normalizeDoubaoTTSVoice,
   XiaomiTTSVoice,
 } from "../types";
 import {
@@ -150,6 +153,9 @@ initTabStateListeners();
 
 const XIAOMI_TTS_AUDIO_FORMAT = "wav";
 const XIAOMI_TTS_TEST_TEXT = "Hello from Lingride.";
+const DOUBAO_TTS_TEST_TEXT = "Hello from Lingride.";
+const DOUBAO_TTS_AUDIO_FORMAT = "mp3";
+const DOUBAO_TTS_SAMPLE_RATE = 24000;
 const XIAOMI_TTS_REQUEST_PROMPT =
   "Please synthesize the assistant message as speech exactly as written.";
 const MINIMAX_TTS_TEST_TEXT = "Hello from Lingride.";
@@ -304,8 +310,14 @@ const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-2.8-turbo",
 ];
 
+const TTS_PROVIDER_LABELS: Record<TTSProviderId, string> = {
+  minimax: "MiniMax",
+  xiaomi: "小米",
+  doubao: "豆包",
+};
+
 function getTTSProviderLabel(provider: TTSProviderId): string {
-  return provider === "minimax" ? "MiniMax" : "小米";
+  return TTS_PROVIDER_LABELS[provider];
 }
 
 function getTTSErrorMessage(
@@ -578,6 +590,10 @@ function isXiaomiTTSConfigured(config: LingridConfig): boolean {
 
 function isMiniMaxTTSConfigured(config: LingridConfig): boolean {
   return !!config.minimax_tts?.api_key?.trim();
+}
+
+function isDoubaoTTSConfigured(config: LingridConfig): boolean {
+  return !!config.doubao_tts?.api_key?.trim();
 }
 
 function parseJSONResponse<T>(
@@ -941,6 +957,150 @@ async function uploadMiniMaxTextInput(
   }
 
   return fileId;
+}
+
+/** 逐块解码 base64 音频片段并拼接，再整体编码回 base64 */
+function concatBase64Chunks(chunks: string[]): string {
+  const parts = chunks.map((chunk) => {
+    const binary = atob(chunk);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  });
+
+  const total = parts.reduce((sum, part) => sum + part.length, 0);
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    merged.set(part, offset);
+    offset += part.length;
+  }
+
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let index = 0; index < merged.length; index += chunkSize) {
+    binary += String.fromCharCode(...merged.subarray(index, index + chunkSize));
+  }
+  return btoa(binary);
+}
+
+/**
+ * 豆包（火山方舟）TTS：HTTP 单向流式接口，一次性发送文本，
+ * JSONL 分块返回 base64 音频片段（code 0 = 成功）。
+ */
+async function requestDoubaoTTSAudio(
+  context: TTSProviderRequestContext
+): Promise<TTSAudioData> {
+  const { config, text } = context;
+
+  if (!isDoubaoTTSConfigured(config)) {
+    throw createTTSError({
+      provider: "doubao",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const doubaoTTSConfig = config.doubao_tts;
+  if (!doubaoTTSConfig) {
+    throw createTTSError({
+      provider: "doubao",
+      code: "TTS_NOT_CONFIGURED",
+    });
+  }
+
+  const apiKey = doubaoTTSConfig.api_key.trim();
+  const requestBody = {
+    req_params: {
+      text,
+      speaker: normalizeDoubaoTTSVoice(doubaoTTSConfig.voice),
+      audio_params: {
+        format: DOUBAO_TTS_AUDIO_FORMAT,
+        sample_rate: DOUBAO_TTS_SAMPLE_RATE,
+      },
+    },
+  };
+
+  let response: globalThis.Response;
+
+  try {
+    response = await fetch(DOUBAO_TTS_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": apiKey,
+        "X-Api-Resource-Id": DOUBAO_TTS_RESOURCE_ID,
+        "X-Api-Request-Id": crypto.randomUUID(),
+      },
+      body: JSON.stringify(requestBody),
+    });
+  } catch (error) {
+    throw createTTSError({
+      provider: "doubao",
+      code: "TTS_NETWORK_ERROR",
+      detail: error instanceof Error ? error.message : undefined,
+    });
+  }
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    const errorMessage = extractTTSErrorMessage(responseText);
+    const classification = classifyTTSError(response.status, errorMessage);
+
+    throw createTTSError({
+      provider: "doubao",
+      code: classification.code,
+      hint: classification.hint,
+      httpStatus: response.status,
+      detail: errorMessage || responseText.trim() || undefined,
+    });
+  }
+
+  // JSONL 分块解析：{"code":0,"message":"","data":"<base64>"}
+  const audioChunks: string[] = [];
+  for (const line of responseText.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    let chunk: { code?: number; message?: string; data?: string };
+    try {
+      chunk = JSON.parse(trimmed);
+    } catch {
+      throw createTTSError({
+        provider: "doubao",
+        code: "TTS_UNKNOWN_ERROR",
+        detail: `豆包响应包含非 JSON 行：${trimmed.slice(0, 120)}`,
+      });
+    }
+
+    if (chunk.code !== 0) {
+      throw createTTSError({
+        provider: "doubao",
+        code: "TTS_UNKNOWN_ERROR",
+        detail: chunk.message || `豆包合成失败（code=${chunk.code}）`,
+      });
+    }
+
+    if (chunk.data) {
+      audioChunks.push(chunk.data);
+    }
+  }
+
+  if (audioChunks.length === 0) {
+    throw createTTSError({
+      provider: "doubao",
+      code: "TTS_AUDIO_INVALID",
+      detail: responseText.trim() || "豆包合成未返回音频数据",
+    });
+  }
+
+  return {
+    audioBase64: concatBase64Chunks(audioChunks),
+    mimeType: "audio/mpeg",
+    provider: "doubao",
+  };
 }
 
 async function createMiniMaxTTSTask(
@@ -1383,9 +1543,13 @@ async function requestTTSAudioByProvider(
   context: TTSProviderRequestContext,
   progress?: TTSSynthesisProgressContext
 ): Promise<TTSAudioData> {
-  return provider === "minimax"
-    ? requestMiniMaxTTSAudio(context, progress)
-    : requestXiaomiTTSAudio(context);
+  if (provider === "minimax") {
+    return requestMiniMaxTTSAudio(context, progress);
+  }
+  if (provider === "xiaomi") {
+    return requestXiaomiTTSAudio(context);
+  }
+  return requestDoubaoTTSAudio(context);
 }
 
 async function requestTTSAudioWithPriority(
@@ -1771,7 +1935,12 @@ async function handleTestTTSConnection(
 ): Promise<TestTTSConnectionResponse> {
   try {
     const config = await getConfig();
-    const text = provider === "minimax" ? MINIMAX_TTS_TEST_TEXT : XIAOMI_TTS_TEST_TEXT;
+    const TTS_TEST_TEXTS: Record<TTSProviderId, string> = {
+      minimax: MINIMAX_TTS_TEST_TEXT,
+      xiaomi: XIAOMI_TTS_TEST_TEXT,
+      doubao: DOUBAO_TTS_TEST_TEXT,
+    };
+    const text = TTS_TEST_TEXTS[provider];
 
     await requestTTSAudioByProvider(provider, {
       config,
