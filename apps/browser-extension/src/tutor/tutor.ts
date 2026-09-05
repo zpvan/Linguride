@@ -41,6 +41,10 @@ import {
   AlibabaASRRecognizer,
   isAlibabaASRConfigured,
 } from "./alibabaASRRecognizer";
+import {
+  DoubaoASRRecognizer,
+  isDoubaoASRConfigured,
+} from "./doubaoASRRecognizer";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 类型定义 ======
@@ -707,7 +711,7 @@ function handleTTSSpeedMessage(message: {
  * 创建语音识别器（工厂函数）
  *
  * 根据用户配置选择使用腾讯云 ASR、阿里云 ASR 或 Web Speech API。
- * 优先级：腾讯云 ASR > 阿里云 ASR > Web Speech API
+ * 优先级：豆包 ASR > 腾讯云 ASR > 阿里云 ASR > Web Speech API
  *
  * @param options 选项
  * @param options.onFallback 降级回调，当云服务失败时调用
@@ -715,7 +719,20 @@ function handleTTSSpeedMessage(message: {
 function createRecognizer(options?: {
   onFallback?: (reason: string) => void;
 }): ISpeechRecognizer {
-  // 优先级 1: 腾讯云 ASR
+  // 优先级 1: 豆包 ASR（火山方舟）
+  if (userConfig && isDoubaoASRConfigured(userConfig)) {
+    console.log("[Lingride Tutor] 使用豆包 ASR 识别器");
+    const doubaoRecognizer = new DoubaoASRRecognizer();
+
+    doubaoRecognizer.onError = (error: Error) => {
+      console.warn("[Lingride Tutor] 豆包 ASR 失败，降级到 Web Speech API:", error.message);
+      options?.onFallback?.(`豆包识别失败: ${error.message}，使用浏览器识别`);
+    };
+
+    return doubaoRecognizer;
+  }
+
+  // 优先级 2: 腾讯云 ASR
   if (userConfig && isTencentASRConfigured(userConfig)) {
     console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
     const tencentRecognizer = new TencentASRRecognizer();

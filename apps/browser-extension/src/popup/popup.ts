@@ -316,6 +316,14 @@ const showAlibabaKeyBtn = document.getElementById(
   "showAlibabaKeyBtn"
 ) as HTMLButtonElement;
 
+// Settings - 豆包 ASR 配置
+const doubaoAsrApiKeyInput = document.getElementById(
+  "doubaoAsrApiKey"
+) as HTMLInputElement;
+const showDoubaoAsrKeyBtn = document.getElementById(
+  "showDoubaoAsrKeyBtn"
+) as HTMLButtonElement;
+
 // Settings - MiniMax TTS 配置
 const minimaxTTSBaseUrlSelect = document.getElementById(
   "minimaxTTSBaseUrl"
@@ -1136,6 +1144,14 @@ function bindEvents(): void {
   // Settings - 阿里云 ASR 配置自动保存
   alibabaApiKeyInput.addEventListener("blur", autoSave);
 
+  // Settings - 豆包 ASR 配置自动保存
+  doubaoAsrApiKeyInput.addEventListener("blur", autoSave);
+  showDoubaoAsrKeyBtn.addEventListener("click", () => {
+    const isPassword = doubaoAsrApiKeyInput.type === "password";
+    doubaoAsrApiKeyInput.type = isPassword ? "text" : "password";
+    showDoubaoAsrKeyBtn.textContent = isPassword ? "隐藏" : "显示";
+  });
+
   // Settings - 显示/隐藏阿里云 API Key
   showAlibabaKeyBtn.addEventListener("click", () => {
     const isPassword = alibabaApiKeyInput.type === "password";
@@ -1749,6 +1765,17 @@ function collectFormData(): void {
     delete currentConfig.alibaba_asr;
   }
 
+  // 豆包 ASR 配置（只有填写了才保存）
+  const doubaoAsrApiKey = doubaoAsrApiKeyInput.value.trim();
+
+  if (doubaoAsrApiKey) {
+    currentConfig.doubao_asr = {
+      api_key: doubaoAsrApiKey,
+    };
+  } else {
+    delete currentConfig.doubao_asr;
+  }
+
   // MiniMax TTS 配置（API Key 为空视为禁用，但保留模型与音色偏好）
   const minimaxTTSApiKey = minimaxTTSApiKeyInput.value.trim();
   const minimaxTTSModel = normalizeMiniMaxTTSModel(minimaxTTSModelSelect.value);
@@ -1872,6 +1899,7 @@ function updateSettingsForm(): void {
 
   // 阿里云 ASR 配置
   alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
+  doubaoAsrApiKeyInput.value = currentConfig.doubao_asr?.api_key || "";
 
   // MiniMax TTS 配置
   minimaxTTSBaseUrlSelect.value = normalizeMiniMaxTTSBaseUrl(
