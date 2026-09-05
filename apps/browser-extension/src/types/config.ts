@@ -179,6 +179,24 @@ export interface AlibabaASRConfig {
 }
 
 /**
+ * 豆包（火山方舟）ASR 配置
+ *
+ * 用于豆包流式语音识别模型 2.0（doubao-seed-asr-2.0）。
+ * 配置后优先级最高：豆包 > 腾讯云 > 阿里云 > Web Speech API。
+ */
+export interface DoubaoASRConfig {
+  /** 火山方舟 API Key */
+  api_key: string;
+}
+
+/** 豆包 ASR WebSocket 地址（SAUC 单向流式） */
+export const DOUBAO_ASR_WS_URL =
+  "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream";
+
+/** 豆包 ASR 资源 ID（volc.seedasr.sauc.duration = 豆包流式语音识别模型 2.0 小时版） */
+export const DOUBAO_ASR_RESOURCE_ID = "volc.seedasr.sauc.duration";
+
+/**
  * 语音合成服务选择模式
  *
  * 用户手动选择的语音合成服务：
@@ -424,6 +442,9 @@ export interface LingridConfig {
 
   /** 阿里云 ASR 配置（可选，优先级低于腾讯云 ASR） */
   alibaba_asr?: AlibabaASRConfig;
+
+  /** 豆包（火山方舟）ASR 配置（可选，配置后优先级最高） */
+  doubao_asr?: DoubaoASRConfig;
 
   /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */
   xiaomi_tts?: XiaomiTTSConfig;

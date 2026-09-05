@@ -37,7 +37,8 @@
     "tabs",
     "scripting",
     "clipboardWrite",
-    "offscreen"
+    "offscreen",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "https://api.deepseek.com/*",

@@ -41,6 +41,8 @@ export {
   DOUBAO_TTS_VOICE_OPTIONS,
   DOUBAO_TTS_DEFAULT_VOICE,
   normalizeDoubaoTTSVoice,
+  DOUBAO_ASR_WS_URL,
+  DOUBAO_ASR_RESOURCE_ID,
   calculateTargetLevel,
   getRetentionPercent,
   resolveConfigApiProvider,
@@ -71,6 +73,7 @@ export type {
   XiaomiTTSVoice,
   DoubaoTTSConfig,
   DoubaoTTSVoice,
+  DoubaoASRConfig,
 } from "./config";
 export {
   DEFAULT_TTS_SPEED,
