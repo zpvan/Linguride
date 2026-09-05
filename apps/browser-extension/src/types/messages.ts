@@ -105,6 +105,12 @@ export enum MessageType {
   SYNTHESIZE_SPEECH = "SYNTHESIZE_SPEECH",
   /** 停止当前 AI 语音播放 */
   STOP_TTS_PLAYBACK = "STOP_TTS_PLAYBACK",
+  /** 查询语音合成进度 */
+  GET_TTS_SYNTHESIS_STATUS = "GET_TTS_SYNTHESIS_STATUS",
+  /** 取消语音合成 */
+  CANCEL_TTS_SYNTHESIS = "CANCEL_TTS_SYNTHESIS",
+  /** TTS 服务深度诊断 */
+  DIAGNOSE_TTS = "DIAGNOSE_TTS",
 
   // ====== 发音评估 ======
   /** 评估发音 */
@@ -418,6 +424,8 @@ export interface SynthesizeSpeechMessage {
     text: string;
     /** 播放语速 */
     rate: TTSSpeed;
+    /** 合成进度跟踪 ID（传入后可通过 GET_TTS_SYNTHESIS_STATUS 查询进度） */
+    requestId?: string;
   };
 }
 
@@ -426,6 +434,51 @@ export interface SynthesizeSpeechMessage {
  */
 export interface StopTTSPlaybackMessage {
   type: MessageType.STOP_TTS_PLAYBACK;
+}
+
+/**
+ * 语音合成阶段
+ */
+export type TTSSynthesisStage =
+  | "submitting"
+  | "synthesizing"
+  | "downloading"
+  | "ready"
+  | "failed"
+  | "cancelled"
+  | "unknown";
+
+/**
+ * 查询语音合成进度消息
+ */
+export interface GetTTSSynthesisStatusMessage {
+  type: MessageType.GET_TTS_SYNTHESIS_STATUS;
+  payload: {
+    /** 合成进度跟踪 ID */
+    requestId: string;
+  };
+}
+
+/**
+ * 取消语音合成消息
+ */
+export interface CancelTTSSynthesisMessage {
+  type: MessageType.CANCEL_TTS_SYNTHESIS;
+  payload: {
+    /** 合成进度跟踪 ID */
+    requestId: string;
+  };
+}
+
+/**
+ * TTS 服务深度诊断消息
+ */
+export interface DiagnoseTTSMessage {
+  type: MessageType.DIAGNOSE_TTS;
+  payload: {
+    /** 要诊断的 TTS 服务 */
+    provider: TTSProviderId;
+  };
 }
 
 /**
@@ -618,7 +671,10 @@ export type Message =
   | AlibabaASRStopMessage
   | AlibabaASRResultMessage
   | SegmentCorpusMessage
-  | AnalyzeListeningMessage;
+  | AnalyzeListeningMessage
+  | GetTTSSynthesisStatusMessage
+  | CancelTTSSynthesisMessage
+  | DiagnoseTTSMessage;
 
 // ====== 响应类型定义 ======
 
@@ -755,6 +811,7 @@ export type TTSServiceErrorCode =
   | "TTS_SERVER_BUSY"
   | "TTS_PLAYBACK_ERROR"
   | "TTS_AUDIO_INVALID"
+  | "TTS_CANCELLED"
   | "TTS_UNKNOWN_ERROR";
 
 /**
@@ -875,6 +932,50 @@ export interface SynthesizeSpeechResponse extends BaseResponse {
  * 停止 AI 语音播放响应
  */
 export type StopTTSPlaybackResponse = BaseResponse;
+
+/**
+ * 查询语音合成进度响应
+ */
+export interface GetTTSSynthesisStatusResponse extends BaseResponse {
+  data?: {
+    /** 当前合成阶段 */
+    stage: TTSSynthesisStage;
+    /** 自合成开始以来的毫秒数 */
+    elapsedMs: number;
+    /** 失败阶段的错误码 */
+    errorCode?: TTSServiceErrorCode;
+  };
+}
+
+/**
+ * 取消语音合成响应
+ */
+export type CancelTTSSynthesisResponse = BaseResponse;
+
+/**
+ * TTS 深度诊断汇总
+ */
+export interface TTSDiagnoseSummary {
+  /** 成功采样数 */
+  successCount: number;
+  /** 总采样数 */
+  totalCount: number;
+  /** 成功采样的平均耗时（毫秒，无成功时为 0） */
+  avgMs: number;
+  /** 成功采样的最小耗时（毫秒，无成功时为 0） */
+  minMs: number;
+  /** 成功采样的最大耗时（毫秒，无成功时为 0） */
+  maxMs: number;
+  /** 失败原因分布 */
+  failures: Array<{ errorCode: TTSServiceErrorCode; count: number }>;
+}
+
+/**
+ * TTS 服务深度诊断响应
+ */
+export interface DiagnoseTTSResponse extends BaseResponse {
+  data?: TTSDiagnoseSummary;
+}
 
 /**
  * 发音评估响应
@@ -1006,6 +1107,9 @@ export type Response =
   | AnalyzeSentenceResponse
   | SynthesizeSpeechResponse
   | StopTTSPlaybackResponse
+  | GetTTSSynthesisStatusResponse
+  | CancelTTSSynthesisResponse
+  | DiagnoseTTSResponse
   | AssessPronunciationResponse
   | ChineseToEnglishResponse
   | EnglishToChineseResponse
