@@ -99,6 +99,8 @@ const toggleOriginalBtn = document.getElementById("toggleOriginalBtn") as HTMLBu
 const originalTextArea = document.getElementById("originalTextArea") as HTMLElement;
 const originalText = document.getElementById("originalText") as HTMLElement;
 const listeningTips = document.getElementById("listeningTips") as HTMLElement;
+const sentencePhonetics = document.getElementById("sentencePhonetics") as HTMLElement;
+const phoneticsText = document.getElementById("phoneticsText") as HTMLElement;
 const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
 const speedSelect = document.getElementById("speedSelect") as HTMLSelectElement;
 const playCount = document.getElementById("playCount") as HTMLElement;
@@ -527,6 +529,14 @@ function renderCurrentSentence(): void {
   // 设置原文和提示
   originalText.textContent = sentence.text;
   listeningTips.textContent = sentence.listeningTips || "注意听清每个单词";
+
+  // 音标行（无数据时隐藏）
+  if (sentence.phonetics) {
+    phoneticsText.textContent = sentence.phonetics;
+    sentencePhonetics.style.display = "";
+  } else {
+    sentencePhonetics.style.display = "none";
+  }
 
   // 重置播放次数显示
   playCount.textContent = `已播放 ${state.playCounts[state.currentIndex]} 次`;

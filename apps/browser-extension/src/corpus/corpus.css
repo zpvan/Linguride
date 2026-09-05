@@ -481,6 +481,12 @@ body {
   font-weight: 600;
 }
 
+/* 音标行 */
+.phonetics-content {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
 /* TTS Controls */
 .tts-controls {
   display: flex;
