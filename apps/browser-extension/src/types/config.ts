@@ -184,14 +184,15 @@ export interface AlibabaASRConfig {
  * 用户手动选择的语音合成服务：
  * - minimax: MiniMax AI 语音合成
  * - xiaomi: 小米 AI 语音合成
+ * - doubao: 豆包（火山方舟）语音合成
  * - browser: 浏览器内置语音合成
  */
-export type TTSSelectionMode = "minimax" | "xiaomi" | "browser";
+export type TTSSelectionMode = "minimax" | "xiaomi" | "doubao" | "browser";
 
 /**
  * 语音合成服务标识
  */
-export type TTSProviderId = "minimax" | "xiaomi";
+export type TTSProviderId = "minimax" | "xiaomi" | "doubao";
 
 /**
  * 小米语音合成配置
@@ -231,6 +232,47 @@ export interface XiaomiTTSConfig {
 
   /** 可选音色，留空时使用 mimo_default */
   voice?: XiaomiTTSVoice;
+}
+
+/**
+ * 豆包（火山方舟）语音合成音色（seed-tts-2.0，美式英语）
+ */
+export type DoubaoTTSVoice =
+  | "en_female_allison_uranus_bigtts"
+  | "en_female_brittney_pimintel_uranus_bigtts"
+  | "en_male_alex_uranus_bigtts"
+  | "en_male_alberto_uranus_bigtts";
+
+/** 豆包 TTS 可选音色 */
+export const DOUBAO_TTS_VOICE_OPTIONS: DoubaoTTSVoice[] = [
+  "en_female_allison_uranus_bigtts",
+  "en_female_brittney_pimintel_uranus_bigtts",
+  "en_male_alex_uranus_bigtts",
+  "en_male_alberto_uranus_bigtts",
+];
+
+/** 豆包 TTS 默认音色（Allison，美式女声） */
+export const DOUBAO_TTS_DEFAULT_VOICE: DoubaoTTSVoice =
+  "en_female_allison_uranus_bigtts";
+
+/** 规范化豆包 TTS 音色；未知值回退默认音色 */
+export function normalizeDoubaoTTSVoice(value?: string | null): DoubaoTTSVoice {
+  if (value && DOUBAO_TTS_VOICE_OPTIONS.includes(value as DoubaoTTSVoice)) {
+    return value as DoubaoTTSVoice;
+  }
+
+  return DOUBAO_TTS_DEFAULT_VOICE;
+}
+
+/**
+ * 豆包（火山方舟）语音合成配置
+ */
+export interface DoubaoTTSConfig {
+  /** 火山方舟 API Key */
+  api_key: string;
+
+  /** 可选音色，留空时使用默认音色 */
+  voice?: DoubaoTTSVoice;
 }
 
 /**
@@ -359,6 +401,9 @@ export interface LingridConfig {
   /** 语音合成服务选择（用户手动选择，失败后回退到浏览器） */
   tts_selection?: TTSSelectionMode;
 
+  /** 豆包（火山方舟）TTS 配置（可选，不配置则回退浏览器 TTS） */
+  doubao_tts?: DoubaoTTSConfig;
+
   /** 释义 Prompt 配置（可选，使用默认值） */
   paraphrase_prompts?: ParaphrasePromptConfig;
 
@@ -449,6 +494,15 @@ export const XIAOMI_TTS_API_BASE_URL = "https://api.xiaomimimo.com/v1";
  * 小米 TTS 固定模型名
  */
 export const XIAOMI_TTS_MODEL = "mimo-v2.5-tts";
+
+/**
+ * 豆包（火山方舟）TTS 接口地址（HTTP 单向流式，一次性返回完整音频）
+ */
+export const DOUBAO_TTS_API_URL =
+  "https://openspeech.bytedance.com/api/v3/plan/tts/unidirectional";
+
+/** 豆包 TTS 资源 ID（seed-tts-2.0 = 豆包语音合成模型 2.0） */
+export const DOUBAO_TTS_RESOURCE_ID = "seed-tts-2.0";
 
 /**
  * 默认 System Prompt

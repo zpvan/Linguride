@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DOUBAO_TTS_VOICE_OPTIONS,
   MINIMAX_AI_API_BASE_URL,
   MINIMAX_AI_API_BASE_URL_CN,
   MINIMAX_TTS_API_BASE_URL,
   MINIMAX_TTS_API_BASE_URL_CN,
   XIAOMI_TTS_VOICE_OPTIONS,
+  normalizeDoubaoTTSVoice,
   normalizeMiniMaxTTSBaseUrl,
   normalizeXiaomiTTSVoice,
   resolveConfigApiProvider,
@@ -83,6 +85,36 @@ describe("normalizeXiaomiTTSVoice", () => {
       "Chloe",
       "Milo",
       "Dean",
+    ]);
+  });
+});
+
+describe("normalizeDoubaoTTSVoice", () => {
+  it("returns default voice for empty input", () => {
+    expect(normalizeDoubaoTTSVoice(undefined)).toBe(
+      "en_female_allison_uranus_bigtts"
+    );
+    expect(normalizeDoubaoTTSVoice("")).toBe("en_female_allison_uranus_bigtts");
+  });
+
+  it("accepts known v2.0 voices", () => {
+    expect(normalizeDoubaoTTSVoice("en_male_alex_uranus_bigtts")).toBe(
+      "en_male_alex_uranus_bigtts"
+    );
+  });
+
+  it("falls back to default for unknown voices", () => {
+    expect(normalizeDoubaoTTSVoice("unknown_voice")).toBe(
+      "en_female_allison_uranus_bigtts"
+    );
+  });
+
+  it("voice options contain the 4 curated voices", () => {
+    expect(DOUBAO_TTS_VOICE_OPTIONS).toEqual([
+      "en_female_allison_uranus_bigtts",
+      "en_female_brittney_pimintel_uranus_bigtts",
+      "en_male_alex_uranus_bigtts",
+      "en_male_alberto_uranus_bigtts",
     ]);
   });
 });

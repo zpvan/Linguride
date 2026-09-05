@@ -36,6 +36,11 @@ export {
   XIAOMI_TTS_VOICE_OPTIONS,
   XIAOMI_TTS_DEFAULT_VOICE,
   normalizeXiaomiTTSVoice,
+  DOUBAO_TTS_API_URL,
+  DOUBAO_TTS_RESOURCE_ID,
+  DOUBAO_TTS_VOICE_OPTIONS,
+  DOUBAO_TTS_DEFAULT_VOICE,
+  normalizeDoubaoTTSVoice,
   calculateTargetLevel,
   getRetentionPercent,
   resolveConfigApiProvider,
@@ -64,6 +69,8 @@ export type {
   MiniMaxVoice,
   XiaomiTTSConfig,
   XiaomiTTSVoice,
+  DoubaoTTSConfig,
+  DoubaoTTSVoice,
 } from "./config";
 export {
   DEFAULT_TTS_SPEED,

@@ -46,7 +46,8 @@
     "https://open.bigmodel.cn/*",
     "https://api.xiaomimimo.com/*",
     "https://api.minimax.cn/*",
-    "https://api.minimaxi.com/*"
+    "https://api.minimaxi.com/*",
+    "https://openspeech.bytedance.com/*"
   ],
   "web_accessible_resources": [
     {
