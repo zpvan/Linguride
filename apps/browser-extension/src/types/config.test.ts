@@ -7,9 +7,13 @@ import {
   MINIMAX_TTS_API_BASE_URL,
   MINIMAX_TTS_API_BASE_URL_CN,
   XIAOMI_TTS_VOICE_OPTIONS,
+  isAlibabaASRConfigured,
+  isDoubaoASRConfigured,
+  isTencentASRConfigured,
   normalizeDoubaoTTSVoice,
   normalizeMiniMaxTTSBaseUrl,
   normalizeXiaomiTTSVoice,
+  resolveASRSelection,
   resolveConfigApiProvider,
 } from "./config";
 
@@ -116,5 +120,72 @@ describe("normalizeDoubaoTTSVoice", () => {
       "en_male_alex_uranus_bigtts",
       "en_male_alberto_uranus_bigtts",
     ]);
+  });
+});
+
+describe("resolveASRSelection", () => {
+  it("passes through explicit selection", () => {
+    expect(
+      resolveASRSelection({
+        asr_selection: "browser",
+        doubao_asr: { api_key: "k" },
+      } as never)
+    ).toBe("browser");
+  });
+
+  it("prefers doubao when nothing explicit and doubao configured", () => {
+    expect(resolveASRSelection({ doubao_asr: { api_key: "k" } } as never)).toBe(
+      "doubao"
+    );
+  });
+
+  it("falls to tencent when only tencent configured", () => {
+    expect(
+      resolveASRSelection({
+        tencent_asr: { app_id: "a", secret_id: "s", secret_key: "k" },
+      } as never)
+    ).toBe("tencent");
+  });
+
+  it("falls to alibaba when only alibaba configured", () => {
+    expect(
+      resolveASRSelection({ alibaba_asr: { api_key: "k" } } as never)
+    ).toBe("alibaba");
+  });
+
+  it("falls back to browser when nothing configured", () => {
+    expect(resolveASRSelection({} as never)).toBe("browser");
+  });
+});
+
+describe("isXxxASRConfigured", () => {
+  it("doubao requires non-empty trimmed api_key", () => {
+    expect(isDoubaoASRConfigured({} as never)).toBe(false);
+    expect(isDoubaoASRConfigured({ doubao_asr: { api_key: "  " } } as never)).toBe(
+      false
+    );
+    expect(isDoubaoASRConfigured({ doubao_asr: { api_key: "k" } } as never)).toBe(
+      true
+    );
+  });
+
+  it("tencent requires all three fields", () => {
+    expect(
+      isTencentASRConfigured({
+        tencent_asr: { app_id: "a", secret_id: "", secret_key: "k" },
+      } as never)
+    ).toBe(false);
+    expect(
+      isTencentASRConfigured({
+        tencent_asr: { app_id: "a", secret_id: "s", secret_key: "k" },
+      } as never)
+    ).toBe(true);
+  });
+
+  it("alibaba requires api_key", () => {
+    expect(isAlibabaASRConfigured({} as never)).toBe(false);
+    expect(isAlibabaASRConfigured({ alibaba_asr: { api_key: "k" } } as never)).toBe(
+      true
+    );
   });
 });

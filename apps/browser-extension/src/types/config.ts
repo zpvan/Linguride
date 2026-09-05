@@ -169,9 +169,7 @@ export interface TencentASRConfig {
  * 阿里云 ASR 配置
  *
  * 用于阿里云百炼 Paraformer 实时语音识别服务的鉴权配置。
- * 配置后可使用阿里云 ASR 替代 Web Speech API，提高识别准确率。
- *
- * 优先级：腾讯云 ASR > 阿里云 ASR > Web Speech API
+ * 配置后可在设置页选择使用阿里云 ASR 替代 Web Speech API，提高识别准确率。
  */
 export interface AlibabaASRConfig {
   /** 阿里云百炼 API Key */
@@ -182,11 +180,58 @@ export interface AlibabaASRConfig {
  * 豆包（火山方舟）ASR 配置
  *
  * 用于豆包流式语音识别模型 2.0（doubao-seed-asr-2.0）。
- * 配置后优先级最高：豆包 > 腾讯云 > 阿里云 > Web Speech API。
+ * 可在设置页「语音识别服务」中手动选择启用。
  */
 export interface DoubaoASRConfig {
   /** 火山方舟 API Key */
   api_key: string;
+}
+
+/**
+ * 语音识别服务标识
+ */
+export type ASRProviderId = "doubao" | "tencent" | "alibaba";
+
+/**
+ * 语音识别服务选择模式
+ *
+ * 用户手动选择的语音识别服务；browser 表示浏览器内置 Web Speech API。
+ * 识别失败直接报错，不自动切换。
+ */
+export type ASRSelectionMode = ASRProviderId | "browser";
+
+/** 豆包 ASR 是否已配置（API Key 非空） */
+export function isDoubaoASRConfigured(config: LingridConfig): boolean {
+  return !!config.doubao_asr?.api_key?.trim();
+}
+
+/** 腾讯云 ASR 是否已配置（AppID/SecretID/SecretKey 齐全） */
+export function isTencentASRConfigured(config: LingridConfig): boolean {
+  return !!(
+    config.tencent_asr?.app_id &&
+    config.tencent_asr?.secret_id &&
+    config.tencent_asr?.secret_key
+  );
+}
+
+/** 阿里云 ASR 是否已配置（API Key 非空） */
+export function isAlibabaASRConfigured(config: LingridConfig): boolean {
+  return !!config.alibaba_asr?.api_key;
+}
+
+/**
+ * 解析当前生效的语音识别服务选择。
+ *
+ * 1. 用户显式选择优先；
+ * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 取第一个已配置的；
+ * 3. 全未配置回退浏览器识别。
+ */
+export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
+  if (config.asr_selection) return config.asr_selection;
+  if (isDoubaoASRConfigured(config)) return "doubao";
+  if (isTencentASRConfigured(config)) return "tencent";
+  if (isAlibabaASRConfigured(config)) return "alibaba";
+  return "browser";
 }
 
 /** 豆包 ASR WebSocket 地址（方舟 Agent Plan SAUC 单向流式） */
@@ -437,14 +482,17 @@ export interface LingridConfig {
   /** 长难句分析 Prompt 配置（可选，使用默认值） */
   sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
 
-  /** 腾讯云 ASR 配置（可选，不配置则使用 Web Speech API） */
+  /** 腾讯云 ASR 配置（可选，不配置则不可手动选择） */
   tencent_asr?: TencentASRConfig;
 
-  /** 阿里云 ASR 配置（可选，优先级低于腾讯云 ASR） */
+  /** 阿里云 ASR 配置（可选，不配置则不可手动选择） */
   alibaba_asr?: AlibabaASRConfig;
 
-  /** 豆包（火山方舟）ASR 配置（可选，配置后优先级最高） */
+  /** 豆包（火山方舟）ASR 配置（可选，不配置则不可手动选择） */
   doubao_asr?: DoubaoASRConfig;
+
+  /** 语音识别服务选择（用户手动选择，识别失败直接报错；缺省按已配置者迁移） */
+  asr_selection?: ASRSelectionMode;
 
   /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */
   xiaomi_tts?: XiaomiTTSConfig;
