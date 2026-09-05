@@ -63,6 +63,7 @@ import {
   normalizeMiniMaxTTSBaseUrl,
   resolveConfigApiProvider,
   resolveConfigOpenAIAuthMode,
+  DiagnoseTTSResponse,
   TestTTSConnectionResponse,
   TTSSelectionMode,
   XiaomiTTSStyleSelection,
@@ -398,6 +399,9 @@ const minimaxTTSVoiceSelect = document.getElementById(
 ) as HTMLSelectElement;
 const testMiniMaxTTSBtn = document.getElementById(
   "testMiniMaxTTSBtn"
+) as HTMLButtonElement;
+const diagnoseMiniMaxTTSBtn = document.getElementById(
+  "diagnoseMiniMaxTTSBtn"
 ) as HTMLButtonElement;
 const minimaxTTSStatus = document.getElementById(
   "minimaxTTSStatus"
@@ -1349,6 +1353,7 @@ function bindEvents(): void {
 
   // Settings - 测试 MiniMax TTS 连接
   testMiniMaxTTSBtn.addEventListener("click", handleTestMiniMaxTTS);
+  diagnoseMiniMaxTTSBtn.addEventListener("click", handleDiagnoseMiniMaxTTS);
 
   // Settings - 小米 TTS 配置自动保存
   xiaomiTTSApiKeyInput.addEventListener("input", handleXiaomiTTSApiKeyInput);
@@ -2115,10 +2120,12 @@ function updateMiniMaxTTSButtonAvailability(): void {
 
   if (!minimaxTTSApiKeyInput.value.trim()) {
     setMiniMaxTTSButtonState("idle", true, "填写 API Key 后可测试");
+    diagnoseMiniMaxTTSBtn.disabled = true;
     return;
   }
 
   setMiniMaxTTSButtonState("idle", false, "测试 MiniMax 语音合成服务");
+  diagnoseMiniMaxTTSBtn.disabled = false;
 }
 
 function updateXiaomiTTSButtonAvailability(): void {
@@ -2317,6 +2324,71 @@ async function handleTestMiniMaxTTS(event: Event): Promise<void> {
       hideMiniMaxTTSStatus();
       updateMiniMaxTTSButtonAvailability();
     }, 5000);
+  }
+}
+
+function formatDiagnoseLatency(ms: number): string {
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+async function handleDiagnoseMiniMaxTTS(event: Event): Promise<void> {
+  event.stopPropagation();
+
+  if (diagnoseMiniMaxTTSBtn.disabled || !minimaxTTSApiKeyInput.value.trim()) {
+    return;
+  }
+
+  diagnoseMiniMaxTTSBtn.disabled = true;
+  showMiniMaxTTSStatus("正在深度诊断（连续合成 3 次，约需 1 分钟）...", "loading");
+
+  try {
+    await autoSave();
+
+    const response: DiagnoseTTSResponse = await chrome.runtime.sendMessage({
+      type: MessageType.DIAGNOSE_TTS,
+      payload: { provider: "minimax" },
+    });
+
+    if (response.success && response.data) {
+      const data = response.data;
+      const parts: string[] = [
+        `${data.successCount}/${data.totalCount} 成功`,
+      ];
+
+      if (data.successCount > 0) {
+        parts.push(
+          `平均 ${formatDiagnoseLatency(data.avgMs)}（${formatDiagnoseLatency(data.minMs)} ~ ${formatDiagnoseLatency(data.maxMs)}）`
+        );
+      }
+
+      if (data.failures.length > 0) {
+        const reasons = data.failures
+          .map((failure) => {
+            const reason = getMiniMaxTTSFailureReason({
+              success: false,
+              errorCode: failure.errorCode,
+              error: "",
+            });
+            return `${reason} ×${failure.count}`;
+          })
+          .join("、");
+        parts.push(`失败原因：${reasons}`);
+      }
+
+      showMiniMaxTTSStatus(
+        parts.join(" · "),
+        data.failures.length === 0 ? "success" : "error"
+      );
+    } else {
+      showMiniMaxTTSStatus(
+        `诊断失败：${response.error || "未知错误"}`,
+        "error"
+      );
+    }
+  } catch {
+    showMiniMaxTTSStatus("诊断失败：请求发送失败", "error");
+  } finally {
+    diagnoseMiniMaxTTSBtn.disabled = false;
   }
 }
 
