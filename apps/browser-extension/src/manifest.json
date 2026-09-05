@@ -48,7 +48,8 @@
     "https://api.xiaomimimo.com/*",
     "https://api.minimax.cn/*",
     "https://api.minimaxi.com/*",
-    "https://openspeech.bytedance.com/*"
+    "https://openspeech.bytedance.com/*",
+    "wss://openspeech.bytedance.com/*"
   ],
   "web_accessible_resources": [
     {
