@@ -68,6 +68,13 @@ const TTS_FALLBACK_WARNING_MESSAGE =
 const TTS_PLAYBACK_ERROR_MESSAGE =
   "朗读失败，请检查语音合成配置或浏览器语音能力";
 
+/** AI 合成阶段文案 */
+const TTS_STAGE_LABELS: Record<string, string> = {
+  submitting: "提交中",
+  synthesizing: "合成中",
+  downloading: "下载音频",
+};
+
 // ====== DOM 元素引用 ======
 
 // Header
@@ -96,6 +103,9 @@ const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
 const replayBtn = document.getElementById("replayBtn") as HTMLButtonElement;
 const speedSelect = document.getElementById("speedSelect") as HTMLSelectElement;
 const playCount = document.getElementById("playCount") as HTMLElement;
+const ttsProgress = document.getElementById("ttsProgress") as HTMLElement;
+const ttsProgressText = document.getElementById("ttsProgressText") as HTMLElement;
+const ttsCancelBtn = document.getElementById("ttsCancelBtn") as HTMLButtonElement;
 const dictationInput = document.getElementById("dictationInput") as HTMLTextAreaElement;
 const submitAnswerBtn = document.getElementById("submitAnswerBtn") as HTMLButtonElement;
 const skipBtn = document.getElementById("skipBtn") as HTMLButtonElement;
@@ -283,6 +293,10 @@ function bindEvents(): void {
   toggleOriginalBtn.addEventListener("click", toggleOriginalText);
   playBtn.addEventListener("click", handlePlaySentence);
   replayBtn.addEventListener("click", handleReplaySentence);
+  ttsCancelBtn.addEventListener("click", () => {
+    hideTTSProgress();
+    corpusTTSPlayer.cancelAIPlayback();
+  });
   speedSelect.addEventListener("change", handleSpeedChange);
   dictationInput.addEventListener("input", handleDictationInput);
   submitAnswerBtn.addEventListener("click", handleSubmitAnswer);
@@ -493,6 +507,8 @@ function initializePractice(data: SegmentCorpusResult): void {
 function renderCurrentSentence(): void {
   if (!state) return;
 
+  hideTTSProgress();
+
   const sentence = state.sentences[state.currentIndex];
   const total = state.sentences.length;
   const current = state.currentIndex + 1;
@@ -556,6 +572,16 @@ function updateOverallAccuracy(): void {
 
 // ====== TTS 朗读 ======
 
+function showTTSProgress(stage: string, elapsedMs: number): void {
+  const label = TTS_STAGE_LABELS[stage] ?? "合成中";
+  ttsProgressText.textContent = `${label}… ${Math.round(elapsedMs / 1000)}s`;
+  ttsProgress.hidden = false;
+}
+
+function hideTTSProgress(): void {
+  ttsProgress.hidden = true;
+}
+
 function handleSpeedChange(): void {
   const speed = resolveTTSSpeed(speedSelect.value);
   void saveTTSSpeed(speed);
@@ -569,20 +595,37 @@ function handlePlaySentence(): void {
 
   // 停止当前播放
   corpusTTSPlayer.stop();
+  hideTTSProgress();
 
   void corpusTTSPlayer
     .playText({
       text: sentence.text,
       rate,
       onStart: () => {
+        hideTTSProgress();
         playBtn.classList.add("playing");
       },
       onEnd: () => {
+        hideTTSProgress();
         playBtn.classList.remove("playing");
         if (state) {
           state.playCounts[state.currentIndex]++;
           playCount.textContent = `已播放 ${state.playCounts[state.currentIndex]} 次`;
         }
+      },
+      onProgress: ({ stage, elapsedMs }) => {
+        if (stage === "ready" || stage === "failed" || stage === "cancelled" || stage === "unknown") {
+          hideTTSProgress();
+          return;
+        }
+        showTTSProgress(stage, elapsedMs);
+      },
+      onAIError: (message) => {
+        showStatus(
+          practiceStatus,
+          `AI 合成失败：${message}，已切换浏览器朗读`,
+          "warning"
+        );
       },
       onFallbackWarning: (message) => {
         showStatus(practiceStatus, message, "warning");
@@ -590,6 +633,7 @@ function handlePlaySentence(): void {
       fallbackWarningMessage: TTS_FALLBACK_WARNING_MESSAGE,
     })
     .catch((error) => {
+      hideTTSProgress();
       playBtn.classList.remove("playing");
       showStatus(
         practiceStatus,
