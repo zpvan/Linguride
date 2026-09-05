@@ -70,6 +70,11 @@ import {
   normalizeXiaomiTTSVoice,
   DOUBAO_TTS_DEFAULT_VOICE,
   normalizeDoubaoTTSVoice,
+  ASRSelectionMode,
+  isAlibabaASRConfigured,
+  isDoubaoASRConfigured,
+  isTencentASRConfigured,
+  resolveASRSelection,
 } from "../types";
 import {
   AI_PROVIDER_BASE_URL_PRESETS,
@@ -408,6 +413,14 @@ const minimaxEmotionButtons = Array.from(
 const ttsProviderSelect = document.getElementById(
   "ttsProviderSelect"
 ) as HTMLSelectElement;
+
+// Settings - ASR 提供者选择
+const asrProviderSelect = document.getElementById(
+  "asrProviderSelect"
+) as HTMLSelectElement;
+const asrProviderHint = document.getElementById(
+  "asrProviderHint"
+) as HTMLParagraphElement;
 
 // Settings - 操作
 const resetDefaultsBtn = document.getElementById(
@@ -1130,9 +1143,15 @@ function bindEvents(): void {
   });
 
   // Settings - 腾讯云 ASR 配置自动保存
-  tencentAppIdInput.addEventListener("blur", autoSave);
-  tencentSecretIdInput.addEventListener("blur", autoSave);
-  tencentSecretKeyInput.addEventListener("blur", autoSave);
+  tencentAppIdInput.addEventListener("blur", () => {
+    void autoSave().then(updateASRProviderHint);
+  });
+  tencentSecretIdInput.addEventListener("blur", () => {
+    void autoSave().then(updateASRProviderHint);
+  });
+  tencentSecretKeyInput.addEventListener("blur", () => {
+    void autoSave().then(updateASRProviderHint);
+  });
 
   // Settings - 显示/隐藏腾讯云 SecretKey
   showTencentKeyBtn.addEventListener("click", () => {
@@ -1142,10 +1161,14 @@ function bindEvents(): void {
   });
 
   // Settings - 阿里云 ASR 配置自动保存
-  alibabaApiKeyInput.addEventListener("blur", autoSave);
+  alibabaApiKeyInput.addEventListener("blur", () => {
+    void autoSave().then(updateASRProviderHint);
+  });
 
   // Settings - 豆包 ASR 配置自动保存
-  doubaoAsrApiKeyInput.addEventListener("blur", autoSave);
+  doubaoAsrApiKeyInput.addEventListener("blur", () => {
+    void autoSave().then(updateASRProviderHint);
+  });
   showDoubaoAsrKeyBtn.addEventListener("click", () => {
     const isPassword = doubaoAsrApiKeyInput.type === "password";
     doubaoAsrApiKeyInput.type = isPassword ? "text" : "password";
@@ -1216,6 +1239,12 @@ function bindEvents(): void {
   // Settings - TTS 提供者选择
   ttsProviderSelect.addEventListener("change", async () => {
     await autoSave();
+  });
+
+  // Settings - ASR 提供者选择
+  asrProviderSelect.addEventListener("change", async () => {
+    await autoSave();
+    updateASRProviderHint();
   });
 
   // Settings - 测试连接
@@ -1830,6 +1859,9 @@ function collectFormData(): void {
   // TTS 提供者选择
   currentConfig.tts_selection = ttsProviderSelect.value as TTSSelectionMode;
 
+  // ASR 提供者选择
+  currentConfig.asr_selection = asrProviderSelect.value as ASRSelectionMode;
+
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
   updateDoubaoTTSButtonAvailability();
@@ -1928,9 +1960,39 @@ function updateSettingsForm(): void {
   // TTS 提供者选择
   ttsProviderSelect.value = currentConfig.tts_selection || "browser";
 
+  // ASR 提供者选择（老配置无字段时按已配置者迁移默认）
+  asrProviderSelect.value = resolveASRSelection(currentConfig);
+  updateASRProviderHint();
+
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
   updateDoubaoTTSButtonAvailability();
+}
+
+/**
+ * 选中云端 ASR 但未配置密钥时，在下拉下方显示黄色提示。
+ */
+function updateASRProviderHint(): void {
+  const selection = asrProviderSelect.value as ASRSelectionMode;
+  const labels: Record<string, string> = {
+    doubao: "豆包",
+    tencent: "腾讯云",
+    alibaba: "阿里云",
+  };
+  const configuredCheckers: Record<string, (c: LingridConfig) => boolean> = {
+    doubao: isDoubaoASRConfigured,
+    tencent: isTencentASRConfigured,
+    alibaba: isAlibabaASRConfigured,
+  };
+
+  const label = labels[selection];
+  const checker = configuredCheckers[selection];
+  if (label && checker && !checker(currentConfig)) {
+    asrProviderHint.textContent = `尚未配置${label}的 API 密钥，当前选择不会生效`;
+    asrProviderHint.style.display = "block";
+  } else {
+    asrProviderHint.style.display = "none";
+  }
 }
 
 function clearMiniMaxTTSResetTimer(): void {
