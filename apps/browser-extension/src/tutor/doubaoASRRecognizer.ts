@@ -9,7 +9,6 @@
 import {
   DOUBAO_ASR_WS_URL,
   DoubaoASRPrepareResponse,
-  LingridConfig,
   MessageType,
 } from "../types";
 import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
@@ -20,13 +19,10 @@ import {
   parseServerMessage,
 } from "./saucProtocol";
 
+export { isDoubaoASRConfigured } from "../types";
+
 const TARGET_SAMPLE_RATE = 16000;
 const AUDIO_SEND_INTERVAL = 200;
-
-/** 检查豆包 ASR 是否已配置 */
-export function isDoubaoASRConfigured(config: LingridConfig): boolean {
-  return !!config.doubao_asr?.api_key?.trim();
-}
 
 interface SaucResultPayload {
   result?: { text?: string };

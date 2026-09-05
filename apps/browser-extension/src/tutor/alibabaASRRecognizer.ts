@@ -435,13 +435,6 @@ export class AlibabaASRRecognizer implements ISpeechRecognizer {
 }
 
 /**
- * 检查是否配置了阿里云 ASR
- *
- * @param config 用户配置
- * @returns 是否配置了阿里云 ASR API Key
+ * 检查是否配置了阿里云 ASR（实现已下沉到 types/config.ts，此处 re-export 保持兼容）
  */
-export function isAlibabaASRConfigured(config: {
-  alibaba_asr?: { api_key?: string };
-}): boolean {
-  return !!config.alibaba_asr?.api_key;
-}
+export { isAlibabaASRConfigured } from "../types";

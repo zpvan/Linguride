@@ -427,17 +427,6 @@ export class TencentASRRecognizer implements ISpeechRecognizer {
 }
 
 /**
- * 检查是否配置了腾讯云 ASR
- *
- * @param config 用户配置
- * @returns 是否配置了完整的腾讯云 ASR 信息
+ * 检查是否配置了腾讯云 ASR（实现已下沉到 types/config.ts，此处 re-export 保持兼容）
  */
-export function isTencentASRConfigured(config: {
-  tencent_asr?: { app_id?: string; secret_id?: string; secret_key?: string };
-}): boolean {
-  return !!(
-    config.tencent_asr?.app_id &&
-    config.tencent_asr?.secret_id &&
-    config.tencent_asr?.secret_key
-  );
-}
+export { isTencentASRConfigured } from "../types";
