@@ -105,6 +105,7 @@ import {
   DOUBAO_TTS_API_URL,
   DOUBAO_TTS_RESOURCE_ID,
   normalizeDoubaoTTSVoice,
+  DOUBAO_ASR_RESOURCE_ID,
   XiaomiTTSVoice,
 } from "../types";
 import {
@@ -148,6 +149,9 @@ console.log("[Lingride] Background Service Worker 已启动");
 
 // 初始化 Tab 状态监听器
 initTabStateListeners();
+void syncDoubaoASRHeaderRule().catch((error) => {
+  console.warn("[Lingride] 同步豆包 ASR DNR 规则失败:", error);
+});
 
 // ====== TTS 服务 ======
 
@@ -635,6 +639,67 @@ function ensureMiniMaxBaseResponseSuccess(
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** 豆包 ASR 鉴权头注入规则 ID（会话规则） */
+const DOUBAO_ASR_DNR_RULE_ID = 4101;
+
+/**
+ * 同步豆包 ASR 的 DNR 会话规则：
+ * 浏览器 WebSocket 无法自定义 header，通过 declarativeNetRequest
+ * 在 WS 握手上注入 X-Api-Key / X-Api-Resource-Id / X-Api-Request-Id。
+ * 未配置豆包 ASR key 时移除规则。
+ */
+async function syncDoubaoASRHeaderRule(): Promise<void> {
+  const dnr = chrome.declarativeNetRequest;
+  if (!dnr) return;
+
+  const config = await getConfig();
+  const apiKey = config.doubao_asr?.api_key?.trim();
+
+  await dnr.updateSessionRules({
+    removeRuleIds: [DOUBAO_ASR_DNR_RULE_ID],
+    ...(apiKey
+      ? {
+          addRules: [
+            {
+              id: DOUBAO_ASR_DNR_RULE_ID,
+              priority: 1,
+              action: {
+                type: chrome.declarativeNetRequest.RuleActionType
+                  .MODIFY_HEADERS,
+                requestHeaders: [
+                  {
+                    header: "X-Api-Key",
+                    operation:
+                      chrome.declarativeNetRequest.HeaderOperation.SET,
+                    value: apiKey,
+                  },
+                  {
+                    header: "X-Api-Resource-Id",
+                    operation:
+                      chrome.declarativeNetRequest.HeaderOperation.SET,
+                    value: DOUBAO_ASR_RESOURCE_ID,
+                  },
+                  {
+                    header: "X-Api-Request-Id",
+                    operation:
+                      chrome.declarativeNetRequest.HeaderOperation.SET,
+                    value: crypto.randomUUID(),
+                  },
+                ],
+              },
+              condition: {
+                urlFilter: "openspeech.bytedance.com/api/v3/sauc/",
+                resourceTypes: [
+                  chrome.declarativeNetRequest.ResourceType.WEBSOCKET,
+                ],
+              },
+            },
+          ],
+        }
+      : {}),
+  });
 }
 
 function nextTTSPlaybackEpoch(): number {
@@ -1614,6 +1679,7 @@ async function handleSaveConfig(
   try {
     const previousConfig = await getConfig();
     await saveConfig(payload);
+    await syncDoubaoASRHeaderRule();
 
     if (previousConfig.tts_speed !== payload.tts_speed && payload.tts_speed) {
       try {
