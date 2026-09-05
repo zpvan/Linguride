@@ -14,6 +14,7 @@ import {
   AssessPronunciationResponse,
   CEFRLevel,
   ChineseToEnglishResponse,
+  DEFAULT_CONFIG,
   DEFAULT_TTS_SPEED,
   EchoMethodState,
   EnglishDefinitionResponse,
@@ -29,6 +30,7 @@ import {
   ShadowAssessmentResult,
   ShadowMode,
   TTSSpeed,
+  resolveASRSelection,
 } from "../types";
 import * as shadow from "./shadow";
 import * as audioCapture from "./audioCapture";
@@ -708,63 +710,57 @@ function handleTTSSpeedMessage(message: {
 }
 
 /**
- * 创建语音识别器（工厂函数）
+ * 根据用户在设置页选择的语音识别服务创建识别器。
  *
- * 根据用户配置选择使用腾讯云 ASR、阿里云 ASR 或 Web Speech API。
- * 优先级：豆包 ASR > 腾讯云 ASR > 阿里云 ASR > Web Speech API
- *
- * @param options 选项
- * @param options.onFallback 降级回调，当云服务失败时调用
+ * 选择云端服务但未配置时抛出明确错误；识别失败不再自动降级。
  */
-function createRecognizer(options?: {
-  onFallback?: (reason: string) => void;
-}): ISpeechRecognizer {
-  // 优先级 1: 豆包 ASR（火山方舟）
-  if (userConfig && isDoubaoASRConfigured(userConfig)) {
-    console.log("[Lingride Tutor] 使用豆包 ASR 识别器");
-    const doubaoRecognizer = new DoubaoASRRecognizer();
+function createRecognizer(): ISpeechRecognizer {
+  const config = userConfig ?? DEFAULT_CONFIG;
+  const selection = resolveASRSelection(config);
 
-    doubaoRecognizer.onError = (error: Error) => {
-      console.warn("[Lingride Tutor] 豆包 ASR 失败，降级到 Web Speech API:", error.message);
-      options?.onFallback?.(`豆包识别失败: ${error.message}，使用浏览器识别`);
-    };
-
-    return doubaoRecognizer;
+  switch (selection) {
+    case "doubao":
+      if (!isDoubaoASRConfigured(config)) {
+        throw new Error("豆包识别未配置 API Key，请到设置页配置或切换识别服务");
+      }
+      console.log("[Lingride Tutor] 使用豆包 ASR 识别器");
+      return new DoubaoASRRecognizer();
+    case "tencent":
+      if (!isTencentASRConfigured(config)) {
+        throw new Error("腾讯云识别未配置密钥，请到设置页配置或切换识别服务");
+      }
+      console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
+      return new TencentASRRecognizer();
+    case "alibaba":
+      if (!isAlibabaASRConfigured(config)) {
+        throw new Error("阿里云识别未配置 API Key，请到设置页配置或切换识别服务");
+      }
+      console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
+      return new AlibabaASRRecognizer();
+    case "browser":
+      console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
+      return new WebSpeechRecognizer();
   }
+}
 
-  // 优先级 2: 腾讯云 ASR
-  if (userConfig && isTencentASRConfigured(userConfig)) {
-    console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
-    const tencentRecognizer = new TencentASRRecognizer();
-
-    // 包装错误处理，实现降级逻辑
-    const originalOnError = tencentRecognizer.onError;
-    tencentRecognizer.onError = (error: Error) => {
-      console.warn("[Lingride Tutor] 腾讯云 ASR 失败，降级到 Web Speech API:", error.message);
-      options?.onFallback?.(`腾讯云识别失败: ${error.message}，使用浏览器识别`);
-      originalOnError?.(error);
-    };
-
-    return tencentRecognizer;
-  }
-
-  // 优先级 2: 阿里云 ASR
-  if (userConfig && isAlibabaASRConfigured(userConfig)) {
-    console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
-    const alibabaRecognizer = new AlibabaASRRecognizer();
-
-    // 包装错误处理，实现降级逻辑
-    alibabaRecognizer.onError = (error: Error) => {
-      console.warn("[Lingride Tutor] 阿里云 ASR 失败，降级到 Web Speech API:", error.message);
-      options?.onFallback?.(`阿里云识别失败: ${error.message}，使用浏览器识别`);
-    };
-
-    return alibabaRecognizer;
-  }
-
-  // 优先级 3: Web Speech API（降级方案）
-  console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
-  return new WebSpeechRecognizer();
+/**
+ * 创建一个 start() 即拒绝的 stub 识别器。
+ *
+ * 用于影子跟读初始化时配置缺失的场景：页面初始化不能因配置问题中断，
+ * 错误延迟到用户点击录音时暴露。
+ */
+function createFailedRecognizer(message: string): ISpeechRecognizer {
+  return {
+    async start(): Promise<void> {
+      throw new Error(message);
+    },
+    async stop(): Promise<string> {
+      return "";
+    },
+    isRecognizing(): boolean {
+      return false;
+    },
+  };
 }
 
 // ====== Level Badge 等级选择 ======
@@ -1496,12 +1492,8 @@ async function startRecording(): Promise<void> {
     freeRecognitionResult.style.display = "none";
     pronunciationStatus.style.display = "none";
 
-    // 初始化识别器（根据配置选择腾讯云或 Web Speech API）
-    recognizer = createRecognizer({
-      onFallback: (reason) => {
-        showStatus(pronunciationStatus, reason, "warning");
-      },
-    });
+    // 初始化识别器（按设置页选择的服务）
+    recognizer = createRecognizer();
     recognizer.onInterimResult = (text) => {
       updateRecognitionPreview(text);
     };
@@ -1836,13 +1828,14 @@ function initShadowMode(): void {
     headphoneHint.style.display = "flex";
   }
 
-  // 创建并注入语音识别器（根据配置选择腾讯云或 Web Speech API）
-  const shadowRecognizer = createRecognizer({
-    onFallback: (reason) => {
-      // 显示降级提示
-      showStatus(shadowStatus, reason, "warning");
-    },
-  });
+  // 创建并注入语音识别器（按设置页选择的服务；配置缺失时延迟到录音时报错）
+  let shadowRecognizer: ISpeechRecognizer;
+  try {
+    shadowRecognizer = createRecognizer();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "语音识别服务未配置";
+    shadowRecognizer = createFailedRecognizer(message);
+  }
   shadow.injectRecognizer(shadowRecognizer);
 
   // 设置回调
