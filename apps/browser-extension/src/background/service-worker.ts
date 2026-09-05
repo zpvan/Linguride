@@ -1075,7 +1075,8 @@ async function requestDoubaoTTSAudio(
       });
     }
 
-    if (chunk.code !== 0) {
+    // code 0 = 音频分块；20000000 = 流式合成成功结束的终止帧
+    if (chunk.code !== 0 && chunk.code !== 20000000) {
       throw createTTSError({
         provider: "doubao",
         code: "TTS_UNKNOWN_ERROR",
