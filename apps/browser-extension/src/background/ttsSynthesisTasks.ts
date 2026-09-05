@@ -11,7 +11,7 @@ export interface TTSSynthesisTaskRecord {
   /** 当前合成阶段 */
   stage: TTSSynthesisStage;
   /** MiniMax 异步任务 ID（创建任务成功后记录） */
-  taskId?: number;
+  taskId?: string | number;
   /** 合成开始时间戳 */
   startedAt: number;
   /** 进入终态（ready/failed/cancelled）的时间戳 */
@@ -47,7 +47,7 @@ export class TTSSynthesisTaskRegistry {
   advance(
     requestId: string,
     stage: TTSSynthesisStage,
-    patch?: { taskId?: number }
+    patch?: { taskId?: string | number }
   ): void {
     const record = this.tasks.get(requestId);
     if (!record || TERMINAL_STAGES.has(record.stage)) return;

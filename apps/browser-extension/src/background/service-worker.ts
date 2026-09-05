@@ -96,6 +96,9 @@ import {
   TTSServiceErrorCode,
   TTSServiceErrorHint,
   TranslateResponse,
+  GetTTSSynthesisStatusResponse,
+  CancelTTSSynthesisResponse,
+  DiagnoseTTSResponse,
   XIAOMI_TTS_API_BASE_URL,
   XIAOMI_TTS_MODEL,
   XiaomiTTSStyleSelection,
@@ -129,6 +132,12 @@ import {
   setParaphraseState,
   setTabState,
 } from "./tabState";
+import { ttsSynthesisTaskRegistry } from "./ttsSynthesisTasks";
+import {
+  summarizeDiagnoseSamples,
+  withTimeout,
+  type DiagnoseSampleResult,
+} from "./ttsDiagnostics";
 
 // ====== 初始化 ======
 
@@ -364,6 +373,8 @@ function getTTSErrorMessage(
       return `${providerLabel}服务繁忙，请稍后重试`;
     case "TTS_PLAYBACK_ERROR":
       return "扩展内音频播放失败";
+    case "TTS_CANCELLED":
+      return "朗读已取消";
     case "TTS_AUDIO_INVALID":
       return "服务返回了无效音频数据";
     case "TTS_UNKNOWN_ERROR":
@@ -1217,12 +1228,20 @@ async function waitForMiniMaxTaskFileId(
   baseUrl: string,
   apiKey: string,
   taskId: MiniMaxTaskId,
-  initialFileId?: MiniMaxFileId
+  initialFileId?: MiniMaxFileId,
+  shouldAbort?: () => boolean
 ): Promise<MiniMaxFileId> {
   const startedAt = Date.now();
   let fileId = initialFileId;
 
   while (Date.now() - startedAt < MINIMAX_TTS_POLL_TIMEOUT_MS) {
+    if (shouldAbort?.()) {
+      throw createTTSError({
+        provider: "minimax",
+        code: "TTS_CANCELLED",
+      });
+    }
+
     const data = await queryMiniMaxTTSTask(baseUrl, apiKey, taskId);
     if (data.file_id) {
       fileId = data.file_id;
@@ -1325,8 +1344,13 @@ async function downloadMiniMaxTTSAudio(
   };
 }
 
+interface TTSSynthesisProgressContext {
+  requestId: string;
+}
+
 async function requestMiniMaxTTSAudio(
-  context: TTSProviderRequestContext
+  context: TTSProviderRequestContext,
+  progress?: TTSSynthesisProgressContext
 ): Promise<TTSAudioData> {
   const apiKey = context.config.minimax_tts?.api_key?.trim();
   if (!apiKey) {
@@ -1338,20 +1362,49 @@ async function requestMiniMaxTTSAudio(
 
   const baseUrl = getMiniMaxTTSBaseUrl(context.config);
   const { taskId, fileId } = await createMiniMaxTTSTask(context);
-  const outputFileId = await waitForMiniMaxTaskFileId(baseUrl, apiKey, taskId, fileId);
-  return downloadMiniMaxTTSAudio(baseUrl, apiKey, outputFileId);
+  if (progress) {
+    ttsSynthesisTaskRegistry.advance(progress.requestId, "synthesizing", {
+      taskId,
+    });
+  }
+
+  const outputFileId = await waitForMiniMaxTaskFileId(
+    baseUrl,
+    apiKey,
+    taskId,
+    fileId,
+    progress
+      ? () =>
+          ttsSynthesisTaskRegistry.get(progress.requestId)?.stage ===
+          "cancelled"
+      : undefined
+  );
+
+  if (progress) {
+    ttsSynthesisTaskRegistry.advance(progress.requestId, "downloading");
+  }
+
+  const audio = await downloadMiniMaxTTSAudio(baseUrl, apiKey, outputFileId);
+  if (progress) {
+    ttsSynthesisTaskRegistry.advance(progress.requestId, "ready");
+  }
+  return audio;
 }
 
 async function requestTTSAudioByProvider(
   provider: TTSProviderId,
-  context: TTSProviderRequestContext
+  context: TTSProviderRequestContext,
+  progress?: TTSSynthesisProgressContext
 ): Promise<TTSAudioData> {
   return provider === "minimax"
-    ? requestMiniMaxTTSAudio(context)
+    ? requestMiniMaxTTSAudio(context, progress)
     : requestXiaomiTTSAudio(context);
 }
 
-async function requestTTSAudioWithPriority(text: string): Promise<TTSAudioData> {
+async function requestTTSAudioWithPriority(
+  text: string,
+  progress?: TTSSynthesisProgressContext
+): Promise<TTSAudioData> {
   const config = await getConfig();
   const selection = config.tts_selection || "browser";
   const context: TTSProviderRequestContext = {
@@ -1370,7 +1423,7 @@ async function requestTTSAudioWithPriority(text: string): Promise<TTSAudioData> 
 
   // 只尝试用户选择的 AI 提供者，失败时抛出错误触发浏览器回退
   try {
-    return await requestTTSAudioByProvider(selection, context);
+    return await requestTTSAudioByProvider(selection, context, progress);
   } catch (error) {
     throw normalizeUnknownTTSError(selection, error);
   }
@@ -1764,13 +1817,17 @@ async function handleTestTTSConnection(
 /**
  * 处理 SYNTHESIZE_SPEECH 消息
  *
- * 按优先级调用 AI TTS 生成音频。
+ * 按优先级调用 AI TTS 生成音频；传入 requestId 时登记合成任务表以上报进度。
  */
 async function handleSynthesizeSpeech(
   text: string,
-  rate: TTSSpeed
+  rate: TTSSpeed,
+  requestId?: string
 ): Promise<SynthesizeSpeechResponse> {
   const playbackEpoch = nextTTSPlaybackEpoch();
+  if (requestId) {
+    ttsSynthesisTaskRegistry.begin(requestId);
+  }
 
   try {
     if (!text.trim()) {
@@ -1781,20 +1838,30 @@ async function handleSynthesizeSpeech(
       };
     }
 
-    const data = await requestTTSAudioWithPriority(text.trim());
+    const data = await requestTTSAudioWithPriority(
+      text.trim(),
+      requestId ? { requestId } : undefined
+    );
     if (!isCurrentTTSPlaybackEpoch(playbackEpoch)) {
+      if (requestId) {
+        ttsSynthesisTaskRegistry.cancel(requestId);
+      }
       return {
         success: false,
-        errorCode: "TTS_UNKNOWN_ERROR",
+        errorCode: "TTS_CANCELLED",
         error: "朗读已取消",
       };
+    }
+
+    if (requestId) {
+      ttsSynthesisTaskRegistry.advance(requestId, "ready");
     }
 
     await playTTSAudioInOffscreen(data, rate);
     if (!isCurrentTTSPlaybackEpoch(playbackEpoch)) {
       return {
         success: false,
-        errorCode: "TTS_UNKNOWN_ERROR",
+        errorCode: "TTS_CANCELLED",
         error: "朗读已取消",
       };
     }
@@ -1807,6 +1874,13 @@ async function handleSynthesizeSpeech(
       },
     };
   } catch (error) {
+    if (requestId) {
+      ttsSynthesisTaskRegistry.fail(
+        requestId,
+        error instanceof TTSError ? error.code : "TTS_UNKNOWN_ERROR"
+      );
+    }
+
     if (error instanceof TTSError) {
       return {
         success: false,
@@ -1838,6 +1912,107 @@ async function handleStopTTSPlayback(): Promise<StopTTSPlaybackResponse> {
     return {
       success: false,
       error: error instanceof Error ? error.message : "停止 AI 语音播放失败",
+    };
+  }
+}
+
+/**
+ * 处理 GET_TTS_SYNTHESIS_STATUS 消息
+ *
+ * 查询指定合成请求的进度；未知 requestId 返回 stage=unknown。
+ */
+async function handleGetTTSSynthesisStatus(
+  requestId: string
+): Promise<GetTTSSynthesisStatusResponse> {
+  const record = ttsSynthesisTaskRegistry.get(requestId);
+  if (!record) {
+    return {
+      success: true,
+      data: { stage: "unknown", elapsedMs: 0 },
+    };
+  }
+
+  const endedAt = record.finishedAt ?? Date.now();
+  return {
+    success: true,
+    data: {
+      stage: record.stage,
+      elapsedMs: endedAt - record.startedAt,
+      errorCode: record.errorCode,
+    },
+  };
+}
+
+/**
+ * 处理 CANCEL_TTS_SYNTHESIS 消息
+ *
+ * 取消指定合成请求：任务置为 cancelled（轮询循环下一轮即中止），
+ * 并递增播放 epoch 防止迟到的音频开始播放。
+ */
+async function handleCancelTTSSynthesis(
+  requestId: string
+): Promise<CancelTTSSynthesisResponse> {
+  try {
+    ttsSynthesisTaskRegistry.cancel(requestId);
+    nextTTSPlaybackEpoch();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "取消语音合成失败",
+    };
+  }
+}
+
+const DIAGNOSE_TTS_SAMPLE_COUNT = 3;
+const DIAGNOSE_TTS_SAMPLE_TIMEOUT_MS = 60_000;
+const DIAGNOSE_TTS_TEXT =
+  "Hello from Lingride. This is a speech synthesis diagnostic sample.";
+
+/**
+ * 处理 DIAGNOSE_TTS 消息
+ *
+ * 顺序跑多次采样合成，汇总成功率、耗时与失败原因分布。
+ */
+async function handleDiagnoseTTS(
+  provider: TTSProviderId
+): Promise<DiagnoseTTSResponse> {
+  try {
+    const config = await getConfig();
+    const samples: DiagnoseSampleResult[] = [];
+
+    for (let i = 0; i < DIAGNOSE_TTS_SAMPLE_COUNT; i++) {
+      const startedAt = Date.now();
+      try {
+        await withTimeout(
+          requestTTSAudioByProvider(provider, {
+            config,
+            text: DIAGNOSE_TTS_TEXT,
+          }),
+          DIAGNOSE_TTS_SAMPLE_TIMEOUT_MS,
+          () =>
+            createTTSError({
+              provider,
+              code: "TTS_SERVER_BUSY",
+              detail: "诊断采样超时（60s）",
+            })
+        );
+        samples.push({ success: true, durationMs: Date.now() - startedAt });
+      } catch (error) {
+        samples.push({
+          success: false,
+          durationMs: Date.now() - startedAt,
+          errorCode:
+            error instanceof TTSError ? error.code : "TTS_UNKNOWN_ERROR",
+        });
+      }
+    }
+
+    return { success: true, data: summarizeDiagnoseSamples(samples) };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "语音合成诊断失败",
     };
   }
 }
@@ -3734,8 +3909,23 @@ chrome.runtime.onMessage.addListener(
         case MessageType.SYNTHESIZE_SPEECH:
           response = await handleSynthesizeSpeech(
             message.payload.text,
-            message.payload.rate
+            message.payload.rate,
+            message.payload.requestId
           );
+          break;
+
+        case MessageType.GET_TTS_SYNTHESIS_STATUS:
+          response = await handleGetTTSSynthesisStatus(
+            message.payload.requestId
+          );
+          break;
+
+        case MessageType.CANCEL_TTS_SYNTHESIS:
+          response = await handleCancelTTSSynthesis(message.payload.requestId);
+          break;
+
+        case MessageType.DIAGNOSE_TTS:
+          response = await handleDiagnoseTTS(message.payload.provider);
           break;
 
         case MessageType.STOP_TTS_PLAYBACK:
