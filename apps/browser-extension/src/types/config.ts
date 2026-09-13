@@ -246,7 +246,7 @@ export function isXiaomiASRConfigured(config: LingridConfig): boolean {
  * 解析当前生效的语音识别服务选择。
  *
  * 1. 用户显式选择优先；
- * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 取第一个已配置的；
+ * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 > 小米 取第一个已配置的；
  * 3. 全未配置回退浏览器识别。
  */
 export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
