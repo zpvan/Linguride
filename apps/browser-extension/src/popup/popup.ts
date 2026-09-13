@@ -73,6 +73,7 @@ import {
   ASRSelectionMode,
   isAlibabaASRConfigured,
   isDoubaoASRConfigured,
+  isMiniMaxASRConfigured,
   isTencentASRConfigured,
   isXiaomiASRConfigured,
   resolveASRSelection,
@@ -429,6 +430,9 @@ const asrProviderSelect = document.getElementById(
 ) as HTMLSelectElement;
 const asrProviderHint = document.getElementById(
   "asrProviderHint"
+) as HTMLParagraphElement;
+const minimaxAsrReuseHint = document.getElementById(
+  "minimaxAsrReuseHint"
 ) as HTMLParagraphElement;
 
 // Settings - 操作
@@ -2006,19 +2010,28 @@ function updateASRProviderHint(): void {
     doubao: "豆包",
     tencent: "腾讯云",
     alibaba: "阿里云",
+    minimax: "MiniMax",
     xiaomi: "小米",
   };
   const configuredCheckers: Record<string, (c: LingridConfig) => boolean> = {
     doubao: isDoubaoASRConfigured,
     tencent: isTencentASRConfigured,
     alibaba: isAlibabaASRConfigured,
+    minimax: isMiniMaxASRConfigured,
     xiaomi: isXiaomiASRConfigured,
   };
+
+  // MiniMax 复用说明只在选中 MiniMax 时显示
+  minimaxAsrReuseHint.style.display =
+    selection === "minimax" ? "block" : "none";
 
   const label = labels[selection];
   const checker = configuredCheckers[selection];
   if (label && checker && !checker(currentConfig)) {
-    asrProviderHint.textContent = `尚未配置${label}的 API 密钥，当前选择不会生效`;
+    asrProviderHint.textContent =
+      selection === "minimax"
+        ? "尚未配置 MiniMax 的 API 密钥（请先在语音合成服务中配置），当前选择不会生效"
+        : `尚未配置${label}的 API 密钥，当前选择不会生效`;
     asrProviderHint.style.display = "block";
   } else {
     asrProviderHint.style.display = "none";
