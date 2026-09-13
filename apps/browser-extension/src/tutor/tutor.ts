@@ -698,8 +698,7 @@ function handleTTSSpeedStorageChange(
   if (userConfig) {
     userConfig = {
       ...userConfig,
-      minimax_tts: nextConfig.minimax_tts,
-      xiaomi_tts: nextConfig.xiaomi_tts,
+      ...nextConfig,
       tts_speed: nextSpeed,
     };
   }
@@ -2068,6 +2067,15 @@ async function handleShadowRecord(): Promise<void> {
   // 开始录音
   try {
     startShadowRecordingUI();
+
+    // 0. 按最新配置重建识别器（设置页改动后识别器仍是旧选择）
+    try {
+      shadow.injectRecognizer(createRecognizer());
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "语音识别服务未配置";
+      shadow.injectRecognizer(createFailedRecognizer(message));
+    }
 
     // 1. 获取共享的 MediaStream
     const stream = await audioCapture.acquireStream();
