@@ -99,7 +99,7 @@ function uint8ToBase64(data: Uint8Array): string {
  * 小米流式语音识别器（批量上传 + SSE 出文本）。
  */
 export class XiaomiASRRecognizer implements ISpeechRecognizer {
-  /** 上传 + SSE 读取超时（覆盖最长 60s 音频上传） */
+  /** 上传 + SSE 读取超时（30s 内未响应则中止） */
   private static readonly REQUEST_TIMEOUT_MS = 30_000;
 
   private pcmCapture: PCMCapture | null = null;
@@ -171,7 +171,7 @@ export class XiaomiASRRecognizer implements ISpeechRecognizer {
     const wav = encodeWavFromPCM(merged);
     const audioBase64 = uint8ToBase64(wav);
 
-    // 上传 + SSE 读取整体超时（覆盖最长 60s 音频上传）
+    // 上传 + SSE 读取整体超时（30s 内未响应则中止）
     const abortController = new AbortController();
     const timeout = setTimeout(() => {
       abortController.abort();
