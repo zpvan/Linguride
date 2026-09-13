@@ -188,9 +188,27 @@ export interface DoubaoASRConfig {
 }
 
 /**
+ * 小米 MiMo ASR 配置
+ *
+ * 用于小米 mimo-v2.5-asr 语音识别模型（OpenAI 兼容 chat/completions）。
+ * 可在设置页「语音识别服务」中手动选择启用。
+ */
+export interface XiaomiASRConfig {
+  /** 小米 MiMo API Key */
+  api_key: string;
+}
+
+/** 小米 ASR 接口地址（OpenAI 兼容） */
+export const XIAOMI_ASR_API_URL =
+  "https://api.xiaomimimo.com/v1/chat/completions";
+
+/** 小米 ASR 固定模型名 */
+export const XIAOMI_ASR_MODEL = "mimo-v2.5-asr";
+
+/**
  * 语音识别服务标识
  */
-export type ASRProviderId = "doubao" | "tencent" | "alibaba";
+export type ASRProviderId = "doubao" | "tencent" | "alibaba" | "xiaomi";
 
 /**
  * 语音识别服务选择模式
@@ -219,6 +237,11 @@ export function isAlibabaASRConfigured(config: LingridConfig): boolean {
   return !!config.alibaba_asr?.api_key;
 }
 
+/** 小米 ASR 是否已配置（API Key 非空） */
+export function isXiaomiASRConfigured(config: LingridConfig): boolean {
+  return !!config.xiaomi_asr?.api_key?.trim();
+}
+
 /**
  * 解析当前生效的语音识别服务选择。
  *
@@ -231,6 +254,7 @@ export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
   if (isDoubaoASRConfigured(config)) return "doubao";
   if (isTencentASRConfigured(config)) return "tencent";
   if (isAlibabaASRConfigured(config)) return "alibaba";
+  if (isXiaomiASRConfigured(config)) return "xiaomi";
   return "browser";
 }
 
@@ -493,6 +517,9 @@ export interface LingridConfig {
 
   /** 语音识别服务选择（用户手动选择，识别失败直接报错；缺省按已配置者迁移） */
   asr_selection?: ASRSelectionMode;
+
+  /** 小米 MiMo ASR 配置（可选，不配置则不可手动选择） */
+  xiaomi_asr?: XiaomiASRConfig;
 
   /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */
   xiaomi_tts?: XiaomiTTSConfig;

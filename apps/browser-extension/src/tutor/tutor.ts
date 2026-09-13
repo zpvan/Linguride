@@ -737,6 +737,9 @@ function createRecognizer(): ISpeechRecognizer {
       }
       console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
       return new AlibabaASRRecognizer();
+    case "xiaomi":
+      // TODO: 小米 MiMo ASR 识别器接入后替换此占位实现
+      throw new Error("小米识别暂未上线，请到设置页切换识别服务");
     case "browser":
       console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
       return new WebSpeechRecognizer();

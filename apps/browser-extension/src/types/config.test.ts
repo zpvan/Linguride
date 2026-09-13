@@ -10,6 +10,7 @@ import {
   isAlibabaASRConfigured,
   isDoubaoASRConfigured,
   isTencentASRConfigured,
+  isXiaomiASRConfigured,
   normalizeDoubaoTTSVoice,
   normalizeMiniMaxTTSBaseUrl,
   normalizeXiaomiTTSVoice,
@@ -153,6 +154,21 @@ describe("resolveASRSelection", () => {
     ).toBe("alibaba");
   });
 
+  it("falls to xiaomi when only xiaomi configured", () => {
+    expect(resolveASRSelection({ xiaomi_asr: { api_key: "k" } } as never)).toBe(
+      "xiaomi"
+    );
+  });
+
+  it("prefers alibaba over xiaomi in migration order", () => {
+    expect(
+      resolveASRSelection({
+        alibaba_asr: { api_key: "k" },
+        xiaomi_asr: { api_key: "k" },
+      } as never)
+    ).toBe("alibaba");
+  });
+
   it("falls back to browser when nothing configured", () => {
     expect(resolveASRSelection({} as never)).toBe("browser");
   });
@@ -187,5 +203,11 @@ describe("isXxxASRConfigured", () => {
     expect(isAlibabaASRConfigured({ alibaba_asr: { api_key: "k" } } as never)).toBe(
       true
     );
+  });
+
+  it("xiaomi requires non-empty trimmed api_key", () => {
+    expect(isXiaomiASRConfigured({} as never)).toBe(false);
+    expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "  " } } as never)).toBe(false);
+    expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "k" } } as never)).toBe(true);
   });
 });

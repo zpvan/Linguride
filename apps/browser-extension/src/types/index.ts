@@ -43,9 +43,12 @@ export {
   normalizeDoubaoTTSVoice,
   DOUBAO_ASR_WS_URL,
   DOUBAO_ASR_RESOURCE_ID,
+  XIAOMI_ASR_API_URL,
+  XIAOMI_ASR_MODEL,
   isAlibabaASRConfigured,
   isDoubaoASRConfigured,
   isTencentASRConfigured,
+  isXiaomiASRConfigured,
   resolveASRSelection,
   calculateTargetLevel,
   getRetentionPercent,
@@ -80,6 +83,7 @@ export type {
   DoubaoTTSConfig,
   DoubaoTTSVoice,
   DoubaoASRConfig,
+  XiaomiASRConfig,
 } from "./config";
 export {
   DEFAULT_TTS_SPEED,
