@@ -99,6 +99,9 @@ function uint8ToBase64(data: Uint8Array): string {
  * 小米流式语音识别器（批量上传 + SSE 出文本）。
  */
 export class XiaomiASRRecognizer implements ISpeechRecognizer {
+  /** 上传 + SSE 读取超时（覆盖最长 60s 音频上传） */
+  private static readonly REQUEST_TIMEOUT_MS = 30_000;
+
   private pcmCapture: PCMCapture | null = null;
   private pendingChunks: Int16Array[] = [];
   private _isRecognizing = false;
@@ -134,6 +137,11 @@ export class XiaomiASRRecognizer implements ISpeechRecognizer {
     console.log("[Lingride XiaomiASR] 识别已启动");
   }
 
+  /**
+   * 停止录音并返回最终识别文本。
+   * 契约与既有识别器一致：不抛异常——出错走 onError 并返回空串，
+   * 由调用方统一处理空结果，避免中断 stopRecordingUI 流程。
+   */
   async stop(): Promise<string> {
     this._isRecognizing = false;
 
@@ -155,75 +163,114 @@ export class XiaomiASRRecognizer implements ISpeechRecognizer {
     this.pendingChunks = [];
 
     if (merged.length === 0) {
-      throw new Error("未识别到语音内容，请重试");
+      this.onError?.(new Error("未识别到语音内容，请重试"));
+      return "";
     }
 
     // 打包 WAV 并上传
     const wav = encodeWavFromPCM(merged);
     const audioBase64 = uint8ToBase64(wav);
 
-    const response = await fetch(XIAOMI_ASR_API_URL, {
-      method: "POST",
-      headers: {
-        "api-key": this.apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: XIAOMI_ASR_MODEL,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "input_audio",
-                input_audio: {
-                  data: `data:audio/wav;base64,${audioBase64}`,
+    // 上传 + SSE 读取整体超时（覆盖最长 60s 音频上传）
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => {
+      abortController.abort();
+    }, XiaomiASRRecognizer.REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(XIAOMI_ASR_API_URL, {
+        method: "POST",
+        headers: {
+          "api-key": this.apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: XIAOMI_ASR_MODEL,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "input_audio",
+                  input_audio: {
+                    data: `data:audio/wav;base64,${audioBase64}`,
+                  },
                 },
-              },
-            ],
-          },
-        ],
-        asr_options: { language: "en" },
-        stream: true,
-      }),
-    });
+              ],
+            },
+          ],
+          asr_options: { language: "en" },
+          stream: true,
+        }),
+        signal: abortController.signal,
+      });
 
-    if (!response.ok) {
-      const message = await this.extractErrorMessage(response);
-      throw new Error(message);
-    }
-    if (!response.body) {
-      throw new Error("小米 ASR 响应为空");
-    }
+      if (!response.ok) {
+        const message = await this.extractErrorMessage(response);
+        this.onError?.(new Error(message));
+        return "";
+      }
+      if (!response.body) {
+        this.onError?.(new Error("小米 ASR 响应为空"));
+        return "";
+      }
 
-    // SSE 逐行读取
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let transcript = "";
+      // SSE 逐行读取
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let transcript = "";
 
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
+      try {
+        outer: for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
 
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
 
-      for (const line of lines) {
-        const event = parseXiaomiASRSSELine(line);
-        if (event?.type === "delta") {
-          transcript += event.text;
+          for (const line of lines) {
+            const event = parseXiaomiASRSSELine(line);
+            if (event?.type === "done") {
+              // 服务端发 [DONE] 后不一定会立刻关连接，提前退出
+              break outer;
+            }
+            if (event?.type === "delta") {
+              transcript += event.text;
+              this.onInterimResult?.(transcript.trim());
+            }
+          }
+        }
+
+        // 补解析残余 buffer（最后一行可能无换行结尾）
+        const tail = parseXiaomiASRSSELine(buffer);
+        if (tail?.type === "delta") {
+          transcript += tail.text;
           this.onInterimResult?.(transcript.trim());
         }
+      } finally {
+        reader.releaseLock();
       }
-    }
 
-    const result = transcript.trim();
-    if (!result) {
-      throw new Error("未识别到语音内容，请重试");
+      const result = transcript.trim();
+      if (!result) {
+        this.onError?.(new Error("未识别到语音内容，请重试"));
+        return "";
+      }
+      return result;
+    } catch (error) {
+      if (abortController.signal.aborted) {
+        this.onError?.(new Error("小米 ASR 请求超时，请重试"));
+      } else {
+        this.onError?.(
+          error instanceof Error ? error : new Error(String(error))
+        );
+      }
+      return "";
+    } finally {
+      clearTimeout(timeout);
     }
-    return result;
   }
 
   isRecognizing(): boolean {
