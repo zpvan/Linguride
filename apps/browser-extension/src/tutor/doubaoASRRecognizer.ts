@@ -13,6 +13,7 @@ import {
 } from "../types";
 import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
 import { acquireStream, releaseStream } from "./audioCapture";
+import { createPCMCapture, PCM_TARGET_SAMPLE_RATE, PCMCapture } from "./pcmCapture";
 import {
   buildAudioFrame,
   buildFullClientRequest,
@@ -21,7 +22,6 @@ import {
 
 export { isDoubaoASRConfigured } from "../types";
 
-const TARGET_SAMPLE_RATE = 16000;
 const AUDIO_SEND_INTERVAL = 200;
 
 interface SaucResultPayload {
@@ -35,9 +35,7 @@ interface SaucResultPayload {
  */
 export class DoubaoASRRecognizer implements ISpeechRecognizer {
   private ws: WebSocket | null = null;
-  private audioContext: AudioContext | null = null;
-  private sourceNode: MediaStreamAudioSourceNode | null = null;
-  private processorNode: ScriptProcessorNode | null = null;
+  private pcmCapture: PCMCapture | null = null;
   private _isRecognizing = false;
   private sequence = 1;
   private finalTranscript = "";
@@ -129,7 +127,7 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
             audio: {
               format: "pcm",
               codec: "raw",
-              rate: TARGET_SAMPLE_RATE,
+              rate: PCM_TARGET_SAMPLE_RATE,
               bits: 16,
               channel: 1,
             },
@@ -197,24 +195,10 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
   private async startAudioCapture(): Promise<void> {
     const stream = await acquireStream();
 
-    // 尝试 16kHz 采样率；不支持则用默认采样率并重采样
-    try {
-      this.audioContext = new AudioContext({ sampleRate: TARGET_SAMPLE_RATE });
-    } catch {
-      this.audioContext = new AudioContext();
-      console.log(
-        `[Lingride DoubaoASR] 使用默认采样率: ${this.audioContext.sampleRate}Hz`
-      );
-    }
-
-    this.sourceNode = this.audioContext.createMediaStreamSource(stream);
-    this.processorNode = this.audioContext.createScriptProcessor(4096, 1, 1);
-    const audioContext = this.audioContext;
-
     this.pendingChunks = [];
     let lastSendTime = Date.now();
 
-    this.processorNode.onaudioprocess = (event) => {
+    this.pcmCapture = createPCMCapture((chunk) => {
       if (
         !this._isRecognizing ||
         !this.ws ||
@@ -222,24 +206,15 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
       ) {
         return;
       }
-
-      const inputData = event.inputBuffer.getChannelData(0);
-      const pcmData =
-        audioContext.sampleRate !== TARGET_SAMPLE_RATE
-          ? this.resample(inputData, audioContext.sampleRate, TARGET_SAMPLE_RATE)
-          : inputData;
-
-      this.pendingChunks.push(this.float32ToInt16(pcmData));
+      this.pendingChunks.push(chunk);
 
       const now = Date.now();
       if (now - lastSendTime >= AUDIO_SEND_INTERVAL) {
         lastSendTime = now;
         this.flushPendingChunks();
       }
-    };
-
-    this.sourceNode.connect(this.processorNode);
-    this.processorNode.connect(this.audioContext.destination);
+    });
+    this.pcmCapture.start(stream);
   }
 
   /** 把采集缓冲中的 PCM 帧合并后排入发送队列（保证按序到达） */
@@ -271,46 +246,14 @@ export class DoubaoASRRecognizer implements ISpeechRecognizer {
     });
   }
 
-  private resample(
-    input: Float32Array,
-    fromRate: number,
-    toRate: number
-  ): Float32Array {
-    const ratio = fromRate / toRate;
-    const outputLength = Math.floor(input.length / ratio);
-    const output = new Float32Array(outputLength);
-
-    for (let i = 0; i < outputLength; i++) {
-      output[i] = input[Math.floor(i * ratio)];
-    }
-
-    return output;
-  }
-
-  private float32ToInt16(input: Float32Array): Int16Array {
-    const output = new Int16Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      const s = Math.max(-1, Math.min(1, input[i]));
-      output[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-    }
-    return output;
-  }
-
   private cleanup(): void {
     if (this.connectTimeout !== null) {
       clearTimeout(this.connectTimeout);
       this.connectTimeout = null;
     }
 
-    this.processorNode?.disconnect();
-    this.sourceNode?.disconnect();
-    this.processorNode = null;
-    this.sourceNode = null;
-
-    if (this.audioContext) {
-      void this.audioContext.close();
-      this.audioContext = null;
-    }
+    this.pcmCapture?.stop();
+    this.pcmCapture = null;
 
     releaseStream();
 
