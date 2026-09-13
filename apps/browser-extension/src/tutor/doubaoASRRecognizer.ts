@@ -13,7 +13,8 @@ import {
 } from "../types";
 import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
 import { acquireStream, releaseStream } from "./audioCapture";
-import { createPCMCapture, PCM_TARGET_SAMPLE_RATE, PCMCapture } from "./pcmCapture";
+import { createPCMCapture, PCM_TARGET_SAMPLE_RATE } from "./pcmCapture";
+import type { PCMCapture } from "./pcmCapture";
 import {
   buildAudioFrame,
   buildFullClientRequest,

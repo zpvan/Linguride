@@ -52,6 +52,9 @@ export function createPCMCapture(
 
   return {
     start(stream: MediaStream): void {
+      // 重复 start 是未定义行为；防御性忽略，避免覆盖未关闭的 AudioContext
+      if (audioContext) return;
+
       // 尝试 16kHz 采样率；不支持则用默认采样率并重采样
       try {
         audioContext = new AudioContext({
