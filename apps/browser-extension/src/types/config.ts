@@ -205,10 +205,13 @@ export const XIAOMI_ASR_API_URL =
 /** 小米 ASR 固定模型名 */
 export const XIAOMI_ASR_MODEL = "mimo-v2.5-asr";
 
+/** MiniMax ASR 固定模型名 */
+export const MINIMAX_ASR_MODEL = "asr-1.0";
+
 /**
  * 语音识别服务标识
  */
-export type ASRProviderId = "doubao" | "tencent" | "alibaba" | "xiaomi";
+export type ASRProviderId = "doubao" | "tencent" | "alibaba" | "minimax" | "xiaomi";
 
 /**
  * 语音识别服务选择模式
@@ -242,11 +245,16 @@ export function isXiaomiASRConfigured(config: LingridConfig): boolean {
   return !!config.xiaomi_asr?.api_key?.trim();
 }
 
+/** MiniMax ASR 是否已配置（复用 MiniMax TTS 的 API Key） */
+export function isMiniMaxASRConfigured(config: LingridConfig): boolean {
+  return !!config.minimax_tts?.api_key?.trim();
+}
+
 /**
  * 解析当前生效的语音识别服务选择。
  *
  * 1. 用户显式选择优先；
- * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 > 小米 取第一个已配置的；
+ * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 > MiniMax > 小米 取第一个已配置的；
  * 3. 全未配置回退浏览器识别。
  */
 export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
@@ -254,6 +262,7 @@ export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
   if (isDoubaoASRConfigured(config)) return "doubao";
   if (isTencentASRConfigured(config)) return "tencent";
   if (isAlibabaASRConfigured(config)) return "alibaba";
+  if (isMiniMaxASRConfigured(config)) return "minimax";
   if (isXiaomiASRConfigured(config)) return "xiaomi";
   return "browser";
 }

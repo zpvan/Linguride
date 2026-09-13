@@ -48,6 +48,10 @@ import {
   isDoubaoASRConfigured,
 } from "./doubaoASRRecognizer";
 import {
+  MiniMaxASRRecognizer,
+  isMiniMaxASRConfigured,
+} from "./minimaxASRRecognizer";
+import {
   XiaomiASRRecognizer,
   isXiaomiASRConfigured,
 } from "./xiaomiASRRecognizer";
@@ -740,6 +744,14 @@ function createRecognizer(): ISpeechRecognizer {
       }
       console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
       return new AlibabaASRRecognizer();
+    case "minimax":
+      if (!isMiniMaxASRConfigured(config)) {
+        throw new Error(
+          "MiniMax 识别未配置 API Key（复用语音合成服务的 MiniMax Key），请到设置页配置或切换识别服务"
+        );
+      }
+      console.log("[Lingride Tutor] 使用 MiniMax ASR 识别器");
+      return new MiniMaxASRRecognizer(config);
     case "xiaomi":
       if (!isXiaomiASRConfigured(config)) {
         throw new Error("小米识别未配置 API Key，请到设置页配置或切换识别服务");

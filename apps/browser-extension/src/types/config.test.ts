@@ -9,6 +9,7 @@ import {
   XIAOMI_TTS_VOICE_OPTIONS,
   isAlibabaASRConfigured,
   isDoubaoASRConfigured,
+  isMiniMaxASRConfigured,
   isTencentASRConfigured,
   isXiaomiASRConfigured,
   normalizeDoubaoTTSVoice,
@@ -172,6 +173,39 @@ describe("resolveASRSelection", () => {
   it("falls back to browser when nothing configured", () => {
     expect(resolveASRSelection({} as never)).toBe("browser");
   });
+
+  it("falls to minimax when only minimax tts key configured", () => {
+    expect(
+      resolveASRSelection({ minimax_tts: { api_key: "k" } } as never)
+    ).toBe("minimax");
+  });
+
+  it("prefers minimax over xiaomi in migration order", () => {
+    expect(
+      resolveASRSelection({
+        minimax_tts: { api_key: "k" },
+        xiaomi_asr: { api_key: "k" },
+      } as never)
+    ).toBe("minimax");
+  });
+
+  it("prefers alibaba over minimax in migration order", () => {
+    expect(
+      resolveASRSelection({
+        alibaba_asr: { api_key: "k" },
+        minimax_tts: { api_key: "k" },
+      } as never)
+    ).toBe("alibaba");
+  });
+
+  it("explicit xiaomi selection wins over configured minimax", () => {
+    expect(
+      resolveASRSelection({
+        asr_selection: "xiaomi",
+        minimax_tts: { api_key: "k" },
+      } as never)
+    ).toBe("xiaomi");
+  });
 });
 
 describe("isXxxASRConfigured", () => {
@@ -209,5 +243,20 @@ describe("isXxxASRConfigured", () => {
     expect(isXiaomiASRConfigured({} as never)).toBe(false);
     expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "  " } } as never)).toBe(false);
     expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "k" } } as never)).toBe(true);
+  });
+});
+
+describe("isMiniMaxASRConfigured", () => {
+  it("returns true when minimax tts api key is present", () => {
+    expect(
+      isMiniMaxASRConfigured({ minimax_tts: { api_key: "sk-x" } } as never)
+    ).toBe(true);
+  });
+
+  it("returns false for blank or missing key", () => {
+    expect(
+      isMiniMaxASRConfigured({ minimax_tts: { api_key: "  " } } as never)
+    ).toBe(false);
+    expect(isMiniMaxASRConfigured({} as never)).toBe(false);
   });
 });
