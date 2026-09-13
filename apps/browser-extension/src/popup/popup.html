@@ -287,6 +287,7 @@
                   <option value="doubao">豆包</option>
                   <option value="tencent">腾讯云</option>
                   <option value="alibaba">阿里云</option>
+                  <option value="xiaomi">小米</option>
                   <option value="browser">浏览器识别</option>
                 </select>
               </div>
@@ -366,6 +367,29 @@
                     </div>
                     <p class="settings-hint">
                       <a href="https://www.volcengine.com/docs/82379/2516286" target="_blank" rel="noopener">查看火山方舟语音模型接入文档 →</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- 嵌套 accordion: 小米 -->
+              <div class="accordion-item nested">
+                <button class="accordion-header nested-header" data-accordion="xiaomi-asr" data-nested="true">
+                  <span>小米</span>
+                  <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div class="accordion-body nested-body" id="xiaomi-asr">
+                  <div class="accordion-inner">
+                    <div class="settings-row">
+                      <label class="settings-label" for="xiaomiAsrApiKey">API Key</label>
+                      <div class="password-input">
+                        <input type="password" id="xiaomiAsrApiKey" class="settings-input" placeholder="小米 MiMo API Key">
+                        <button type="button" id="showXiaomiAsrKeyBtn" class="show-key-btn">显示</button>
+                      </div>
+                    </div>
+                    <p class="settings-hint">
+                      <a href="https://platform.xiaomimimo.com/docs/zh-CN/usage-guide/Speech-Recognition" target="_blank" rel="noopener">查看小米 MiMo 语音识别文档 →</a>
                     </p>
                   </div>
                 </div>

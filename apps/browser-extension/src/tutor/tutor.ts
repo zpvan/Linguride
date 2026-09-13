@@ -47,6 +47,10 @@ import {
   DoubaoASRRecognizer,
   isDoubaoASRConfigured,
 } from "./doubaoASRRecognizer";
+import {
+  XiaomiASRRecognizer,
+  isXiaomiASRConfigured,
+} from "./xiaomiASRRecognizer";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 
 // ====== 类型定义 ======
@@ -738,8 +742,11 @@ function createRecognizer(): ISpeechRecognizer {
       console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
       return new AlibabaASRRecognizer();
     case "xiaomi":
-      // TODO: 小米 MiMo ASR 识别器接入后替换此占位实现
-      throw new Error("小米识别暂未上线，请到设置页切换识别服务");
+      if (!isXiaomiASRConfigured(config)) {
+        throw new Error("小米识别未配置 API Key，请到设置页配置或切换识别服务");
+      }
+      console.log("[Lingride Tutor] 使用小米 ASR 识别器");
+      return new XiaomiASRRecognizer(config);
     case "browser":
       console.log("[Lingride Tutor] 使用 Web Speech API 识别器");
       return new WebSpeechRecognizer();
