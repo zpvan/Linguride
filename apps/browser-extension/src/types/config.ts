@@ -234,7 +234,7 @@ export function isTencentASRConfigured(config: LingridConfig): boolean {
 
 /** 阿里云 ASR 是否已配置（API Key 非空） */
 export function isAlibabaASRConfigured(config: LingridConfig): boolean {
-  return !!config.alibaba_asr?.api_key;
+  return !!config.alibaba_asr?.api_key?.trim();
 }
 
 /** 小米 ASR 是否已配置（API Key 非空） */
