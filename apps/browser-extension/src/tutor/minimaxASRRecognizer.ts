@@ -23,8 +23,8 @@ export { isMiniMaxASRConfigured } from "../types";
 
 /** SSE 解析结果：增量文本 / 全文快照 / 结束 / 忽略 */
 export type MiniMaxSSEEvent =
-  | { type: "delta"; text: string }
-  | { type: "snapshot"; text: string }
+  | { type: "delta"; text: string; done: boolean }
+  | { type: "snapshot"; text: string; done: boolean }
   | { type: "done" }
   | null;
 
@@ -32,6 +32,12 @@ export type MiniMaxSSEEvent =
  * 解析一行 SSE 文本。
  * 宽容模式：delta 优先（增量），text 兜底（快照替换）；
  * finish:true 或 [DONE] 结束；畸形行返回 null，不抛错。
+ *
+ * 注意：MiniMax 会把最后一段文本与 finish:true 放在同一事件，
+ * 必须先取文本再判结束，否则会丢掉结尾（实测事件序列：
+ *   {"index":0,"delta":"The","finish":false}
+ *   {"index":1,"delta":" quick brown.","finish":true,"duration":0.85}
+ * ）。
  */
 export function parseMiniMaxASRSSELine(line: string): MiniMaxSSEEvent {
   const trimmed = line.trim();
@@ -46,13 +52,14 @@ export function parseMiniMaxASRSSELine(line: string): MiniMaxSSEEvent {
       text?: string;
       finish?: boolean;
     };
-    if (chunk.finish === true) return { type: "done" };
+    const done = chunk.finish === true;
     if (typeof chunk.delta === "string" && chunk.delta) {
-      return { type: "delta", text: chunk.delta };
+      return { type: "delta", text: chunk.delta, done };
     }
     if (typeof chunk.text === "string" && chunk.text) {
-      return { type: "snapshot", text: chunk.text };
+      return { type: "snapshot", text: chunk.text, done };
     }
+    if (done) return { type: "done" };
     return null;
   } catch {
     return null;
@@ -185,16 +192,18 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
       let transcript = "";
 
       const applyEvent = (event: MiniMaxSSEEvent): boolean => {
-        if (event?.type === "done") return true;
-        if (event?.type === "delta") {
+        if (!event) return false;
+        if (event.type === "done") return true;
+        if (event.type === "delta") {
           transcript += event.text;
           this.onInterimResult?.(transcript.trim());
         }
-        if (event?.type === "snapshot") {
+        if (event.type === "snapshot") {
           transcript = event.text;
           this.onInterimResult?.(transcript.trim());
         }
-        return false;
+        // 先取文本再判结束（结束事件可能携带最后一段文本）
+        return event.done;
       };
 
       try {
