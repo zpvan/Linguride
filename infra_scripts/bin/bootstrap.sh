@@ -177,12 +177,12 @@ install_npm_dependencies
 
 ensure_browser_extension_linux_rollup_native
 
-if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]] || [[ "$artifact" == "macos-app" ]]; }; then
+if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]]; }; then
   log_info "Fetching Rust dependencies"
   run_repo_cmd cargo fetch --locked
 fi
 
-if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]] || [[ "$artifact" == "macos-app" ]]; }; then
+if [[ -f "$REPO_ROOT/Cargo.toml" ]] && command -v cargo >/dev/null 2>&1 && { [[ -z "$artifact" ]] || [[ "$artifact" == "chrome-extension" ]]; }; then
   ensure_wasm_target
   ensure_wasm_bindgen_cli
   ensure_wasm_bindgen_test_runner

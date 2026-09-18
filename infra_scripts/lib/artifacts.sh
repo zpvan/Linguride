@@ -2,8 +2,6 @@
 
 SUPPORTED_ARTIFACTS=(
   "chrome-extension"
-  "macos-app"
-  "vscode-extension"
 )
 
 artifact_exists() {
@@ -29,12 +27,6 @@ artifact_app_dir() {
     chrome-extension)
       printf 'apps/browser-extension\n'
       ;;
-    macos-app)
-      printf 'apps/desktop\n'
-      ;;
-    vscode-extension)
-      printf 'apps/vscode-extension\n'
-      ;;
     *)
       die "Unsupported artifact: $artifact"
       ;;
@@ -44,11 +36,8 @@ artifact_app_dir() {
 artifact_required_os() {
   local artifact="$1"
   case "$artifact" in
-    chrome-extension|vscode-extension)
+    chrome-extension)
       printf 'any\n'
-      ;;
-    macos-app)
-      printf 'macos\n'
       ;;
     *)
       die "Unsupported artifact: $artifact"
@@ -62,15 +51,6 @@ artifact_install_workspaces() {
     chrome-extension)
       printf 'apps/browser-extension\n'
       printf 'packages/contracts-ts\n'
-      ;;
-    macos-app)
-      printf 'apps/desktop\n'
-      ;;
-    vscode-extension)
-      printf 'apps/vscode-extension\n'
-      printf 'packages/contracts-ts\n'
-      printf 'packages/prompt-kits\n'
-      printf 'packages/text-assistant-core\n'
       ;;
     *)
       die "Unsupported artifact: $artifact"

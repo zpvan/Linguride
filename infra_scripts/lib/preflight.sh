@@ -72,14 +72,6 @@ doctor_artifact() {
       print_command_version rustup
       print_command_version zip
       ;;
-    macos-app)
-      require_os macos
-      require_command cargo
-      print_command_version cargo
-      ;;
-    vscode-extension)
-      :
-      ;;
   esac
 }
 

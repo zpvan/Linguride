@@ -25,16 +25,8 @@ defaults:
 
 jobs:
   validate:
-    name: validate (${{ matrix.artifact }})
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact: chrome-extension
-            runner: ubuntu-latest
-          - artifact: macos-app
-            runner: macos-latest
+    name: validate (chrome-extension)
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -56,21 +48,13 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run validate gate
-        run: bash infra_scripts/ci/github/test.sh "${{ matrix.artifact }}"
+        run: bash infra_scripts/ci/github/test.sh chrome-extension
 
   package:
-    name: package (${{ matrix.artifact }})
+    name: package (chrome-extension)
     if: github.event_name != 'pull_request'
     needs: validate
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact: chrome-extension
-            runner: ubuntu-latest
-          - artifact: macos-app
-            runner: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -92,15 +76,15 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build package
-        run: bash infra_scripts/ci/github/package.sh "${{ matrix.artifact }}"
+        run: bash infra_scripts/ci/github/package.sh chrome-extension
 
       - name: Run smoke checks
-        run: bash infra_scripts/ci/github/smoke.sh "${{ matrix.artifact }}"
+        run: bash infra_scripts/ci/github/smoke.sh chrome-extension
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}-${{ github.sha }}
-          path: infra_scripts/out/${{ matrix.artifact }}/
+          name: chrome-extension-${{ github.sha }}
+          path: infra_scripts/out/chrome-extension/
           if-no-files-found: error
           retention-days: 14
