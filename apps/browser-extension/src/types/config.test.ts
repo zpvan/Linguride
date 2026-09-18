@@ -7,10 +7,8 @@ import {
   MINIMAX_TTS_API_BASE_URL,
   MINIMAX_TTS_API_BASE_URL_CN,
   XIAOMI_TTS_VOICE_OPTIONS,
-  isAlibabaASRConfigured,
   isDoubaoASRConfigured,
   isMiniMaxASRConfigured,
-  isTencentASRConfigured,
   isXiaomiASRConfigured,
   normalizeDoubaoTTSVoice,
   normalizeMiniMaxTTSBaseUrl,
@@ -130,44 +128,33 @@ describe("resolveASRSelection", () => {
     expect(
       resolveASRSelection({
         asr_selection: "browser",
-        doubao_asr: { api_key: "k" },
+        minimax_tts: { api_key: "k" },
       } as never)
     ).toBe("browser");
   });
 
-  it("prefers doubao when nothing explicit and doubao configured", () => {
+  it("falls to doubao when only doubao tts key configured", () => {
+    expect(resolveASRSelection({ doubao_tts: { api_key: "k" } } as never)).toBe(
+      "doubao"
+    );
+  });
+
+  it("honors legacy doubao_asr key override", () => {
     expect(resolveASRSelection({ doubao_asr: { api_key: "k" } } as never)).toBe(
       "doubao"
     );
   });
 
-  it("falls to tencent when only tencent configured", () => {
-    expect(
-      resolveASRSelection({
-        tencent_asr: { app_id: "a", secret_id: "s", secret_key: "k" },
-      } as never)
-    ).toBe("tencent");
-  });
-
-  it("falls to alibaba when only alibaba configured", () => {
-    expect(
-      resolveASRSelection({ alibaba_asr: { api_key: "k" } } as never)
-    ).toBe("alibaba");
-  });
-
-  it("falls to xiaomi when only xiaomi configured", () => {
-    expect(resolveASRSelection({ xiaomi_asr: { api_key: "k" } } as never)).toBe(
+  it("falls to xiaomi when only xiaomi tts key configured", () => {
+    expect(resolveASRSelection({ xiaomi_tts: { api_key: "k" } } as never)).toBe(
       "xiaomi"
     );
   });
 
-  it("prefers alibaba over xiaomi in migration order", () => {
-    expect(
-      resolveASRSelection({
-        alibaba_asr: { api_key: "k" },
-        xiaomi_asr: { api_key: "k" },
-      } as never)
-    ).toBe("alibaba");
+  it("honors legacy xiaomi_asr key override", () => {
+    expect(resolveASRSelection({ xiaomi_asr: { api_key: "k" } } as never)).toBe(
+      "xiaomi"
+    );
   });
 
   it("falls back to browser when nothing configured", () => {
@@ -184,64 +171,48 @@ describe("resolveASRSelection", () => {
     expect(
       resolveASRSelection({
         minimax_tts: { api_key: "k" },
-        xiaomi_asr: { api_key: "k" },
+        xiaomi_tts: { api_key: "k" },
       } as never)
     ).toBe("minimax");
   });
 
-  it("prefers alibaba over minimax in migration order", () => {
+  it("prefers xiaomi over doubao in migration order", () => {
     expect(
       resolveASRSelection({
-        alibaba_asr: { api_key: "k" },
-        minimax_tts: { api_key: "k" },
-      } as never)
-    ).toBe("alibaba");
-  });
-
-  it("explicit xiaomi selection wins over configured minimax", () => {
-    expect(
-      resolveASRSelection({
-        asr_selection: "xiaomi",
-        minimax_tts: { api_key: "k" },
+        xiaomi_tts: { api_key: "k" },
+        doubao_tts: { api_key: "k" },
       } as never)
     ).toBe("xiaomi");
+  });
+
+  it("explicit doubao selection wins over configured minimax", () => {
+    expect(
+      resolveASRSelection({
+        asr_selection: "doubao",
+        minimax_tts: { api_key: "k" },
+      } as never)
+    ).toBe("doubao");
   });
 });
 
 describe("isXxxASRConfigured", () => {
-  it("doubao requires non-empty trimmed api_key", () => {
+  it("doubao reuses doubao tts key, with legacy asr override", () => {
     expect(isDoubaoASRConfigured({} as never)).toBe(false);
-    expect(isDoubaoASRConfigured({ doubao_asr: { api_key: "  " } } as never)).toBe(
+    expect(isDoubaoASRConfigured({ doubao_tts: { api_key: "  " } } as never)).toBe(
       false
+    );
+    expect(isDoubaoASRConfigured({ doubao_tts: { api_key: "k" } } as never)).toBe(
+      true
     );
     expect(isDoubaoASRConfigured({ doubao_asr: { api_key: "k" } } as never)).toBe(
       true
     );
   });
 
-  it("tencent requires all three fields", () => {
-    expect(
-      isTencentASRConfigured({
-        tencent_asr: { app_id: "a", secret_id: "", secret_key: "k" },
-      } as never)
-    ).toBe(false);
-    expect(
-      isTencentASRConfigured({
-        tencent_asr: { app_id: "a", secret_id: "s", secret_key: "k" },
-      } as never)
-    ).toBe(true);
-  });
-
-  it("alibaba requires api_key", () => {
-    expect(isAlibabaASRConfigured({} as never)).toBe(false);
-    expect(isAlibabaASRConfigured({ alibaba_asr: { api_key: "k" } } as never)).toBe(
-      true
-    );
-  });
-
-  it("xiaomi requires non-empty trimmed api_key", () => {
+  it("xiaomi reuses xiaomi tts key, with legacy asr override", () => {
     expect(isXiaomiASRConfigured({} as never)).toBe(false);
-    expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "  " } } as never)).toBe(false);
+    expect(isXiaomiASRConfigured({ xiaomi_tts: { api_key: "  " } } as never)).toBe(false);
+    expect(isXiaomiASRConfigured({ xiaomi_tts: { api_key: "k" } } as never)).toBe(true);
     expect(isXiaomiASRConfigured({ xiaomi_asr: { api_key: "k" } } as never)).toBe(true);
   });
 });

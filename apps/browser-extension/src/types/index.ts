@@ -46,10 +46,10 @@ export {
   XIAOMI_ASR_API_URL,
   XIAOMI_ASR_MODEL,
   MINIMAX_ASR_MODEL,
-  isAlibabaASRConfigured,
   isDoubaoASRConfigured,
+  resolveDoubaoASRApiKey,
+  resolveXiaomiASRApiKey,
   isMiniMaxASRConfigured,
-  isTencentASRConfigured,
   isXiaomiASRConfigured,
   resolveASRSelection,
   calculateTargetLevel,
@@ -61,7 +61,6 @@ export {
 } from "./config";
 export type {
   AIProviderId,
-  AlibabaASRConfig,
   ASRProviderId,
   ASRSelectionMode,
   CEFRLevel,
@@ -73,7 +72,6 @@ export type {
   ParaphrasePromptConfig,
   PromptConfig,
   ProviderConfig,
-  TencentASRConfig,
   TTSSelectionMode,
   TTSProviderId,
   MiniMaxTTSConfig,
@@ -97,12 +95,6 @@ export type { TTSSpeed } from "./tts";
 // 消息类型
 export { MessageType } from "./messages";
 export type {
-  AlibabaASRAudioMessage,
-  AlibabaASRResultMessage,
-  AlibabaASRStartMessage,
-  AlibabaASRStartResponse,
-  AlibabaASRStopMessage,
-  AlibabaASRStopResponse,
   AnalyzeDifficultyMessage,
   AnalyzeDifficultyResponse,
   AnalyzeListeningMessage,
@@ -175,8 +167,6 @@ export type {
   StopTTSPlaybackResponse,
   SynthesizeSpeechMessage,
   SynthesizeSpeechResponse,
-  TencentASRSignMessage,
-  TencentASRSignResponse,
   TestTTSConnectionMessage,
   TestTTSConnectionResponse,
   TestConnectionMessage,

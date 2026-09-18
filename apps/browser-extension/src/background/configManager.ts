@@ -85,8 +85,6 @@ export async function getConfig(): Promise<LingridConfig> {
       sentence_analysis_prompts:
         stored.sentence_analysis_prompts ||
         DEFAULT_CONFIG.sentence_analysis_prompts,
-      tencent_asr: stored.tencent_asr || DEFAULT_CONFIG.tencent_asr,
-      alibaba_asr: stored.alibaba_asr || DEFAULT_CONFIG.alibaba_asr,
       doubao_asr: stored.doubao_asr || DEFAULT_CONFIG.doubao_asr,
       xiaomi_asr: stored.xiaomi_asr || DEFAULT_CONFIG.xiaomi_asr,
       asr_selection: stored.asr_selection || DEFAULT_CONFIG.asr_selection,

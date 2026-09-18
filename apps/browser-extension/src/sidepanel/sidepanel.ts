@@ -74,10 +74,8 @@ import {
   DOUBAO_TTS_DEFAULT_VOICE,
   normalizeDoubaoTTSVoice,
   ASRSelectionMode,
-  isAlibabaASRConfigured,
   isDoubaoASRConfigured,
   isMiniMaxASRConfigured,
-  isTencentASRConfigured,
   isXiaomiASRConfigured,
   resolveASRSelection,
 } from "../types";
@@ -304,44 +302,6 @@ const sentenceAnalysisUserPromptTextarea = document.getElementById(
   "sentenceAnalysisUserPrompt"
 ) as HTMLTextAreaElement;
 
-// Settings - 腾讯云 ASR 配置
-const tencentAppIdInput = document.getElementById(
-  "tencentAppId"
-) as HTMLInputElement;
-const tencentSecretIdInput = document.getElementById(
-  "tencentSecretId"
-) as HTMLInputElement;
-const tencentSecretKeyInput = document.getElementById(
-  "tencentSecretKey"
-) as HTMLInputElement;
-const showTencentKeyBtn = document.getElementById(
-  "showTencentKeyBtn"
-) as HTMLButtonElement;
-
-// Settings - 阿里云 ASR 配置
-const alibabaApiKeyInput = document.getElementById(
-  "alibabaApiKey"
-) as HTMLInputElement;
-const showAlibabaKeyBtn = document.getElementById(
-  "showAlibabaKeyBtn"
-) as HTMLButtonElement;
-
-// Settings - 豆包 ASR 配置
-const doubaoAsrApiKeyInput = document.getElementById(
-  "doubaoAsrApiKey"
-) as HTMLInputElement;
-const showDoubaoAsrKeyBtn = document.getElementById(
-  "showDoubaoAsrKeyBtn"
-) as HTMLButtonElement;
-
-// Settings - 小米 ASR 配置
-const xiaomiAsrApiKeyInput = document.getElementById(
-  "xiaomiAsrApiKey"
-) as HTMLInputElement;
-const showXiaomiAsrKeyBtn = document.getElementById(
-  "showXiaomiAsrKeyBtn"
-) as HTMLButtonElement;
-
 // Settings - MiniMax TTS 配置
 const minimaxTTSBaseUrlSelect = document.getElementById(
   "minimaxTTSBaseUrl"
@@ -434,8 +394,8 @@ const asrProviderSelect = document.getElementById(
 const asrProviderHint = document.getElementById(
   "asrProviderHint"
 ) as HTMLParagraphElement;
-const minimaxAsrReuseHint = document.getElementById(
-  "minimaxAsrReuseHint"
+const asrReuseKeyHint = document.getElementById(
+  "asrReuseKeyHint"
 ) as HTMLParagraphElement;
 
 // Settings - 操作
@@ -1158,56 +1118,6 @@ function bindEvents(): void {
     showKeyBtn.textContent = isPassword ? "隐藏" : "显示";
   });
 
-  // Settings - 腾讯云 ASR 配置自动保存
-  tencentAppIdInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-  tencentSecretIdInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-  tencentSecretKeyInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-
-  // Settings - 显示/隐藏腾讯云 SecretKey
-  showTencentKeyBtn.addEventListener("click", () => {
-    const isPassword = tencentSecretKeyInput.type === "password";
-    tencentSecretKeyInput.type = isPassword ? "text" : "password";
-    showTencentKeyBtn.textContent = isPassword ? "隐藏" : "显示";
-  });
-
-  // Settings - 阿里云 ASR 配置自动保存
-  alibabaApiKeyInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-
-  // Settings - 豆包 ASR 配置自动保存
-  doubaoAsrApiKeyInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-  showDoubaoAsrKeyBtn.addEventListener("click", () => {
-    const isPassword = doubaoAsrApiKeyInput.type === "password";
-    doubaoAsrApiKeyInput.type = isPassword ? "text" : "password";
-    showDoubaoAsrKeyBtn.textContent = isPassword ? "隐藏" : "显示";
-  });
-
-  // Settings - 小米 ASR 配置自动保存
-  xiaomiAsrApiKeyInput.addEventListener("blur", () => {
-    void autoSave().then(updateASRProviderHint);
-  });
-  showXiaomiAsrKeyBtn.addEventListener("click", () => {
-    const isPassword = xiaomiAsrApiKeyInput.type === "password";
-    xiaomiAsrApiKeyInput.type = isPassword ? "text" : "password";
-    showXiaomiAsrKeyBtn.textContent = isPassword ? "隐藏" : "显示";
-  });
-
-  // Settings - 显示/隐藏阿里云 API Key
-  showAlibabaKeyBtn.addEventListener("click", () => {
-    const isPassword = alibabaApiKeyInput.type === "password";
-    alibabaApiKeyInput.type = isPassword ? "text" : "password";
-    showAlibabaKeyBtn.textContent = isPassword ? "隐藏" : "显示";
-  });
-
   // Settings - MiniMax TTS 配置自动保存
   minimaxTTSBaseUrlSelect.addEventListener("change", handleMiniMaxTTSModelChange);
   minimaxTTSApiKeyInput.addEventListener("input", handleMiniMaxTTSConfigInput);
@@ -1792,53 +1702,6 @@ function collectFormData(): void {
     user_prompt_template: sentenceAnalysisUserPromptTextarea.value,
   };
 
-  // 腾讯云 ASR 配置（只有填写了才保存）
-  const appId = tencentAppIdInput.value.trim();
-  const secretId = tencentSecretIdInput.value.trim();
-  const secretKey = tencentSecretKeyInput.value.trim();
-
-  if (appId || secretId || secretKey) {
-    currentConfig.tencent_asr = {
-      app_id: appId,
-      secret_id: secretId,
-      secret_key: secretKey,
-    };
-  } else {
-    // 如果全部为空，删除配置
-    delete currentConfig.tencent_asr;
-  }
-
-  // 阿里云 ASR 配置（只有填写了才保存）
-  const alibabaApiKey = alibabaApiKeyInput.value.trim();
-
-  if (alibabaApiKey) {
-    currentConfig.alibaba_asr = {
-      api_key: alibabaApiKey,
-    };
-  } else {
-    // 如果为空，删除配置
-    delete currentConfig.alibaba_asr;
-  }
-
-  // 豆包 ASR 配置（只有填写了才保存）
-  const doubaoAsrApiKey = doubaoAsrApiKeyInput.value.trim();
-
-  if (doubaoAsrApiKey) {
-    currentConfig.doubao_asr = {
-      api_key: doubaoAsrApiKey,
-    };
-  } else {
-    delete currentConfig.doubao_asr;
-  }
-
-  // 小米 ASR 配置（API Key 为空视为未配置）
-  const xiaomiAsrApiKey = xiaomiAsrApiKeyInput.value.trim();
-  if (xiaomiAsrApiKey) {
-    currentConfig.xiaomi_asr = { api_key: xiaomiAsrApiKey };
-  } else {
-    delete currentConfig.xiaomi_asr;
-  }
-
   // MiniMax TTS 配置（API Key 为空视为禁用，但保留模型与音色偏好）
   const minimaxTTSApiKey = minimaxTTSApiKeyInput.value.trim();
   const minimaxTTSModel = normalizeMiniMaxTTSModel(minimaxTTSModelSelect.value);
@@ -1958,16 +1821,6 @@ function updateSettingsForm(): void {
     currentConfig.sentence_analysis_prompts?.user_prompt_template ||
     DEFAULT_SENTENCE_ANALYSIS_USER_PROMPT;
 
-  // 腾讯云 ASR 配置
-  tencentAppIdInput.value = currentConfig.tencent_asr?.app_id || "";
-  tencentSecretIdInput.value = currentConfig.tencent_asr?.secret_id || "";
-  tencentSecretKeyInput.value = currentConfig.tencent_asr?.secret_key || "";
-
-  // 阿里云 ASR 配置
-  alibabaApiKeyInput.value = currentConfig.alibaba_asr?.api_key || "";
-  doubaoAsrApiKeyInput.value = currentConfig.doubao_asr?.api_key || "";
-  xiaomiAsrApiKeyInput.value = currentConfig.xiaomi_asr?.api_key || "";
-
   // MiniMax TTS 配置
   minimaxTTSBaseUrlSelect.value = normalizeMiniMaxTTSBaseUrl(
     currentConfig.minimax_tts?.api_base_url
@@ -2010,31 +1863,24 @@ function updateSettingsForm(): void {
 function updateASRProviderHint(): void {
   const selection = asrProviderSelect.value as ASRSelectionMode;
   const labels: Record<string, string> = {
-    doubao: "豆包",
-    tencent: "腾讯云",
-    alibaba: "阿里云",
     minimax: "MiniMax",
     xiaomi: "小米",
+    doubao: "豆包",
   };
   const configuredCheckers: Record<string, (c: LingridConfig) => boolean> = {
-    doubao: isDoubaoASRConfigured,
-    tencent: isTencentASRConfigured,
-    alibaba: isAlibabaASRConfigured,
     minimax: isMiniMaxASRConfigured,
     xiaomi: isXiaomiASRConfigured,
+    doubao: isDoubaoASRConfigured,
   };
-
-  // MiniMax 复用说明只在选中 MiniMax 时显示
-  minimaxAsrReuseHint.style.display =
-    selection === "minimax" ? "block" : "none";
 
   const label = labels[selection];
   const checker = configuredCheckers[selection];
+
+  // 云端服务商默认复用语音合成服务的 API Key，仅在选中云端服务时提示
+  asrReuseKeyHint.style.display = label ? "block" : "none";
+
   if (label && checker && !checker(currentConfig)) {
-    asrProviderHint.textContent =
-      selection === "minimax"
-        ? "尚未配置 MiniMax 的 API 密钥（请先在语音合成服务中配置），当前选择不会生效"
-        : `尚未配置${label}的 API 密钥，当前选择不会生效`;
+    asrProviderHint.textContent = `尚未配置${label}的 API 密钥（请先在语音合成服务中配置），当前选择不会生效`;
     asrProviderHint.style.display = "block";
   } else {
     asrProviderHint.style.display = "none";

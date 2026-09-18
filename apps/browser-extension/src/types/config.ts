@@ -149,38 +149,10 @@ export interface MixedTranslatePromptConfig {
 }
 
 /**
- * 腾讯云 ASR 配置
+ * 豆包（火山方舟）ASR 独立配置（历史遗留）
  *
- * 用于腾讯云实时语音识别服务的鉴权配置。
- * 配置后可使用腾讯云 ASR 替代 Web Speech API，提高识别准确率。
- */
-export interface TencentASRConfig {
-  /** 腾讯云 AppID */
-  app_id: string;
-
-  /** 腾讯云 SecretID */
-  secret_id: string;
-
-  /** 腾讯云 SecretKey */
-  secret_key: string;
-}
-
-/**
- * 阿里云 ASR 配置
- *
- * 用于阿里云百炼 Paraformer 实时语音识别服务的鉴权配置。
- * 配置后可在设置页选择使用阿里云 ASR 替代 Web Speech API，提高识别准确率。
- */
-export interface AlibabaASRConfig {
-  /** 阿里云百炼 API Key */
-  api_key: string;
-}
-
-/**
- * 豆包（火山方舟）ASR 配置
- *
- * 用于豆包流式语音识别模型 2.0（doubao-seed-asr-2.0）。
- * 可在设置页「语音识别服务」中手动选择启用。
+ * 设置页不再暴露独立 ASR 密钥；默认复用语音合成服务（doubao_tts）的
+ * API Key，此字段仅作为旧配置的兼容覆盖，见 resolveDoubaoASRApiKey。
  */
 export interface DoubaoASRConfig {
   /** 火山方舟 API Key */
@@ -188,10 +160,10 @@ export interface DoubaoASRConfig {
 }
 
 /**
- * 小米 MiMo ASR 配置
+ * 小米 MiMo ASR 独立配置（历史遗留）
  *
- * 用于小米 mimo-v2.5-asr 语音识别模型（OpenAI 兼容 chat/completions）。
- * 可在设置页「语音识别服务」中手动选择启用。
+ * 设置页不再暴露独立 ASR 密钥；默认复用语音合成服务（xiaomi_tts）的
+ * API Key，此字段仅作为旧配置的兼容覆盖，见 resolveXiaomiASRApiKey。
  */
 export interface XiaomiASRConfig {
   /** 小米 MiMo API Key */
@@ -209,9 +181,9 @@ export const XIAOMI_ASR_MODEL = "mimo-v2.5-asr";
 export const MINIMAX_ASR_MODEL = "asr-1.0";
 
 /**
- * 语音识别服务标识
+ * 语音识别服务标识（与语音合成服务保持一致：MiniMax / 小米 / 豆包）
  */
-export type ASRProviderId = "doubao" | "tencent" | "alibaba" | "minimax" | "xiaomi";
+export type ASRProviderId = "minimax" | "xiaomi" | "doubao";
 
 /**
  * 语音识别服务选择模式
@@ -221,28 +193,38 @@ export type ASRProviderId = "doubao" | "tencent" | "alibaba" | "minimax" | "xiao
  */
 export type ASRSelectionMode = ASRProviderId | "browser";
 
-/** 豆包 ASR 是否已配置（API Key 非空） */
-export function isDoubaoASRConfigured(config: LingridConfig): boolean {
-  return !!config.doubao_asr?.api_key?.trim();
-}
-
-/** 腾讯云 ASR 是否已配置（AppID/SecretID/SecretKey 齐全） */
-export function isTencentASRConfigured(config: LingridConfig): boolean {
-  return !!(
-    config.tencent_asr?.app_id &&
-    config.tencent_asr?.secret_id &&
-    config.tencent_asr?.secret_key
+/**
+ * 解析豆包 ASR API Key：优先历史遗留的 doubao_asr 独立配置，
+ * 默认复用语音合成服务（doubao_tts）的 API Key。
+ */
+export function resolveDoubaoASRApiKey(config: LingridConfig): string {
+  return (
+    config.doubao_asr?.api_key?.trim() ||
+    config.doubao_tts?.api_key?.trim() ||
+    ""
   );
 }
 
-/** 阿里云 ASR 是否已配置（API Key 非空） */
-export function isAlibabaASRConfigured(config: LingridConfig): boolean {
-  return !!config.alibaba_asr?.api_key?.trim();
+/**
+ * 解析小米 ASR API Key：优先历史遗留的 xiaomi_asr 独立配置，
+ * 默认复用语音合成服务（xiaomi_tts）的 API Key。
+ */
+export function resolveXiaomiASRApiKey(config: LingridConfig): string {
+  return (
+    config.xiaomi_asr?.api_key?.trim() ||
+    config.xiaomi_tts?.api_key?.trim() ||
+    ""
+  );
 }
 
-/** 小米 ASR 是否已配置（API Key 非空） */
+/** 豆包 ASR 是否已配置（默认复用豆包 TTS 的 API Key） */
+export function isDoubaoASRConfigured(config: LingridConfig): boolean {
+  return !!resolveDoubaoASRApiKey(config);
+}
+
+/** 小米 ASR 是否已配置（默认复用小米 TTS 的 API Key） */
 export function isXiaomiASRConfigured(config: LingridConfig): boolean {
-  return !!config.xiaomi_asr?.api_key?.trim();
+  return !!resolveXiaomiASRApiKey(config);
 }
 
 /** MiniMax ASR 是否已配置（复用 MiniMax TTS 的 API Key） */
@@ -254,16 +236,15 @@ export function isMiniMaxASRConfigured(config: LingridConfig): boolean {
  * 解析当前生效的语音识别服务选择。
  *
  * 1. 用户显式选择优先；
- * 2. 老配置无 asr_selection 字段时，按 豆包 > 腾讯 > 阿里 > MiniMax > 小米 取第一个已配置的；
+ * 2. 老配置无 asr_selection 字段时，按 MiniMax > 小米 > 豆包 取第一个已配置的
+ *    （与语音合成服务排列顺序一致）；
  * 3. 全未配置回退浏览器识别。
  */
 export function resolveASRSelection(config: LingridConfig): ASRSelectionMode {
   if (config.asr_selection) return config.asr_selection;
-  if (isDoubaoASRConfigured(config)) return "doubao";
-  if (isTencentASRConfigured(config)) return "tencent";
-  if (isAlibabaASRConfigured(config)) return "alibaba";
   if (isMiniMaxASRConfigured(config)) return "minimax";
   if (isXiaomiASRConfigured(config)) return "xiaomi";
+  if (isDoubaoASRConfigured(config)) return "doubao";
   return "browser";
 }
 
@@ -515,19 +496,13 @@ export interface LingridConfig {
   /** 长难句分析 Prompt 配置（可选，使用默认值） */
   sentence_analysis_prompts?: SentenceAnalysisPromptConfig;
 
-  /** 腾讯云 ASR 配置（可选，不配置则不可手动选择） */
-  tencent_asr?: TencentASRConfig;
-
-  /** 阿里云 ASR 配置（可选，不配置则不可手动选择） */
-  alibaba_asr?: AlibabaASRConfig;
-
-  /** 豆包（火山方舟）ASR 配置（可选，不配置则不可手动选择） */
+  /** 豆包 ASR 独立密钥（历史遗留，默认复用 doubao_tts.api_key） */
   doubao_asr?: DoubaoASRConfig;
 
   /** 语音识别服务选择（用户手动选择，识别失败直接报错；缺省按已配置者迁移） */
   asr_selection?: ASRSelectionMode;
 
-  /** 小米 MiMo ASR 配置（可选，不配置则不可手动选择） */
+  /** 小米 ASR 独立密钥（历史遗留，默认复用 xiaomi_tts.api_key） */
   xiaomi_asr?: XiaomiASRConfig;
 
   /** 小米 AI 语音合成配置（可选，不配置则使用浏览器 TTS） */

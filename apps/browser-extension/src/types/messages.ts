@@ -130,20 +130,6 @@ export enum MessageType {
   /** 影子跟读评估 */
   SHADOW_ASSESS = "SHADOW_ASSESS",
 
-  // ====== 腾讯云 ASR ======
-  /** 请求腾讯云 ASR 签名 URL */
-  TENCENT_ASR_SIGN = "TENCENT_ASR_SIGN",
-
-  // ====== 阿里云 ASR ======
-  /** 启动阿里云 ASR 识别 */
-  ALIBABA_ASR_START = "ALIBABA_ASR_START",
-  /** 发送音频数据到阿里云 ASR */
-  ALIBABA_ASR_AUDIO = "ALIBABA_ASR_AUDIO",
-  /** 停止阿里云 ASR 识别 */
-  ALIBABA_ASR_STOP = "ALIBABA_ASR_STOP",
-  /** 阿里云 ASR 实时识别结果（Background -> Tutor，通过 Port） */
-  ALIBABA_ASR_RESULT = "ALIBABA_ASR_RESULT",
-
   // ====== 豆包 ASR ======
   /** 豆包 ASR 连接前准备（确保 DNR 鉴权头注入规则就位） */
   DOUBAO_ASR_PREPARE = "DOUBAO_ASR_PREPARE",
@@ -558,51 +544,6 @@ export interface ShadowAssessMessage {
 }
 
 /**
- * 腾讯云 ASR 签名请求消息
- */
-export interface TencentASRSignMessage {
-  type: MessageType.TENCENT_ASR_SIGN;
-}
-
-/**
- * 阿里云 ASR 启动消息
- */
-export interface AlibabaASRStartMessage {
-  type: MessageType.ALIBABA_ASR_START;
-}
-
-/**
- * 阿里云 ASR 音频数据消息
- */
-export interface AlibabaASRAudioMessage {
-  type: MessageType.ALIBABA_ASR_AUDIO;
-  payload: {
-    /** Base64 编码的 PCM 音频数据 */
-    audioData: string;
-  };
-}
-
-/**
- * 阿里云 ASR 停止消息
- */
-export interface AlibabaASRStopMessage {
-  type: MessageType.ALIBABA_ASR_STOP;
-}
-
-/**
- * 阿里云 ASR 实时识别结果消息（Background -> Tutor，通过 Port）
- */
-export interface AlibabaASRResultMessage {
-  type: MessageType.ALIBABA_ASR_RESULT;
-  payload: {
-    /** 识别文本 */
-    text: string;
-    /** 是否为最终结果 */
-    isFinal: boolean;
-  };
-}
-
-/**
  * 豆包 ASR 连接前准备消息
  *
  * 识别器建连前发送，确保 DNR 鉴权头注入规则就位（会话规则在扩展
@@ -684,11 +625,6 @@ export type Message =
   | EnglishDefinitionMessage
   | SplitSentencesMessage
   | ShadowAssessMessage
-  | TencentASRSignMessage
-  | AlibabaASRStartMessage
-  | AlibabaASRAudioMessage
-  | AlibabaASRStopMessage
-  | AlibabaASRResultMessage
   | DoubaoASRPrepareMessage
   | SegmentCorpusMessage
   | AnalyzeListeningMessage
@@ -1060,31 +996,6 @@ export interface ShadowAssessResponse extends BaseResponse {
 }
 
 /**
- * 腾讯云 ASR 签名响应
- */
-export interface TencentASRSignResponse extends BaseResponse {
-  data?: {
-    /** 签名后的 WebSocket URL */
-    signedUrl: string;
-  };
-}
-
-/**
- * 阿里云 ASR 启动响应
- */
-export type AlibabaASRStartResponse = BaseResponse;
-
-/**
- * 阿里云 ASR 停止响应
- */
-export interface AlibabaASRStopResponse extends BaseResponse {
-  data?: {
-    /** 最终识别结果 */
-    finalText: string;
-  };
-}
-
-/**
  * 语料库断句响应
  *
  * 返回 AI 根据用户 CEFR 水平进行 i+1 难度断句的结果。
@@ -1136,9 +1047,6 @@ export type Response =
   | EnglishDefinitionResponse
   | SplitSentencesResponse
   | ShadowAssessResponse
-  | TencentASRSignResponse
-  | AlibabaASRStartResponse
-  | AlibabaASRStopResponse
   | DoubaoASRPrepareResponse
   | SegmentCorpusResponse
   | AnalyzeListeningResponse;

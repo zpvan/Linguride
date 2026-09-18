@@ -9,6 +9,7 @@
 
 import {
   LingridConfig,
+  resolveXiaomiASRApiKey,
   XIAOMI_ASR_API_URL,
   XIAOMI_ASR_MODEL,
 } from "../types";
@@ -89,10 +90,14 @@ export class XiaomiASRRecognizer implements ISpeechRecognizer {
   onError?: (error: Error) => void;
 
   async start(): Promise<void> {
-    if (!this.config.xiaomi_asr?.api_key?.trim()) {
-      throw new Error("小米识别未配置 API Key，请到设置页配置或切换识别服务");
+    // 默认复用语音合成服务（xiaomi_tts）的 API Key
+    const apiKey = resolveXiaomiASRApiKey(this.config);
+    if (!apiKey) {
+      throw new Error(
+        "小米识别未配置 API Key（复用语音合成服务的小米 Key），请到设置页配置或切换识别服务"
+      );
     }
-    this.apiKey = this.config.xiaomi_asr.api_key.trim();
+    this.apiKey = apiKey;
     this.pendingChunks = [];
 
     const stream = await acquireStream();

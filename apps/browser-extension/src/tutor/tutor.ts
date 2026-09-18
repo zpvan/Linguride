@@ -36,14 +36,6 @@ import * as shadow from "./shadow";
 import * as audioCapture from "./audioCapture";
 import * as echoMethod from "./echoMethod";
 import {
-  TencentASRRecognizer,
-  isTencentASRConfigured,
-} from "./tencentASRRecognizer";
-import {
-  AlibabaASRRecognizer,
-  isAlibabaASRConfigured,
-} from "./alibabaASRRecognizer";
-import {
   DoubaoASRRecognizer,
   isDoubaoASRConfigured,
 } from "./doubaoASRRecognizer";
@@ -728,22 +720,12 @@ function createRecognizer(): ISpeechRecognizer {
   switch (selection) {
     case "doubao":
       if (!isDoubaoASRConfigured(config)) {
-        throw new Error("豆包识别未配置 API Key，请到设置页配置或切换识别服务");
+        throw new Error(
+          "豆包识别未配置 API Key（复用语音合成服务的豆包 Key），请到设置页配置或切换识别服务"
+        );
       }
       console.log("[Lingride Tutor] 使用豆包 ASR 识别器");
       return new DoubaoASRRecognizer();
-    case "tencent":
-      if (!isTencentASRConfigured(config)) {
-        throw new Error("腾讯云识别未配置密钥，请到设置页配置或切换识别服务");
-      }
-      console.log("[Lingride Tutor] 使用腾讯云 ASR 识别器");
-      return new TencentASRRecognizer();
-    case "alibaba":
-      if (!isAlibabaASRConfigured(config)) {
-        throw new Error("阿里云识别未配置 API Key，请到设置页配置或切换识别服务");
-      }
-      console.log("[Lingride Tutor] 使用阿里云 ASR 识别器");
-      return new AlibabaASRRecognizer();
     case "minimax":
       if (!isMiniMaxASRConfigured(config)) {
         throw new Error(
@@ -754,7 +736,9 @@ function createRecognizer(): ISpeechRecognizer {
       return new MiniMaxASRRecognizer(config);
     case "xiaomi":
       if (!isXiaomiASRConfigured(config)) {
-        throw new Error("小米识别未配置 API Key，请到设置页配置或切换识别服务");
+        throw new Error(
+          "小米识别未配置 API Key（复用语音合成服务的小米 Key），请到设置页配置或切换识别服务"
+        );
       }
       console.log("[Lingride Tutor] 使用小米 ASR 识别器");
       return new XiaomiASRRecognizer(config);
