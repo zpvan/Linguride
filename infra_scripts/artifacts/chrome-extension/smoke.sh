@@ -12,7 +12,7 @@ log_section "Chrome extension smoke"
 assert_file_exists "$DIST_DIR/manifest.json"
 assert_file_exists "$DIST_DIR/src/background/service-worker.js"
 assert_file_exists "$DIST_DIR/src/content/index.js"
-assert_file_exists "$DIST_DIR/src/popup/popup.html"
+assert_file_exists "$DIST_DIR/src/sidepanel/sidepanel.html"
 assert_file_exists "$DIST_DIR/icons/icon16.png"
 
 zip_file="$(find_first_file "$OUTPUT_DIR" '*.zip')"
