@@ -1,6 +1,6 @@
 /**
- * @file popup.css
- * @description Popup 样式 — Apple-inspired 暗色主题
+ * @file sidepanel.css
+ * @description 侧边栏（Side Panel）样式 — Apple-inspired 暗色主题
  *
  * 设计哲学："自如 (Natural Flow)"
  * - 渐进展示：主视图聚焦学习，设置隐于次层
@@ -69,11 +69,13 @@
   box-sizing: border-box;
 }
 
-/* ====== Body & Viewport ====== */
+/* ====== Body & Viewport ======
+ * 页面同时用于 Chrome Side Panel（占满面板宽度、全高滚动）。
+ */
 body {
-  width: 380px;
-  min-height: 400px;
-  max-height: 600px;
+  width: 100%;
+  min-width: 320px;
+  height: 100vh;
   overflow: hidden;
   font-family: var(--font-family);
   font-size: 15px;
@@ -99,8 +101,7 @@ body {
 /* ====== Views ====== */
 .view {
   width: 50%;
-  min-height: 400px;
-  max-height: 600px;
+  height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-lg) var(--space-lg) var(--space-xl);

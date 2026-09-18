@@ -2,7 +2,7 @@
  * @file tutor.css
  * @description 外教标签页样式 — Apple-inspired 暗色主题
  *
- * 基于 popup.css 的 Design Tokens，适配全屏标签页布局。
+ * 基于 sidepanel.css 的 Design Tokens，适配全屏标签页布局。
  * 移除固定宽度限制，使用 max-width + 居中布局。
  */
 

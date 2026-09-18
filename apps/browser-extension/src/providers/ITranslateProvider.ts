@@ -58,7 +58,7 @@ export interface ITranslateProvider {
    * 测试 API 连接
    *
    * 发送简单请求验证 API 配置是否正确。
-   * 用于 Popup 中的「测试连接」功能。
+   * 用于侧边栏中的「测试连接」功能。
    *
    * @returns Promise 解析为测试结果对象
    * @property success - 连接是否成功

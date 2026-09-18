@@ -3,7 +3,7 @@
  * @description Background Service Worker 入口
  *
  * Chrome 扩展的后台服务，负责：
- * - 消息路由：处理 Popup 和 Content Script 的消息
+ * - 消息路由：处理侧边栏和 Content Script 的消息
  * - API 调用：通过 Provider 调用翻译 API
  * - 配置管理：读写配置到 Chrome Storage
  * - Tab 状态管理：维护每个 Tab 的翻译状态
@@ -150,6 +150,15 @@ console.log("[Lingride] Background Service Worker 已启动");
 
 // 初始化 Tab 状态监听器
 initTabStateListeners();
+
+// 点击工具栏图标时在浏览器右侧打开侧边栏（Chrome 114+，替代默认 popup）
+if (chrome.sidePanel?.setPanelBehavior) {
+  void chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error) => {
+      console.warn("[Lingride] 注册侧边栏打开行为失败:", error);
+    });
+}
 void syncDoubaoASRHeaderRule().catch((error) => {
   console.warn("[Lingride] 同步豆包 ASR DNR 规则失败:", error);
 });
@@ -3932,7 +3941,7 @@ chrome.runtime.onConnect.addListener((port) => {
 /**
  * 消息监听器
  *
- * 接收来自 Popup 和 Content Script 的消息，
+ * 接收来自侧边栏和 Content Script 的消息，
  * 分发到对应的处理函数。
  */
 chrome.runtime.onMessage.addListener(
@@ -3994,7 +4003,7 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TOGGLE_TRANSLATION:
           if (tabId === undefined) {
-            // 如果是从 Popup 发来的，获取当前活动 Tab
+            // 如果是从侧边栏发来的，获取当前活动 Tab
             const [activeTab] = await chrome.tabs.query({
               active: true,
               currentWindow: true,
@@ -4054,7 +4063,7 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TOGGLE_PARAPHRASE:
           if (tabId === undefined) {
-            // 如果是从 Popup 发来的，获取当前活动 Tab
+            // 如果是从侧边栏发来的，获取当前活动 Tab
             const [activeTab] = await chrome.tabs.query({
               active: true,
               currentWindow: true,
@@ -4100,7 +4109,7 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.TOGGLE_MIXED_TRANSLATE:
           if (tabId === undefined) {
-            // 如果是从 Popup 发来的，获取当前活动 Tab
+            // 如果是从侧边栏发来的，获取当前活动 Tab
             const [activeTab] = await chrome.tabs.query({
               active: true,
               currentWindow: true,
@@ -4254,7 +4263,7 @@ chrome.runtime.onMessage.addListener(
 
 // ====== 扩展图标点击 ======
 
-// 点击扩展图标打开 Popup（由 manifest.json 配置处理）
+// 点击扩展图标打开侧边栏（由 manifest.json side_panel 与 setPanelBehavior 配置处理）
 // 此处可添加额外的图标点击逻辑
 
 console.log("[Lingride] 消息路由已就绪");

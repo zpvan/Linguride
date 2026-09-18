@@ -2,7 +2,7 @@
  * @file tutor.ts
  * @description 外教标签页逻辑 — AI 助手多模式功能
  *
- * 从 popup.ts 迁移而来，提供更大的操作空间和更好的用户体验。
+ * 从 sidepanel.ts 迁移而来，提供更大的操作空间和更好的用户体验。
  * 功能：中译英、英译中、英英释义、长难句分析、语音朗读、录音练习、发音评估。
  *
  * @author Lingride Team

@@ -1,11 +1,14 @@
 /**
- * @file popup.ts
- * @description Popup 逻辑 — Apple 风格学习控制中心
+ * @file sidepanel.ts
+ * @description 侧边栏（Side Panel）逻辑 — Apple 风格学习控制中心
  *
  * 设计哲学："自如 (Natural Flow)"
- * - 双视图：Main View（学习控制） + Settings View（配置面板）
+ * - 双视图：Main View（学习控制） + Settings View（配置面板，右上角齿轮进入）
  * - Segmented Control：3 段可取消选择的模式选择器
  * - 自动保存：配置变更即时生效，无需保存按钮
+ *
+ * 页面以 Chrome Side Panel 形式展示（manifest side_panel），
+ * 点击工具栏图标在浏览器右侧展开，而非传统 popup 弹窗。
  *
  * @author Lingride Team
  * @since 2.0.0
@@ -1019,7 +1022,7 @@ function appendTTSErrorDetail(
 // ====== 初始化 ======
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("[Lingride] Popup 已加载");
+  console.log("[Lingride] Side Panel 已加载");
 
   await Promise.all([loadConfig(), loadOpenAIOAuthStatus()]);
   if (getCurrentApiProvider() === "openai") {
@@ -2971,7 +2974,7 @@ function openCorpusPage(): void {
   chrome.tabs.create({
     url: chrome.runtime.getURL("src/corpus/corpus.html"),
   });
-  window.close(); // 关闭 popup
+  // 侧边栏保持打开，便于随时切回
 }
 
 // ====== 外教标签页 ======
@@ -2985,7 +2988,7 @@ function openTutorPage(): void {
   chrome.tabs.create({
     url: chrome.runtime.getURL("src/tutor/tutor.html"),
   });
-  window.close(); // 关闭 popup
+  // 侧边栏保持打开，便于随时切回
 }
 
 // ====== 辅助函数 ======

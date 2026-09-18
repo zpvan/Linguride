@@ -2,11 +2,11 @@
  * @file messages.ts
  * @description Chrome 扩展消息类型定义
  *
- * 定义 Popup、Background 和 Content Script 之间
+ * 定义侧边栏、Background 和 Content Script 之间
  * 通信使用的消息类型和响应类型。
  *
  * 消息流向：
- * - Popup → Background: 配置更新、翻译开关控制、连接测试、难度分析、长难句分析
+ * - 侧边栏 → Background: 配置更新、翻译开关控制、连接测试、难度分析、长难句分析
  * - Content → Background: 翻译请求
  * - Background → Content: 翻译结果、状态变更、文本提取请求
  *
