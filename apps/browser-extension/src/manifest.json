@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Lingride - 双语翻译",
+  "name": "Lingride",
   "description": "英文网页双语对照翻译扩展，保留原文同时显示中文翻译",
   "version": "1.0.0",
   "icons": {
@@ -15,7 +15,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Lingride 翻译"
+    "default_title": "Lingride"
   },
   "side_panel": {
     "default_path": "src/sidepanel/sidepanel.html"
