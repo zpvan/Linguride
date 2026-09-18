@@ -4,122 +4,62 @@ This document provides an overview of the Linguride project, its structure, and 
 
 ## 1. Project Overview
 
-**Linguride** is an AI-powered ecosystem for English language learning, centered around the "Bicycle Method" – an immersive, conversational approach to language acquisition. The project aims to help users move from passive knowledge to active, instinctual use of English.
+**Linguride** is an AI-powered English learning project based on the "Bicycle Method" – immersive, contextual language acquisition. The long-term product vision (multi-platform: desktop, mobile, IDE) lives in `docs/Linguride-PRD.md` (Chinese).
 
-The repository is a monorepo containing three primary application directories under `apps/`, a set of shared TypeScript packages under `packages/`, and a Rust workspace for desktop-first core logic under `crates/`:
+**Current status**: the repository maintains a single product — the **Chrome browser extension "Lingride"** (`apps/browser-extension`). The Android, desktop (Tauri) and VS Code extension codebases were removed in September 2026 (commit `bdbee63`) as they were no longer in use.
 
-1.  **`apps/browser-extension`**: A Chrome browser extension for web reading, translation, tutor, and corpus workflows.
-2.  **`apps/desktop`**: The core cross-platform desktop application where users practice speaking with an AI.
-3.  **`apps/vscode-extension`**: A Visual Studio Code extension that analyzes the difficulty of English text, acting as a supplementary tool for learners or content creators.
+## 2. Repository Layout
 
-Shared packages currently include:
+```
+apps/browser-extension/   # Chrome MV3 extension (the only artifact)
+packages/contracts-ts/    # Shared TS contracts (DTOs / config types); direct dependency of the extension
+bindings/web-core/        # Rust → WASM bindings (wasm-bindgen) consumed by the extension
+crates/linguride-core/    # Rust core logic (reader / tutor / corpus / session / ...)
+crates/linguride-domain/  # Rust domain models
+infra_scripts/            # Build & CI scripts (artifact-based; only chrome-extension remains)
+docs/, feat-docs/, spec/  # Product docs — the PRD describes future platforms, not current state
+```
 
-*   **`packages/contracts-ts`**: Shared DTOs and config contracts for analysis and prompt configuration.
-*   **`packages/prompt-kits`**: Shared prompt template resolution, variable substitution, and validation helpers.
-*   **`packages/text-assistant-core`**: Shared analysis result parsing, history management, and pure text orchestration logic.
+## 3. `apps/browser-extension` (Chrome Extension)
 
-Rust workspace crates currently include:
+Tech stack: TypeScript + Vite + `vite-plugin-web-extension`, Manifest V3, framework-free DOM.
 
-*   **`crates/linguride-domain`**: Shared Rust-side DTOs for desktop-facing core responses.
-*   **`crates/linguride-core`**: Desktop-first Rust core logic currently consumed by the Tauri backend.
+*   **Side panel** (`src/sidepanel/`): clicking the toolbar icon opens the extension in Chrome's right-hand side panel (`chrome.sidePanel` + `openPanelOnActionClick`, Chrome 114+) instead of a popup. Main view = learning control center; settings view is reached via the gear icon (top right). Keyboard shortcut: Cmd/Ctrl+Shift+Y.
+*   **Background service worker** (`src/background/`): message routing, AI API calls, config storage, TTS synthesis tasks, ASR auth (Doubao ASR injects WS auth headers via a declarativeNetRequest session rule).
+*   **Content scripts** (`src/content/`): reading modes (paraphrase / mixed / bilingual translation), selection popup, page text extraction.
+*   **Full-tab pages**: `src/tutor/` (sentence analysis, pronunciation assessment, shadowing), `src/corpus/` (listening training).
+*   **Offscreen document** (`src/offscreen/`): plays TTS audio in extension context to bypass page CSP.
+*   **Permissions page** (`src/permissions/`): microphone authorization (the side panel cannot request it directly).
 
-The `bindings/` directory exists only as a placeholder for future non-desktop integrations. Browser runtime remains TypeScript-only.
+Configurable service providers (all with "test connection" in settings):
+*   **AI**: DeepSeek / GLM / MiniMax / OpenAI (API key or ChatGPT OAuth) / custom endpoint
+*   **TTS**: MiniMax / Xiaomi / Doubao / browser speech (auto-fallback to browser)
+*   **ASR**: MiniMax / Xiaomi / Doubao / browser — same ordering as TTS; ASR reuses the matching TTS API key by default (see `resolveDoubaoASRApiKey` / `resolveXiaomiASRApiKey` / `isMiniMaxASRConfigured` in `src/types/config.ts`)
 
-### Key Documentation
-*   **Product Requirements (PRD)**: `docs/Linguride-PRD.md` contains the vision, user personas, feature breakdown, and technical architecture.
-*   **High-level AI Context**: `CLAUDE.md` provides an initial overview given to another AI.
+### Getting Started
 
----
+From the repository root (builds the wasm + contracts dependencies first):
 
-## 2. `apps/desktop` (Tauri Desktop App)
+```bash
+npm run typecheck:browser-extension
+npm run lint:browser-extension
+npm run build:browser-extension   # outputs to apps/browser-extension/dist
+npm run test --workspace apps/browser-extension --if-present   # set CI=true locally to avoid vitest watch mode
+```
 
-This is the main user-facing application.
+Or inside `apps/browser-extension/`: `npm run dev / build / typecheck / lint`, `npx vitest run`.
 
-### 2.1. Purpose & Architecture
+Load the unpacked extension from `apps/browser-extension/dist` via `chrome://extensions`.
 
-*   **Function**: A cross-platform (macOS, Windows, Linux) desktop application for conversational English practice.
-*   **Frontend**: React with TypeScript, built with Vite.
-*   **Backend/Wrapper**: Tauri (using a Rust backend), which provides a lightweight webview.
-*   **Rust Core Boundary**: The Tauri backend is now the first consumer of the shared Rust workspace. Reusable logic belongs in `crates/linguride-core`, not directly in the browser extension.
-*   **Styling**: The PRD specifies Tailwind CSS.
-*   **State Management**: The PRD specifies Zustand.
-*   **Build/Package Toolchain**: The PRD specifies Bun.
+## 4. CI
 
-### 2.2. Getting Started
+*   **GitHub Actions** (`.github/workflows/ci.yml`): single-artifact pipeline — `validate` (typecheck/lint/build/test) → `package` (zip) → `smoke`. Entry points: `infra_scripts/ci/github/*.sh` → `infra_scripts/artifacts/chrome-extension/*.sh`.
+*   The smoke script hard-codes build output paths (e.g. `dist/src/sidepanel/sidepanel.html`); keep `infra_scripts/artifacts/chrome-extension/smoke.sh` in sync when renaming entry files.
+*   **Jenkins**: root `Jenkinsfile` runs the browser-extension gate.
 
-**Prerequisites:**
-*   Node.js and npm/yarn/pnpm.
-*   Rust and Cargo.
-*   Tauri prerequisites (see [Tauri documentation](https://tauri.app/v1/guides/getting-started/prerequisites)).
+## 5. Conventions
 
-**Key Commands (from `apps/desktop/package.json`):**
-
-*   **Install dependencies once from the repository root:**
-    ```bash
-    npm install
-    ```
-*   **Run in development mode:** This will launch the Tauri app with hot-reloading for the frontend.
-    ```bash
-    npm run tauri:dev:desktop
-    ```
-*   **Build the application:** This compiles the frontend and bundles it into a final executable.
-    ```bash
-    npm run tauri:build:desktop
-    ```
-
-### 2.3. Development Conventions
-
-*   The frontend code resides in `apps/desktop/src`.
-*   The Tauri-specific Rust bridge code is in `apps/desktop/src-tauri`.
-*   Shared Rust domain and core logic live in `crates/linguride-domain` and `crates/linguride-core`.
-*   Tauri commands (Rust functions callable from the frontend) are defined in `apps/desktop/src-tauri/src/lib.rs`.
-
----
-
-## 3. `apps/vscode-extension` (English Difficulty Analyzer)
-
-A tool for developers and writers to analyze the complexity of English text within VS Code.
-
-### 3.1. Purpose & Architecture
-
-*   **Function**: Analyzes selected English text using an LLM (OpenAI, Claude, or DeepSeek) to provide a detailed difficulty report (CEFR level, vocabulary/sentence complexity, etc.).
-*   **Tech Stack**: TypeScript, using the VS Code Extension API.
-*   **Key Features**:
-    *   Right-click context menu integration.
-    *   Command Palette access.
-    *   A dedicated sidebar view for history and results.
-    *   Configurable API keys and provider choice.
-
-### 3.2. Getting Started
-
-**Prerequisites:**
-*   Node.js and npm.
-*   Visual Studio Code.
-
-**Key Commands (from `apps/vscode-extension/package.json`):**
-
-*   **Install dependencies once from the repository root:**
-    ```bash
-    npm install
-    ```
-*   **Run in development mode:** This compiles the TypeScript and opens a new VS Code "Extension Development Host" window with the extension loaded.
-    ```bash
-    npm run watch:vscode # In a separate terminal
-    # Then, in VS Code, press F5 to launch the debugger.
-    ```
-*   **Compile the code:**
-     ```bash
-    npm run compile:vscode
-    ```
-*   **Package the extension:** This creates a `.vsix` file for installation or distribution.
-    ```bash
-    npm run package:vscode
-    ```
-
-### 3.3. Development Conventions
-
-*   The main entry point is `apps/vscode-extension/src/extension.ts`.
-*   The architecture uses a factory pattern for its LLM providers (`src/providers/`).
-*   The UI panel is implemented using a VS Code Webview (`src/ui/AnalysisPanel.ts`).
-*   Configuration is managed via `package.json` `contributes.configuration` section and accessed using the VS Code settings API (`src/utils/configuration.ts`).
-*   The extension is well-documented in `apps/vscode-extension/README.md`.
+*   Commit messages: Conventional Commits with scope, Chinese descriptions, e.g. `fix(browser-extension): ...`.
+*   Source files carry a Chinese `@file` / `@description` header comment block; keep the style for new files.
+*   UI copy and code comments are primarily in Chinese.
+*   Opening the side panel via `openPanelOnActionClick` does **not** grant `activeTab`; `chrome.scripting.executeScript` relies on the `<all_urls>` host permission in the manifest.
