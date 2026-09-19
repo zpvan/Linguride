@@ -8,9 +8,7 @@ Lingride 是一个面向英语学习场景的 Chrome 扩展，覆盖网页阅读
 - 页面难度分析：提取当前页面或选中文本，输出难度等级、CEFR 参考等级和学习建议。
 - 语镜页面：支持中译英、英译中、英英释义、长难句分析、影子跟读和发音评估。
 - 语料库页面：粘贴英文语料后按 CEFR 水平进行 i+1 听写训练，并生成听力问题分析。
-- 可选云端语音能力：
-  - ASR 优先级：腾讯云 -> 阿里云 -> 浏览器内置识别
-  - TTS 优先级：MiniMax -> 小米 -> 浏览器朗读
+- 可选云端语音能力（TTS 与 ASR 均为 MiniMax / 小米 / 豆包 / 浏览器，ASR 默认复用对应 TTS 的 API Key）
 - Prompt 可配置：翻译、释义、混杂中英、难度分析、长难句分析都可在设置中调整。
 - 多 provider 支持：DeepSeek、GLM、MiniMax、OpenAI、自定义 OpenAI 兼容端点。
 - OpenAI 两种认证方式：API Key 和 ChatGPT OAuth。
