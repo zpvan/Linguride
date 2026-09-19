@@ -312,13 +312,18 @@ export interface XiaomiTTSConfig {
 }
 
 /**
- * 豆包（火山方舟）语音合成音色（seed-tts-2.0，美式英语）
+ * 豆包（火山方舟）语音合成音色（seed-tts-2.0）
+ *
+ * en_ 前缀为纯英文音色（不支持中文合成）；zh_ 前缀为中文音色。
  */
 export type DoubaoTTSVoice =
   | "en_female_allison_uranus_bigtts"
   | "en_female_brittney_pimintel_uranus_bigtts"
   | "en_male_alex_uranus_bigtts"
-  | "en_male_alberto_uranus_bigtts";
+  | "en_male_alberto_uranus_bigtts"
+  | "zh_female_vv_uranus_bigtts"
+  | "zh_female_shuangkuaisisi_uranus_bigtts"
+  | "zh_male_wennuanahu_uranus_bigtts";
 
 /** 豆包 TTS 可选音色 */
 export const DOUBAO_TTS_VOICE_OPTIONS: DoubaoTTSVoice[] = [
@@ -326,11 +331,39 @@ export const DOUBAO_TTS_VOICE_OPTIONS: DoubaoTTSVoice[] = [
   "en_female_brittney_pimintel_uranus_bigtts",
   "en_male_alex_uranus_bigtts",
   "en_male_alberto_uranus_bigtts",
+  "zh_female_vv_uranus_bigtts",
+  "zh_female_shuangkuaisisi_uranus_bigtts",
+  "zh_male_wennuanahu_uranus_bigtts",
 ];
 
 /** 豆包 TTS 默认音色（Allison，美式女声） */
 export const DOUBAO_TTS_DEFAULT_VOICE: DoubaoTTSVoice =
   "en_female_allison_uranus_bigtts";
+
+/** 豆包 TTS 默认中文音色（Vivi 2.0，支持中文及多语种混读） */
+export const DOUBAO_TTS_DEFAULT_ZH_VOICE: DoubaoTTSVoice =
+  "zh_female_vv_uranus_bigtts";
+
+/** 文本是否包含中文 */
+export function containsChineseText(text: string): boolean {
+  return /[\u4e00-\u9fff]/.test(text);
+}
+
+/**
+ * 按文本语言解析实际使用的豆包音色。
+ *
+ * en_ 音色不支持中文合成（服务会返回空音频），
+ * 文本含中文且当前选择为英文音色时，自动改用默认中文音色。
+ */
+export function resolveDoubaoTTSVoiceForText(
+  voice: DoubaoTTSVoice,
+  text: string
+): DoubaoTTSVoice {
+  if (voice.startsWith("en_") && containsChineseText(text)) {
+    return DOUBAO_TTS_DEFAULT_ZH_VOICE;
+  }
+  return voice;
+}
 
 /** 规范化豆包 TTS 音色；未知值回退默认音色 */
 export function normalizeDoubaoTTSVoice(value?: string | null): DoubaoTTSVoice {

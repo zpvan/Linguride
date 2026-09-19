@@ -11,6 +11,7 @@ import {
   isMiniMaxASRConfigured,
   isXiaomiASRConfigured,
   normalizeDoubaoTTSVoice,
+  resolveDoubaoTTSVoiceForText,
   normalizeMiniMaxTTSBaseUrl,
   normalizeXiaomiTTSVoice,
   resolveASRSelection,
@@ -113,13 +114,48 @@ describe("normalizeDoubaoTTSVoice", () => {
     );
   });
 
-  it("voice options contain the 4 curated voices", () => {
+  it("voice options contain the curated en/zh voices", () => {
     expect(DOUBAO_TTS_VOICE_OPTIONS).toEqual([
       "en_female_allison_uranus_bigtts",
       "en_female_brittney_pimintel_uranus_bigtts",
       "en_male_alex_uranus_bigtts",
       "en_male_alberto_uranus_bigtts",
+      "zh_female_vv_uranus_bigtts",
+      "zh_female_shuangkuaisisi_uranus_bigtts",
+      "zh_male_wennuanahu_uranus_bigtts",
     ]);
+  });
+});
+
+describe("resolveDoubaoTTSVoiceForText", () => {
+  it("keeps english voice for english text", () => {
+    expect(
+      resolveDoubaoTTSVoiceForText("en_female_allison_uranus_bigtts", "Hello world.")
+    ).toBe("en_female_allison_uranus_bigtts");
+  });
+
+  it("switches english voice to default chinese voice for chinese text", () => {
+    expect(
+      resolveDoubaoTTSVoiceForText("en_female_allison_uranus_bigtts", "这是中文句子。")
+    ).toBe("zh_female_vv_uranus_bigtts");
+  });
+
+  it("switches english voice for mixed text containing chinese", () => {
+    expect(
+      resolveDoubaoTTSVoiceForText("en_male_alex_uranus_bigtts", "使用 Claude Code 开发。")
+    ).toBe("zh_female_vv_uranus_bigtts");
+  });
+
+  it("keeps chinese voice for chinese text", () => {
+    expect(
+      resolveDoubaoTTSVoiceForText("zh_male_wennuanahu_uranus_bigtts", "这是中文句子。")
+    ).toBe("zh_male_wennuanahu_uranus_bigtts");
+  });
+
+  it("keeps chinese voice for english text (zh voices read english)", () => {
+    expect(
+      resolveDoubaoTTSVoiceForText("zh_female_vv_uranus_bigtts", "Hello world.")
+    ).toBe("zh_female_vv_uranus_bigtts");
   });
 });
 

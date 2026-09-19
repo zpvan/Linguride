@@ -110,6 +110,7 @@ import {
   DOUBAO_TTS_API_URL,
   DOUBAO_TTS_RESOURCE_ID,
   normalizeDoubaoTTSVoice,
+  resolveDoubaoTTSVoiceForText,
   DOUBAO_ASR_RESOURCE_ID,
   XiaomiTTSVoice,
 } from "../types";
@@ -1091,10 +1092,15 @@ async function requestDoubaoTTSAudio(
   }
 
   const apiKey = doubaoTTSConfig.api_key.trim();
+  // en_ 音色不支持中文，文本含中文时自动改用中文音色
+  const speaker = resolveDoubaoTTSVoiceForText(
+    normalizeDoubaoTTSVoice(doubaoTTSConfig.voice),
+    text
+  );
   const requestBody = {
     req_params: {
       text,
-      speaker: normalizeDoubaoTTSVoice(doubaoTTSConfig.voice),
+      speaker,
       audio_params: {
         format: DOUBAO_TTS_AUDIO_FORMAT,
         sample_rate: DOUBAO_TTS_SAMPLE_RATE,
