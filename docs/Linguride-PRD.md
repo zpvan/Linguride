@@ -6,6 +6,8 @@
 **Date**: 2026-01-06
 **Last Updated**: 2026-01-06
 **Author**: Product Design Team
+
+> **状态说明（2026-09）**：本文档是产品的远期愿景文档，其中桌面应用、移动端、云端微服务等规划**尚未实施**。当前仓库实际维护的产物只有 Chrome 浏览器插件（`apps/browser-extension`），工程现状以 [README.md](../README.md) 与 [CLAUDE.md](../CLAUDE.md) 为准。
 **Status**: Draft (Optimized)
 
 *主要变更：更新技术架构为TypeScript+Tauri，添加商业模式，扩展风险管理*  
