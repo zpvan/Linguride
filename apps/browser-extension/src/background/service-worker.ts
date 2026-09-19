@@ -85,6 +85,12 @@ import {
   StartOpenAIOAuthResponse,
   StopTTSPlaybackResponse,
   SplitSentencesResult,
+  DEFAULT_TTS_SPEED,
+  ReadAloudPrepareResponse,
+  ReadAloudProgressMessage,
+  StartReadAloudResponse,
+  StopReadAloudResponse,
+  GetReadAloudStateResponse,
   SynthesizeSpeechResponse,
   TestTTSConnectionResponse,
   TestConnectionResponse,
@@ -2153,6 +2159,249 @@ async function handleStopTTSPlayback(): Promise<StopTTSPlaybackResponse> {
  *
  * 查询指定合成请求的进度；未知 requestId 返回 stage=unknown。
  */
+// ====== 阅读全文（朗读 + 句子高亮） ======
+
+/**
+ * 阅读全文会话状态
+ *
+ * 每次最多一个会话；loop 在后台运行，通过 stopped 标志与
+ * offscreen 停止消息协作取消。
+ */
+interface ReadAloudSession {
+  tabId: number;
+  sentences: string[];
+  index: number;
+  stopped: boolean;
+}
+
+let readAloudSession: ReadAloudSession | null = null;
+
+function handleGetReadAloudState(): GetReadAloudStateResponse {
+  return {
+    success: true,
+    data: {
+      state: readAloudSession ? "playing" : "idle",
+      index: readAloudSession?.index ?? 0,
+      total: readAloudSession?.sentences.length ?? 0,
+    },
+  };
+}
+
+/** 向侧边栏等扩展页面广播朗读进度（无人监听时静默忽略） */
+async function broadcastReadAloudProgress(
+  payload: ReadAloudProgressMessage["payload"]
+): Promise<void> {
+  try {
+    await chrome.runtime.sendMessage({
+      type: MessageType.READ_ALOUD_PROGRESS,
+      payload,
+    });
+  } catch {
+    // 侧边栏未打开时无人接收，忽略
+  }
+}
+
+/** 通知内容脚本高亮/清除句子；返回页面是否仍可达 */
+async function sendReadAloudHighlight(
+  tabId: number,
+  index: number
+): Promise<boolean> {
+  try {
+    await chrome.tabs.sendMessage(
+      tabId,
+      {
+        type: MessageType.READ_ALOUD_HIGHLIGHT,
+        payload: { index },
+      },
+      { frameId: 0 }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 处理 START_READ_ALOUD 消息
+ *
+ * 校验 TTS 配置 → 提取页面句子（必要时注入 Content Script）→
+ * 创建会话并后台运行朗读循环。
+ */
+async function handleStartReadAloud(): Promise<StartReadAloudResponse> {
+  try {
+    const config = await getConfig();
+    const selection = config.tts_selection || "browser";
+
+    // 浏览器朗读无法在扩展上下文播放，要求先配置 AI 语音合成服务
+    if (selection === "browser") {
+      return {
+        success: false,
+        error:
+          "阅读全文需要 AI 语音合成服务，请先在设置页配置 MiniMax / 小米 / 豆包",
+      };
+    }
+
+    const [activeTab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!activeTab?.id) {
+      return { success: false, error: "无法获取当前 Tab" };
+    }
+    const tabId = activeTab.id;
+
+    // 已有会话先停止
+    if (readAloudSession) {
+      await stopReadAloudSession();
+    }
+
+    // 提取页面句子（Content Script 缺失时注入后重试）
+    let prepare: ReadAloudPrepareResponse;
+    try {
+      prepare = await chrome.tabs.sendMessage(
+        tabId,
+        { type: MessageType.READ_ALOUD_PREPARE },
+        { frameId: 0 }
+      );
+    } catch {
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId, allFrames: true },
+          files: ["src/content/index.js"],
+        });
+        await chrome.scripting.insertCSS({
+          target: { tabId, allFrames: true },
+          files: ["src/content/styles.css"],
+        });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        prepare = await chrome.tabs.sendMessage(
+          tabId,
+          { type: MessageType.READ_ALOUD_PREPARE },
+          { frameId: 0 }
+        );
+      } catch (injectError) {
+        console.error("[Lingride] 阅读全文注入 Content Script 失败:", injectError);
+        return {
+          success: false,
+          error: "无法在此页面阅读全文（可能是浏览器内置页面）",
+        };
+      }
+    }
+
+    const sentences = prepare?.data?.sentences ?? [];
+    if (sentences.length === 0) {
+      return { success: false, error: "当前页面没有可朗读的英文内容" };
+    }
+
+    readAloudSession = { tabId, sentences, index: 0, stopped: false };
+    void broadcastReadAloudProgress({
+      state: "playing",
+      index: 0,
+      total: sentences.length,
+    });
+    void runReadAloudLoop(readAloudSession);
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Lingride] 阅读全文启动失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "阅读全文启动失败",
+    };
+  }
+}
+
+/**
+ * 朗读循环：逐句 合成 → 高亮 → 播放，播放当前句时预合成下一句。
+ */
+async function runReadAloudLoop(session: ReadAloudSession): Promise<void> {
+  const total = session.sentences.length;
+
+  try {
+    const config = await getConfig();
+    const rate = config.tts_speed || DEFAULT_TTS_SPEED;
+
+    let nextAudio: Promise<TTSAudioData> | null = requestTTSAudioWithPriority(
+      session.sentences[0]
+    );
+    // 预取Promise 若被跳过（停止会话）不应触发未处理 rejection
+    nextAudio.catch(() => undefined);
+
+    for (let i = 0; i < total; i++) {
+      if (session.stopped) break;
+
+      if (!nextAudio) break;
+      const data = await nextAudio;
+      if (session.stopped) break;
+
+      session.index = i;
+
+      // 页面不可达（如已关闭）则终止
+      if (!(await sendReadAloudHighlight(session.tabId, i))) {
+        throw new Error("页面连接已断开");
+      }
+
+      void broadcastReadAloudProgress({ state: "playing", index: i, total });
+
+      // 播放当前句的同时预合成下一句
+      if (i + 1 < total) {
+        nextAudio = requestTTSAudioWithPriority(session.sentences[i + 1]);
+        nextAudio.catch(() => undefined);
+      }
+
+      await playTTSAudioInOffscreen(data, rate);
+    }
+
+    if (!session.stopped) {
+      void broadcastReadAloudProgress({ state: "finished", index: total, total });
+    }
+  } catch (error) {
+    if (!session.stopped) {
+      console.error("[Lingride] 阅读全文中断:", error);
+      void broadcastReadAloudProgress({
+        state: "error",
+        index: session.index,
+        total,
+        error: error instanceof Error ? error.message : "朗读失败",
+      });
+    }
+  } finally {
+    await sendReadAloudHighlight(session.tabId, -1);
+    if (readAloudSession === session) {
+      readAloudSession = null;
+    }
+  }
+}
+
+async function stopReadAloudSession(): Promise<void> {
+  const session = readAloudSession;
+  if (!session) return;
+
+  session.stopped = true;
+  readAloudSession = null;
+
+  // 中断 offscreen 当前播放，朗读循环随之退出
+  await stopOffscreenTTSPlayback();
+  await sendReadAloudHighlight(session.tabId, -1);
+  void broadcastReadAloudProgress({
+    state: "idle",
+    index: session.index,
+    total: session.sentences.length,
+  });
+}
+
+async function handleStopReadAloud(): Promise<StopReadAloudResponse> {
+  try {
+    await stopReadAloudSession();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "停止朗读失败",
+    };
+  }
+}
+
 async function handleGetTTSSynthesisStatus(
   requestId: string
 ): Promise<GetTTSSynthesisStatusResponse> {
@@ -3627,6 +3876,18 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.STOP_TTS_PLAYBACK:
           response = await handleStopTTSPlayback();
+          break;
+
+        case MessageType.START_READ_ALOUD:
+          response = await handleStartReadAloud();
+          break;
+
+        case MessageType.STOP_READ_ALOUD:
+          response = await handleStopReadAloud();
+          break;
+
+        case MessageType.GET_READ_ALOUD_STATE:
+          response = handleGetReadAloudState();
           break;
 
         case MessageType.ASSESS_PRONUNCIATION:

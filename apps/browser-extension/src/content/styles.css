@@ -457,3 +457,12 @@
     color: #d93025;
   }
 }
+
+/* ====== 阅读全文：当前朗读句子高亮 ======
+ * 使用 CSS Custom Highlight API（不改动 DOM），与 readAloud.ts 中的名称对应。
+ */
+::highlight(lingride-read-aloud) {
+  background-color: rgba(255, 214, 10, 0.35);
+  color: inherit;
+  text-decoration: none;
+}

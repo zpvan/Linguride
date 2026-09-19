@@ -62,6 +62,11 @@ import {
 } from "./translationInjector";
 import { initSelectionToolbar } from "./selectionToolbar";
 import { ViewportObserver } from "./viewportObserver";
+import {
+  clearReadAloudHighlight,
+  highlightReadAloudSentence,
+  prepareReadAloud,
+} from "./readAloud";
 
 // ====== 状态管理 ======
 
@@ -1089,6 +1094,26 @@ if (!__lingride_already_loaded__) {
         case MessageType.EXTRACT_PAGE_TEXT: {
           const extractResult = handleExtractPageText();
           sendResponse(extractResult);
+          break;
+        }
+
+        case MessageType.READ_ALOUD_PREPARE: {
+          const { sentences, truncated } = prepareReadAloud();
+          sendResponse({
+            success: true,
+            data: { sentences, truncated },
+          });
+          break;
+        }
+
+        case MessageType.READ_ALOUD_HIGHLIGHT: {
+          const index = message.payload?.index ?? -1;
+          if (index < 0) {
+            clearReadAloudHighlight();
+          } else {
+            highlightReadAloudSentence(index);
+          }
+          sendResponse({ success: true });
           break;
         }
 

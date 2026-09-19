@@ -68,6 +68,10 @@ import {
   DOUBAO_TTS_DEFAULT_VOICE,
   normalizeDoubaoTTSVoice,
   ASRSelectionMode,
+  GetReadAloudStateResponse,
+  ReadAloudProgressMessage,
+  StartReadAloudResponse,
+  StopReadAloudResponse,
   isDoubaoASRConfigured,
   isMiniMaxASRConfigured,
   isXiaomiASRConfigured,
@@ -170,6 +174,14 @@ const suggestionsList = document.getElementById(
   "suggestionsList"
 ) as HTMLElement;
 const selectionHint = document.getElementById("selectionHint") as HTMLElement;
+
+// 阅读全文
+const readAloudBtn = document.getElementById(
+  "readAloudBtn"
+) as HTMLButtonElement;
+const readAloudStatus = document.getElementById(
+  "readAloudStatus"
+) as HTMLElement;
 
 
 // Settings - API 配置
@@ -980,6 +992,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   bindEvents();
   updateBadge();
+  void restoreReadAloudState();
+  listenReadAloudProgress();
   updateMiniMaxTTSButtonAvailability();
   updateXiaomiTTSButtonAvailability();
 });
@@ -1072,6 +1086,9 @@ function bindEvents(): void {
 
   // 难度分析
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
+  readAloudBtn.addEventListener("click", () => {
+    void handleReadAloudToggle();
+  });
 
   // Settings - API 配置自动保存
   apiProviderSelect.addEventListener("change", handleApiProviderChange);
@@ -2717,6 +2734,97 @@ function renderDifficultyResult(result: DifficultyResult): void {
 
   // 选中文本提示
   selectionHint.style.display = result.isSelection ? "block" : "none";
+}
+
+// ====== 阅读全文 ======
+
+/** 当前是否处于朗读状态（侧边栏本地镜像，以 Background 为准） */
+let isReadAloudPlaying = false;
+
+function updateReadAloudUI(
+  state: "idle" | "playing" | "finished" | "error",
+  index: number,
+  total: number,
+  error?: string
+): void {
+  isReadAloudPlaying = state === "playing";
+
+  readAloudBtn.textContent = isReadAloudPlaying ? "停止朗读" : "阅读全文";
+
+  switch (state) {
+    case "playing":
+      showStatus(readAloudStatus, `朗读中 ${index + 1} / ${total}`, "loading");
+      break;
+    case "finished":
+      showStatus(readAloudStatus, "朗读完成", "success");
+      break;
+    case "error":
+      showStatus(readAloudStatus, error || "朗读失败", "error");
+      break;
+    case "idle":
+    default:
+      readAloudStatus.style.display = "none";
+      break;
+  }
+}
+
+async function handleReadAloudToggle(): Promise<void> {
+  readAloudBtn.disabled = true;
+
+  try {
+    if (isReadAloudPlaying) {
+      const response: StopReadAloudResponse = await chrome.runtime.sendMessage({
+        type: MessageType.STOP_READ_ALOUD,
+      });
+      if (!response.success) {
+        showStatus(readAloudStatus, response.error || "停止朗读失败", "error");
+      }
+      return;
+    }
+
+    showStatus(readAloudStatus, "正在准备朗读...", "loading");
+    const response: StartReadAloudResponse = await chrome.runtime.sendMessage({
+      type: MessageType.START_READ_ALOUD,
+    });
+
+    if (!response.success) {
+      updateReadAloudUI("error", 0, 0, response.error);
+    }
+    // 成功后的进度由 READ_ALOUD_PROGRESS 广播驱动
+  } catch {
+    updateReadAloudUI("error", 0, 0, "朗读请求发送失败");
+  } finally {
+    readAloudBtn.disabled = false;
+  }
+}
+
+/** 打开侧边栏时恢复朗读状态（朗读可能在侧边栏关闭期间持续进行） */
+async function restoreReadAloudState(): Promise<void> {
+  try {
+    const response: GetReadAloudStateResponse = await chrome.runtime.sendMessage(
+      { type: MessageType.GET_READ_ALOUD_STATE }
+    );
+    if (response.success && response.data) {
+      if (response.data.state === "playing") {
+        updateReadAloudUI("playing", response.data.index, response.data.total);
+      } else {
+        updateReadAloudUI("idle", 0, 0);
+      }
+    }
+  } catch {
+    // 查询失败保持默认 UI
+  }
+}
+
+/** 监听 Background 的朗读进度广播 */
+function listenReadAloudProgress(): void {
+  chrome.runtime.onMessage.addListener((message) => {
+    const progress = message as ReadAloudProgressMessage;
+    if (progress?.type !== MessageType.READ_ALOUD_PROGRESS) return;
+
+    const { state, index, total, error } = progress.payload;
+    updateReadAloudUI(state, index, total, error);
+  });
 }
 
 // ====== 语料库标签页 ======

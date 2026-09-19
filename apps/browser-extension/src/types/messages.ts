@@ -130,6 +130,20 @@ export enum MessageType {
   /** 影子跟读评估 */
   SHADOW_ASSESS = "SHADOW_ASSESS",
 
+  // ====== 阅读全文（朗读 + 句子高亮） ======
+  /** 开始阅读全文（侧边栏 → Background） */
+  START_READ_ALOUD = "START_READ_ALOUD",
+  /** 停止阅读全文（侧边栏 → Background） */
+  STOP_READ_ALOUD = "STOP_READ_ALOUD",
+  /** 查询阅读全文状态（侧边栏 → Background） */
+  GET_READ_ALOUD_STATE = "GET_READ_ALOUD_STATE",
+  /** 提取页面句子供朗读（Background → Content） */
+  READ_ALOUD_PREPARE = "READ_ALOUD_PREPARE",
+  /** 高亮当前朗读句子（Background → Content，index=-1 清除） */
+  READ_ALOUD_HIGHLIGHT = "READ_ALOUD_HIGHLIGHT",
+  /** 朗读进度广播（Background → 侧边栏等扩展页面） */
+  READ_ALOUD_PROGRESS = "READ_ALOUD_PROGRESS",
+
   // ====== 豆包 ASR ======
   /** 豆包 ASR 连接前准备（确保 DNR 鉴权头注入规则就位） */
   DOUBAO_ASR_PREPARE = "DOUBAO_ASR_PREPARE",
@@ -427,6 +441,73 @@ export interface StopTTSPlaybackMessage {
 }
 
 /**
+ * 开始阅读全文消息（侧边栏 → Background）
+ */
+export interface StartReadAloudMessage {
+  type: MessageType.START_READ_ALOUD;
+}
+
+/**
+ * 停止阅读全文消息（侧边栏 → Background）
+ */
+export interface StopReadAloudMessage {
+  type: MessageType.STOP_READ_ALOUD;
+}
+
+/**
+ * 查询阅读全文状态消息（侧边栏 → Background）
+ */
+export interface GetReadAloudStateMessage {
+  type: MessageType.GET_READ_ALOUD_STATE;
+}
+
+/** 阅读全文状态 */
+export type ReadAloudState = "idle" | "playing";
+
+/**
+ * 阅读全文状态数据
+ */
+export interface ReadAloudStateData {
+  state: ReadAloudState;
+  /** 当前朗读句子下标（0 起） */
+  index: number;
+  /** 句子总数 */
+  total: number;
+}
+
+/**
+ * 提取页面句子供朗读消息（Background → Content）
+ */
+export interface ReadAloudPrepareMessage {
+  type: MessageType.READ_ALOUD_PREPARE;
+}
+
+/**
+ * 高亮当前朗读句子消息（Background → Content）
+ */
+export interface ReadAloudHighlightMessage {
+  type: MessageType.READ_ALOUD_HIGHLIGHT;
+  payload: {
+    /** 句子下标；-1 表示清除高亮 */
+    index: number;
+  };
+}
+
+/**
+ * 朗读进度广播消息（Background → 侧边栏等扩展页面）
+ */
+export interface ReadAloudProgressMessage {
+  type: MessageType.READ_ALOUD_PROGRESS;
+  payload: {
+    state: ReadAloudState | "finished" | "error";
+    index: number;
+    total: number;
+    /** state 为 error 时的错误描述 */
+    error?: string;
+  };
+}
+
+/**
  * 语音合成阶段
  */
 export type TTSSynthesisStage =
@@ -619,6 +700,12 @@ export type Message =
   | AnalyzeSentenceMessage
   | SynthesizeSpeechMessage
   | StopTTSPlaybackMessage
+  | StartReadAloudMessage
+  | StopReadAloudMessage
+  | GetReadAloudStateMessage
+  | ReadAloudPrepareMessage
+  | ReadAloudHighlightMessage
+  | ReadAloudProgressMessage
   | AssessPronunciationMessage
   | ChineseToEnglishMessage
   | EnglishToChineseMessage
@@ -890,6 +977,35 @@ export interface SynthesizeSpeechResponse extends BaseResponse {
 export type StopTTSPlaybackResponse = BaseResponse;
 
 /**
+ * 开始阅读全文响应
+ */
+export type StartReadAloudResponse = BaseResponse;
+
+/**
+ * 停止阅读全文响应
+ */
+export type StopReadAloudResponse = BaseResponse;
+
+/**
+ * 阅读全文状态查询响应
+ */
+export interface GetReadAloudStateResponse extends BaseResponse {
+  data?: ReadAloudStateData;
+}
+
+/**
+ * 阅读全文句子提取响应（Content → Background）
+ */
+export interface ReadAloudPrepareResponse extends BaseResponse {
+  data?: {
+    /** 页面待朗读句子列表（已截断到上限） */
+    sentences: string[];
+    /** 是否因超长被截断 */
+    truncated: boolean;
+  };
+}
+
+/**
  * 查询语音合成进度响应
  */
 export interface GetTTSSynthesisStatusResponse extends BaseResponse {
@@ -1038,6 +1154,10 @@ export type Response =
   | AnalyzeSentenceResponse
   | SynthesizeSpeechResponse
   | StopTTSPlaybackResponse
+  | StartReadAloudResponse
+  | StopReadAloudResponse
+  | GetReadAloudStateResponse
+  | ReadAloudPrepareResponse
   | GetTTSSynthesisStatusResponse
   | CancelTTSSynthesisResponse
   | DiagnoseTTSResponse
