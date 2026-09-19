@@ -78,6 +78,34 @@ describe("splitSentenceSpans", () => {
     ]);
   });
 
+  it("splits Chinese sentences without whitespace", () => {
+    expect(split("这是第一句。这是第二句！还有第三句？")).toEqual([
+      "这是第一句。",
+      "这是第二句！",
+      "还有第三句？",
+    ]);
+  });
+
+  it("keeps Chinese closing quotes and brackets with the sentence", () => {
+    expect(split("他说「你好。」就走了。下一句话。")).toEqual([
+      "他说「你好。」",
+      "就走了。",
+      "下一句话。",
+    ]);
+  });
+
+  it("splits mixed Chinese-English text", () => {
+    expect(split("使用 Claude Code 开发。It works well. 就这么简单。")).toEqual([
+      "使用 Claude Code 开发。",
+      "It works well.",
+      "就这么简单。",
+    ]);
+  });
+
+  it("does not split Chinese enumeration comma or period in numbers", () => {
+    expect(split("价格是 3.5 元。好的。")).toEqual(["价格是 3.5 元。", "好的。"]);
+  });
+
   it("spans cover the full text (no gaps except whitespace)", () => {
     const text = "One sentence.  Two sentence!   Three?";
     const spans = splitSentenceSpans(text);

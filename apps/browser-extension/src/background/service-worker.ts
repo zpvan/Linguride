@@ -2290,7 +2290,7 @@ async function handleStartReadAloud(): Promise<StartReadAloudResponse> {
 
     const sentences = prepare?.data?.sentences ?? [];
     if (sentences.length === 0) {
-      return { success: false, error: "当前页面没有可朗读的英文内容" };
+      return { success: false, error: "当前页面没有可朗读的内容" };
     }
 
     readAloudSession = { tabId, sentences, index: 0, stopped: false };

@@ -3,7 +3,7 @@
  * @description 阅读全文（朗读）的页面侧支持
  *
  * 职责：
- * - 从页面提取可朗读的英文句子，并记录每个句子对应的 DOM Range
+ * - 从页面提取可朗读的中英文句子，并记录每个句子对应的 DOM Range
  * - 通过 CSS Custom Highlight API 高亮当前朗读的句子（不改动 DOM）
  * - 高亮时自动滚动到可视区域
  *
@@ -93,13 +93,13 @@ interface ReadAloudSentence {
 let sentences: ReadAloudSentence[] = [];
 
 /**
- * 判断文本是否以英文为主（与 textExtractor 的判定保持一致的简化版）
+ * 判断文本是否可朗读（中文或英文内容均可）：
+ * 英文要求字母足够多；中文要求汉字足够多；过滤纯符号/数字块。
  */
-function isMostlyEnglish(text: string): boolean {
-  const letters = text.match(/[a-zA-Z]/g);
-  if (!letters || letters.length < 10) return false;
-  const nonAscii = text.match(/[^ -~\s]/g);
-  return !nonAscii || letters.length > nonAscii.length * 2;
+function isReadableText(text: string): boolean {
+  const letters = text.match(/[a-zA-Z]/g)?.length ?? 0;
+  const cjk = text.match(/[\u4e00-\u9fff]/g)?.length ?? 0;
+  return letters >= 10 || cjk >= 4;
 }
 
 function isVisible(element: Element): boolean {
@@ -109,11 +109,11 @@ function isVisible(element: Element): boolean {
   return (element as HTMLElement).offsetParent !== null;
 }
 
-/** 句读符号 */
-const SENTENCE_PUNCTUATION = ".!?…";
+/** 句读符号（中英文） */
+const SENTENCE_PUNCTUATION = ".!?\u2026\u3002\uFF01\uFF1F";
 
-/** 句读符号后允许的收尾字符（引号、括号等） */
-const CLOSING_CHARS = "\"')]»”’";
+/** 句读符号后允许的收尾字符（中英文引号、括号等） */
+const CLOSING_CHARS = "\"')]\u00BB\u201D\u2019\u300D\u300F\uFF09\u3009\u3011";
 
 function isWhitespaceChar(ch: string | undefined): boolean {
   return ch === undefined || /\s/.test(ch);
@@ -123,8 +123,9 @@ function isWhitespaceChar(ch: string | undefined): boolean {
  * 把文本切分为句子区间（逐字符扫描，非正则回溯）。
  *
  * 断句规则：
- * - 英文句读符号（. ! ? …）后必须紧跟空白或结尾才算边界
+ * - 中英文句读符号（. ! ? … 。 ！ ？）后必须紧跟空白或结尾才算边界
  *   （避免 claude.ai、v1.2.3、3.14 等被误切）
+ * - 中文句号等全角标点后即便没有空白也算边界
  * - 换行视为普通空白，不强制断句（textContent 保留源码缩进换行）
  *
  * 纯函数，独立导出便于测试。
@@ -148,15 +149,20 @@ export function splitSentenceSpans(
     }
   };
 
+  // 全角句读符号：中文句子之间通常没有空白，直接视为边界
+  const isCJKPunctuation = (ch: string) => "\u3002\uFF01\uFF1F".includes(ch);
+
   while (i < text.length) {
     if (SENTENCE_PUNCTUATION.includes(text[i])) {
+      const cjkBoundary = isCJKPunctuation(text[i]);
+
       // 连续的句读符号 + 收尾引号/括号一并吃掉
       let j = i;
       while (j < text.length && SENTENCE_PUNCTUATION.includes(text[j])) j++;
       while (j < text.length && CLOSING_CHARS.includes(text[j])) j++;
 
-      if (isWhitespaceChar(text[j])) {
-        // 边界成立：标点后是空白或文本结尾
+      if (cjkBoundary || isWhitespaceChar(text[j])) {
+        // 边界成立：中文全角标点，或标点后是空白/文本结尾
         pushSpan(start, j);
         while (j < text.length && isWhitespaceChar(text[j])) j++;
         start = j;
@@ -278,7 +284,7 @@ export function prepareReadAloud(): { sentences: string[]; truncated: boolean } 
     if (segments.length === 0) continue;
 
     const combined = segments.map((s) => s.node.data).join("");
-    if (!isMostlyEnglish(combined)) continue;
+    if (!isReadableText(combined)) continue;
 
     for (const span of splitSentenceSpans(combined)) {
       if (sentences.length >= MAX_SENTENCES || totalChars >= MAX_TOTAL_CHARS) {
