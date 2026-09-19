@@ -125,6 +125,10 @@ CI=true npm run test --workspace apps/browser-extension   # 测试
 
 提交前请先搜索 [已有 Issue](https://github.com/zpvan/Linguride/issues) 避免重复。
 
+## 隐私
+
+插件不收集任何数据，API Key 仅存本机，详见 [PRIVACY.md](PRIVACY.md)。权限申请保持最小化（不申请 `tabs` / `history` / `cookies` 等）。
+
 ## License
 
 [MIT](LICENSE)

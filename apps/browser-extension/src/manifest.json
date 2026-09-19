@@ -45,8 +45,6 @@
   ],
   "permissions": [
     "storage",
-    "activeTab",
-    "tabs",
     "scripting",
     "clipboardWrite",
     "offscreen",
@@ -64,15 +62,5 @@
     "https://api.minimaxi.com/*",
     "https://openspeech.bytedance.com/*",
     "wss://openspeech.bytedance.com/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "src/permissions/permissions.html",
-        "src/tutor/tutor.html",
-        "src/corpus/corpus.html"
-      ],
-      "matches": ["<all_urls>"]
-    }
   ]
 }
