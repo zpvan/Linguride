@@ -4,7 +4,9 @@
  */
 
 import {
+  OFFSCREEN_TTS_PAUSE,
   OFFSCREEN_TTS_PLAY,
+  OFFSCREEN_TTS_RESUME,
   OFFSCREEN_TTS_STOP,
   OffscreenTTSMessage,
   OffscreenTTSPlayMessage,
@@ -59,6 +61,36 @@ function stopActivePlayback(response: OffscreenTTSResponse): void {
   }
 
   settlePlayback(activePlayback, response);
+}
+
+/**
+ * 暂停当前播放（不结算，播放 Promise 保持 pending 直到恢复或停止）
+ */
+function pauseActivePlayback(): OffscreenTTSResponse {
+  if (!activePlayback) {
+    return { success: false, error: "当前没有正在播放的音频" };
+  }
+
+  activePlayback.audio.pause();
+  return { success: true };
+}
+
+/** 恢复暂停的播放 */
+async function resumeActivePlayback(): Promise<OffscreenTTSResponse> {
+  if (!activePlayback) {
+    return { success: false, error: "当前没有暂停中的音频" };
+  }
+
+  try {
+    await activePlayback.audio.play();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: "扩展内音频恢复播放失败",
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 async function handlePlayMessage(
@@ -123,6 +155,14 @@ chrome.runtime.onMessage.addListener(
         stopActivePlayback({ success: true });
         sendResponse({ success: true });
         return false;
+
+      case OFFSCREEN_TTS_PAUSE:
+        sendResponse(pauseActivePlayback());
+        return false;
+
+      case OFFSCREEN_TTS_RESUME:
+        void resumeActivePlayback().then(sendResponse);
+        return true;
 
       default:
         return false;

@@ -90,6 +90,8 @@ import {
   ReadAloudProgressMessage,
   StartReadAloudResponse,
   StopReadAloudResponse,
+  PauseReadAloudResponse,
+  ResumeReadAloudResponse,
   GetReadAloudStateResponse,
   SynthesizeSpeechResponse,
   TestTTSConnectionResponse,
@@ -115,7 +117,9 @@ import {
   XiaomiTTSVoice,
 } from "../types";
 import {
+  OFFSCREEN_TTS_PAUSE,
   OFFSCREEN_TTS_PLAY,
+  OFFSCREEN_TTS_RESUME,
   OFFSCREEN_TTS_STOP,
   OffscreenTTSMessage,
   OffscreenTTSResponse,
@@ -821,6 +825,28 @@ async function stopOffscreenTTSPlayback(): Promise<void> {
   await chrome.runtime.sendMessage({
     type: OFFSCREEN_TTS_STOP,
   } as OffscreenTTSMessage);
+}
+
+/** 暂停 offscreen 当前播放；无播放中文档时静默成功（暂停发生在合成等待期） */
+async function pauseOffscreenTTSPlayback(): Promise<void> {
+  if (!(await hasTTSOffscreenDocument())) {
+    return;
+  }
+
+  await chrome.runtime.sendMessage({
+    type: OFFSCREEN_TTS_PAUSE,
+  } as OffscreenTTSMessage);
+}
+
+/** 恢复 offscreen 暂停的播放 */
+async function resumeOffscreenTTSPlayback(): Promise<OffscreenTTSResponse | null> {
+  if (!(await hasTTSOffscreenDocument())) {
+    return null;
+  }
+
+  return (await chrome.runtime.sendMessage({
+    type: OFFSCREEN_TTS_RESUME,
+  } as OffscreenTTSMessage)) as OffscreenTTSResponse | undefined ?? null;
 }
 
 async function playTTSAudioInOffscreen(
@@ -2171,13 +2197,18 @@ async function handleStopTTSPlayback(): Promise<StopTTSPlaybackResponse> {
  * 阅读全文会话状态
  *
  * 每次最多一个会话；loop 在后台运行，通过 stopped 标志与
- * offscreen 停止消息协作取消。
+ * offscreen 停止消息协作取消。暂停时 paused 置位：
+ * 正在播放的句子由 offscreen 暂停（播放 Promise 挂起），
+ * 合成等待期的句子由 resumeResolve 挂起，恢复时统一放行。
  */
 interface ReadAloudSession {
   tabId: number;
   sentences: string[];
   index: number;
   stopped: boolean;
+  paused: boolean;
+  /** 暂停时挂起朗读循环的放行回调（恢复/停止时调用） */
+  resumeResolve: (() => void) | null;
 }
 
 let readAloudSession: ReadAloudSession | null = null;
@@ -2186,7 +2217,11 @@ function handleGetReadAloudState(): GetReadAloudStateResponse {
   return {
     success: true,
     data: {
-      state: readAloudSession ? "playing" : "idle",
+      state: readAloudSession
+        ? readAloudSession.paused
+          ? "paused"
+          : "playing"
+        : "idle",
       index: readAloudSession?.index ?? 0,
       total: readAloudSession?.sentences.length ?? 0,
     },
@@ -2299,7 +2334,7 @@ async function handleStartReadAloud(): Promise<StartReadAloudResponse> {
       return { success: false, error: "当前页面没有可朗读的内容" };
     }
 
-    readAloudSession = { tabId, sentences, index: 0, stopped: false };
+    readAloudSession = { tabId, sentences, index: 0, stopped: false, paused: false, resumeResolve: null };
     void broadcastReadAloudProgress({
       state: "playing",
       index: 0,
@@ -2323,6 +2358,14 @@ async function handleStartReadAloud(): Promise<StartReadAloudResponse> {
 async function runReadAloudLoop(session: ReadAloudSession): Promise<void> {
   const total = session.sentences.length;
 
+  // 暂停时挂起循环（合成等待期场景），恢复或停止时放行
+  const waitIfPaused = (): Promise<void> => {
+    if (!session.paused || session.stopped) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      session.resumeResolve = resolve;
+    });
+  };
+
   try {
     const config = await getConfig();
     const rate = config.tts_speed || DEFAULT_TTS_SPEED;
@@ -2340,6 +2383,10 @@ async function runReadAloudLoop(session: ReadAloudSession): Promise<void> {
       const data = await nextAudio;
       if (session.stopped) break;
 
+      // 暂停发生在合成等待期：offscreen 尚无播放可暂停，在此挂起
+      await waitIfPaused();
+      if (session.stopped) break;
+
       session.index = i;
 
       // 页面不可达（如已关闭）则终止
@@ -2355,6 +2402,7 @@ async function runReadAloudLoop(session: ReadAloudSession): Promise<void> {
         nextAudio.catch(() => undefined);
       }
 
+      // 播放期暂停由 offscreen 挂起此 Promise，恢复后继续
       await playTTSAudioInOffscreen(data, rate);
     }
 
@@ -2384,7 +2432,12 @@ async function stopReadAloudSession(): Promise<void> {
   if (!session) return;
 
   session.stopped = true;
+  session.paused = false;
   readAloudSession = null;
+
+  // 放行可能挂起的暂停等待，朗读循环随之退出
+  session.resumeResolve?.();
+  session.resumeResolve = null;
 
   // 中断 offscreen 当前播放，朗读循环随之退出
   await stopOffscreenTTSPlayback();
@@ -2404,6 +2457,73 @@ async function handleStopReadAloud(): Promise<StopReadAloudResponse> {
     return {
       success: false,
       error: error instanceof Error ? error.message : "停止朗读失败",
+    };
+  }
+}
+
+/**
+ * 处理 PAUSE_READ_ALOUD 消息
+ *
+ * 播放中的句子由 offscreen 暂停；合成等待期则仅置 paused 标志，
+ * 朗读循环在下一句播放前挂起。
+ */
+async function handlePauseReadAloud(): Promise<PauseReadAloudResponse> {
+  const session = readAloudSession;
+  if (!session || session.stopped) {
+    return { success: false, error: "当前没有朗读会话" };
+  }
+  if (session.paused) {
+    return { success: true };
+  }
+
+  try {
+    session.paused = true;
+    await pauseOffscreenTTSPlayback();
+    void broadcastReadAloudProgress({
+      state: "paused",
+      index: session.index,
+      total: session.sentences.length,
+    });
+    return { success: true };
+  } catch (error) {
+    session.paused = false;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "暂停朗读失败",
+    };
+  }
+}
+
+/**
+ * 处理 RESUME_READ_ALOUD 消息
+ *
+ * 恢复 offscreen 播放，并放行合成等待期挂起的朗读循环。
+ */
+async function handleResumeReadAloud(): Promise<ResumeReadAloudResponse> {
+  const session = readAloudSession;
+  if (!session || session.stopped) {
+    return { success: false, error: "当前没有朗读会话" };
+  }
+  if (!session.paused) {
+    return { success: true };
+  }
+
+  try {
+    session.paused = false;
+    await resumeOffscreenTTSPlayback();
+    session.resumeResolve?.();
+    session.resumeResolve = null;
+    void broadcastReadAloudProgress({
+      state: "playing",
+      index: session.index,
+      total: session.sentences.length,
+    });
+    return { success: true };
+  } catch (error) {
+    session.paused = true;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "继续朗读失败",
     };
   }
 }
@@ -3890,6 +4010,14 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.STOP_READ_ALOUD:
           response = await handleStopReadAloud();
+          break;
+
+        case MessageType.PAUSE_READ_ALOUD:
+          response = await handlePauseReadAloud();
+          break;
+
+        case MessageType.RESUME_READ_ALOUD:
+          response = await handleResumeReadAloud();
           break;
 
         case MessageType.GET_READ_ALOUD_STATE:

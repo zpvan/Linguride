@@ -135,6 +135,10 @@ export enum MessageType {
   START_READ_ALOUD = "START_READ_ALOUD",
   /** 停止阅读全文（侧边栏 → Background） */
   STOP_READ_ALOUD = "STOP_READ_ALOUD",
+  /** 暂停阅读全文（侧边栏 → Background） */
+  PAUSE_READ_ALOUD = "PAUSE_READ_ALOUD",
+  /** 继续阅读全文（侧边栏 → Background） */
+  RESUME_READ_ALOUD = "RESUME_READ_ALOUD",
   /** 查询阅读全文状态（侧边栏 → Background） */
   GET_READ_ALOUD_STATE = "GET_READ_ALOUD_STATE",
   /** 提取页面句子供朗读（Background → Content） */
@@ -455,6 +459,20 @@ export interface StopReadAloudMessage {
 }
 
 /**
+ * 暂停阅读全文消息（侧边栏 → Background）
+ */
+export interface PauseReadAloudMessage {
+  type: MessageType.PAUSE_READ_ALOUD;
+}
+
+/**
+ * 继续阅读全文消息（侧边栏 → Background）
+ */
+export interface ResumeReadAloudMessage {
+  type: MessageType.RESUME_READ_ALOUD;
+}
+
+/**
  * 查询阅读全文状态消息（侧边栏 → Background）
  */
 export interface GetReadAloudStateMessage {
@@ -462,7 +480,7 @@ export interface GetReadAloudStateMessage {
 }
 
 /** 阅读全文状态 */
-export type ReadAloudState = "idle" | "playing";
+export type ReadAloudState = "idle" | "playing" | "paused";
 
 /**
  * 阅读全文状态数据
@@ -702,6 +720,8 @@ export type Message =
   | StopTTSPlaybackMessage
   | StartReadAloudMessage
   | StopReadAloudMessage
+  | PauseReadAloudMessage
+  | ResumeReadAloudMessage
   | GetReadAloudStateMessage
   | ReadAloudPrepareMessage
   | ReadAloudHighlightMessage
@@ -985,6 +1005,16 @@ export type StartReadAloudResponse = BaseResponse;
  * 停止阅读全文响应
  */
 export type StopReadAloudResponse = BaseResponse;
+
+/**
+ * 暂停阅读全文响应
+ */
+export type PauseReadAloudResponse = BaseResponse;
+
+/**
+ * 继续阅读全文响应
+ */
+export type ResumeReadAloudResponse = BaseResponse;
 
 /**
  * 阅读全文状态查询响应

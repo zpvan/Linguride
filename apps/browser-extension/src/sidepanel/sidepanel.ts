@@ -72,6 +72,7 @@ import {
   ReadAloudProgressMessage,
   StartReadAloudResponse,
   StopReadAloudResponse,
+  PauseReadAloudResponse,
   isDoubaoASRConfigured,
   isMiniMaxASRConfigured,
   isXiaomiASRConfigured,
@@ -178,6 +179,9 @@ const selectionHint = document.getElementById("selectionHint") as HTMLElement;
 // 阅读全文
 const readAloudBtn = document.getElementById(
   "readAloudBtn"
+) as HTMLButtonElement;
+const readAloudPauseBtn = document.getElementById(
+  "readAloudPauseBtn"
 ) as HTMLButtonElement;
 const readAloudStatus = document.getElementById(
   "readAloudStatus"
@@ -1088,6 +1092,9 @@ function bindEvents(): void {
   analyzeDifficultyBtn.addEventListener("click", handleAnalyzeDifficulty);
   readAloudBtn.addEventListener("click", () => {
     void handleReadAloudToggle();
+  });
+  readAloudPauseBtn.addEventListener("click", () => {
+    void handleReadAloudPauseToggle();
   });
 
   // Settings - API 配置自动保存
@@ -2738,22 +2745,31 @@ function renderDifficultyResult(result: DifficultyResult): void {
 
 // ====== 阅读全文 ======
 
-/** 当前是否处于朗读状态（侧边栏本地镜像，以 Background 为准） */
-let isReadAloudPlaying = false;
+/** 当前朗读状态（侧边栏本地镜像，以 Background 为准） */
+let readAloudState: "idle" | "playing" | "paused" = "idle";
 
 function updateReadAloudUI(
-  state: "idle" | "playing" | "finished" | "error",
+  state: "idle" | "playing" | "paused" | "finished" | "error",
   index: number,
   total: number,
   error?: string
 ): void {
-  isReadAloudPlaying = state === "playing";
+  readAloudState =
+    state === "playing" || state === "paused" ? state : "idle";
 
-  readAloudBtn.textContent = isReadAloudPlaying ? "停止朗读" : "阅读全文";
+  const inSession = state === "playing" || state === "paused";
+  readAloudBtn.textContent = inSession ? "停止朗读" : "阅读全文";
+
+  // 暂停/继续按钮仅在朗读会话中可见
+  readAloudPauseBtn.style.display = inSession ? "" : "none";
+  readAloudPauseBtn.textContent = state === "paused" ? "继续" : "暂停";
 
   switch (state) {
     case "playing":
       showStatus(readAloudStatus, `朗读中 ${index + 1} / ${total}`, "loading");
+      break;
+    case "paused":
+      showStatus(readAloudStatus, `已暂停 ${index + 1} / ${total}`, "loading");
       break;
     case "finished":
       showStatus(readAloudStatus, "朗读完成", "success");
@@ -2772,7 +2788,7 @@ async function handleReadAloudToggle(): Promise<void> {
   readAloudBtn.disabled = true;
 
   try {
-    if (isReadAloudPlaying) {
+    if (readAloudState !== "idle") {
       const response: StopReadAloudResponse = await chrome.runtime.sendMessage({
         type: MessageType.STOP_READ_ALOUD,
       });
@@ -2798,6 +2814,33 @@ async function handleReadAloudToggle(): Promise<void> {
   }
 }
 
+/** 暂停/继续朗读（状态由 READ_ALOUD_PROGRESS 广播刷新） */
+async function handleReadAloudPauseToggle(): Promise<void> {
+  readAloudPauseBtn.disabled = true;
+
+  try {
+    const response: PauseReadAloudResponse =
+      await chrome.runtime.sendMessage({
+        type:
+          readAloudState === "paused"
+            ? MessageType.RESUME_READ_ALOUD
+            : MessageType.PAUSE_READ_ALOUD,
+      });
+    if (!response.success) {
+      showStatus(
+        readAloudStatus,
+        response.error ||
+          (readAloudState === "paused" ? "继续朗读失败" : "暂停朗读失败"),
+        "error"
+      );
+    }
+  } catch {
+    showStatus(readAloudStatus, "暂停请求发送失败", "error");
+  } finally {
+    readAloudPauseBtn.disabled = false;
+  }
+}
+
 /** 打开侧边栏时恢复朗读状态（朗读可能在侧边栏关闭期间持续进行） */
 async function restoreReadAloudState(): Promise<void> {
   try {
@@ -2805,8 +2848,12 @@ async function restoreReadAloudState(): Promise<void> {
       { type: MessageType.GET_READ_ALOUD_STATE }
     );
     if (response.success && response.data) {
-      if (response.data.state === "playing") {
-        updateReadAloudUI("playing", response.data.index, response.data.total);
+      if (response.data.state === "playing" || response.data.state === "paused") {
+        updateReadAloudUI(
+          response.data.state,
+          response.data.index,
+          response.data.total
+        );
       } else {
         updateReadAloudUI("idle", 0, 0);
       }
