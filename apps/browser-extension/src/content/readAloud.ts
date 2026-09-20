@@ -182,7 +182,7 @@ export function splitSentenceSpans(
 }
 
 /** 规范化朗读文本：去零宽字符、折叠空白 */
-function normalizeSentenceText(text: string): string {
+export function normalizeSentenceText(text: string): string {
   return text.replace(ZERO_WIDTH_PATTERN, "").replace(/\s+/g, " ").trim();
 }
 

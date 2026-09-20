@@ -466,3 +466,12 @@
   color: inherit;
   text-decoration: none;
 }
+
+/* ====== 划词发音：当前朗读句子高亮 ======
+ * 与 selectionToolbar.ts 中的 SELECTION_SPEECH_HIGHLIGHT_NAME 对应。
+ */
+::highlight(lingride-selection-speech) {
+  background-color: rgba(255, 214, 10, 0.35);
+  color: inherit;
+  text-decoration: none;
+}

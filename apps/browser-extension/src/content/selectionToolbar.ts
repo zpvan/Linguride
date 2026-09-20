@@ -25,6 +25,7 @@ import {
 } from "../types";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 import { getCachedTranslation, setCachedTranslation } from "./translationCache";
+import { normalizeSentenceText, splitSentenceSpans } from "./readAloud";
 
 type CardAction = "translate" | "definition" | "analyze";
 type ToolbarAction = CardAction | "pronounce";
@@ -56,6 +57,15 @@ const TTS_FALLBACK_WARNING_MESSAGE =
   "AI 语音合成暂不可用，已切换为浏览器朗读";
 const TTS_PLAYBACK_ERROR_MESSAGE =
   "朗读失败，请检查语音合成配置或浏览器语音能力";
+
+/** 划词发音高亮名称（与 styles.css 中的 ::highlight 对应） */
+const SELECTION_SPEECH_HIGHLIGHT_NAME = "lingride-selection-speech";
+
+/** 句读符号（与 readAloud.ts 断句口径一致） */
+const SENTENCE_END_PUNCTUATION = ".!?…。！？";
+
+/** 句子扩展上限（无句读符号的超长文本节点退化为只高亮选区） */
+const MAX_SPEECH_HIGHLIGHT_CHARS = 500;
 
 const ACTION_LABELS: Record<ToolbarAction, string> = {
   translate: "翻译",
@@ -394,7 +404,7 @@ function handleRootClick(event: Event): void {
   if (!currentText) return;
 
   if (action === "pronounce") {
-    toggleSpeakText(currentText, "en-US", button);
+    toggleSpeakText(currentText, "en-US", button, true);
     return;
   }
 
@@ -1285,10 +1295,246 @@ function getSentenceAnalysisSpeakConfig(
   };
 }
 
+/**
+ * 把选区 Range 扩展为所在句子的 Range。
+ *
+ * - 选区跨节点：直接高亮整个选区（通常已是完整句子）
+ * - 单词/短语（同一文本节点内）：向两侧扫描句读符号扩展为整句，
+ *   超长文本节点（无标点）退化为只高亮选区
+ */
+function buildSpeechSentenceRange(range: Range): Range {
+  const { startContainer, endContainer, startOffset, endOffset } = range;
+
+  if (
+    startContainer === endContainer &&
+    startContainer.nodeType === Node.TEXT_NODE
+  ) {
+    const data = (startContainer as Text).data;
+
+    let start = startOffset;
+    while (start > 0 && !SENTENCE_END_PUNCTUATION.includes(data[start - 1])) {
+      start--;
+    }
+
+    let end = endOffset;
+    while (end < data.length && !SENTENCE_END_PUNCTUATION.includes(data[end])) {
+      end++;
+    }
+    // 吃掉收尾的句读符号本身
+    if (end < data.length) end++;
+
+    // 去掉首尾空白
+    while (start < end && /\s/.test(data[start])) start++;
+    while (end > start && /\s/.test(data[end - 1])) end--;
+
+    if (end > start && end - start <= MAX_SPEECH_HIGHLIGHT_CHARS) {
+      const sentenceRange = document.createRange();
+      sentenceRange.setStart(startContainer, start);
+      sentenceRange.setEnd(startContainer, end);
+      return sentenceRange;
+    }
+  }
+
+  return range;
+}
+
+/**
+ * 高亮指定 Ranges（CSS Custom Highlight API，不改动 DOM）。
+ */
+function setSpeechHighlightRanges(ranges: Range[]): void {
+  clearSpeechHighlight();
+
+  if (ranges.length === 0 || !("highlights" in CSS)) return;
+
+  try {
+    CSS.highlights.set(
+      SELECTION_SPEECH_HIGHLIGHT_NAME,
+      new Highlight(...ranges)
+    );
+  } catch {
+    // 选区失效（DOM 已变化）时静默放弃高亮
+  }
+}
+
+/**
+ * 发音时高亮页面中当前朗读的句子（单句场景：整句一起高亮）。
+ */
+function applySpeechHighlight(): void {
+  if (!currentRange) {
+    clearSpeechHighlight();
+    return;
+  }
+  setSpeechHighlightRanges([buildSpeechSentenceRange(currentRange)]);
+}
+
+/**
+ * 清除发音句子高亮。
+ */
+function clearSpeechHighlight(): void {
+  if ("highlights" in CSS) {
+    CSS.highlights.delete(SELECTION_SPEECH_HIGHLIGHT_NAME);
+  }
+}
+
+/** 逐句朗读项：朗读文本 + 页面 Range（用于逐句高亮） */
+interface SpeechSentenceItem {
+  text: string;
+  ranges: Range[];
+}
+
+/** 选区覆盖的文本节点段（node 内区间 + 拼接文本中的区间） */
+interface SpeechTextSegment {
+  node: Text;
+  nodeStart: number;
+  nodeEnd: number;
+  start: number;
+  end: number;
+}
+
+/**
+ * 收集选区覆盖的文本节点，拼接为连续文本。
+ *
+ * 相邻段之间若无空白则补一个空格：跨块选区（如两段）直接拼接会产生
+ * "end.Start" 粘连导致无法断句；行内格式切分（<b> 等）通常自带空白，
+ * 即便个别单词被拆开也只是朗读时多一个微小停顿，不影响高亮准确性。
+ */
+function collectSpeechSegments(range: Range): {
+  segments: SpeechTextSegment[];
+  combined: string;
+} {
+  const segments: SpeechTextSegment[] = [];
+  const root = range.commonAncestorContainer;
+  const walkRoot =
+    root.nodeType === Node.TEXT_NODE ? root.parentNode : root;
+  if (!walkRoot) return { segments, combined: "" };
+
+  const nodes: Text[] = [];
+  if (root.nodeType === Node.TEXT_NODE) {
+    nodes.push(root as Text);
+  }
+  const walker = document.createTreeWalker(walkRoot, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode() as Text | null;
+  while (node) {
+    nodes.push(node);
+    node = walker.nextNode() as Text | null;
+  }
+
+  let combined = "";
+  for (const textNode of nodes) {
+    if (!range.intersectsNode(textNode)) continue;
+
+    const nodeStart =
+      textNode === range.startContainer ? range.startOffset : 0;
+    const nodeEnd =
+      textNode === range.endContainer
+        ? range.endOffset
+        : textNode.data.length;
+    if (nodeEnd <= nodeStart) continue;
+
+    const text = textNode.data.slice(nodeStart, nodeEnd);
+    if (combined && !/\s$/.test(combined) && !/^\s/.test(text)) {
+      combined += " ";
+    }
+
+    segments.push({
+      node: textNode,
+      nodeStart,
+      nodeEnd,
+      start: combined.length,
+      end: combined.length + text.length,
+    });
+    combined += text;
+  }
+
+  return { segments, combined };
+}
+
+/**
+ * 把选区切分为逐句朗读项（断句逻辑与阅读全文一致）。
+ *
+ * 返回空数组表示无法映射（如选区已失效）；单句时长度为 1。
+ */
+function buildSpeechSentenceItems(range: Range): SpeechSentenceItem[] {
+  const { segments, combined } = collectSpeechSegments(range);
+  if (!combined.trim()) return [];
+
+  const items: SpeechSentenceItem[] = [];
+  for (const span of splitSentenceSpans(combined)) {
+    const text = normalizeSentenceText(combined.slice(span.start, span.end));
+    if (!text) continue;
+
+    const ranges: Range[] = [];
+    for (const segment of segments) {
+      const overlapStart = Math.max(span.start, segment.start);
+      const overlapEnd = Math.min(span.end, segment.end);
+      if (overlapStart < overlapEnd) {
+        const sentenceRange = document.createRange();
+        sentenceRange.setStart(
+          segment.node,
+          segment.nodeStart + (overlapStart - segment.start)
+        );
+        sentenceRange.setEnd(
+          segment.node,
+          segment.nodeStart + (overlapEnd - segment.start)
+        );
+        ranges.push(sentenceRange);
+      }
+      if (segment.end >= span.end) break;
+    }
+
+    if (ranges.length > 0) {
+      items.push({ text, ranges });
+    }
+  }
+
+  return items;
+}
+
+/**
+ * 逐句播放：播到哪句就只高亮哪句。
+ */
+async function playSpeechSentences(
+  items: SpeechSentenceItem[],
+  lang: SpeechLanguage,
+  requestId: number
+): Promise<void> {
+  for (let i = 0; i < items.length; i++) {
+    if (requestId !== speechRequestId) return;
+
+    setSpeechHighlightRanges(items[i].ranges);
+
+    try {
+      await selectionTTSPlayer.playText({
+        text: items[i].text,
+        lang,
+        rate: currentTTSSpeed,
+        // 回退警告只提示一次，避免逐句播放时反复弹
+        onFallbackWarning:
+          i === 0
+            ? (message) => showTransientSpeechMessage(message, false)
+            : undefined,
+        fallbackWarningMessage: TTS_FALLBACK_WARNING_MESSAGE,
+      });
+    } catch (error) {
+      if (requestId !== speechRequestId) return;
+      showTransientSpeechMessage(
+        error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
+        true
+      );
+      break;
+    }
+  }
+
+  if (requestId !== speechRequestId) return;
+  clearSpeakingButton();
+  clearSpeechHighlight();
+}
+
 function toggleSpeakText(
   text: string,
   lang: SpeechLanguage,
-  button: HTMLButtonElement
+  button: HTMLButtonElement,
+  trackSentences = false
 ): void {
   const normalizedText = text.trim();
   if (!normalizedText) return;
@@ -1306,13 +1552,14 @@ function toggleSpeakText(
     return;
   }
 
-  startSelectionSpeech(normalizedText, lang, button);
+  startSelectionSpeech(normalizedText, lang, button, trackSentences);
 }
 
 function startSelectionSpeech(
   text: string,
   lang: SpeechLanguage,
-  button: HTMLButtonElement
+  button: HTMLButtonElement,
+  trackSentences = false
 ): void {
   speechRequestId++;
   selectionTTSPlayer.stop();
@@ -1323,6 +1570,23 @@ function startSelectionSpeech(
   activeSpeechButton = button;
   setSpeakingButtonState(button, true);
 
+  // 原生选区的绘制层级高于 ::highlight，留着选区会遮住黄色高亮；
+  // 取消选区并短暂忽略随之触发的 selectionchange，防止工具条被误隐藏
+  ignoreSelectionChangeUntil = Date.now() + 220;
+  window.getSelection()?.removeAllRanges();
+
+  // 多句选区：逐句播放，读到哪句就只高亮哪句
+  const items =
+    trackSentences && currentRange
+      ? buildSpeechSentenceItems(currentRange)
+      : [];
+  if (items.length > 1) {
+    void playSpeechSentences(items, lang, requestId);
+    return;
+  }
+
+  applySpeechHighlight();
+
   void selectionTTSPlayer
     .playText({
       text,
@@ -1331,6 +1595,7 @@ function startSelectionSpeech(
       onEnd: () => {
         if (requestId !== speechRequestId) return;
         clearSpeakingButton();
+        clearSpeechHighlight();
       },
       onFallbackWarning: (message) => {
         showTransientSpeechMessage(message, false);
@@ -1340,6 +1605,7 @@ function startSelectionSpeech(
     .catch((error) => {
       if (requestId !== speechRequestId) return;
       clearSpeakingButton();
+      clearSpeechHighlight();
       showTransientSpeechMessage(
         error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
         true
@@ -1351,6 +1617,7 @@ function stopSelectionSpeech(): void {
   speechRequestId++;
   selectionTTSPlayer.stop();
   clearSpeakingButton();
+  clearSpeechHighlight();
 }
 
 function clearSpeakingButton(): void {
