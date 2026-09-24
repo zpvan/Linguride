@@ -427,9 +427,17 @@ function handleViewportChanged(): void {
 }
 
 function handleKeyDown(event: KeyboardEvent): void {
-  if (!isVisible()) return;
-  if (event.key === "Escape") {
+  if (event.key !== "Escape") return;
+
+  if (isVisible()) {
     hideToolbar();
+    return;
+  }
+
+  // 发音期间工具条已隐藏：Esc 停止朗读并清除高亮
+  // （用 activeSpeechButton 而非 isPlaying() 判断，覆盖逐句播放的句间间隙）
+  if (activeSpeechButton) {
+    stopSelectionSpeech();
   }
 }
 
@@ -667,6 +675,21 @@ function hideToolbar(): void {
 
 function isVisible(): boolean {
   return !!rootEl && rootEl.isConnected && rootEl.style.display !== "none";
+}
+
+/**
+ * 发音期间隐藏工具条，避免遮挡原文。
+ *
+ * 不能调 hideToolbar()（会停止播放并清空选区状态），只隐藏视觉；
+ * 播放结束后保持隐藏，再次划词会正常唤出。
+ */
+function concealToolbarForSpeech(): void {
+  if (!rootEl) return;
+
+  setActiveAction(null);
+  resetCard();
+  rootEl.classList.remove("is-visible", "has-card");
+  rootEl.style.display = "none";
 }
 
 function scheduleReposition(): void {
@@ -1517,6 +1540,8 @@ async function playSpeechSentences(
       });
     } catch (error) {
       if (requestId !== speechRequestId) return;
+      // 播放失败：唤回工具条以展示错误提示
+      showToolbar();
       showTransientSpeechMessage(
         error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
         true
@@ -1580,6 +1605,10 @@ function startSelectionSpeech(
     trackSentences && currentRange
       ? buildSpeechSentenceItems(currentRange)
       : [];
+
+  // 隐藏工具条，避免朗读期间遮挡原文
+  concealToolbarForSpeech();
+
   if (items.length > 1) {
     void playSpeechSentences(items, lang, requestId);
     return;
@@ -1606,6 +1635,8 @@ function startSelectionSpeech(
       if (requestId !== speechRequestId) return;
       clearSpeakingButton();
       clearSpeechHighlight();
+      // 播放失败：唤回工具条以展示错误提示
+      showToolbar();
       showTransientSpeechMessage(
         error instanceof Error ? error.message : TTS_PLAYBACK_ERROR_MESSAGE,
         true
