@@ -26,6 +26,7 @@ import {
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 import { getCachedTranslation, setCachedTranslation } from "./translationCache";
 import { normalizeSentenceText, splitSentenceSpans } from "./readAloud";
+import { sendMessageToBackground } from "./extensionContext";
 
 type CardAction = "translate" | "definition" | "analyze";
 type ToolbarAction = CardAction | "pronounce";
@@ -857,13 +858,13 @@ async function requestTranslate(text: string): Promise<string> {
     .toString(36)
     .slice(2, 8)}`;
 
-  const response = (await chrome.runtime.sendMessage({
+  const response = await sendMessageToBackground<TranslateResponse>({
     type: MessageType.TRANSLATE,
     payload: {
       texts: [text],
       batchId,
     },
-  })) as TranslateResponse;
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "翻译失败");
@@ -883,13 +884,13 @@ async function requestDefinition(
 ): Promise<NonNullable<EnglishDefinitionResponse["data"]>> {
   const userLevel = await getUserLevel();
 
-  const response = (await chrome.runtime.sendMessage({
+  const response = await sendMessageToBackground<EnglishDefinitionResponse>({
     type: MessageType.ENGLISH_DEFINITION,
     payload: {
       text,
       userLevel,
     },
-  })) as EnglishDefinitionResponse;
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "获取释义失败");
@@ -901,12 +902,12 @@ async function requestDefinition(
 async function requestSentenceAnalysis(
   text: string
 ): Promise<SentenceAnalysisResult> {
-  const response = (await chrome.runtime.sendMessage({
+  const response = await sendMessageToBackground<AnalyzeSentenceResponse>({
     type: MessageType.ANALYZE_SENTENCE,
     payload: {
       sentence: text,
     },
-  })) as AnalyzeSentenceResponse;
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "句法分析失败");
@@ -921,9 +922,9 @@ async function getUserLevel(): Promise<CEFRLevel> {
   }
 
   try {
-    const response = (await chrome.runtime.sendMessage({
+    const response = await sendMessageToBackground<GetConfigResponse>({
       type: MessageType.GET_CONFIG,
-    })) as GetConfigResponse;
+    });
 
     const candidate = response.data?.user_english_level;
     if (response.success && candidate && CEFR_LEVELS.includes(candidate)) {
@@ -1704,9 +1705,9 @@ function showTransientSpeechMessage(message: string, isError: boolean): void {
 
 async function loadSelectionPreferences(): Promise<void> {
   try {
-    const response = (await chrome.runtime.sendMessage({
+    const response = await sendMessageToBackground<GetConfigResponse>({
       type: MessageType.GET_CONFIG,
-    })) as GetConfigResponse;
+    });
 
     if (!response.success || !response.data) {
       return;

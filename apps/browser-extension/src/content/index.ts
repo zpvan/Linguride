@@ -22,7 +22,10 @@
 import {
   ExtractPageTextResponse,
   MessageType,
+  MixedTranslateResponse,
+  ParaphraseResponse,
   TranslatableElement,
+  TranslateResponse,
 } from "../types";
 import {
   OFFSCREEN_TTS_PLAY,
@@ -62,6 +65,7 @@ import {
 } from "./translationInjector";
 import { initSelectionToolbar } from "./selectionToolbar";
 import { ViewportObserver } from "./viewportObserver";
+import { sendMessageToBackground } from "./extensionContext";
 import {
   clearReadAloudHighlight,
   highlightReadAloudSentence,
@@ -316,7 +320,7 @@ async function translateBatch(
 
   try {
     // 发送翻译请求到 Background
-    const response = await chrome.runtime.sendMessage({
+    const response = await sendMessageToBackground<TranslateResponse>({
       type: MessageType.TRANSLATE,
       payload: { texts, batchId },
     });
@@ -565,7 +569,7 @@ async function paraphraseBatch(
 
   try {
     // 发送释义请求到 Background
-    const response = await chrome.runtime.sendMessage({
+    const response = await sendMessageToBackground<ParaphraseResponse>({
       type: MessageType.PARAPHRASE,
       payload: { texts, batchId },
     });
@@ -815,7 +819,7 @@ async function mixedTranslateBatch(
 
   try {
     // 发送混杂翻译请求到 Background
-    const response = await chrome.runtime.sendMessage({
+    const response = await sendMessageToBackground<MixedTranslateResponse>({
       type: MessageType.MIXED_TRANSLATE,
       payload: { texts, batchId },
     });
