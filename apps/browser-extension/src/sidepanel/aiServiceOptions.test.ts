@@ -1,21 +1,24 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   AI_PROVIDER_BASE_URL_PRESETS,
   CUSTOM_MODEL_PLACEHOLDER,
   DEEPSEEK_MODEL_OPTIONS_FALLBACK,
   GLM_MODEL_OPTIONS,
+  LATEST_MODEL_OPTIONS_LIMIT,
   MINIMAX_DEFAULT_MODEL,
   MINIMAX_ENDPOINT_OPTIONS,
   MINIMAX_MODEL_OPTIONS,
-  fetchDeepSeekModels,
   getCachedDeepSeekModels,
+  getCachedProviderModels,
   getDeepSeekModelOptions,
   getDefaultModelForProvider,
   getStaticModelOptions,
   normalizeMiniMaxAIBaseUrl,
   normalizeModelForProviderSwitch,
-  setCachedDeepSeekModels,
+  pickLatestModelOptions,
+  refreshProviderModelOptions,
+  setCachedProviderModels,
 } from "./aiServiceOptions";
 
 describe("aiServiceOptions", () => {
@@ -166,6 +169,175 @@ describe("DeepSeek 模型列表缓存", () => {
       // 如果有缓存，不会发出网络请求
       const result = await getDeepSeekModelOptions("fake-key");
       expect(result).toEqual(cached);
+    });
+  });
+});
+
+describe("模型列表动态刷新", () => {
+  let store: Record<string, string>;
+
+  beforeEach(() => {
+    store = {};
+    Object.defineProperty(globalThis, "localStorage", {
+      value: {
+        getItem: (key: string) => store[key] ?? null,
+        setItem: (key: string, value: string) => {
+          store[key] = value;
+        },
+        removeItem: (key: string) => {
+          delete store[key];
+        },
+        clear: () => {
+          store = {};
+        },
+      },
+      writable: true,
+    });
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  describe("pickLatestModelOptions", () => {
+    it("有创建时间时按时间倒序取最新 6 个", () => {
+      const items = Array.from({ length: 8 }, (_, i) => ({
+        id: `model-${i + 1}`,
+        created: 1000 + i,
+      }));
+
+      const options = pickLatestModelOptions(items);
+
+      expect(options).toHaveLength(LATEST_MODEL_OPTIONS_LIMIT + 1);
+      expect(options[0].value).toBe("model-8");
+      expect(options[5].value).toBe("model-3");
+      expect(options[6]).toEqual({ value: "custom", label: "自定义..." });
+    });
+
+    it("兼容 ISO 字符串形式的创建时间", () => {
+      const options = pickLatestModelOptions([
+        { id: "old-model", created: Date.parse("2024-01-01T00:00:00Z") },
+        { id: "new-model", created: Date.parse("2026-01-01T00:00:00Z") },
+      ]);
+
+      expect(options[0].value).toBe("new-model");
+    });
+
+    it("无创建时间时按模型 ID 版本号倒序", () => {
+      const options = pickLatestModelOptions([
+        { id: "MiniMax-M2" },
+        { id: "MiniMax-M3" },
+        { id: "MiniMax-M2.7" },
+        { id: "MiniMax-M2.7-highspeed" },
+      ]);
+
+      expect(options.map((option) => option.value)).toEqual([
+        "MiniMax-M3",
+        "MiniMax-M2.7-highspeed",
+        "MiniMax-M2.7",
+        "MiniMax-M2",
+        "custom",
+      ]);
+    });
+
+    it("不足 6 个时全部保留", () => {
+      const options = pickLatestModelOptions([
+        { id: "deepseek-chat" },
+        { id: "deepseek-reasoner" },
+      ]);
+
+      expect(options).toHaveLength(3);
+      expect(options[2]).toEqual({ value: "custom", label: "自定义..." });
+    });
+  });
+
+  describe("refreshProviderModelOptions", () => {
+    it("不支持的服务商或缺少 API Key 时返回 null", async () => {
+      expect(await refreshProviderModelOptions("openai", "key")).toBeNull();
+      expect(await refreshProviderModelOptions("custom", "key")).toBeNull();
+      expect(await refreshProviderModelOptions("minimax", "")).toBeNull();
+    });
+
+    it("MiniMax：请求 Anthropic 兼容端点并携带 x-api-key，结果写入缓存", async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: "MiniMax-M2", created_at: "2025-01-01T00:00:00Z" },
+            { id: "MiniMax-M2.7", created_at: "2026-01-01T00:00:00Z" },
+            { id: "MiniMax-M3", created_at: "2026-06-01T00:00:00Z" },
+          ],
+        }),
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const options = await refreshProviderModelOptions(
+        "minimax",
+        "test-key",
+        "https://api.minimaxi.com/anthropic"
+      );
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.minimaxi.com/anthropic/v1/models",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "x-api-key": "test-key",
+            "Authorization": "Bearer test-key",
+          }),
+        })
+      );
+      expect(options?.map((option) => option.value)).toEqual([
+        "MiniMax-M3",
+        "MiniMax-M2.7",
+        "MiniMax-M2",
+        "custom",
+      ]);
+      expect(getCachedProviderModels("minimax")).toEqual(options);
+      // 刷新后 getStaticModelOptions 优先返回缓存列表
+      expect(await getStaticModelOptions("minimax")).toEqual(options);
+    });
+
+    it("GLM：请求 OpenAI 兼容端点，超过 6 个时只保留最新 6 个", async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: "glm-4-air" },
+            { id: "glm-4.5" },
+            { id: "glm-4.5-air" },
+            { id: "glm-4.5-flash" },
+            { id: "glm-4.6" },
+            { id: "glm-4-plus" },
+            { id: "glm-4" },
+            { id: "embedding-3" },
+          ],
+        }),
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const options = await refreshProviderModelOptions("glm", "test-key");
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://open.bigmodel.cn/api/paas/v4/models",
+        expect.anything()
+      );
+      expect(options).toHaveLength(LATEST_MODEL_OPTIONS_LIMIT + 1);
+      expect(options?.[0].value).toBe("glm-4.6");
+      expect(options?.[6]).toEqual({ value: "custom", label: "自定义..." });
+      expect(await getStaticModelOptions("glm")).toEqual(options);
+    });
+
+    it("拉取失败时返回 null 且不破坏已有缓存", async () => {
+      const cached = [{ value: "MiniMax-M3", label: "MiniMax-M3" }];
+      setCachedProviderModels("minimax", cached);
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: false, status: 401 })
+      );
+
+      const options = await refreshProviderModelOptions("minimax", "bad-key");
+
+      expect(options).toBeNull();
+      expect(getCachedProviderModels("minimax")).toEqual(cached);
     });
   });
 });

@@ -86,6 +86,7 @@ import {
   getStaticModelOptions,
   normalizeMiniMaxAIBaseUrl,
   normalizeModelForProviderSwitch,
+  refreshProviderModelOptions,
   type ModelOption,
 } from "./aiServiceOptions";
 
@@ -2578,9 +2579,20 @@ async function testConnection(): Promise<void> {
     });
 
     if (response.success && response.data) {
+      // 连接成功后顺便拉取当前服务商的可用模型列表，更新下拉框（展示最新 6 个）
+      const refreshedModels = await refreshProviderModelOptions(
+        getCurrentApiProvider(),
+        currentConfig.api_key,
+        currentConfig.api_base_url
+      );
+      if (refreshedModels) {
+        await updateAiServiceForm();
+      }
+
       showStatus(
         connectionStatus,
-        `连接成功！延迟: ${response.data.latency}ms`,
+        `连接成功！延迟: ${response.data.latency}ms` +
+          (refreshedModels ? "，模型列表已更新" : ""),
         "success"
       );
     } else {

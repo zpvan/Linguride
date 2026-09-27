@@ -822,6 +822,16 @@ export interface DeepSeekModelCache {
 export const DEEPSEEK_CACHE_KEY = "deepseek_models_cache";
 
 /**
+ * GLM 模型缓存存储键名
+ */
+export const GLM_MODELS_CACHE_KEY = "glm_models_cache";
+
+/**
+ * MiniMax 模型缓存存储键名
+ */
+export const MINIMAX_MODELS_CACHE_KEY = "minimax_models_cache";
+
+/**
  * DeepSeek 模型缓存过期时间（24 小时）
  */
 export const DEEPSEEK_CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000;
