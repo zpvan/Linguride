@@ -10,8 +10,8 @@ import {
   DOUBAO_ASR_WS_URL,
   DoubaoASRPrepareResponse,
   MessageType,
-} from "../types";
-import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
+} from "../../types";
+import type { ISpeechRecognizer } from "../../types/pronunciationAssessment";
 import { acquireStream, releaseStream } from "./audioCapture";
 import { createPCMCapture, PCM_TARGET_SAMPLE_RATE } from "./pcmCapture";
 import type { PCMCapture } from "./pcmCapture";
@@ -21,7 +21,7 @@ import {
   parseServerMessage,
 } from "./saucProtocol";
 
-export { isDoubaoASRConfigured } from "../types";
+export { isDoubaoASRConfigured } from "../../types";
 
 const AUDIO_SEND_INTERVAL = 200;
 

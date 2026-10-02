@@ -1,45 +1,37 @@
 /**
- * @file minimaxASRRecognizer.ts
- * @description MiniMax 语音识别（asr-1.0）
+ * @file xiaomiASRRecognizer.ts
+ * @description 小米 MiMo 语音识别（mimo-v2.5-asr）
  *
- * 批量模式：录音期间攒 PCM，stop 时打包 WAV 经 multipart/form-data 上传，
- * stream:true 下经 SSE 增量出识别文本（非边录边传）。
- * 复用 MiniMax TTS 的 API Key 与线路设置（国际/国内）。
- * host_permissions 已覆盖 api.minimaxi.com / api.minimax.cn。
+ * 批量模式：录音期间攒 PCM，stop 时打包 WAV 上传，
+ * stream:true 下经 SSE 逐 token 出识别文本（非边录边传）。
+ * HTTPS 直连，页面侧 fetch（host_permissions 已覆盖 api.xiaomimimo.com）。
  */
 
 import {
   LingridConfig,
-  MINIMAX_ASR_MODEL,
-  normalizeMiniMaxTTSBaseUrl,
-} from "../types";
-import type { ISpeechRecognizer } from "../types/pronunciationAssessment";
+  resolveXiaomiASRApiKey,
+  XIAOMI_ASR_API_URL,
+  XIAOMI_ASR_MODEL,
+} from "../../types";
+import type { ISpeechRecognizer } from "../../types/pronunciationAssessment";
 import { acquireStream, releaseStream } from "./audioCapture";
 import { createPCMCapture } from "./pcmCapture";
 import type { PCMCapture } from "./pcmCapture";
 import { encodeWavFromPCM } from "./wavEncoder";
 
-export { isMiniMaxASRConfigured } from "../types";
+export { isXiaomiASRConfigured } from "../../types";
 
-/** SSE 解析结果：增量文本 / 全文快照 / 结束 / 忽略 */
-export type MiniMaxSSEEvent =
-  | { type: "delta"; text: string; done: boolean }
-  | { type: "snapshot"; text: string; done: boolean }
+/** SSE 解析结果：增量文本 / 结束 / 忽略 */
+export type XiaomiSSEEvent =
+  | { type: "delta"; text: string }
   | { type: "done" }
   | null;
 
 /**
- * 解析一行 SSE 文本。
- * 宽容模式：delta 优先（增量），text 兜底（快照替换）；
- * finish:true 或 [DONE] 结束；畸形行返回 null，不抛错。
- *
- * 注意：MiniMax 会把最后一段文本与 finish:true 放在同一事件，
- * 必须先取文本再判结束，否则会丢掉结尾（实测事件序列：
- *   {"index":0,"delta":"The","finish":false}
- *   {"index":1,"delta":" quick brown.","finish":true,"duration":0.85}
- * ）。
+ * 解析一行 SSE 文本，提取增量内容或结束信号。
+ * 非 data 行、[DONE] 之外的畸形 JSON 均返回 null，不抛错。
  */
-export function parseMiniMaxASRSSELine(line: string): MiniMaxSSEEvent {
+export function parseXiaomiASRSSELine(line: string): XiaomiSSEEvent {
   const trimmed = line.trim();
   if (!trimmed.startsWith("data:")) return null;
 
@@ -48,28 +40,35 @@ export function parseMiniMaxASRSSELine(line: string): MiniMaxSSEEvent {
 
   try {
     const chunk = JSON.parse(payload) as {
-      delta?: string;
-      text?: string;
-      finish?: boolean;
+      choices?: Array<{
+        delta?: { content?: string };
+        finish_reason?: string | null;
+      }>;
     };
-    const done = chunk.finish === true;
-    if (typeof chunk.delta === "string" && chunk.delta) {
-      return { type: "delta", text: chunk.delta, done };
-    }
-    if (typeof chunk.text === "string" && chunk.text) {
-      return { type: "snapshot", text: chunk.text, done };
-    }
-    if (done) return { type: "done" };
+    const choice = chunk.choices?.[0];
+    if (choice?.finish_reason === "stop") return { type: "done" };
+    const text = choice?.delta?.content;
+    if (text) return { type: "delta", text };
     return null;
   } catch {
     return null;
   }
 }
 
+/** Uint8Array → base64（分块避免栈溢出） */
+function uint8ToBase64(data: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < data.length; i += chunkSize) {
+    binary += String.fromCharCode(...data.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
 /**
- * MiniMax 流式语音识别器（批量上传 + SSE 出文本）。
+ * 小米流式语音识别器（批量上传 + SSE 出文本）。
  */
-export class MiniMaxASRRecognizer implements ISpeechRecognizer {
+export class XiaomiASRRecognizer implements ISpeechRecognizer {
   /** 上传 + SSE 读取超时（30s 内未响应则中止） */
   private static readonly REQUEST_TIMEOUT_MS = 30_000;
 
@@ -91,13 +90,14 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
   onError?: (error: Error) => void;
 
   async start(): Promise<void> {
-    const key = this.config.minimax_tts?.api_key?.trim();
-    if (!key) {
+    // 默认复用语音合成服务（xiaomi_tts）的 API Key
+    const apiKey = resolveXiaomiASRApiKey(this.config);
+    if (!apiKey) {
       throw new Error(
-        "MiniMax 识别未配置 API Key（复用语音合成服务的 MiniMax Key），请到设置页配置或切换识别服务"
+        "小米识别未配置 API Key（复用语音合成服务的小米 Key），请到设置页配置或切换识别服务"
       );
     }
-    this.apiKey = key;
+    this.apiKey = apiKey;
     this.pendingChunks = [];
 
     const stream = await acquireStream();
@@ -108,7 +108,7 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
     this.pcmCapture.start(stream);
 
     this._isRecognizing = true;
-    console.log("[Lingride MiniMaxASR] 识别已启动");
+    console.log("[Lingride XiaomiASR] 识别已启动");
   }
 
   /**
@@ -141,37 +141,41 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
       return "";
     }
 
-    // 打包 WAV，multipart/form-data 上传
+    // 打包 WAV 并上传
     const wav = encodeWavFromPCM(merged);
-    const form = new FormData();
-    form.append("model", MINIMAX_ASR_MODEL);
-    form.append(
-      "file",
-      new Blob([wav.buffer as ArrayBuffer], { type: "audio/wav" }),
-      "audio.wav"
-    );
-    form.append("response_format", "json");
-    form.append("stream", "true");
-
-    const baseUrl = normalizeMiniMaxTTSBaseUrl(
-      this.config.minimax_tts?.api_base_url
-    );
+    const audioBase64 = uint8ToBase64(wav);
 
     // 上传 + SSE 读取整体超时（30s 内未响应则中止）
     const abortController = new AbortController();
     const timeout = setTimeout(() => {
       abortController.abort();
-    }, MiniMaxASRRecognizer.REQUEST_TIMEOUT_MS);
+    }, XiaomiASRRecognizer.REQUEST_TIMEOUT_MS);
 
     try {
-      const response = await fetch(`${baseUrl}/speech_to_text`, {
+      const response = await fetch(XIAOMI_ASR_API_URL, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          // 注意：multipart 的 Content-Type 由浏览器自动生成（含 boundary），不要手动设置
-          language: "en",
+          "api-key": this.apiKey,
+          "Content-Type": "application/json",
         },
-        body: form,
+        body: JSON.stringify({
+          model: XIAOMI_ASR_MODEL,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "input_audio",
+                  input_audio: {
+                    data: `data:audio/wav;base64,${audioBase64}`,
+                  },
+                },
+              ],
+            },
+          ],
+          asr_options: { language: "en" },
+          stream: true,
+        }),
         signal: abortController.signal,
       });
 
@@ -181,7 +185,7 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
         return "";
       }
       if (!response.body) {
-        this.onError?.(new Error("MiniMax ASR 响应为空"));
+        this.onError?.(new Error("小米 ASR 响应为空"));
         return "";
       }
 
@@ -190,21 +194,6 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
       const decoder = new TextDecoder();
       let buffer = "";
       let transcript = "";
-
-      const applyEvent = (event: MiniMaxSSEEvent): boolean => {
-        if (!event) return false;
-        if (event.type === "done") return true;
-        if (event.type === "delta") {
-          transcript += event.text;
-          this.onInterimResult?.(transcript.trim());
-        }
-        if (event.type === "snapshot") {
-          transcript = event.text;
-          this.onInterimResult?.(transcript.trim());
-        }
-        // 先取文本再判结束（结束事件可能携带最后一段文本）
-        return event.done;
-      };
 
       try {
         outer: for (;;) {
@@ -216,15 +205,24 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
           buffer = lines.pop() ?? "";
 
           for (const line of lines) {
-            if (applyEvent(parseMiniMaxASRSSELine(line))) {
-              // 服务端发结束后不一定会立刻关连接，提前退出
+            const event = parseXiaomiASRSSELine(line);
+            if (event?.type === "done") {
+              // 服务端发 [DONE] 后不一定会立刻关连接，提前退出
               break outer;
+            }
+            if (event?.type === "delta") {
+              transcript += event.text;
+              this.onInterimResult?.(transcript.trim());
             }
           }
         }
 
         // 补解析残余 buffer（最后一行可能无换行结尾）
-        applyEvent(parseMiniMaxASRSSELine(buffer));
+        const tail = parseXiaomiASRSSELine(buffer);
+        if (tail?.type === "delta") {
+          transcript += tail.text;
+          this.onInterimResult?.(transcript.trim());
+        }
       } finally {
         reader.releaseLock();
       }
@@ -237,7 +235,7 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
       return result;
     } catch (error) {
       if (abortController.signal.aborted) {
-        this.onError?.(new Error("MiniMax ASR 请求超时，请重试"));
+        this.onError?.(new Error("小米 ASR 请求超时，请重试"));
       } else {
         this.onError?.(
           error instanceof Error ? error : new Error(String(error))
@@ -255,20 +253,18 @@ export class MiniMaxASRRecognizer implements ISpeechRecognizer {
 
   private async extractErrorMessage(response: Response): Promise<string> {
     if (response.status === 401) {
-      return "MiniMax ASR API Key 无效，请检查设置页配置";
+      return "小米 ASR API Key 无效，请检查设置页配置";
     }
     try {
       const body = (await response.json()) as {
         error?: { message?: string };
-        base_resp?: { status_msg?: string };
       };
-      const detail = body.error?.message || body.base_resp?.status_msg;
-      if (detail) {
-        return `MiniMax ASR 请求失败：${detail}`;
+      if (body.error?.message) {
+        return `小米 ASR 请求失败：${body.error.message}`;
       }
     } catch {
       // 响应体非 JSON，落到通用错误
     }
-    return `MiniMax ASR 请求失败（HTTP ${response.status}）`;
+    return `小米 ASR 请求失败（HTTP ${response.status}）`;
   }
 }

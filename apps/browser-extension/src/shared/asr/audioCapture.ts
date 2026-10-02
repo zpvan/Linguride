@@ -12,7 +12,7 @@
  * @since 2.4.0
  */
 
-import { AudioCaptureError, AudioCaptureState } from "../types/echoMethod";
+import { AudioCaptureError, AudioCaptureState } from "../../types/echoMethod";
 
 // ====== 状态变量 ======
 
