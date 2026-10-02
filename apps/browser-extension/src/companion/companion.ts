@@ -16,6 +16,7 @@
 
 // pickPresetTopics 是纯函数模块（无 SW API 依赖），由 vite 直接打包进页面
 import { pickPresetTopics } from "../background/companionTopics";
+import { createASRRecognizer } from "../shared/asr/createASRRecognizer";
 import {
   createHybridTTSPlayer,
   HybridTTSPlayer,
@@ -24,6 +25,7 @@ import { CEFRLevel, DEFAULT_CONFIG, LingridConfig, MessageType } from "../types"
 import {
   buildOpeningUserInstruction,
   COMPANION_PORT_NAME,
+  CompanionHint,
   CompanionPortEvent,
   CompanionPortRequest,
   SummaryCard,
@@ -34,7 +36,9 @@ import {
   EnglishToChineseResponse,
   GenerateCompanionTopicsResponse,
   GetConfigResponse,
+  RequestCompanionHintResponse,
 } from "../types/messages";
+import { ISpeechRecognizer } from "../types/pronunciationAssessment";
 import { DEFAULT_TTS_SPEED, TTSSpeed } from "../types/tts";
 import { ChatController } from "./chatController";
 import { addFavorite, createCompanionId, saveSession } from "./storage";
@@ -51,6 +55,13 @@ let ttsAutoPlay = true;
 let chatEnded = false;
 const controller = new ChatController();
 let ttsPlayer: HybridTTSPlayer | null = null;
+
+// ====== 语音输入状态 ======
+
+let recognizer: ISpeechRecognizer | null = null;
+let isRecording = false;
+let recordingTimer: ReturnType<typeof setInterval> | null = null;
+let recordingSeconds = 0;
 
 // ====== DOM 引用 ======
 
@@ -70,6 +81,13 @@ const inputEl = document.getElementById("inputEl") as HTMLInputElement;
 const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
 const hintBtn = document.getElementById("hintBtn") as HTMLButtonElement;
 const micBtn = document.getElementById("micBtn") as HTMLButtonElement;
+const hintCard = document.getElementById("hintCard") as HTMLElement;
+const hintList = document.getElementById("hintList") as HTMLElement;
+const hintCloseBtn = document.getElementById("hintCloseBtn") as HTMLButtonElement;
+const recordingStatus = document.getElementById("recordingStatus") as HTMLElement;
+const recordingTime = document.getElementById("recordingTime") as HTMLElement;
+const recognitionPreview = document.getElementById("recognitionPreview") as HTMLElement;
+const recognitionText = document.getElementById("recognitionText") as HTMLElement;
 
 // ====== 状态提示 ======
 
@@ -309,6 +327,145 @@ async function toggleTranslation(
   }
 }
 
+// ====== 语音输入 ======
+
+function updateMicButton(): void {
+  micBtn.classList.toggle("recording", isRecording);
+  const iconMic = micBtn.querySelector(".icon-mic") as SVGElement;
+  const iconStop = micBtn.querySelector(".icon-stop") as SVGElement;
+  iconMic.style.display = isRecording ? "none" : "";
+  iconStop.style.display = isRecording ? "" : "none";
+}
+
+function formatRecordingTime(seconds: number): string {
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
+async function startRecording(): Promise<void> {
+  if (isRecording || controller.isStreaming() || chatEnded) return;
+  ttsPlayer?.stop();
+  try {
+    recognizer = createASRRecognizer(userConfig);
+    recognizer.onInterimResult = (text) => {
+      recognitionPreview.style.display = "";
+      recognitionText.textContent = text;
+    };
+    recognizer.onError = (error) => setStatus(error.message);
+    await recognizer.start();
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "录音启动失败");
+    recognizer = null;
+    return;
+  }
+
+  isRecording = true;
+  recordingSeconds = 0;
+  recordingTime.textContent = "00:00";
+  recordingStatus.style.display = "";
+  recognitionPreview.style.display = "none";
+  updateMicButton();
+  recordingTimer = setInterval(() => {
+    recordingSeconds += 1;
+    recordingTime.textContent = formatRecordingTime(recordingSeconds);
+  }, 1000);
+}
+
+async function stopRecording(): Promise<void> {
+  if (!isRecording || !recognizer) return;
+  isRecording = false;
+  if (recordingTimer) {
+    clearInterval(recordingTimer);
+    recordingTimer = null;
+  }
+  recordingStatus.style.display = "none";
+  recognitionPreview.style.display = "none";
+  updateMicButton();
+
+  setStatus("识别中…", "info");
+  try {
+    // 契约：不抛异常——出错走 onError 并返回空串
+    const text = await recognizer.stop();
+    hideStatus();
+    if (text.trim()) {
+      sendUserText(text);
+    } else {
+      setStatus("没听清，点 🎤 再说一次？");
+    }
+  } finally {
+    recognizer = null;
+  }
+}
+
+// ====== 帮我说一句 ======
+
+async function requestHint(): Promise<void> {
+  if (!currentTopic || controller.isStreaming() || chatEnded) return;
+  hintBtn.disabled = true;
+  setStatus("Echo 正在帮你想…", "info");
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.REQUEST_COMPANION_HINT,
+      payload: {
+        history: controller.getWindowedHistory(),
+        topic: currentTopic,
+        level: currentLevel,
+      },
+    })) as RequestCompanionHintResponse;
+    hideStatus();
+    if (response.success && response.data) {
+      renderHintCard(response.data.hints);
+    } else {
+      setStatus(response.error || "提示生成失败，请重试");
+    }
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "提示生成失败，请重试");
+  } finally {
+    hintBtn.disabled = false;
+  }
+}
+
+function renderHintCard(hints: CompanionHint[]): void {
+  hintList.innerHTML = "";
+  for (const hint of hints) {
+    const row = document.createElement("div");
+    row.className = "hint-item";
+
+    const body = document.createElement("div");
+    body.className = "hint-item-body";
+    const en = document.createElement("div");
+    en.className = "hint-item-en";
+    en.textContent = hint.en;
+    const zh = document.createElement("div");
+    zh.className = "hint-item-zh";
+    zh.textContent = hint.zh;
+    body.appendChild(en);
+    body.appendChild(zh);
+
+    const speak = document.createElement("button");
+    speak.className = "link-btn";
+    speak.textContent = "🔊";
+    speak.title = "朗读示例";
+    speak.addEventListener("click", () => playText(hint.en));
+    const use = document.createElement("button");
+    use.className = "link-btn";
+    use.textContent = "使用";
+    use.title = "填入输入框";
+    use.addEventListener("click", () => {
+      inputEl.value = hint.en;
+      hintCard.style.display = "none";
+      inputEl.focus();
+    });
+
+    row.appendChild(body);
+    row.appendChild(speak);
+    row.appendChild(use);
+    hintList.appendChild(row);
+  }
+  hintCard.style.display = "";
+}
+
 // ====== 对话流程 ======
 
 function setInputEnabled(enabled: boolean): void {
@@ -358,6 +515,7 @@ function sendUserText(text: string): void {
   const trimmed = text.trim();
   if (!trimmed || !currentTopic || controller.isStreaming() || chatEnded) return;
   hideStatus();
+  hintCard.style.display = "none";
   controller.addUserTurn(trimmed);
   appendUserBubble(trimmed);
   void runAssistantTurn();
@@ -367,6 +525,7 @@ function sendUserText(text: string): void {
 async function pickTopic(topic: TopicCard): Promise<void> {
   if (controller.isStreaming()) return;
   ttsPlayer?.stop();
+  if (isRecording) void stopRecording();
   currentTopic = topic;
   chatEnded = false;
   controller.reset();
@@ -557,9 +716,26 @@ function bindEvents(): void {
     setStatus(`已切换到 ${currentLevel}，Echo 会调整说话难度`, "info");
   });
 
-  // 语音/提示/历史/收藏/清除记忆在 Task 15、16 接入
-  micBtn.style.display = "none";
-  hintBtn.style.display = "none";
+  micBtn.addEventListener("click", () => {
+    if (isRecording) {
+      void stopRecording();
+    } else {
+      void startRecording();
+    }
+  });
+  hintBtn.addEventListener("click", () => void requestHint());
+  hintCloseBtn.addEventListener("click", () => {
+    hintCard.style.display = "none";
+  });
+
+  // Esc：停止录音 / 停止朗读（与划词朗读的全局习惯一致）
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (isRecording) void stopRecording();
+    ttsPlayer?.stop();
+  });
+
+  // 清除记忆在 Task 16 接入
   clearMemoryBtn.style.display = "none";
 
   window.addEventListener("beforeunload", () => ttsPlayer?.stop());
