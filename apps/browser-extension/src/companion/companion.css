@@ -1,0 +1,204 @@
+/**
+ * @file companion.css
+ * @description 「语伴」页面样式（与语镜同为浅色学习风格）
+ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #f3f4f8;
+  color: #1f2333;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.companion-container { display: flex; flex-direction: column; height: 100vh; }
+
+/* ===== Header ===== */
+.header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 20px; background: #fff; border-bottom: 1px solid #e4e6ef;
+}
+.header-title { font-size: 18px; font-weight: 700; }
+.current-topic { color: #6b7089; font-size: 13px; flex: 1; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.level-select-label { font-size: 12px; color: #6b7089; }
+.level-select { padding: 4px 8px; border: 1px solid #d5d8e5; border-radius: 8px;
+  background: #fff; font-size: 13px; }
+.icon-btn { border: none; background: none; font-size: 18px; cursor: pointer;
+  padding: 4px 6px; border-radius: 8px; }
+.icon-btn:hover { background: #eef0f7; }
+.icon-btn.muted { opacity: 0.35; }
+.btn-end { padding: 6px 14px; border: 1px solid #e4e6ef; border-radius: 10px;
+  background: #fff; color: #d64560; font-size: 13px; cursor: pointer; }
+.btn-end:disabled { opacity: 0.4; cursor: default; }
+.btn-end:not(:disabled):hover { background: #fdeef1; }
+
+/* ===== 布局 ===== */
+.main-layout { display: flex; flex: 1; min-height: 0; }
+
+/* ===== 左侧栏 ===== */
+.sidebar {
+  width: 250px; background: #fff; border-right: 1px solid #e4e6ef;
+  display: flex; flex-direction: column; padding: 14px 12px; gap: 12px;
+  overflow-y: auto;
+}
+.sidebar-section { display: flex; flex-direction: column; gap: 8px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; }
+.section-label { font-size: 12px; color: #6b7089; font-weight: 600; }
+.link-btn { border: none; background: none; color: #4a6cf7; font-size: 12px;
+  cursor: pointer; padding: 2px 4px; }
+.link-btn:hover { text-decoration: underline; }
+.link-danger { color: #b03a4e; }
+
+.topics-list { display: flex; flex-direction: column; gap: 6px; }
+.topic-card {
+  text-align: left; border: 1px solid #e4e6ef; border-radius: 10px;
+  background: #fafbfe; padding: 9px 10px; cursor: pointer; transition: all .15s;
+}
+.topic-card:hover { border-color: #4a6cf7; background: #f0f3ff; }
+.topic-card.active { border-color: #4a6cf7; background: #e9edff; }
+.topic-card-title { font-size: 13px; font-weight: 600; display: block; }
+.topic-card-opener { font-size: 11px; color: #8a8fa8; display: block; margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topics-loading { font-size: 12px; color: #8a8fa8; padding: 8px 4px; }
+
+.custom-topic { display: flex; gap: 6px; }
+.custom-topic-input { flex: 1; min-width: 0; padding: 7px 9px; font-size: 12px;
+  border: 1px dashed #c9cddd; border-radius: 8px; }
+.btn-primary { background: #4a6cf7; color: #fff; border: none; border-radius: 10px;
+  padding: 8px 16px; font-size: 13px; cursor: pointer; }
+.btn-primary:disabled { opacity: 0.4; cursor: default; }
+.btn-small { padding: 6px 10px; font-size: 12px; }
+
+.panel-tabs { display: flex; gap: 4px; border-bottom: 1px solid #e4e6ef; }
+.panel-tab { flex: 1; border: none; background: none; padding: 7px 0; font-size: 12px;
+  color: #6b7089; cursor: pointer; border-bottom: 2px solid transparent; }
+.panel-tab.active { color: #4a6cf7; border-bottom-color: #4a6cf7; font-weight: 600; }
+.panel-content { flex: 1; min-height: 0; overflow-y: auto; }
+.record-list { display: flex; flex-direction: column; gap: 6px; }
+.record-item { border: 1px solid #e4e6ef; border-radius: 10px; padding: 8px 10px;
+  background: #fafbfe; cursor: pointer; }
+.record-item:hover { border-color: #4a6cf7; }
+.record-item-title { font-size: 12px; font-weight: 600; }
+.record-item-meta { font-size: 11px; color: #8a8fa8; margin-top: 2px; }
+.record-item-text { font-size: 12px; margin-top: 2px; word-break: break-word; }
+.record-item-note { font-size: 11px; color: #8a8fa8; margin-top: 2px; }
+.record-item-actions { margin-top: 4px; display: flex; gap: 8px; }
+.record-empty { font-size: 12px; color: #9aa0b8; padding: 10px 4px; }
+.sidebar-footer { margin-top: auto; padding-top: 8px;
+  border-top: 1px solid #eef0f7; text-align: center; }
+
+/* ===== 聊天区 ===== */
+.chat-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex;
+  flex-direction: column; gap: 14px; }
+.empty-state { margin: auto; text-align: center; color: #6b7089; font-size: 14px; }
+.empty-emoji { font-size: 42px; margin-bottom: 10px; }
+.empty-sub { font-size: 12px; color: #9aa0b8; margin-top: 6px; }
+
+.message-row { display: flex; gap: 10px; max-width: 78%; }
+.message-row.assistant { align-self: flex-start; }
+.message-row.user { align-self: flex-end; flex-direction: row-reverse; }
+.message-avatar { width: 34px; height: 34px; border-radius: 50%; background: #ffe1e8;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  flex-shrink: 0; }
+.message-bubble { border-radius: 14px; padding: 10px 14px; font-size: 14px;
+  line-height: 1.65; word-break: break-word; }
+.message-row.assistant .message-bubble { background: #fff; border: 1px solid #e4e6ef;
+  border-top-left-radius: 4px; }
+.message-row.user .message-bubble { background: #4a6cf7; color: #fff;
+  border-top-right-radius: 4px; }
+.message-translation { font-size: 12px; color: #8a8fa8; margin-top: 6px;
+  border-top: 1px dashed #e4e6ef; padding-top: 6px; }
+.message-actions { display: flex; gap: 10px; margin-top: 6px; }
+.message-actions .link-btn { color: #9aa0b8; font-size: 11px; }
+.message-actions .link-btn:hover { color: #4a6cf7; }
+.chat-word { border-bottom: 1px dotted transparent; cursor: pointer; }
+.chat-word:hover { border-bottom-color: #4a6cf7; color: #4a6cf7; }
+.typing-indicator { color: #9aa0b8; font-size: 13px; }
+.message-error-note { color: #b03a4e; font-size: 12px; margin-top: 6px; }
+.recast-note { display: block; font-size: 11px; color: #7aa7d9; margin-top: 4px; }
+
+/* 总结卡 */
+.summary-card { align-self: center; width: min(560px, 92%); background: #fff;
+  border: 1px solid #e4e6ef; border-radius: 16px; padding: 18px 20px;
+  box-shadow: 0 4px 18px rgba(60, 70, 120, 0.08); }
+.summary-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.summary-comment { font-size: 13px; color: #444a63; line-height: 1.7;
+  background: #f6f8ff; border-radius: 10px; padding: 10px 12px; }
+.summary-section-label { font-size: 12px; font-weight: 600; color: #6b7089;
+  margin: 12px 0 6px; }
+.summary-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px;
+  border: 1px solid #eef0f7; border-radius: 10px; margin-bottom: 6px; }
+.summary-item-body { flex: 1; min-width: 0; }
+.summary-item-en { font-size: 13px; font-weight: 600; word-break: break-word; }
+.summary-item-better { font-size: 12px; color: #2e7d4f; margin-top: 2px;
+  word-break: break-word; }
+.summary-item-note { font-size: 11px; color: #8a8fa8; margin-top: 2px; }
+.summary-item-actions { display: flex; gap: 4px; }
+.summary-new-chat { margin-top: 14px; text-align: center; }
+
+/* 提示卡 */
+.hint-card { margin: 0 24px; border: 1px solid #e4e6ef; border-radius: 12px;
+  background: #fffdf4; padding: 10px 14px; }
+.hint-card-header { display: flex; justify-content: space-between;
+  font-size: 12px; font-weight: 600; color: #8a6d1d; margin-bottom: 6px; }
+.hint-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; }
+.hint-item-body { flex: 1; }
+.hint-item-en { font-size: 13px; }
+.hint-item-zh { font-size: 11px; color: #8a8fa8; margin-top: 1px; }
+
+/* 录音与状态（沿用语镜视觉） */
+.recording-status { display: flex; align-items: center; gap: 8px; margin: 0 24px;
+  padding: 6px 0; font-size: 12px; color: #d64560; }
+.recording-dot { width: 8px; height: 8px; border-radius: 50%; background: #d64560;
+  animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.recording-time { color: #9aa0b8; font-variant-numeric: tabular-nums; }
+.recognition-preview { margin: 0 24px; font-size: 12px; color: #6b7089;
+  padding: 4px 0; }
+.preview-text { color: #1f2333; }
+.status-message { min-height: 18px; margin: 0 24px; font-size: 12px;
+  color: #b03a4e; }
+.status-message.info { color: #2e7d4f; }
+
+/* 输入区 */
+.input-area { display: flex; align-items: center; gap: 10px; padding: 12px 24px;
+  background: #fff; border-top: 1px solid #e4e6ef; }
+.btn-hint { border: 1px solid #ead9a0; background: #fffdf4; color: #8a6d1d;
+  border-radius: 12px; padding: 8px 12px; font-size: 12px; cursor: pointer;
+  white-space: nowrap; }
+.btn-hint:disabled { opacity: 0.4; cursor: default; }
+.chat-input { flex: 1; padding: 10px 14px; border: 1px solid #d5d8e5;
+  border-radius: 14px; font-size: 14px; }
+.chat-input:disabled { background: #f3f4f8; }
+.btn-mic { width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: #4a6cf7; color: #fff; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-mic:disabled { opacity: 0.4; cursor: default; }
+.btn-mic.recording { background: #d64560; }
+
+/* 生词弹窗 */
+.word-popup { position: fixed; z-index: 100; width: 280px; background: #fff;
+  border: 1px solid #e4e6ef; border-radius: 12px; padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(60, 70, 120, 0.16); font-size: 12px; }
+.word-popup-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.word-popup-section { margin-top: 6px; color: #444a63; line-height: 1.6; }
+.word-popup-label { color: #9aa0b8; font-size: 11px; }
+.word-popup-loading { color: #9aa0b8; }
+
+/* 滚动条 */
+.messages::-webkit-scrollbar, .sidebar::-webkit-scrollbar,
+.panel-content::-webkit-scrollbar { width: 6px; }
+.messages::-webkit-scrollbar-thumb, .sidebar::-webkit-scrollbar-thumb,
+.panel-content::-webkit-scrollbar-thumb { background: #d5d8e5; border-radius: 3px; }
+
+/* 窄屏适配 */
+@media (max-width: 860px) {
+  .sidebar { width: 200px; }
+  .message-row { max-width: 88%; }
+}

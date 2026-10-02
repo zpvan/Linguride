@@ -23,6 +23,7 @@ export default defineConfig({
         "src/tutor/tutor.html",
         "src/corpus/corpus.html",
         "src/offscreen/tts-offscreen.html",
+        "src/companion/companion.html",
       ],
     }),
   ],
