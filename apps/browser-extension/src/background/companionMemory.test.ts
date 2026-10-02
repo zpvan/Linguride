@@ -56,9 +56,10 @@ describe("applyMemoryUpdate", () => {
     expect(result).toHaveLength(2);
     expect(result.map((f) => f.text)).toContain("User likes tea");
     // 重复项未新增，lastSeenAt 被刷新
-    const coffee = result.find((f) => f.text === "User likes coffee")!;
-    expect(coffee.lastSeenAt).toBe(now);
-    expect(coffee.createdAt).toBe(100);
+    const coffee = result.find((f) => f.text === "User likes coffee");
+    expect(coffee).toBeDefined();
+    expect(coffee?.lastSeenAt).toBe(now);
+    expect(coffee?.createdAt).toBe(100);
   });
 
   it("remove 按归一化文本删除旧事实", () => {

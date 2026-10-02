@@ -125,6 +125,14 @@ import {
   OffscreenTTSResponse,
 } from "../shared/offscreenTTSProtocol";
 import { assertAiProviderReady, createAIProvider } from "./aiProvider";
+import {
+  handleClearCompanionMemory,
+  handleEndCompanionSession,
+  handleGenerateCompanionTopics,
+  handleGetCompanionMemory,
+  handleRequestCompanionHint,
+  registerCompanionPort,
+} from "./companionBridge";
 import { getConfig, saveConfig } from "./configManager";
 import {
   completeOpenAICodexOAuth,
@@ -1802,6 +1810,9 @@ async function prepareAIProvider(): Promise<PreparedAIProviderContext> {
     provider: await createAIProvider(config),
   };
 }
+
+// ====== 语伴对话 Port 注册 ======
+registerCompanionPort({ prepareAIProvider });
 
 function buildOpenAIOAuthErrorResponse(error: unknown): {
   success: false;
@@ -4070,6 +4081,35 @@ chrome.runtime.onMessage.addListener(
             message.payload.userInput,
             message.payload.userLevel
           );
+          break;
+
+        case MessageType.GENERATE_COMPANION_TOPICS:
+          response = await handleGenerateCompanionTopics(
+            { prepareAIProvider },
+            message.payload
+          );
+          break;
+
+        case MessageType.REQUEST_COMPANION_HINT:
+          response = await handleRequestCompanionHint(
+            { prepareAIProvider },
+            message.payload
+          );
+          break;
+
+        case MessageType.END_COMPANION_SESSION:
+          response = await handleEndCompanionSession(
+            { prepareAIProvider },
+            message.payload
+          );
+          break;
+
+        case MessageType.GET_COMPANION_MEMORY:
+          response = await handleGetCompanionMemory();
+          break;
+
+        case MessageType.CLEAR_COMPANION_MEMORY:
+          response = await handleClearCompanionMemory();
           break;
 
         // 阿里云 ASR 消息通过 Port 处理，这里提供 fallback

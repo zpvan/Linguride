@@ -16,6 +16,13 @@
 
 import { LingridConfig, TTSProviderId } from "./config";
 import { CEFRLevel, DifficultyResult } from "./difficulty";
+import {
+  CompanionChatTurn,
+  CompanionHint,
+  MemoryFact,
+  SummaryCard,
+  TopicCard,
+} from "./companion";
 import { SentenceAnalysisResult } from "./sentenceAnalysis";
 import { PronunciationAssessmentResult } from "./pronunciationAssessment";
 import {
@@ -157,6 +164,18 @@ export enum MessageType {
   SEGMENT_CORPUS = "SEGMENT_CORPUS",
   /** 听力分析 */
   ANALYZE_LISTENING = "ANALYZE_LISTENING",
+
+  // ====== 语伴对话 ======
+  /** 换一批话题（AI 生成，失败回退预设库） */
+  GENERATE_COMPANION_TOPICS = "GENERATE_COMPANION_TOPICS",
+  /** 帮我说一句（生成示例回复） */
+  REQUEST_COMPANION_HINT = "REQUEST_COMPANION_HINT",
+  /** 结束对话（生成总结卡并提炼记忆） */
+  END_COMPANION_SESSION = "END_COMPANION_SESSION",
+  /** 获取语伴记忆事实 */
+  GET_COMPANION_MEMORY = "GET_COMPANION_MEMORY",
+  /** 清除语伴记忆 */
+  CLEAR_COMPANION_MEMORY = "CLEAR_COMPANION_MEMORY",
 }
 
 /**
@@ -690,6 +709,57 @@ export interface AnalyzeListeningMessage {
 }
 
 /**
+ * 换一批话题消息
+ */
+export interface GenerateCompanionTopicsMessage {
+  type: MessageType.GENERATE_COMPANION_TOPICS;
+  payload: {
+    /** 用户 CEFR 水平 */
+    level: CEFRLevel;
+    /** 需排除的话题英文名（防重复） */
+    exclude: string[];
+  };
+}
+
+/**
+ * 帮我说一句消息
+ */
+export interface RequestCompanionHintMessage {
+  type: MessageType.REQUEST_COMPANION_HINT;
+  payload: {
+    history: CompanionChatTurn[];
+    topic: TopicCard;
+    level: CEFRLevel;
+  };
+}
+
+/**
+ * 结束对话消息
+ */
+export interface EndCompanionSessionMessage {
+  type: MessageType.END_COMPANION_SESSION;
+  payload: {
+    history: CompanionChatTurn[];
+    topic: TopicCard;
+    level: CEFRLevel;
+  };
+}
+
+/**
+ * 获取语伴记忆消息
+ */
+export interface GetCompanionMemoryMessage {
+  type: MessageType.GET_COMPANION_MEMORY;
+}
+
+/**
+ * 清除语伴记忆消息
+ */
+export interface ClearCompanionMemoryMessage {
+  type: MessageType.CLEAR_COMPANION_MEMORY;
+}
+
+/**
  * 所有消息类型的联合类型
  */
 export type Message =
@@ -737,6 +807,11 @@ export type Message =
   | AnalyzeListeningMessage
   | GetTTSSynthesisStatusMessage
   | CancelTTSSynthesisMessage
+  | GenerateCompanionTopicsMessage
+  | RequestCompanionHintMessage
+  | EndCompanionSessionMessage
+  | GetCompanionMemoryMessage
+  | ClearCompanionMemoryMessage
   | DiagnoseTTSMessage;
 
 // ====== 响应类型定义 ======
@@ -1160,6 +1235,49 @@ export interface AnalyzeListeningResponse extends BaseResponse {
 }
 
 /**
+ * 换一批话题响应
+ */
+export interface GenerateCompanionTopicsResponse extends BaseResponse {
+  data?: {
+    topics: TopicCard[];
+    /** true 表示 AI 生成失败，回退到了预设库 */
+    fromPreset: boolean;
+  };
+}
+
+/**
+ * 帮我说一句响应
+ */
+export interface RequestCompanionHintResponse extends BaseResponse {
+  data?: {
+    hints: CompanionHint[];
+  };
+}
+
+/**
+ * 结束对话响应
+ */
+export interface EndCompanionSessionResponse extends BaseResponse {
+  data?: {
+    summary: SummaryCard;
+  };
+}
+
+/**
+ * 获取语伴记忆响应
+ */
+export interface GetCompanionMemoryResponse extends BaseResponse {
+  data?: {
+    facts: MemoryFact[];
+  };
+}
+
+/**
+ * 清除语伴记忆响应
+ */
+export type ClearCompanionMemoryResponse = BaseResponse;
+
+/**
  * 所有响应类型的联合类型
  */
 export type Response =
@@ -1199,4 +1317,9 @@ export type Response =
   | ShadowAssessResponse
   | DoubaoASRPrepareResponse
   | SegmentCorpusResponse
-  | AnalyzeListeningResponse;
+  | AnalyzeListeningResponse
+  | GenerateCompanionTopicsResponse
+  | RequestCompanionHintResponse
+  | EndCompanionSessionResponse
+  | GetCompanionMemoryResponse
+  | ClearCompanionMemoryResponse;
