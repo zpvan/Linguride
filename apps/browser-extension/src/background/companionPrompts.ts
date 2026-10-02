@@ -96,12 +96,13 @@ export function buildCompanionSystemPrompt(
 
 // ====== 对话转录（hint / summary 共用） ======
 
-/** 把会话历史转成 "User:/Echo:" 文本，超出 maxTurns 保留最近轮次 */
+/** 把会话历史转成 "User:/Echo:" 文本，超出 maxTurns 保留最近轮次（隐藏轮次不进入转录） */
 export function buildTranscript(
   turns: CompanionChatTurn[],
   maxTurns = 40
 ): string {
   return turns
+    .filter((t) => !t.hidden)
     .slice(-maxTurns)
     .map((t) => `${t.role === "user" ? "User" : "Echo"}: ${t.content}`)
     .join("\n");

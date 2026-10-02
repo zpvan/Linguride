@@ -576,6 +576,7 @@ function resetToTopicSelection(): void {
 /** 结束对话：达标生成总结卡，保存历史 */
 async function endChat(): Promise<void> {
   if (!currentTopic || controller.isStreaming()) return;
+  if (isRecording) void stopRecording();
   const topic = currentTopic;
 
   if (controller.getUserTurnCount() === 0) {
@@ -727,12 +728,25 @@ function bindEvents(): void {
 
   levelSelect.addEventListener("change", () => {
     currentLevel = levelSelect.value as CEFRLevel;
-    userConfig = { ...userConfig, user_english_level: currentLevel };
-    void chrome.runtime.sendMessage({
-      type: MessageType.SAVE_CONFIG,
-      payload: userConfig,
-    });
-    setStatus(`已切换到 ${currentLevel}，Echo 会调整说话难度`, "info");
+    // 先取最新配置再合并写回，避免覆盖页面打开后在设置页的改动（与 tutor 同款模式）
+    void (async () => {
+      try {
+        const response = (await chrome.runtime.sendMessage({
+          type: MessageType.GET_CONFIG,
+        })) as GetConfigResponse;
+        const fresh =
+          response.success && response.data ? response.data : userConfig;
+        const merged = { ...fresh, user_english_level: currentLevel };
+        userConfig = merged;
+        await chrome.runtime.sendMessage({
+          type: MessageType.SAVE_CONFIG,
+          payload: merged,
+        });
+        setStatus(`已切换到 ${currentLevel}，Echo 会调整说话难度`, "info");
+      } catch {
+        setStatus("等级保存失败，本次对话将临时使用该等级");
+      }
+    })();
   });
 
   micBtn.addEventListener("click", () => {
@@ -820,6 +834,7 @@ function openHistorySession(session: CompanionSession): void {
     return;
   }
   ttsPlayer?.stop();
+  if (isRecording) void stopRecording();
   messagesEl.innerHTML = "";
   hideEmptyState();
   currentTopicEl.textContent = `历史回看：${session.topic.titleZh}（只读）`;
@@ -919,7 +934,14 @@ function bindClearMemory(): void {
     if (!confirm("清除后 Echo 将不再记得你之前聊过的内容，确定吗？")) return;
     void chrome.runtime
       .sendMessage({ type: MessageType.CLEAR_COMPANION_MEMORY })
-      .then(() => setStatus("语伴记忆已清除", "info"));
+      .then((response) => {
+        const result = response as { success?: boolean; error?: string };
+        if (result?.success) {
+          setStatus("语伴记忆已清除", "info");
+        } else {
+          setStatus(result?.error || "清除失败，请重试");
+        }
+      });
   });
 }
 
@@ -928,13 +950,17 @@ function bindClearMemory(): void {
 async function init(): Promise<void> {
   bindEvents();
 
-  const response = (await chrome.runtime.sendMessage({
-    type: MessageType.GET_CONFIG,
-  })) as GetConfigResponse;
-  if (response.success && response.data) {
-    userConfig = response.data;
-    currentLevel = userConfig.user_english_level ?? "A2";
-    levelSelect.value = currentLevel;
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.GET_CONFIG,
+    })) as GetConfigResponse;
+    if (response.success && response.data) {
+      userConfig = response.data;
+      currentLevel = userConfig.user_english_level ?? "A2";
+      levelSelect.value = currentLevel;
+    }
+  } catch (error) {
+    console.warn("[Lingride] 语伴读取配置失败，使用默认配置:", error);
   }
 
   ttsPlayer = createHybridTTSPlayer({

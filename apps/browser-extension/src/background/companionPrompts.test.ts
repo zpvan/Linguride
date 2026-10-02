@@ -63,6 +63,17 @@ describe("buildTranscript", () => {
     expect(buildTranscript(turns)).toBe("User: u1\nEcho: a1\nUser: u2");
     expect(buildTranscript(turns, 2)).toBe("Echo: a1\nUser: u2");
   });
+
+  it("隐藏轮次（OOC 开场指令）不进入转录文本", () => {
+    const turns = [
+      { role: "user" as const, content: "(OOC: start)", hidden: true },
+      { role: "assistant" as const, content: "a1" },
+      { role: "user" as const, content: "u1" },
+    ];
+    const transcript = buildTranscript(turns);
+    expect(transcript).not.toContain("OOC");
+    expect(transcript).toBe("Echo: a1\nUser: u1");
+  });
 });
 
 describe("buildTopicsPrompts / buildHintPrompts / buildSummaryPrompts", () => {

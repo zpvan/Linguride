@@ -68,6 +68,33 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+/**
+ * 归一化页面历史为 LLM 可用的消息序列
+ *
+ * Anthropic Messages 格式（MiniMax）强制 role 交替且首条为 user：
+ * - 合并连续同 role 轮次（流式失败后用户直接再发会产生连续 user）
+ * - 丢弃窗口前导 assistant 轮次（滑动窗口截断可能造成）
+ * - hidden 轮次保留（OOC 开场指令仍是对话上下文）
+ */
+export function normalizeChatTurns(
+  turns: CompanionChatTurn[]
+): CompanionChatTurn[] {
+  const merged: CompanionChatTurn[] = [];
+  for (const turn of turns) {
+    const last = merged[merged.length - 1];
+    if (last && last.role === turn.role) {
+      last.content = `${last.content}\n${turn.content}`;
+    } else {
+      merged.push({ ...turn });
+    }
+  }
+  // 丢弃前导 assistant 轮次
+  while (merged.length > 0 && merged[0].role === "assistant") {
+    merged.shift();
+  }
+  return merged;
+}
+
 // ====== Port 流式通道 ======
 
 /** 进行中的流式请求（requestId → AbortController），供 CANCEL_STREAM 中止 */
@@ -77,19 +104,32 @@ const activeStreams = new Map<string, AbortController>();
  * 注册语伴 Port 监听（service-worker 启动时调用一次）
  *
  * MV3 注意：Port 连接期间的消息活动会重置 SW 空闲计时器；
- * 页面关闭时 Port 断开，进行中的流随页面消失而失去接收方，
- * 无需额外清理（activeStreams 条目在 finally 中移除）。
+ * 页面关闭/断开时，按 port 追踪的请求集合批量 abort 进行中的流，
+ * 避免标签页已消失还继续消耗 LLM 配额。
  */
 export function registerCompanionPort(deps: CompanionBridgeDeps): void {
   chrome.runtime.onConnect.addListener((port) => {
     if (port.name !== COMPANION_PORT_NAME) return;
 
+    // 本 port 上进行中（尚未完结）的流式请求
+    const portRequestIds = new Set<string>();
+
     port.onMessage.addListener((raw: CompanionPortRequest) => {
       if (raw.type === "CHAT_TURN") {
-        void handleChatTurn(deps, port, raw);
+        portRequestIds.add(raw.requestId);
+        void handleChatTurn(deps, port, raw).finally(() => {
+          portRequestIds.delete(raw.requestId);
+        });
       } else if (raw.type === "CANCEL_STREAM") {
         activeStreams.get(raw.requestId)?.abort();
       }
+    });
+
+    port.onDisconnect.addListener(() => {
+      for (const requestId of portRequestIds) {
+        activeStreams.get(requestId)?.abort();
+      }
+      portRequestIds.clear();
     });
   });
 }
@@ -117,7 +157,10 @@ async function handleChatTurn(
 
     post({ type: "STREAM_START", requestId });
     const fullText = await provider.chatStream(
-      [{ role: "system", content: systemPrompt }, ...history],
+      [
+        { role: "system", content: systemPrompt },
+        ...normalizeChatTurns(history),
+      ],
       (delta) => post({ type: "STREAM_CHUNK", requestId, delta }),
       controller.signal
     );
