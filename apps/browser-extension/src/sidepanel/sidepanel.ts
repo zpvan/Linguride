@@ -129,6 +129,7 @@ const viewport = document.querySelector(".viewport") as HTMLElement;
 // Header
 const corpusBtn = document.getElementById("corpusBtn") as HTMLButtonElement;
 const tutorBtn = document.getElementById("tutorBtn") as HTMLButtonElement;
+const companionBtn = document.getElementById("companionBtn") as HTMLButtonElement;
 const settingsBtn = document.getElementById("settingsBtn") as HTMLButtonElement;
 const settingsBadge = document.getElementById("settingsBadge") as HTMLElement;
 const backBtn = document.getElementById("backBtn") as HTMLButtonElement;
@@ -1080,6 +1081,9 @@ function bindEvents(): void {
 
   // 外教标签页入口
   tutorBtn.addEventListener("click", openTutorPage);
+
+  // 语伴标签页入口
+  companionBtn.addEventListener("click", openCompanionPage);
 
   // 模式选择器（事件委托）
   modeSelector.addEventListener("click", handleModeClick);
@@ -2910,6 +2914,20 @@ function openCorpusPage(): void {
 function openTutorPage(): void {
   chrome.tabs.create({
     url: chrome.runtime.getURL("src/tutor/tutor.html"),
+  });
+  // 侧边栏保持打开，便于随时切回
+}
+
+// ====== 语伴标签页 ======
+
+/**
+ * 打开语伴标签页
+ *
+ * 在新标签页中打开语伴页面（英文对话）。
+ */
+function openCompanionPage(): void {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL("src/companion/companion.html"),
   });
   // 侧边栏保持打开，便于随时切回
 }
