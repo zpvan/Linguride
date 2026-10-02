@@ -28,11 +28,13 @@ import {
   CompanionHint,
   CompanionPortEvent,
   CompanionPortRequest,
+  CompanionSession,
   SummaryCard,
   TopicCard,
 } from "../types/companion";
 import {
   EndCompanionSessionResponse,
+  EnglishDefinitionResponse,
   EnglishToChineseResponse,
   GenerateCompanionTopicsResponse,
   GetConfigResponse,
@@ -41,9 +43,20 @@ import {
 import { ISpeechRecognizer } from "../types/pronunciationAssessment";
 import { DEFAULT_TTS_SPEED, TTSSpeed } from "../types/tts";
 import { ChatController } from "./chatController";
-import { addFavorite, createCompanionId, saveSession } from "./storage";
+import {
+  addFavorite,
+  createCompanionId,
+  loadFavorites,
+  loadSessions,
+  removeFavorite,
+  saveSession,
+} from "./storage";
 import { renderSummaryCard } from "./summaryCard";
-import { renderTopicCards } from "./topicPanel";
+import {
+  renderFavoritesList,
+  renderHistoryList,
+  renderTopicCards,
+} from "./topicPanel";
 
 // ====== 状态 ======
 
@@ -88,6 +101,11 @@ const recordingStatus = document.getElementById("recordingStatus") as HTMLElemen
 const recordingTime = document.getElementById("recordingTime") as HTMLElement;
 const recognitionPreview = document.getElementById("recognitionPreview") as HTMLElement;
 const recognitionText = document.getElementById("recognitionText") as HTMLElement;
+const historyPanel = document.getElementById("historyPanel") as HTMLElement;
+const favoritesPanel = document.getElementById("favoritesPanel") as HTMLElement;
+const historyList = document.getElementById("historyList") as HTMLElement;
+const favoritesList = document.getElementById("favoritesList") as HTMLElement;
+const wordPopup = document.getElementById("wordPopup") as HTMLElement;
 
 // ====== 状态提示 ======
 
@@ -614,6 +632,7 @@ async function endChat(): Promise<void> {
     summary,
     endedAt: Date.now(),
   });
+  void refreshHistory();
 
   chatEnded = true;
   setInputEnabled(false);
@@ -735,10 +754,173 @@ function bindEvents(): void {
     ttsPlayer?.stop();
   });
 
-  // 清除记忆在 Task 16 接入
-  clearMemoryBtn.style.display = "none";
+  bindClearMemory();
+
+  // 历史 / 收藏 Tab 切换
+  document.querySelectorAll(".panel-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".panel-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      const panel = (tab as HTMLElement).dataset.panel;
+      historyPanel.style.display = panel === "history" ? "" : "none";
+      favoritesPanel.style.display = panel === "favorites" ? "" : "none";
+      if (panel === "history") void refreshHistory();
+      else void refreshFavorites();
+    });
+  });
+
+  // 生词点查（事件委托）
+  messagesEl.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (!target.classList.contains("chat-word")) return;
+    event.stopPropagation();
+    void showWordPopup(target.textContent ?? "", target.getBoundingClientRect());
+  });
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (
+      wordPopup.style.display !== "none" &&
+      !wordPopup.contains(target) &&
+      !target.classList.contains("chat-word")
+    ) {
+      wordPopup.style.display = "none";
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") wordPopup.style.display = "none";
+  });
 
   window.addEventListener("beforeunload", () => ttsPlayer?.stop());
+}
+
+// ====== 历史 / 收藏面板 ======
+
+async function refreshHistory(): Promise<void> {
+  const sessions = await loadSessions();
+  renderHistoryList(historyList, sessions, {
+    onOpen: (session) => openHistorySession(session),
+  });
+}
+
+async function refreshFavorites(): Promise<void> {
+  const favorites = await loadFavorites();
+  renderFavoritesList(favoritesList, favorites, {
+    onPlay: playText,
+    onRemove: (id) => {
+      void removeFavorite(id).then(() => void refreshFavorites());
+    },
+  });
+}
+
+/** 历史只读回看（进行中对话需先结束，避免丢上下文） */
+function openHistorySession(session: CompanionSession): void {
+  if (controller.isStreaming()) return;
+  if (currentTopic && !chatEnded) {
+    setStatus("先结束当前对话，再来回看历史");
+    return;
+  }
+  ttsPlayer?.stop();
+  messagesEl.innerHTML = "";
+  hideEmptyState();
+  currentTopicEl.textContent = `历史回看：${session.topic.titleZh}（只读）`;
+  setInputEnabled(false);
+  endChatBtn.disabled = true;
+
+  const backBar = document.createElement("div");
+  backBar.className = "summary-new-chat";
+  const back = document.createElement("button");
+  back.className = "link-btn";
+  back.textContent = "← 返回话题选择";
+  back.addEventListener("click", resetToTopicSelection);
+  backBar.appendChild(back);
+  messagesEl.appendChild(backBar);
+
+  for (const turn of session.messages) {
+    if (turn.role === "user") {
+      appendUserBubble(turn.content);
+    } else {
+      const bubble = appendAssistantBubble();
+      bubble.finalize(turn.content);
+    }
+  }
+
+  if (session.summary) {
+    renderSummaryCard(messagesEl, session.summary, session.topic.titleZh, {
+      onSaveFavorite: (item) => {
+        void addFavorite(item).then(() => {
+          setStatus("已收藏", "info");
+          void refreshFavorites();
+        });
+      },
+      onPlayText: playText,
+      onNewChat: resetToTopicSelection,
+    });
+  }
+  scrollToBottom();
+}
+
+// ====== 生词点查 ======
+
+async function showWordPopup(word: string, rect: DOMRect): Promise<void> {
+  wordPopup.textContent = "查询中…";
+  wordPopup.className = "word-popup word-popup-loading";
+  wordPopup.style.display = "";
+  wordPopup.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - 300))}px`;
+  wordPopup.style.top = `${rect.bottom + 6}px`;
+
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.ENGLISH_DEFINITION,
+      payload: { text: word, userLevel: currentLevel },
+    })) as EnglishDefinitionResponse;
+
+    wordPopup.className = "word-popup";
+    wordPopup.innerHTML = "";
+    if (!response.success || !response.data) {
+      wordPopup.textContent = response.error || "查询失败，请重试";
+      return;
+    }
+
+    const data = response.data;
+    const title = document.createElement("div");
+    title.className = "word-popup-title";
+    title.textContent = word;
+    const playBtn = document.createElement("button");
+    playBtn.className = "link-btn";
+    playBtn.textContent = "🔊";
+    playBtn.addEventListener("click", () => playText(word));
+    title.appendChild(playBtn);
+    wordPopup.appendChild(title);
+
+    const appendSection = (label: string, content: string): void => {
+      if (!content.trim()) return;
+      const section = document.createElement("div");
+      section.className = "word-popup-section";
+      const labelEl = document.createElement("span");
+      labelEl.className = "word-popup-label";
+      labelEl.textContent = `${label}：`;
+      section.appendChild(labelEl);
+      section.appendChild(document.createTextNode(content));
+      wordPopup.appendChild(section);
+    };
+    appendSection("释义", data.definition);
+    appendSection("例句", data.examples[0] ?? "");
+    appendSection("用法", data.usageNotes);
+  } catch (error) {
+    wordPopup.textContent =
+      error instanceof Error ? error.message : "查询失败，请重试";
+  }
+}
+
+// ====== 清除语伴记忆 ======
+
+function bindClearMemory(): void {
+  clearMemoryBtn.addEventListener("click", () => {
+    if (!confirm("清除后 Echo 将不再记得你之前聊过的内容，确定吗？")) return;
+    void chrome.runtime
+      .sendMessage({ type: MessageType.CLEAR_COMPANION_MEMORY })
+      .then(() => setStatus("语伴记忆已清除", "info"));
+  });
 }
 
 // ====== 初始化 ======
@@ -770,6 +952,8 @@ async function init(): Promise<void> {
   // 首屏：预设话题零延迟
   currentTopics = pickPresetTopics([], 5);
   renderTopics();
+  void refreshHistory();
+  void refreshFavorites();
 }
 
 void init();
