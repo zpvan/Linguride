@@ -1,5 +1,599 @@
 /**
  * @file companion.ts
- * @description 「语伴」页面入口（骨架占位，Task 14 实现完整逻辑）
+ * @description 「语伴」页面主入口
+ *
+ * 职责（DOM 薄层）：
+ * - Port 客户端：与 Background 建立长连接，收发流式对话
+ * - 对话流程：选话题 → 开场白 → 用户发消息 → 流式渲染 → 朗读/翻译
+ * - 结束对话：≥4 条用户消息生成总结卡，保存历史
+ * - 话题：预设首屏 + AI 换一批 + 自定义
+ *
+ * 会话状态全部在 ChatController（纯 TS 已测）；本文件只做渲染与事件。
+ *
+ * @author Lingride Team
+ * @since 1.1.0
  */
-console.log("[Lingride] 语伴页面骨架已加载");
+
+// pickPresetTopics 是纯函数模块（无 SW API 依赖），由 vite 直接打包进页面
+import { pickPresetTopics } from "../background/companionTopics";
+import {
+  createHybridTTSPlayer,
+  HybridTTSPlayer,
+} from "../shared/hybridTTSPlayer";
+import { CEFRLevel, DEFAULT_CONFIG, LingridConfig, MessageType } from "../types";
+import {
+  buildOpeningUserInstruction,
+  COMPANION_PORT_NAME,
+  CompanionPortEvent,
+  CompanionPortRequest,
+  SummaryCard,
+  TopicCard,
+} from "../types/companion";
+import {
+  EndCompanionSessionResponse,
+  EnglishToChineseResponse,
+  GenerateCompanionTopicsResponse,
+  GetConfigResponse,
+} from "../types/messages";
+import { DEFAULT_TTS_SPEED, TTSSpeed } from "../types/tts";
+import { ChatController } from "./chatController";
+import { addFavorite, createCompanionId, saveSession } from "./storage";
+import { renderSummaryCard } from "./summaryCard";
+import { renderTopicCards } from "./topicPanel";
+
+// ====== 状态 ======
+
+let userConfig: LingridConfig = DEFAULT_CONFIG;
+let currentLevel: CEFRLevel = DEFAULT_CONFIG.user_english_level ?? "A2";
+let currentTopic: TopicCard | null = null;
+let currentTopics: TopicCard[] = [];
+let ttsAutoPlay = true;
+let chatEnded = false;
+const controller = new ChatController();
+let ttsPlayer: HybridTTSPlayer | null = null;
+
+// ====== DOM 引用 ======
+
+const currentTopicEl = document.getElementById("currentTopic") as HTMLSpanElement;
+const levelSelect = document.getElementById("levelSelect") as HTMLSelectElement;
+const ttsToggleBtn = document.getElementById("ttsToggleBtn") as HTMLButtonElement;
+const endChatBtn = document.getElementById("endChatBtn") as HTMLButtonElement;
+const topicsListEl = document.getElementById("topicsList") as HTMLElement;
+const refreshTopicsBtn = document.getElementById("refreshTopicsBtn") as HTMLButtonElement;
+const customTopicInput = document.getElementById("customTopicInput") as HTMLInputElement;
+const customTopicBtn = document.getElementById("customTopicBtn") as HTMLButtonElement;
+const clearMemoryBtn = document.getElementById("clearMemoryBtn") as HTMLButtonElement;
+const messagesEl = document.getElementById("messagesEl") as HTMLElement;
+const emptyState = document.getElementById("emptyState") as HTMLElement;
+const statusEl = document.getElementById("statusEl") as HTMLElement;
+const inputEl = document.getElementById("inputEl") as HTMLInputElement;
+const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
+const hintBtn = document.getElementById("hintBtn") as HTMLButtonElement;
+const micBtn = document.getElementById("micBtn") as HTMLButtonElement;
+
+// ====== 状态提示 ======
+
+function setStatus(message: string, kind?: "info"): void {
+  statusEl.textContent = message;
+  statusEl.classList.toggle("info", kind === "info");
+}
+function hideStatus(): void {
+  statusEl.textContent = "";
+}
+
+// ====== Port 客户端 ======
+
+interface PendingRequest {
+  onDelta: (delta: string) => void;
+  resolve: (fullText: string) => void;
+  reject: (error: Error) => void;
+}
+
+let port: chrome.runtime.Port | null = null;
+const pendingRequests = new Map<string, PendingRequest>();
+
+function ensurePort(): chrome.runtime.Port {
+  if (port) return port;
+  const newPort = chrome.runtime.connect({ name: COMPANION_PORT_NAME });
+
+  newPort.onMessage.addListener((event: CompanionPortEvent) => {
+    const pending = pendingRequests.get(event.requestId);
+    if (!pending) return;
+    switch (event.type) {
+      case "STREAM_CHUNK":
+        pending.onDelta(event.delta);
+        break;
+      case "STREAM_DONE":
+        pendingRequests.delete(event.requestId);
+        pending.resolve(event.fullText);
+        break;
+      case "STREAM_ERROR":
+        pendingRequests.delete(event.requestId);
+        pending.reject(new Error(event.message));
+        break;
+    }
+  });
+
+  newPort.onDisconnect.addListener(() => {
+    port = null;
+    // SW 重启：历史在页面侧不丢，仅进行中的请求失败，可重试
+    const error = new Error("与后台的连接中断，请点击重试");
+    for (const pending of pendingRequests.values()) pending.reject(error);
+    pendingRequests.clear();
+  });
+
+  port = newPort;
+  return port;
+}
+
+function sendChatTurn(
+  history: ReturnType<ChatController["getWindowedHistory"]>,
+  topic: TopicCard,
+  level: CEFRLevel,
+  onDelta: (delta: string) => void
+): Promise<string> {
+  const requestId = createCompanionId("turn");
+  return new Promise((resolve, reject) => {
+    pendingRequests.set(requestId, { onDelta, resolve, reject });
+    const request: CompanionPortRequest = {
+      type: "CHAT_TURN",
+      requestId,
+      history,
+      topic,
+      level,
+    };
+    try {
+      ensurePort().postMessage(request);
+    } catch (error) {
+      pendingRequests.delete(requestId);
+      reject(error instanceof Error ? error : new Error(String(error)));
+    }
+  });
+}
+
+// ====== TTS 播放 ======
+
+function currentTTSSpeed(): TTSSpeed {
+  return userConfig.tts_speed ?? DEFAULT_TTS_SPEED;
+}
+
+function playText(text: string): void {
+  if (!ttsPlayer) return;
+  void ttsPlayer.playText({
+    text,
+    rate: currentTTSSpeed(),
+    lang: "en-US",
+    onAIError: (message) => setStatus(message),
+  });
+}
+
+// ====== 消息渲染 ======
+
+function scrollToBottom(): void {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function hideEmptyState(): void {
+  emptyState.style.display = "none";
+}
+
+function appendUserBubble(text: string): void {
+  const row = document.createElement("div");
+  row.className = "message-row user";
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollToBottom();
+}
+
+/** 把英文文本分词渲染：单词包 span.chat-word（供 Task 16 点查复用） */
+function renderTextWithWordSpans(container: HTMLElement, text: string): void {
+  const parts = text.split(/([A-Za-z]+(?:[-'][A-Za-z]+)*)/);
+  for (const part of parts) {
+    if (!part) continue;
+    if (/^[A-Za-z]+(?:[-'][A-Za-z]+)*$/.test(part)) {
+      const span = document.createElement("span");
+      span.className = "chat-word";
+      span.textContent = part;
+      container.appendChild(span);
+    } else {
+      container.appendChild(document.createTextNode(part));
+    }
+  }
+}
+
+interface AssistantBubbleHandle {
+  setText(text: string): void;
+  finalize(text: string): void;
+  markError(message: string, onRetry: () => void): void;
+}
+
+function appendAssistantBubble(): AssistantBubbleHandle {
+  const row = document.createElement("div");
+  row.className = "message-row assistant";
+  const avatar = document.createElement("div");
+  avatar.className = "message-avatar";
+  avatar.textContent = "😊";
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  const textEl = document.createElement("span");
+  textEl.className = "typing-indicator";
+  textEl.textContent = "Echo 正在输入…";
+  bubble.appendChild(textEl);
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollToBottom();
+
+  let firstChunk = true;
+  return {
+    setText(text: string) {
+      if (firstChunk) {
+        textEl.textContent = "";
+        textEl.classList.remove("typing-indicator");
+        firstChunk = false;
+      }
+      // 流式期间纯文本渲染（完成后才分词包装，避免重复拆 DOM）
+      textEl.textContent = text;
+      scrollToBottom();
+    },
+    finalize(text: string) {
+      textEl.remove();
+      renderTextWithWordSpans(bubble, text);
+
+      const actions = document.createElement("div");
+      actions.className = "message-actions";
+      const replay = document.createElement("button");
+      replay.className = "link-btn";
+      replay.textContent = "🔊 朗读";
+      replay.addEventListener("click", () => playText(text));
+      const translate = document.createElement("button");
+      translate.className = "link-btn";
+      translate.textContent = "译";
+      translate.addEventListener("click", () => {
+        void toggleTranslation(bubble, text, translate);
+      });
+      actions.appendChild(replay);
+      actions.appendChild(translate);
+      bubble.appendChild(actions);
+      scrollToBottom();
+    },
+    markError(message: string, onRetry: () => void) {
+      textEl.remove();
+      const note = document.createElement("div");
+      note.className = "message-error-note";
+      note.textContent = `回复中断：${message} `;
+      const retry = document.createElement("button");
+      retry.className = "link-btn";
+      retry.textContent = "重试";
+      retry.addEventListener("click", onRetry);
+      note.appendChild(retry);
+      bubble.appendChild(note);
+      scrollToBottom();
+    },
+  };
+}
+
+/** 折叠式中文翻译（再次点击收起） */
+async function toggleTranslation(
+  bubble: HTMLElement,
+  text: string,
+  btn: HTMLButtonElement
+): Promise<void> {
+  const existing = bubble.querySelector(".message-translation");
+  if (existing) {
+    existing.remove();
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.ENGLISH_TO_CHINESE,
+      payload: { text },
+    })) as EnglishToChineseResponse;
+    if (response.success && response.data) {
+      const zh = document.createElement("div");
+      zh.className = "message-translation";
+      zh.textContent = response.data.translation;
+      bubble.insertBefore(zh, bubble.querySelector(".message-actions"));
+      scrollToBottom();
+    } else {
+      setStatus(response.error || "翻译失败，请重试");
+    }
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "翻译失败，请重试");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ====== 对话流程 ======
+
+function setInputEnabled(enabled: boolean): void {
+  const canChat = enabled && Boolean(currentTopic) && !chatEnded;
+  inputEl.disabled = !canChat;
+  sendBtn.disabled = !canChat;
+  micBtn.disabled = !canChat;
+  hintBtn.disabled = !canChat;
+}
+
+/** 发起一轮助手回复（流式）；失败时在气泡内标记可重试 */
+async function runAssistantTurn(): Promise<void> {
+  if (!currentTopic) return;
+  controller.beginAssistantTurn();
+  const bubble = appendAssistantBubble();
+  setInputEnabled(false);
+
+  try {
+    const full = await sendChatTurn(
+      controller.getWindowedHistory(),
+      currentTopic,
+      currentLevel,
+      (delta) => {
+        controller.appendAssistantDelta(delta);
+        bubble.setText(controller.getPendingText());
+      }
+    );
+    controller.completeAssistantTurn();
+    bubble.finalize(full);
+    if (ttsAutoPlay) playText(full);
+  } catch (error) {
+    controller.failAssistantTurn();
+    bubble.markError(
+      error instanceof Error ? error.message : String(error),
+      () => {
+        // 重试：历史未变（用户轮次仍在），直接重发同一轮
+        void runAssistantTurn();
+      }
+    );
+  } finally {
+    setInputEnabled(true);
+    inputEl.focus();
+  }
+}
+
+function sendUserText(text: string): void {
+  const trimmed = text.trim();
+  if (!trimmed || !currentTopic || controller.isStreaming() || chatEnded) return;
+  hideStatus();
+  controller.addUserTurn(trimmed);
+  appendUserBubble(trimmed);
+  void runAssistantTurn();
+}
+
+/** 选择话题开始新对话（开场白 = 隐藏指令轮 + 流式回复） */
+async function pickTopic(topic: TopicCard): Promise<void> {
+  if (controller.isStreaming()) return;
+  ttsPlayer?.stop();
+  currentTopic = topic;
+  chatEnded = false;
+  controller.reset();
+  messagesEl.innerHTML = "";
+  hideEmptyState();
+  hideStatus();
+  currentTopicEl.textContent = `话题：${topic.titleZh} · ${topic.titleEn}`;
+  endChatBtn.disabled = false;
+  refreshTopicCardsActive(topic.id);
+
+  controller.addUserTurn(buildOpeningUserInstruction(topic), { hidden: true });
+  await runAssistantTurn();
+}
+
+function resetToTopicSelection(): void {
+  ttsPlayer?.stop();
+  currentTopic = null;
+  chatEnded = false;
+  controller.reset();
+  messagesEl.innerHTML = "";
+  messagesEl.appendChild(emptyState);
+  emptyState.style.display = "";
+  currentTopicEl.textContent = "选择一个话题开始聊天";
+  endChatBtn.disabled = true;
+  setInputEnabled(false);
+  refreshTopicCardsActive("");
+  hideStatus();
+}
+
+/** 结束对话：达标生成总结卡，保存历史 */
+async function endChat(): Promise<void> {
+  if (!currentTopic || controller.isStreaming()) return;
+  const topic = currentTopic;
+
+  if (controller.getUserTurnCount() === 0) {
+    // 用户还没说过话（只有隐藏的开场指令）
+    if (!confirm("还没开始聊呢，确定结束吗？")) return;
+    resetToTopicSelection();
+    return;
+  }
+
+  let summary: SummaryCard | undefined;
+  if (controller.canSummarize()) {
+    setStatus("Echo 正在回顾你们的聊天…", "info");
+    setInputEnabled(false);
+    endChatBtn.disabled = true;
+    try {
+      const response = (await chrome.runtime.sendMessage({
+        type: MessageType.END_COMPANION_SESSION,
+        payload: {
+          history: controller.getTurns(),
+          topic,
+          level: currentLevel,
+        },
+      })) as EndCompanionSessionResponse;
+      if (response.success && response.data) {
+        summary = response.data.summary;
+        renderSummaryCard(messagesEl, summary, topic.titleZh, {
+          onSaveFavorite: (item) => {
+            void addFavorite(item).then(() => {
+              setStatus("已收藏，可在左侧「收藏」页查看", "info");
+            });
+          },
+          onPlayText: playText,
+          onNewChat: resetToTopicSelection,
+        });
+        hideStatus();
+      } else {
+        setStatus(response.error || "总结生成失败，但对话已保存");
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "总结生成失败，但对话已保存");
+    }
+  } else if (!confirm("对话较短，本次不生成总结卡，确定结束吗？")) {
+    return;
+  }
+
+  await saveSession({
+    id: createCompanionId("session"),
+    topic,
+    level: currentLevel,
+    // 存储只保留可见轮次；ts 统一取结束时间（轮次级时间戳 MVP 不需要）
+    messages: controller
+      .getVisibleTurns()
+      .map((t) => ({ role: t.role, content: t.content, ts: Date.now() })),
+    summary,
+    endedAt: Date.now(),
+  });
+
+  chatEnded = true;
+  setInputEnabled(false);
+  endChatBtn.disabled = true;
+  setStatus("对话已结束。挑个新话题，再聊一场吧！", "info");
+  scrollToBottom();
+}
+
+// ====== 话题 ======
+
+function refreshTopicCardsActive(activeId: string): void {
+  topicsListEl.querySelectorAll(".topic-card").forEach((el) => {
+    (el as HTMLElement).classList.toggle(
+      "active",
+      (el as HTMLElement).dataset.topicId === activeId
+    );
+  });
+}
+
+function renderTopics(): void {
+  renderTopicCards(topicsListEl, currentTopics, {
+    onPick: (topic) => void pickTopic(topic),
+    activeId: currentTopic?.id ?? null,
+  });
+}
+
+async function refreshTopics(): Promise<void> {
+  refreshTopicsBtn.disabled = true;
+  topicsListEl.innerHTML = '<div class="topics-loading">Echo 正在想话题…</div>';
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: MessageType.GENERATE_COMPANION_TOPICS,
+      payload: {
+        level: currentLevel,
+        exclude: currentTopics.map((t) => t.titleEn),
+      },
+    })) as GenerateCompanionTopicsResponse;
+    if (response.success && response.data) {
+      currentTopics = response.data.topics;
+      if (response.data.fromPreset) {
+        setStatus("AI 暂时不可用，已为你换了一批推荐话题");
+      }
+    } else {
+      setStatus(response.error || "换一批失败，请重试");
+    }
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "换一批失败，请重试");
+  }
+  renderTopics();
+  refreshTopicsBtn.disabled = false;
+}
+
+function pickCustomTopic(): void {
+  const value = customTopicInput.value.trim();
+  if (!value || controller.isStreaming()) return;
+  customTopicInput.value = "";
+  void pickTopic({
+    id: createCompanionId("custom"),
+    titleZh: value,
+    titleEn: value,
+    openerEn: "",
+  });
+}
+
+// ====== 事件绑定 ======
+
+function bindEvents(): void {
+  sendBtn.addEventListener("click", () => {
+    sendUserText(inputEl.value);
+    inputEl.value = "";
+  });
+  inputEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendUserText(inputEl.value);
+      inputEl.value = "";
+    }
+  });
+  endChatBtn.addEventListener("click", () => void endChat());
+  refreshTopicsBtn.addEventListener("click", () => void refreshTopics());
+  customTopicBtn.addEventListener("click", pickCustomTopic);
+  customTopicInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") pickCustomTopic();
+  });
+
+  ttsToggleBtn.addEventListener("click", () => {
+    ttsAutoPlay = !ttsAutoPlay;
+    ttsToggleBtn.textContent = ttsAutoPlay ? "🔊" : "🔇";
+    ttsToggleBtn.classList.toggle("muted", !ttsAutoPlay);
+    if (!ttsAutoPlay) ttsPlayer?.stop();
+  });
+
+  levelSelect.addEventListener("change", () => {
+    currentLevel = levelSelect.value as CEFRLevel;
+    userConfig = { ...userConfig, user_english_level: currentLevel };
+    void chrome.runtime.sendMessage({
+      type: MessageType.SAVE_CONFIG,
+      payload: userConfig,
+    });
+    setStatus(`已切换到 ${currentLevel}，Echo 会调整说话难度`, "info");
+  });
+
+  // 语音/提示/历史/收藏/清除记忆在 Task 15、16 接入
+  micBtn.style.display = "none";
+  hintBtn.style.display = "none";
+  clearMemoryBtn.style.display = "none";
+
+  window.addEventListener("beforeunload", () => ttsPlayer?.stop());
+}
+
+// ====== 初始化 ======
+
+async function init(): Promise<void> {
+  bindEvents();
+
+  const response = (await chrome.runtime.sendMessage({
+    type: MessageType.GET_CONFIG,
+  })) as GetConfigResponse;
+  if (response.success && response.data) {
+    userConfig = response.data;
+    currentLevel = userConfig.user_english_level ?? "A2";
+    levelSelect.value = currentLevel;
+  }
+
+  ttsPlayer = createHybridTTSPlayer({
+    isAIEnabled: () => {
+      const selection = userConfig?.tts_selection;
+      if (selection === "browser") return false;
+      if (selection === "minimax" || selection === "xiaomi") return true;
+      return Boolean(
+        userConfig?.minimax_tts?.api_key?.trim() ||
+          userConfig?.xiaomi_tts?.api_key?.trim()
+      );
+    },
+  });
+
+  // 首屏：预设话题零延迟
+  currentTopics = pickPresetTopics([], 5);
+  renderTopics();
+}
+
+void init();
