@@ -17,6 +17,14 @@
 import { ProviderConfig } from "../types";
 
 /**
+ * 多轮对话消息（OpenAI 兼容格式）
+ */
+export interface ChatStreamMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+/**
  * 翻译服务提供者接口
  *
  * 定义所有翻译服务必须实现的方法。
@@ -81,6 +89,23 @@ export interface ITranslateProvider {
    * @returns Promise 解析为 AI 响应的原始字符串
    */
   chat(systemPrompt: string, userPrompt: string): Promise<string>;
+
+  /**
+   * 多轮对话流式生成
+   *
+   * 供「语伴」对话使用。基类提供非流式 fallback（摊平历史调 chat），
+   * 子类可覆写为真流式（SSE）。
+   *
+   * @param messages - 含 system 的完整消息数组
+   * @param onChunk - 每收到一段增量文本回调一次
+   * @param signal - 可选中止信号（CANCEL_STREAM）
+   * @returns Promise 解析为完整回复文本
+   */
+  chatStream(
+    messages: ChatStreamMessage[],
+    onChunk: (delta: string) => void,
+    signal?: AbortSignal
+  ): Promise<string>;
 }
 
 /**
@@ -198,4 +223,25 @@ export abstract class BaseTranslateProvider implements ITranslateProvider {
     error?: string;
   }>;
   abstract chat(systemPrompt: string, userPrompt: string): Promise<string>;
+
+  /**
+   * 非流式 fallback：将多轮历史摊平为单条 user prompt 后调用 chat。
+   * 子类（DeepSeek/GLM/MiniMax）覆写为真流式。
+   */
+  async chatStream(
+    messages: ChatStreamMessage[],
+    onChunk: (delta: string) => void,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 非流式 fallback 无需中止信号，保留签名供子类覆写对齐
+    _signal?: AbortSignal
+  ): Promise<string> {
+    const system = messages.find((m) => m.role === "system")?.content ?? "";
+    const turns = messages.filter((m) => m.role !== "system");
+    const userPrompt = turns
+      .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
+      .join("\n");
+
+    const full = await this.chat(system, userPrompt);
+    onChunk(full);
+    return full;
+  }
 }
