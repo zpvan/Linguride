@@ -17,7 +17,11 @@
  * @since 1.0.0
  */
 
-import { BaseTranslateProvider } from "./ITranslateProvider";
+import { BaseTranslateProvider, ChatStreamMessage } from "./ITranslateProvider";
+import {
+  openAIDeltaExtractor,
+  streamSSEChatCompletion,
+} from "./sseChatStream";
 
 /**
  * OpenAI 兼容格式的消息类型
@@ -398,5 +402,57 @@ export class DeepSeekProvider extends BaseTranslateProvider {
 
     console.log(`[Lingride] [${this.name}] chat 请求成功`);
     return content;
+  }
+
+  /**
+   * 多轮对话流式生成（OpenAI 兼容 SSE）
+   *
+   * 语伴对话使用：temperature 提高到 0.8 让朋友的回复更自然生动。
+   * GLM 继承本实现（仅 endpoint 不同）。
+   *
+   * @param messages - 含 system 的完整消息数组
+   * @param onChunk - 每收到一段增量文本回调一次
+   * @param signal - 可选中止信号（CANCEL_STREAM）
+   * @returns Promise 解析为完整回复文本
+   */
+  override async chatStream(
+    messages: ChatStreamMessage[],
+    onChunk: (delta: string) => void,
+    signal?: AbortSignal
+  ): Promise<string> {
+    console.log(
+      `[Lingride] [${this.name}] 发送流式 chat 请求，共 ${messages.length} 条消息`
+    );
+    try {
+      const full = await streamSSEChatCompletion(
+        {
+          url: this.getApiUrl(),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.config.apiKey}`,
+          },
+          body: {
+            model: this.config.model,
+            messages,
+            temperature: 0.8,
+          },
+          signal,
+        },
+        openAIDeltaExtractor,
+        onChunk
+      );
+      console.log(
+        `[Lingride] [${this.name}] 流式 chat 完成，长度 ${full.length}`
+      );
+      return full;
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          throw new Error(this.formatProviderError("请求已取消或超时"));
+        }
+        throw new Error(this.formatProviderError(error.message));
+      }
+      throw new Error(this.formatProviderError("未知请求错误"));
+    }
   }
 }
