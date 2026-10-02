@@ -237,4 +237,60 @@ describe("MiniMaxProvider", () => {
     );
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("chatStream 以 Anthropic 流式格式发送请求并拼接增量", async () => {
+    const sseBody = [
+      "event: message_start\n",
+      'data: {"type":"message_start"}\n\n',
+      "event: content_block_delta\n",
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Hey"}}\n\n',
+      "event: content_block_delta\n",
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"!"}}\n\n',
+      "event: message_stop\n",
+      'data: {"type":"message_stop"}\n\n',
+    ].join("");
+    const encoder = new TextEncoder();
+    fetchMock.mockResolvedValue(
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode(sseBody));
+            controller.close();
+          },
+        }),
+        { status: 200 }
+      )
+    );
+
+    const provider = new MiniMaxProvider(providerConfig);
+    const deltas: string[] = [];
+    const full = await provider.chatStream(
+      [
+        { role: "system", content: "You are Echo." },
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "hello" },
+        { role: "user", content: "how are you" },
+      ],
+      (d) => deltas.push(d)
+    );
+
+    expect(full).toBe("Hey!");
+    expect(deltas).toEqual(["Hey", "!"]);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.minimaxi.com/anthropic/v1/messages");
+    expect(init?.headers).toMatchObject({
+      "anthropic-version": "2023-06-01",
+      "x-api-key": "test-api-key",
+    });
+    const body = JSON.parse(String(init?.body));
+    // system 拆为顶层字段，messages 不含 system
+    expect(body.system).toBe("You are Echo.");
+    expect(body.messages).toEqual([
+      { role: "user", content: "hi" },
+      { role: "assistant", content: "hello" },
+      { role: "user", content: "how are you" },
+    ]);
+    expect(body.stream).toBe(true);
+  });
 });

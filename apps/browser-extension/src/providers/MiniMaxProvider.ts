@@ -1,4 +1,8 @@
-import { BaseTranslateProvider } from "./ITranslateProvider";
+import { BaseTranslateProvider, ChatStreamMessage } from "./ITranslateProvider";
+import {
+  anthropicDeltaExtractor,
+  streamSSEChatCompletion,
+} from "./sseChatStream";
 
 interface MessageContentBlock {
   type: string;
@@ -205,6 +209,60 @@ export class MiniMaxProvider extends BaseTranslateProvider {
     );
 
     return this.extractTextContent(response);
+  }
+
+  /**
+   * 多轮对话流式生成（Anthropic Messages SSE）
+   *
+   * system 拆为顶层字段；messages 只含 user/assistant。
+   * max_tokens 1024：朋友式回复仅 1-3 句，足够且省成本。
+   *
+   * @param messages - 含 system 的完整消息数组
+   * @param onChunk - 每收到一段增量文本回调一次
+   * @param signal - 可选中止信号（CANCEL_STREAM）
+   * @returns Promise 解析为完整回复文本
+   */
+  override async chatStream(
+    messages: ChatStreamMessage[],
+    onChunk: (delta: string) => void,
+    signal?: AbortSignal
+  ): Promise<string> {
+    const system = messages.find((m) => m.role === "system")?.content;
+    const turns = messages
+      .filter((m) => m.role !== "system")
+      .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+
+    try {
+      return await streamSSEChatCompletion(
+        {
+          url: this.getApiUrl(),
+          headers: {
+            "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01",
+            "x-api-key": this.config.apiKey,
+            Authorization: `Bearer ${this.config.apiKey}`,
+          },
+          body: {
+            model: this.config.model,
+            ...(system ? { system } : {}),
+            messages: turns,
+            max_tokens: 1024,
+            temperature: 0.8,
+          },
+          signal,
+        },
+        anthropicDeltaExtractor,
+        onChunk
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          throw new Error(this.formatProviderError("请求已取消或超时"));
+        }
+        throw new Error(this.formatProviderError(error.message));
+      }
+      throw new Error(this.formatProviderError("未知请求错误"));
+    }
   }
 
   async testConnection(): Promise<{
