@@ -53,6 +53,15 @@ import {
 } from "./storage";
 import { renderSummaryCard } from "./summaryCard";
 import {
+  applyTheme,
+  loadThemeMode,
+  nextThemeMode,
+  saveThemeMode,
+  THEME_MODE_ICONS,
+  THEME_MODE_LABELS,
+  ThemeMode,
+} from "./theme";
+import {
   renderFavoritesList,
   renderHistoryList,
   renderTopicCards,
@@ -65,6 +74,7 @@ let currentLevel: CEFRLevel = DEFAULT_CONFIG.user_english_level ?? "A2";
 let currentTopic: TopicCard | null = null;
 let currentTopics: TopicCard[] = [];
 let ttsAutoPlay = true;
+let themeMode: ThemeMode = "auto";
 let chatEnded = false;
 const controller = new ChatController();
 let ttsPlayer: HybridTTSPlayer | null = null;
@@ -81,6 +91,7 @@ let recordingSeconds = 0;
 const currentTopicEl = document.getElementById("currentTopic") as HTMLSpanElement;
 const levelSelect = document.getElementById("levelSelect") as HTMLSelectElement;
 const ttsToggleBtn = document.getElementById("ttsToggleBtn") as HTMLButtonElement;
+const themeToggleBtn = document.getElementById("themeToggleBtn") as HTMLButtonElement;
 const endChatBtn = document.getElementById("endChatBtn") as HTMLButtonElement;
 const topicsListEl = document.getElementById("topicsList") as HTMLElement;
 const refreshTopicsBtn = document.getElementById("refreshTopicsBtn") as HTMLButtonElement;
@@ -698,6 +709,13 @@ function pickCustomTopic(): void {
   });
 }
 
+// ====== 主题 ======
+
+function updateThemeToggle(): void {
+  themeToggleBtn.textContent = THEME_MODE_ICONS[themeMode];
+  themeToggleBtn.title = `主题：${THEME_MODE_LABELS[themeMode]}（点击切换）`;
+}
+
 // ====== 事件绑定 ======
 
 function bindEvents(): void {
@@ -724,6 +742,13 @@ function bindEvents(): void {
     ttsToggleBtn.textContent = ttsAutoPlay ? "🔊" : "🔇";
     ttsToggleBtn.classList.toggle("muted", !ttsAutoPlay);
     if (!ttsAutoPlay) ttsPlayer?.stop();
+  });
+
+  themeToggleBtn.addEventListener("click", () => {
+    themeMode = nextThemeMode(themeMode);
+    saveThemeMode(themeMode);
+    applyTheme(themeMode);
+    updateThemeToggle();
   });
 
   levelSelect.addEventListener("change", () => {
@@ -949,6 +974,10 @@ function bindClearMemory(): void {
 
 async function init(): Promise<void> {
   bindEvents();
+
+  themeMode = loadThemeMode();
+  applyTheme(themeMode);
+  updateThemeToggle();
 
   try {
     const response = (await chrome.runtime.sendMessage({

@@ -112,7 +112,7 @@ export function renderFavoritesList(
     if (fav.better) {
       const better = document.createElement("div");
       better.className = "record-item-text";
-      better.style.color = "#2e7d4f";
+      better.style.color = "var(--success)";
       better.textContent = `→ ${fav.better}`;
       item.appendChild(better);
     }
