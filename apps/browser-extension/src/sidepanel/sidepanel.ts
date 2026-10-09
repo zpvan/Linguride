@@ -486,7 +486,7 @@ function hasConfiguredAiAuth(config: LingridConfig): boolean {
   );
 }
 
-function getAiConfigHintMessage(_config: LingridConfig): string {
+function getAiConfigHintMessage(): string {
   return "需要先配置 API 服务";
 }
 
@@ -894,7 +894,7 @@ function handleModeClick(e: Event): void {
     }
 
     if (!hasConfiguredAiAuth(currentConfig)) {
-      configHintText.textContent = getAiConfigHintMessage(currentConfig);
+      configHintText.textContent = getAiConfigHintMessage();
       configHint.style.display = "flex";
       setTimeout(() => {
         configHint.style.display = "none";
