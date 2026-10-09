@@ -9,6 +9,7 @@ import {
   DEEPSEEK_CACHE_KEY,
   DEEPSEEK_CACHE_EXPIRY_MS,
   GLM_MODELS_CACHE_KEY,
+  KIMI_MODELS_CACHE_KEY,
   MINIMAX_MODELS_CACHE_KEY,
   DeepSeekModelCache,
 } from "../types/config";
@@ -27,6 +28,7 @@ export const AI_PROVIDER_BASE_URL_PRESETS: Record<Exclude<AIProviderId, "custom"
     glm: "https://open.bigmodel.cn/api/paas/v4/",
     minimax: MINIMAX_AI_API_BASE_URL,
     openai: "https://api.openai.com",
+    kimi: "https://api.moonshot.cn",
   };
 
 export const DEEPSEEK_MODEL_OPTIONS_FALLBACK: ModelOption[] = [
@@ -40,6 +42,15 @@ export const GLM_MODEL_OPTIONS: ModelOption[] = [
   { value: "glm-4.5", label: "glm-4.5" },
   { value: "glm-4.5-air", label: "glm-4.5-air" },
   { value: "glm-4-air", label: "glm-4-air" },
+  { value: "custom", label: "自定义..." },
+];
+
+export const KIMI_DEFAULT_MODEL = "kimi-k3";
+
+export const KIMI_MODEL_OPTIONS: ModelOption[] = [
+  { value: "kimi-k3", label: "kimi-k3" },
+  { value: "kimi-k2.6", label: "kimi-k2.6" },
+  { value: "kimi-k2.7-code", label: "kimi-k2.7-code" },
   { value: "custom", label: "自定义..." },
 ];
 
@@ -86,6 +97,9 @@ export async function getStaticModelOptions(providerType: AIProviderId, apiKey?:
   if (providerType === "minimax") {
     return getCachedProviderModels("minimax") ?? MINIMAX_MODEL_OPTIONS;
   }
+  if (providerType === "kimi") {
+    return getCachedProviderModels("kimi") ?? KIMI_MODEL_OPTIONS;
+  }
   return null;
 }
 
@@ -104,6 +118,10 @@ export function getDefaultModelForProvider(
 
   if (providerType === "minimax") {
     return MINIMAX_DEFAULT_MODEL;
+  }
+
+  if (providerType === "kimi") {
+    return KIMI_DEFAULT_MODEL;
   }
 
   if (providerType === "openai") {
@@ -145,6 +163,7 @@ const PROVIDER_MODELS_CACHE_KEYS: Partial<Record<AIProviderId, string>> = {
   deepseek: DEEPSEEK_CACHE_KEY,
   glm: GLM_MODELS_CACHE_KEY,
   minimax: MINIMAX_MODELS_CACHE_KEY,
+  kimi: KIMI_MODELS_CACHE_KEY,
 };
 
 /**
@@ -227,6 +246,10 @@ function buildModelsEndpointUrl(providerType: AIProviderId, baseUrl?: string): s
   }
   if (providerType === "minimax") {
     return `${normalizeMiniMaxAIBaseUrl(trimmed)}/v1/models`;
+  }
+  if (providerType === "kimi") {
+    const preset = AI_PROVIDER_BASE_URL_PRESETS.kimi.replace(/\/+$/, "");
+    return `${trimmed || preset}/v1/models`;
   }
   return null;
 }

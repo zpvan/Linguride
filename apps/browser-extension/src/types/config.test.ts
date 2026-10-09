@@ -43,6 +43,23 @@ describe("resolveConfigApiProvider", () => {
       })
     ).toBe("minimax");
   });
+
+  it("accepts kimi explicitly", () => {
+    expect(
+      resolveConfigApiProvider({
+        api_provider: "kimi",
+        api_base_url: "https://example.invalid",
+      })
+    ).toBe("kimi");
+  });
+
+  it("infers kimi from the moonshot base url", () => {
+    expect(
+      resolveConfigApiProvider({
+        api_base_url: "https://api.moonshot.cn/",
+      })
+    ).toBe("kimi");
+  });
 });
 
 describe("normalizeMiniMaxTTSBaseUrl", () => {

@@ -5,6 +5,8 @@ import {
   CUSTOM_MODEL_PLACEHOLDER,
   DEEPSEEK_MODEL_OPTIONS_FALLBACK,
   GLM_MODEL_OPTIONS,
+  KIMI_DEFAULT_MODEL,
+  KIMI_MODEL_OPTIONS,
   LATEST_MODEL_OPTIONS_LIMIT,
   MINIMAX_DEFAULT_MODEL,
   MINIMAX_ENDPOINT_OPTIONS,
@@ -101,6 +103,21 @@ describe("aiServiceOptions", () => {
     expect(await getStaticModelOptions("openai")).toBeNull();
     expect(await getStaticModelOptions("deepseek")).toBe(DEEPSEEK_MODEL_OPTIONS_FALLBACK);
     expect(await getStaticModelOptions("glm")).toBe(GLM_MODEL_OPTIONS);
+  });
+
+  it("exposes the kimi preset endpoint, model list and default model", () => {
+    expect(AI_PROVIDER_BASE_URL_PRESETS.kimi).toBe("https://api.moonshot.cn");
+    expect(KIMI_MODEL_OPTIONS[0]).toEqual({
+      value: "kimi-k3",
+      label: "kimi-k3",
+    });
+    expect(KIMI_MODEL_OPTIONS[KIMI_MODEL_OPTIONS.length - 1]).toEqual({
+      value: "custom",
+      label: "自定义...",
+    });
+    expect(getDefaultModelForProvider("kimi", "api_key")).toBe(
+      KIMI_DEFAULT_MODEL
+    );
   });
 });
 
@@ -293,6 +310,33 @@ describe("模型列表动态刷新", () => {
       expect(getCachedProviderModels("minimax")).toEqual(options);
       // 刷新后 getStaticModelOptions 优先返回缓存列表
       expect(await getStaticModelOptions("minimax")).toEqual(options);
+    });
+
+    it("Kimi：请求 OpenAI 兼容 /v1/models 端点，结果写入缓存", async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [{ id: "kimi-k3" }, { id: "kimi-k2.6" }],
+        }),
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const options = await refreshProviderModelOptions("kimi", "test-key");
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.moonshot.cn/v1/models",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization: "Bearer test-key",
+          }),
+        })
+      );
+      expect(options?.map((option) => option.value)).toEqual([
+        "kimi-k3",
+        "kimi-k2.6",
+        "custom",
+      ]);
+      expect(await getStaticModelOptions("kimi")).toEqual(options);
     });
 
     it("GLM：请求 OpenAI 兼容端点，超过 6 个时只保留最新 6 个", async () => {

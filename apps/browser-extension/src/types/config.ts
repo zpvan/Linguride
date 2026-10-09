@@ -25,7 +25,7 @@ export type { CEFRLevel } from "./difficulty";
 /**
  * AI 服务提供者标识
  */
-export type AIProviderId = "deepseek" | "openai" | "custom" | "glm" | "minimax";
+export type AIProviderId = "deepseek" | "openai" | "custom" | "glm" | "minimax" | "kimi";
 
 /**
  * 模型选项（用于下拉列表）
@@ -687,7 +687,8 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
     config.api_provider === "openai" ||
     config.api_provider === "custom" ||
     config.api_provider === "glm" ||
-    config.api_provider === "minimax"
+    config.api_provider === "minimax" ||
+    config.api_provider === "kimi"
   ) {
     return config.api_provider;
   }
@@ -707,6 +708,9 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
     normalized === MINIMAX_AI_API_BASE_URL_CN
   ) {
     return "minimax";
+  }
+  if (normalized === "https://api.moonshot.cn") {
+    return "kimi";
   }
   return "custom";
 }
@@ -830,6 +834,11 @@ export const GLM_MODELS_CACHE_KEY = "glm_models_cache";
  * MiniMax 模型缓存存储键名
  */
 export const MINIMAX_MODELS_CACHE_KEY = "minimax_models_cache";
+
+/**
+ * Kimi 模型缓存存储键名
+ */
+export const KIMI_MODELS_CACHE_KEY = "kimi_models_cache";
 
 /**
  * DeepSeek 模型缓存过期时间（24 小时）
