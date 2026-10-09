@@ -15,7 +15,12 @@
  * @since 1.0.0
  */
 
-import { CacheEntry, simpleHash, TranslationCache } from "../types";
+import {
+  CacheEntry,
+  EnglishDefinitionResult,
+  simpleHash,
+  TranslationCache,
+} from "../types";
 
 /**
  * 翻译缓存存储
@@ -31,6 +36,21 @@ const paraphraseCache: Map<string, CacheEntry> = new Map();
  * 混杂翻译缓存存储（键包含用户等级）
  */
 const mixedTranslateCache: Map<string, CacheEntry> = new Map();
+
+/**
+ * 英英释义缓存条目（结构化结果，不复用 CacheEntry 的字符串字段）
+ */
+interface EnglishDefinitionCacheEntry {
+  originalText: string;
+  result: EnglishDefinitionResult;
+  timestamp: number;
+}
+
+/**
+ * 英英释义缓存存储（键包含用户等级，输出依赖用户 CEFR 等级）
+ */
+const englishDefinitionCache: Map<string, EnglishDefinitionCacheEntry> =
+  new Map();
 
 /**
  * 统计信息
@@ -122,6 +142,7 @@ export function clearCache(): void {
   cache.clear();
   paraphraseCache.clear();
   mixedTranslateCache.clear();
+  englishDefinitionCache.clear();
   stats.hits = 0;
   stats.misses = 0;
   console.log("[Lingride] 所有缓存已清空");
@@ -137,6 +158,7 @@ export function getCacheStats(): {
   translationSize: number;
   paraphraseSize: number;
   mixedTranslateSize: number;
+  englishDefinitionSize: number;
   hits: number;
   misses: number;
   hitRate: string;
@@ -145,10 +167,15 @@ export function getCacheStats(): {
   const hitRate = total > 0 ? ((stats.hits / total) * 100).toFixed(1) : "0.0";
 
   return {
-    size: cache.size + paraphraseCache.size + mixedTranslateCache.size,
+    size:
+      cache.size +
+      paraphraseCache.size +
+      mixedTranslateCache.size +
+      englishDefinitionCache.size,
     translationSize: cache.size,
     paraphraseSize: paraphraseCache.size,
     mixedTranslateSize: mixedTranslateCache.size,
+    englishDefinitionSize: englishDefinitionCache.size,
     hits: stats.hits,
     misses: stats.misses,
     hitRate: `${hitRate}%`,
@@ -287,4 +314,49 @@ export function setCachedMixedTranslations(
   for (const { original, mixedText } of pairs) {
     setCachedMixedTranslation(original, mixedText, level);
   }
+}
+
+// ====== 英英释义缓存 ======
+
+/**
+ * 获取缓存的英英释义
+ *
+ * @param originalText - 原始英文文本
+ * @param level - 用户 CEFR 等级
+ * @returns 缓存的释义结果，如果未命中返回 undefined
+ */
+export function getCachedEnglishDefinition(
+  originalText: string,
+  level: string
+): EnglishDefinitionResult | undefined {
+  const key = getLeveledCacheKey(originalText, level);
+  const entry = englishDefinitionCache.get(key);
+
+  if (entry && entry.originalText === originalText) {
+    stats.hits++;
+    return entry.result;
+  }
+
+  stats.misses++;
+  return undefined;
+}
+
+/**
+ * 存储英英释义到缓存
+ *
+ * @param originalText - 原始英文文本
+ * @param result - 英英释义结构化结果
+ * @param level - 用户 CEFR 等级
+ */
+export function setCachedEnglishDefinition(
+  originalText: string,
+  result: EnglishDefinitionResult,
+  level: string
+): void {
+  const key = getLeveledCacheKey(originalText, level);
+  englishDefinitionCache.set(key, {
+    originalText,
+    result,
+    timestamp: Date.now(),
+  });
 }
