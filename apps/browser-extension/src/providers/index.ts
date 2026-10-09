@@ -11,6 +11,5 @@
 export { DeepSeekProvider } from "./DeepSeekProvider";
 export { GLMProvider } from "./GLMProvider";
 export { MiniMaxProvider } from "./MiniMaxProvider";
-export { OpenAICodexProvider } from "./OpenAICodexProvider";
 export { BaseTranslateProvider } from "./ITranslateProvider";
 export type { ITranslateProvider } from "./ITranslateProvider";

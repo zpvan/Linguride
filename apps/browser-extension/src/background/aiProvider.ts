@@ -3,22 +3,11 @@ import { DeepSeekProvider } from "../providers/DeepSeekProvider";
 import { GLMProvider } from "../providers/GLMProvider";
 import { MiniMaxProvider } from "../providers/MiniMaxProvider";
 import {
-  OpenAICodexAuthAdapter,
-  OpenAICodexProvider,
-} from "../providers/OpenAICodexProvider";
-import {
   LingridConfig,
   ProviderConfig,
-  resolveConfigApiProvider,
   resolveConfigModel,
-  resolveConfigOpenAIAuthMode,
   toProviderConfig,
 } from "../types";
-import {
-  disconnectOpenAICodexOAuth,
-  getOpenAICodexOAuthCredentials,
-  getOpenAICodexOAuthStatus,
-} from "./openaiCodexAuth";
 
 type ProviderReadyResult =
   | {
@@ -42,26 +31,9 @@ function hasApiKey(config: ProviderConfig): boolean {
   return Boolean(config.apiKey?.trim());
 }
 
-function getOpenAICodexAuthAdapter(): OpenAICodexAuthAdapter {
-  return {
-    async getCredentials(options) {
-      const credentials = await getOpenAICodexOAuthCredentials(options);
-      return {
-        accessToken: credentials.access,
-        accountId: credentials.account_id,
-      };
-    },
-    async handleUnauthorized() {
-      await disconnectOpenAICodexOAuth();
-    },
-  };
-}
-
 export async function assertAiProviderReady(
   config: LingridConfig
 ): Promise<ProviderReadyResult> {
-  const providerId = resolveConfigApiProvider(config);
-  const authMode = resolveConfigOpenAIAuthMode(config);
   const model = resolveConfigModel(config);
   const providerConfig = toProviderConfig(config);
 
@@ -69,21 +41,6 @@ export async function assertAiProviderReady(
     return {
       ok: false,
       error: "请先配置模型",
-    };
-  }
-
-  if (providerId === "openai" && authMode === "oauth") {
-    const oauthStatus = await getOpenAICodexOAuthStatus();
-    if (oauthStatus.status === "missing" || oauthStatus.status === "pending") {
-      return {
-        ok: false,
-        error: "请先完成 OpenAI OAuth 登录",
-      };
-    }
-
-    return {
-      ok: true,
-      providerConfig,
     };
   }
 
@@ -123,15 +80,6 @@ export async function createAIProvider(
   }
 
   const { providerConfig } = readiness;
-  if (
-    providerConfig.providerId === "openai" &&
-    providerConfig.authMode === "oauth"
-  ) {
-    return new OpenAICodexProvider(
-      providerConfig,
-      getOpenAICodexAuthAdapter()
-    );
-  }
 
   if (providerConfig.providerId === "glm") {
     return new GLMProvider(providerConfig);
@@ -141,5 +89,6 @@ export async function createAIProvider(
     return new MiniMaxProvider(providerConfig);
   }
 
+  // deepseek / kimi：均为 OpenAI 兼容协议，复用 DeepSeekProvider
   return new DeepSeekProvider(providerConfig);
 }
