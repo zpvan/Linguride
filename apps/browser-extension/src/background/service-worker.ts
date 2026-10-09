@@ -2140,10 +2140,12 @@ async function handleSynthesizeSpeech(
 
     await playTTSAudioInOffscreen(data, rate);
     if (!isCurrentTTSPlaybackEpoch(playbackEpoch)) {
+      // 音频已完整播放后被后续请求作废：标记 audioPlayed，前台不得回退重读
       return {
         success: false,
         errorCode: "TTS_CANCELLED",
         error: "朗读已取消",
+        audioPlayed: true,
       };
     }
 
@@ -2170,6 +2172,8 @@ async function handleSynthesizeSpeech(
         errorHint: error.hint,
         httpStatus: error.httpStatus,
         errorDetail: error.detail,
+        // 播放阶段出错（含 offscreen 被新请求中断）说明音频已送达播放，可能已部分出声
+        audioPlayed: error.code === "TTS_PLAYBACK_ERROR" ? true : undefined,
       };
     }
 

@@ -1058,6 +1058,8 @@ export interface SynthesizeSpeechResponse extends BaseResponse {
   };
   /** 错误代码（用于前台决定是否静默回退） */
   errorCode?: TTSServiceErrorCode;
+  /** 失败时标记音频是否已（部分或全部）送达播放；为 true 时前台不得回退浏览器朗读，避免重复出声 */
+  audioPlayed?: boolean;
   /** 细分错误提示（用于前台展示更具体原因） */
   errorHint?: TTSServiceErrorHint;
   /** HTTP 状态码（如有） */
