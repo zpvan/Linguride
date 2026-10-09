@@ -46,18 +46,6 @@ export enum MessageType {
   GET_CONFIG = "GET_CONFIG",
   /** 保存配置 */
   SAVE_CONFIG = "SAVE_CONFIG",
-  /** 获取 OpenAI 官方模型目录 */
-  GET_OPENAI_MODEL_CATALOG = "GET_OPENAI_MODEL_CATALOG",
-  /** 强制刷新 OpenAI 官方模型目录 */
-  REFRESH_OPENAI_MODEL_CATALOG = "REFRESH_OPENAI_MODEL_CATALOG",
-  /** 启动 OpenAI OAuth 登录 */
-  START_OPENAI_OAUTH = "START_OPENAI_OAUTH",
-  /** 完成 OpenAI OAuth 登录 */
-  COMPLETE_OPENAI_OAUTH = "COMPLETE_OPENAI_OAUTH",
-  /** 获取 OpenAI OAuth 状态 */
-  GET_OPENAI_OAUTH_STATUS = "GET_OPENAI_OAUTH_STATUS",
-  /** 断开 OpenAI OAuth */
-  DISCONNECT_OPENAI_OAUTH = "DISCONNECT_OPENAI_OAUTH",
   /** 全局 TTS 语速已变更（Background -> Extension Pages） */
   TTS_SPEED_CHANGED = "TTS_SPEED_CHANGED",
 
@@ -191,108 +179,6 @@ export interface GetConfigMessage {
 export interface SaveConfigMessage {
   type: MessageType.SAVE_CONFIG;
   payload: LingridConfig;
-}
-
-/**
- * OpenAI 模型目录作用域
- */
-export type OpenAIModelCatalogScope = "api" | "oauth";
-
-/**
- * OpenAI 模型目录校验状态
- */
-export type OpenAIModelCatalogVerificationState =
-  | "docs_only"
-  | "verified_by_api_key";
-
-/**
- * OpenAI 官方模型目录项
- */
-export interface OpenAIModelItem {
-  /** 模型 ID，作为真实请求值 */
-  id: string;
-  /** 展示标签 */
-  label: string;
-  /** 当前目录所属通道 */
-  channel: OpenAIModelCatalogScope;
-  /** 官方模型页中的分组标题 */
-  section: string;
-  /** 是否已弃用 */
-  deprecated: boolean;
-  /** 目录来源 */
-  source: "docs" | "docs+api";
-}
-
-/**
- * OpenAI 官方模型目录响应数据
- */
-export interface OpenAIModelCatalogResponseData {
-  items: OpenAIModelItem[];
-  fetchedAt: number;
-  expiresAt: number;
-  stale: boolean;
-  lastError?: string;
-  scope: OpenAIModelCatalogScope;
-  verificationState: OpenAIModelCatalogVerificationState;
-}
-
-/**
- * 获取 OpenAI 官方模型目录消息
- */
-export interface GetOpenAIModelCatalogMessage {
-  type: MessageType.GET_OPENAI_MODEL_CATALOG;
-}
-
-/**
- * 强制刷新 OpenAI 官方模型目录消息
- */
-export interface RefreshOpenAIModelCatalogMessage {
-  type: MessageType.REFRESH_OPENAI_MODEL_CATALOG;
-}
-
-/**
- * OpenAI OAuth 状态
- */
-export type OpenAIOAuthStatus = "missing" | "pending" | "connected" | "expired";
-
-/**
- * OpenAI OAuth 错误码
- */
-export type OpenAIOAuthErrorCode =
-  | "STATE_MISMATCH"
-  | "MISSING_CODE"
-  | "TOKEN_EXCHANGE_FAILED"
-  | "OAUTH_NOT_CONNECTED";
-
-/**
- * 启动 OpenAI OAuth 消息
- */
-export interface StartOpenAIOAuthMessage {
-  type: MessageType.START_OPENAI_OAUTH;
-}
-
-/**
- * 完成 OpenAI OAuth 消息
- */
-export interface CompleteOpenAIOAuthMessage {
-  type: MessageType.COMPLETE_OPENAI_OAUTH;
-  payload: {
-    callbackInput: string;
-  };
-}
-
-/**
- * 获取 OpenAI OAuth 状态消息
- */
-export interface GetOpenAIOAuthStatusMessage {
-  type: MessageType.GET_OPENAI_OAUTH_STATUS;
-}
-
-/**
- * 断开 OpenAI OAuth 消息
- */
-export interface DisconnectOpenAIOAuthMessage {
-  type: MessageType.DISCONNECT_OPENAI_OAUTH;
 }
 
 /**
@@ -765,12 +651,6 @@ export interface ClearCompanionMemoryMessage {
 export type Message =
   | GetConfigMessage
   | SaveConfigMessage
-  | GetOpenAIModelCatalogMessage
-  | RefreshOpenAIModelCatalogMessage
-  | StartOpenAIOAuthMessage
-  | CompleteOpenAIOAuthMessage
-  | GetOpenAIOAuthStatusMessage
-  | DisconnectOpenAIOAuthMessage
   | TTSSpeedChangedMessage
   | ToggleTranslationMessage
   | GetTranslationStateMessage
@@ -839,65 +719,6 @@ export interface GetConfigResponse extends BaseResponse {
  * 保存配置响应
  */
 export type SaveConfigResponse = BaseResponse;
-
-/**
- * 获取 OpenAI 官方模型目录响应
- */
-export interface GetOpenAIModelCatalogResponse extends BaseResponse {
-  data?: OpenAIModelCatalogResponseData;
-}
-
-/**
- * 强制刷新 OpenAI 官方模型目录响应
- */
-export interface RefreshOpenAIModelCatalogResponse extends BaseResponse {
-  data?: OpenAIModelCatalogResponseData;
-}
-
-/**
- * 启动 OpenAI OAuth 响应
- */
-export interface StartOpenAIOAuthResponse extends BaseResponse {
-  data?: {
-    authorizeUrl: string;
-    pending: true;
-  };
-  errorCode?: OpenAIOAuthErrorCode;
-}
-
-/**
- * 完成 OpenAI OAuth 响应
- */
-export interface CompleteOpenAIOAuthResponse extends BaseResponse {
-  data?: {
-    connected: true;
-    expiresAt: number;
-    accountId: string;
-  };
-  errorCode?: OpenAIOAuthErrorCode;
-}
-
-/**
- * 获取 OpenAI OAuth 状态响应
- */
-export interface GetOpenAIOAuthStatusResponse extends BaseResponse {
-  data?: {
-    status: OpenAIOAuthStatus;
-    expiresAt?: number;
-    accountId?: string;
-  };
-  errorCode?: OpenAIOAuthErrorCode;
-}
-
-/**
- * 断开 OpenAI OAuth 响应
- */
-export interface DisconnectOpenAIOAuthResponse extends BaseResponse {
-  data?: {
-    disconnected: true;
-  };
-  errorCode?: OpenAIOAuthErrorCode;
-}
 
 /**
  * 翻译状态响应
@@ -1285,12 +1106,6 @@ export type ClearCompanionMemoryResponse = BaseResponse;
 export type Response =
   | GetConfigResponse
   | SaveConfigResponse
-  | GetOpenAIModelCatalogResponse
-  | RefreshOpenAIModelCatalogResponse
-  | StartOpenAIOAuthResponse
-  | CompleteOpenAIOAuthResponse
-  | GetOpenAIOAuthStatusResponse
-  | DisconnectOpenAIOAuthResponse
   | GetTranslationStateResponse
   | TranslateResponse
   | TestConnectionResponse
