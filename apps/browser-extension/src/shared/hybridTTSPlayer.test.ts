@@ -4,6 +4,7 @@ import {
   createHybridTTSPlayer,
   selectNaturalBrowserVoice,
 } from "./hybridTTSPlayer";
+import { MessageType, SynthesizeSpeechResponse } from "../types";
 
 function makeVoice(
   name: string,
@@ -212,11 +213,11 @@ describe("createHybridTTSPlayer AI progress", () => {
     );
     expect(cancelMessage).toBeDefined();
     expect(cancelMessage?.payload?.requestId).toMatch(/^tts-/);
-    // 取消后静默回退浏览器朗读
-    expect(browserTTS.speakCalls).toBe(1);
+    // 取消即静默结束：不再回退浏览器朗读（避免重复出声）
+    expect(browserTTS.speakCalls).toBe(0);
   });
 
-  it("falls back to browser speech silently on TTS_CANCELLED", async () => {
+  it("TTS_CANCELLED 时静默结束且不回退浏览器朗读", async () => {
     installChromeMock((message) => {
       if (message.type === "SYNTHESIZE_SPEECH") {
         return {
@@ -244,7 +245,7 @@ describe("createHybridTTSPlayer AI progress", () => {
 
     expect(warnings).toHaveLength(0);
     expect(aiErrors).toHaveLength(0);
-    expect(browserTTS.speakCalls).toBe(1);
+    expect(browserTTS.speakCalls).toBe(0);
   });
 
   it("reports specific AI error via onAIError", async () => {
@@ -305,5 +306,166 @@ describe("createHybridTTSPlayer AI progress", () => {
     expect(
       sentMessages.some((m) => m.type === "GET_TTS_SYNTHESIS_STATUS")
     ).toBe(false);
+  });
+});
+
+// ====== AI 播放所有权与回退策略（重复朗读回归） ======
+
+interface Deferred {
+  resolve: (value: SynthesizeSpeechResponse) => void;
+  promise: Promise<SynthesizeSpeechResponse>;
+}
+
+function createDeferred(): Deferred {
+  let resolve!: (value: SynthesizeSpeechResponse) => void;
+  const promise = new Promise<SynthesizeSpeechResponse>((res) => {
+    resolve = res;
+  });
+  return { resolve, promise };
+}
+
+describe("createHybridTTSPlayer AI 播放所有权与回退策略", () => {
+  let synthCalls: string[];
+  let stopCalls: number;
+  let deferreds: Deferred[];
+  let speakCalls: string[];
+
+  beforeEach(() => {
+    synthCalls = [];
+    stopCalls = 0;
+    deferreds = [];
+    speakCalls = [];
+
+    vi.stubGlobal("chrome", {
+      runtime: {
+        sendMessage: vi.fn(
+          (message: { type: MessageType; payload?: { text?: string } }) => {
+            if (message.type === MessageType.SYNTHESIZE_SPEECH) {
+              synthCalls.push(message.payload?.text ?? "");
+              const deferred = createDeferred();
+              deferreds.push(deferred);
+              return deferred.promise;
+            }
+            if (message.type === MessageType.STOP_TTS_PLAYBACK) {
+              stopCalls += 1;
+              return Promise.resolve({ success: true });
+            }
+            return Promise.resolve({ success: true });
+          }
+        ),
+      },
+    });
+
+    vi.stubGlobal("window", {
+      speechSynthesis: {
+        speak: vi.fn((utterance: { text: string; onend?: () => void }) => {
+          speakCalls.push(utterance.text);
+          utterance.onend?.();
+        }),
+        cancel: vi.fn(),
+        getVoices: vi.fn(() => []),
+      },
+    });
+
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        text: string;
+        lang = "";
+        rate = 1;
+        voice: unknown = null;
+        onstart: (() => void) | null = null;
+        onend: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        constructor(text: string) {
+          this.text = text;
+        }
+      }
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("stale run 的迟到响应不清除当前 run 的 AI 播放所有权", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+
+    // run A 开始合成
+    const runA = player.playText({ text: "alpha", rate: 1 });
+    expect(synthCalls).toEqual(["alpha"]);
+
+    // run B 抢占：stop 应发出 STOP（run A 持有所有权）
+    const runB = player.playText({ text: "bravo", rate: 1 });
+    expect(stopCalls).toBe(1);
+    expect(synthCalls).toEqual(["alpha", "bravo"]);
+
+    // run A 的响应迟到（已被 SW 作废）：不得清掉 run B 的所有权
+    deferreds[0].resolve({
+      success: false,
+      errorCode: "TTS_CANCELLED",
+      error: "朗读已取消",
+    });
+    await runA;
+
+    // run C 再次抢占：所有权若被 run A 的 finally 误清，这里不会发 STOP（bug 回归）
+    const runC = player.playText({ text: "charlie", rate: 1 });
+    expect(stopCalls).toBe(2);
+
+    deferreds[1].resolve({
+      success: false,
+      errorCode: "TTS_CANCELLED",
+      error: "朗读已取消",
+    });
+    await runB;
+    deferreds[2].resolve({ success: true, data: { provider: "minimax" } });
+    await runC;
+
+    expect(speakCalls).toEqual([]);
+  });
+
+  it("响应标记 audioPlayed 时不回退浏览器朗读", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+
+    const run = player.playText({ text: "alpha", rate: 1 });
+    deferreds[0].resolve({
+      success: false,
+      errorCode: "TTS_CANCELLED",
+      error: "朗读已取消",
+      audioPlayed: true,
+    });
+    await run;
+
+    expect(speakCalls).toEqual([]);
+  });
+
+  it("合成失败（未播放）仍回退浏览器朗读一次", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+
+    const run = player.playText({ text: "alpha", rate: 1 });
+    deferreds[0].resolve({
+      success: false,
+      errorCode: "TTS_UNKNOWN_ERROR",
+      error: "boom",
+    });
+    await run;
+
+    expect(speakCalls).toEqual(["alpha"]);
+  });
+
+  it("AI 播放成功时不触发浏览器朗读", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+    const onEnd = vi.fn();
+
+    const run = player.playText({
+      text: "alpha",
+      rate: 1,
+      onEnd,
+    });
+    deferreds[0].resolve({ success: true, data: { provider: "minimax" } });
+    await run;
+
+    expect(onEnd).toHaveBeenCalledTimes(1);
+    expect(speakCalls).toEqual([]);
   });
 });

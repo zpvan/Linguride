@@ -135,9 +135,10 @@ export function createHybridTTSPlayer(
   let activeRunToken: number | null = null;
   let fallbackWarningShown = false;
   let runToken = 0;
-  // 仅当本实例发起过 AI 播放时才为 true，用于避免向 service worker
-  // 发送全局 STOP_TTS_PLAYBACK 时误停其他页面的播放
-  let ownsAIPlayback = false;
+  // 当前持有 AI 播放所有权的 run token；仅持有者的 stop() 会向 service worker
+  // 发送 STOP_TTS_PLAYBACK（避免误停其他页面的播放）。
+  // 用 token 而非布尔：迟到响应的 finally 不得覆盖当前 run 的所有权（重复朗读根因）。
+  let aiPlaybackOwnerToken: number | null = null;
   // AI 合成进度轮询间隔
   const AI_STATUS_POLL_INTERVAL_MS = 700;
   // 当前进行中的 AI 合成请求 ID（未启用进度跟踪时为 null）
@@ -164,8 +165,8 @@ export function createHybridTTSPlayer(
   }
 
   function requestStopAIPlayback(): void {
-    if (!ownsAIPlayback) return;
-    ownsAIPlayback = false;
+    if (aiPlaybackOwnerToken === null) return;
+    aiPlaybackOwnerToken = null;
 
     void chrome.runtime
       .sendMessage({
@@ -344,7 +345,7 @@ export function createHybridTTSPlayer(
       }, AI_STATUS_POLL_INTERVAL_MS);
     }
 
-    ownsAIPlayback = true;
+    aiPlaybackOwnerToken = token;
     try {
       const response: SynthesizeSpeechResponse =
         await chrome.runtime.sendMessage({
@@ -363,7 +364,10 @@ export function createHybridTTSPlayer(
         clearInterval(pollTimer);
       }
       activeAIRequestId = null;
-      ownsAIPlayback = false;
+      // 仅当所有权仍属于本 run 时释放；迟到响应不得覆盖后续 run 的所有权
+      if (aiPlaybackOwnerToken === token) {
+        aiPlaybackOwnerToken = null;
+      }
     }
   }
 
@@ -419,10 +423,13 @@ export function createHybridTTSPlayer(
           return;
         }
 
-        // 用户主动取消：静默回退浏览器朗读，不显示警告
-        if (response.errorCode === "TTS_CANCELLED") {
-          // fall through
-        } else if (response.error && onAIError) {
+        // 音频已（部分）播放或请求被取消：不再出声，直接结束，
+        // 绝不能回退浏览器朗读造成同一文本读两遍
+        if (response.audioPlayed || response.errorCode === "TTS_CANCELLED") {
+          return;
+        }
+
+        if (response.error && onAIError) {
           fallbackWarningShown = true;
           onAIError(response.error);
         } else if (
