@@ -24,7 +24,12 @@ import {
   TranslateResponse,
 } from "../types";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
-import { getCachedTranslation, setCachedTranslation } from "./translationCache";
+import {
+  getCachedEnglishDefinition,
+  getCachedTranslation,
+  setCachedEnglishDefinition,
+  setCachedTranslation,
+} from "./translationCache";
 import { normalizeSentenceText, splitSentenceSpans } from "./readAloud";
 import { sendMessageToBackground } from "./extensionContext";
 
@@ -884,6 +889,11 @@ async function requestDefinition(
 ): Promise<NonNullable<EnglishDefinitionResponse["data"]>> {
   const userLevel = await getUserLevel();
 
+  const cached = getCachedEnglishDefinition(text, userLevel);
+  if (cached) {
+    return cached;
+  }
+
   const response = await sendMessageToBackground<EnglishDefinitionResponse>({
     type: MessageType.ENGLISH_DEFINITION,
     payload: {
@@ -896,6 +906,7 @@ async function requestDefinition(
     throw new Error(response.error || "获取释义失败");
   }
 
+  setCachedEnglishDefinition(text, response.data, userLevel);
   return response.data;
 }
 
