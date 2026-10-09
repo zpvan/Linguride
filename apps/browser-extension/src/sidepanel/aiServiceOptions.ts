@@ -2,7 +2,6 @@ import {
   DEFAULT_CONFIG,
   MINIMAX_AI_API_BASE_URL,
   MINIMAX_AI_API_BASE_URL_CN,
-  OpenAIAuthMode,
   AIProviderId,
 } from "../types";
 import {
@@ -22,14 +21,12 @@ export interface ModelOption {
 export const CUSTOM_MODEL_PLACEHOLDER = "输入模型名称";
 export const MINIMAX_DEFAULT_MODEL = "MiniMax-M3";
 
-export const AI_PROVIDER_BASE_URL_PRESETS: Record<Exclude<AIProviderId, "custom">, string> =
-  {
-    deepseek: "https://api.deepseek.com",
-    glm: "https://open.bigmodel.cn/api/paas/v4/",
-    minimax: MINIMAX_AI_API_BASE_URL,
-    openai: "https://api.openai.com",
-    kimi: "https://api.moonshot.cn",
-  };
+export const AI_PROVIDER_BASE_URL_PRESETS: Record<AIProviderId, string> = {
+  deepseek: "https://api.deepseek.com",
+  glm: "https://open.bigmodel.cn/api/paas/v4/",
+  minimax: MINIMAX_AI_API_BASE_URL,
+  kimi: "https://api.moonshot.cn",
+};
 
 export const DEEPSEEK_MODEL_OPTIONS_FALLBACK: ModelOption[] = [
   { value: "deepseek-chat", label: "DeepSeek Chat" },
@@ -104,9 +101,7 @@ export async function getStaticModelOptions(providerType: AIProviderId, apiKey?:
 }
 
 export function getDefaultModelForProvider(
-  providerType: AIProviderId,
-  openaiAuthMode: OpenAIAuthMode,
-  openaiOauthModel?: string
+  providerType: AIProviderId
 ): string {
   if (providerType === "deepseek") {
     return DEFAULT_CONFIG.model;
@@ -124,31 +119,19 @@ export function getDefaultModelForProvider(
     return KIMI_DEFAULT_MODEL;
   }
 
-  if (providerType === "openai") {
-    return openaiAuthMode === "oauth"
-      ? openaiOauthModel?.trim() || DEFAULT_CONFIG.openai_oauth_model || "gpt-5.3-codex"
-      : "";
-  }
-
   return "";
 }
 
 export function normalizeModelForProviderSwitch(
   previousProviderType: AIProviderId,
   nextProviderType: AIProviderId,
-  previousSelectionWasPreset: boolean,
-  openaiAuthMode: OpenAIAuthMode,
-  openaiOauthModel?: string
+  previousSelectionWasPreset: boolean
 ): string | null {
   if (!previousSelectionWasPreset || previousProviderType === nextProviderType) {
     return null;
   }
 
-  return getDefaultModelForProvider(
-    nextProviderType,
-    openaiAuthMode,
-    openaiOauthModel
-  );
+  return getDefaultModelForProvider(nextProviderType);
 }
 
 /**

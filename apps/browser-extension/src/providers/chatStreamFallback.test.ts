@@ -22,7 +22,6 @@ class StubProvider extends BaseTranslateProvider {
 
 const config: ProviderConfig = {
   providerId: "deepseek",
-  authMode: "api_key",
   apiBaseUrl: "https://example.com",
   apiKey: "k",
   model: "m",

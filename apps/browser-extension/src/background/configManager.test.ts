@@ -14,13 +14,13 @@ function baseConfig(overrides: Partial<LingridConfig> = {}): LingridConfig {
 describe("migrateLegacyConfig - OpenAI/自定义服务商迁移", () => {
   it("api_provider=openai 时重置 AI 配置块为 DeepSeek 默认并剔除 openai_* 键", () => {
     const legacy = baseConfig({
-      api_provider: "openai" as LingridConfig["api_provider"],
       api_base_url: "https://api.openai.com",
       api_key: "sk-openai",
       model: "gpt-5.1-codex",
-      openai_auth_mode: "oauth",
-      openai_oauth_model: "gpt-5.3-codex",
-    } as Partial<LingridConfig>);
+    });
+    (legacy as Record<string, unknown>).api_provider = "openai";
+    (legacy as Record<string, unknown>).openai_auth_mode = "oauth";
+    (legacy as Record<string, unknown>).openai_oauth_model = "gpt-5.3-codex";
 
     const next = migrateLegacyConfig(legacy);
 
@@ -34,11 +34,11 @@ describe("migrateLegacyConfig - OpenAI/自定义服务商迁移", () => {
 
   it("api_provider=custom 时同样重置", () => {
     const legacy = baseConfig({
-      api_provider: "custom" as LingridConfig["api_provider"],
       api_base_url: "https://my-llm.example.com/v1",
       api_key: "sk-x",
       model: "my-model",
-    } as Partial<LingridConfig>);
+    });
+    (legacy as Record<string, unknown>).api_provider = "custom";
 
     const next = migrateLegacyConfig(legacy);
 
@@ -54,8 +54,8 @@ describe("migrateLegacyConfig - OpenAI/自定义服务商迁移", () => {
       api_base_url: "https://api.deepseek.com",
       api_key: "sk-deepseek",
       model: "deepseek-chat",
-      openai_auth_mode: "api_key",
-    } as Partial<LingridConfig>);
+    });
+    (legacy as Record<string, unknown>).openai_auth_mode = "api_key";
 
     const next = migrateLegacyConfig(legacy);
 

@@ -78,8 +78,7 @@ describe("aiServiceOptions", () => {
       normalizeModelForProviderSwitch(
         "deepseek",
         "minimax",
-        true,
-        "api_key"
+        true
       )
     ).toBe(MINIMAX_DEFAULT_MODEL);
   });
@@ -89,19 +88,15 @@ describe("aiServiceOptions", () => {
       normalizeModelForProviderSwitch(
         "deepseek",
         "minimax",
-        false,
-        "api_key"
+        false
       )
     ).toBeNull();
   });
 
-  it("keeps existing OpenAI defaults unchanged", async () => {
-    expect(getDefaultModelForProvider("openai", "api_key")).toBe("");
-    expect(getDefaultModelForProvider("openai", "oauth", "  gpt-5.3-codex  ")).toBe(
-      "gpt-5.3-codex"
+  it("keeps deepseek and glm static options unchanged", async () => {
+    expect(await getStaticModelOptions("deepseek")).toBe(
+      DEEPSEEK_MODEL_OPTIONS_FALLBACK
     );
-    expect(await getStaticModelOptions("openai")).toBeNull();
-    expect(await getStaticModelOptions("deepseek")).toBe(DEEPSEEK_MODEL_OPTIONS_FALLBACK);
     expect(await getStaticModelOptions("glm")).toBe(GLM_MODEL_OPTIONS);
   });
 
@@ -115,9 +110,7 @@ describe("aiServiceOptions", () => {
       value: "custom",
       label: "自定义...",
     });
-    expect(getDefaultModelForProvider("kimi", "api_key")).toBe(
-      KIMI_DEFAULT_MODEL
-    );
+    expect(getDefaultModelForProvider("kimi")).toBe(KIMI_DEFAULT_MODEL);
   });
 });
 
@@ -268,8 +261,6 @@ describe("模型列表动态刷新", () => {
 
   describe("refreshProviderModelOptions", () => {
     it("不支持的服务商或缺少 API Key 时返回 null", async () => {
-      expect(await refreshProviderModelOptions("openai", "key")).toBeNull();
-      expect(await refreshProviderModelOptions("custom", "key")).toBeNull();
       expect(await refreshProviderModelOptions("minimax", "")).toBeNull();
     });
 

@@ -5,7 +5,6 @@ import { MiniMaxProvider } from "./MiniMaxProvider";
 
 const providerConfig: ProviderConfig = {
   providerId: "minimax",
-  authMode: "api_key",
   apiBaseUrl: "https://api.minimaxi.com/anthropic",
   apiKey: "test-api-key",
   model: "MiniMax-M1",

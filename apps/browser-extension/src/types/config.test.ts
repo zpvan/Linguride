@@ -60,6 +60,14 @@ describe("resolveConfigApiProvider", () => {
       })
     ).toBe("kimi");
   });
+
+  it("falls back to deepseek for unknown base urls", () => {
+    expect(
+      resolveConfigApiProvider({
+        api_base_url: "https://example.invalid/v1",
+      })
+    ).toBe("deepseek");
+  });
 });
 
 describe("normalizeMiniMaxTTSBaseUrl", () => {

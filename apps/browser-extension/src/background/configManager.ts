@@ -49,13 +49,6 @@ export async function getConfig(): Promise<LingridConfig> {
     const config: LingridConfig = {
       api_provider:
         stored.api_provider || DEFAULT_CONFIG.api_provider,
-      // openai_* 残留字段透传给迁移函数统一剔除/重置（后续版本类型层面移除）
-      ...(stored.openai_auth_mode !== undefined
-        ? { openai_auth_mode: stored.openai_auth_mode }
-        : {}),
-      ...(stored.openai_oauth_model !== undefined
-        ? { openai_oauth_model: stored.openai_oauth_model }
-        : {}),
       api_base_url: stored.api_base_url || DEFAULT_CONFIG.api_base_url,
       api_key: stored.api_key || DEFAULT_CONFIG.api_key,
       model: stored.model || DEFAULT_CONFIG.model,

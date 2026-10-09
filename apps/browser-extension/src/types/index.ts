@@ -59,7 +59,6 @@ export {
   getRetentionPercent,
   resolveConfigApiProvider,
   resolveConfigModel,
-  resolveConfigOpenAIAuthMode,
   toProviderConfig,
 } from "./config";
 export type {
@@ -71,7 +70,6 @@ export type {
   ExplanationPromptPresetId,
   LingridConfig,
   MixedTranslatePromptConfig,
-  OpenAIAuthMode,
   ParaphrasePromptConfig,
   PromptConfig,
   ProviderConfig,

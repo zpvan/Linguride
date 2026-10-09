@@ -25,7 +25,7 @@ export type { CEFRLevel } from "./difficulty";
 /**
  * AI 服务提供者标识
  */
-export type AIProviderId = "deepseek" | "openai" | "custom" | "glm" | "minimax" | "kimi";
+export type AIProviderId = "deepseek" | "glm" | "minimax" | "kimi";
 
 /**
  * 模型选项（用于下拉列表）
@@ -36,11 +36,6 @@ export interface ModelOption {
 }
 
 /**
- * OpenAI 认证模式
- */
-export type OpenAIAuthMode = "api_key" | "oauth";
-
-/**
  * 翻译服务提供者配置
  *
  * 传递给 ITranslateProvider 实现类的配置对象，
@@ -49,9 +44,6 @@ export type OpenAIAuthMode = "api_key" | "oauth";
 export interface ProviderConfig {
   /** 当前激活的 AI 服务提供者 */
   providerId: AIProviderId;
-
-  /** OpenAI 当前认证模式（仅 providerId=openai 时生效） */
-  authMode: OpenAIAuthMode;
 
   /** API 端点基础 URL，例如 "https://api.deepseek.com" */
   apiBaseUrl: string;
@@ -481,12 +473,6 @@ export interface LingridConfig {
   /** AI 服务提供者 */
   api_provider?: AIProviderId;
 
-  /** OpenAI 认证模式（仅 api_provider=openai 时生效） */
-  openai_auth_mode?: OpenAIAuthMode;
-
-  /** OpenAI OAuth 专用模型 */
-  openai_oauth_model?: string;
-
   /** API 端点基础 URL */
   api_base_url: string;
 
@@ -656,11 +642,9 @@ export const DEFAULT_USER_ENGLISH_LEVEL: CEFRLevel = "A2";
  */
 export const DEFAULT_CONFIG: LingridConfig = {
   api_provider: "deepseek",
-  openai_auth_mode: "api_key",
   api_base_url: "https://api.deepseek.com",
   api_key: "",
   model: "deepseek-chat",
-  openai_oauth_model: "gpt-5.3-codex",
   prompts: {
     system_prompt: DEFAULT_SYSTEM_PROMPT,
     user_prompt_template: DEFAULT_USER_PROMPT_TEMPLATE,
@@ -684,8 +668,6 @@ export const STORAGE_KEY = "lingrid_config";
 export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provider" | "api_base_url">): AIProviderId {
   if (
     config.api_provider === "deepseek" ||
-    config.api_provider === "openai" ||
-    config.api_provider === "custom" ||
     config.api_provider === "glm" ||
     config.api_provider === "minimax" ||
     config.api_provider === "kimi"
@@ -697,11 +679,11 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
   if (normalized === "https://api.deepseek.com") {
     return "deepseek";
   }
-  if (normalized === "https://api.openai.com") {
-    return "openai";
-  }
   if (normalized === "https://open.bigmodel.cn/api/paas/v4") {
     return "glm";
+  }
+  if (normalized === "https://api.moonshot.cn") {
+    return "kimi";
   }
   if (
     normalized === MINIMAX_AI_API_BASE_URL ||
@@ -709,35 +691,16 @@ export function resolveConfigApiProvider(config: Pick<LingridConfig, "api_provid
   ) {
     return "minimax";
   }
-  if (normalized === "https://api.moonshot.cn") {
-    return "kimi";
-  }
-  return "custom";
-}
-
-/**
- * 获取当前 OpenAI 认证模式
- */
-export function resolveConfigOpenAIAuthMode(
-  config: Pick<LingridConfig, "openai_auth_mode">
-): OpenAIAuthMode {
-  return config.openai_auth_mode === "oauth" ? "oauth" : "api_key";
+  // 自定义端点已移除：无法识别的配置按默认 deepseek 处理（存量由迁移重置）
+  return "deepseek";
 }
 
 /**
  * 获取当前激活模型
  */
 export function resolveConfigModel(
-  config: Pick<
-    LingridConfig,
-    "api_provider" | "api_base_url" | "openai_auth_mode" | "openai_oauth_model" | "model"
-  >
+  config: Pick<LingridConfig, "model">
 ): string {
-  const providerId = resolveConfigApiProvider(config);
-  if (providerId === "openai" && resolveConfigOpenAIAuthMode(config) === "oauth") {
-    return config.openai_oauth_model?.trim() || DEFAULT_CONFIG.openai_oauth_model || "gpt-5.3-codex";
-  }
-
   return config.model?.trim() || "";
 }
 
@@ -750,11 +713,8 @@ export function resolveConfigModel(
  * @returns Provider 调用格式的配置对象
  */
 export function toProviderConfig(config: LingridConfig): ProviderConfig {
-  const providerId = resolveConfigApiProvider(config);
   return {
-    providerId,
-    authMode:
-      providerId === "openai" ? resolveConfigOpenAIAuthMode(config) : "api_key",
+    providerId: resolveConfigApiProvider(config),
     apiBaseUrl: config.api_base_url,
     apiKey: config.api_key,
     model: resolveConfigModel(config),

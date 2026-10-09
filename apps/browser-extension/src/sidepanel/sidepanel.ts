@@ -1181,7 +1181,7 @@ async function updateAiServiceForm(): Promise<void> {
     showPresetModelControl(
       staticModelOptions,
       currentConfig.model ||
-        getDefaultModelForProvider(providerType, "api_key"),
+        getDefaultModelForProvider(providerType),
       CUSTOM_MODEL_PLACEHOLDER
     );
   } else {
@@ -1903,8 +1903,7 @@ async function handleApiProviderChange(): Promise<void> {
   const nextModel = normalizeModelForProviderSwitch(
     previousProviderType,
     nextProviderType,
-    previousSelectionWasPreset,
-    "api_key"
+    previousSelectionWasPreset
   );
 
   if (nextModel !== null) {
@@ -1934,9 +1933,7 @@ function applyApiProviderSelection(
 }
 
 function getPresetApiBaseUrl(providerType: ApiProviderType): string {
-  return AI_PROVIDER_BASE_URL_PRESETS[
-    providerType === "custom" ? "deepseek" : providerType
-  ];
+  return AI_PROVIDER_BASE_URL_PRESETS[providerType];
 }
 
 // ====== 测试连接 ======
