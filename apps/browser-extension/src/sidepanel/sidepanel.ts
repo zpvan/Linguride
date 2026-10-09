@@ -51,15 +51,9 @@ import {
   MessageType,
   MiniMaxTTSModel,
   MiniMaxEmotion,
-  OpenAIAuthMode,
-  OpenAIModelCatalogResponseData,
-  OpenAIModelCatalogScope,
-  OpenAIModelItem,
-  OpenAIOAuthStatus,
   ParaphrasePromptConfig,
   normalizeMiniMaxTTSBaseUrl,
   resolveConfigApiProvider,
-  resolveConfigOpenAIAuthMode,
   DiagnoseTTSResponse,
   TestTTSConnectionResponse,
   TTSSelectionMode,
@@ -97,14 +91,6 @@ type ReadingMode = "paraphrase" | "mixed" | "translate" | null;
 type ApiProviderType = AIProviderId;
 type ServiceTestState = "idle" | "loading" | "success" | "error";
 
-interface OpenAIOAuthState {
-  status: OpenAIOAuthStatus;
-  expiresAt?: number;
-  accountId?: string;
-}
-
-type OpenAIModelCatalogState = OpenAIModelCatalogResponseData;
-
 /** 模式描述映射 */
 const MODE_DESCRIPTIONS: Record<string, string> = {
   paraphrase: "将英文改写为适合您水平的版本",
@@ -113,9 +99,6 @@ const MODE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const MODE_DEFAULT_DESC = "选择一种阅读模式开始学习";
-const OPENAI_API_MODEL_PLACEHOLDER = "如 gpt-5.1-codex";
-const OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS = 2000;
-const OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS = 5;
 const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
   "speech-2.8-hd",
   "speech-2.8-turbo",
@@ -194,63 +177,18 @@ const readAloudStatus = document.getElementById(
 const apiProviderSelect = document.getElementById(
   "apiProviderSelect"
 ) as HTMLSelectElement;
-const openaiAuthModeRow = document.getElementById(
-  "openaiAuthModeRow"
-) as HTMLElement;
-const openaiAuthModeDivider = document.getElementById(
-  "openaiAuthModeDivider"
-) as HTMLElement;
-const openaiAuthModeSelect = document.getElementById(
-  "openaiAuthModeSelect"
-) as HTMLSelectElement;
-const apiBaseUrlRow = document.getElementById("apiBaseUrlRow") as HTMLElement;
-const apiBaseUrlDivider = document.getElementById(
-  "apiBaseUrlDivider"
-) as HTMLElement;
 const apiBaseUrlInput = document.getElementById(
   "apiBaseUrl"
 ) as HTMLInputElement;
 const apiBaseUrlPresetSelect = document.getElementById(
   "apiBaseUrlPreset"
 ) as HTMLSelectElement;
-const apiKeyRow = document.getElementById("apiKeyRow") as HTMLElement;
-const apiKeyDivider = document.getElementById("apiKeyDivider") as HTMLElement;
 const apiKeyInput = document.getElementById("apiKey") as HTMLInputElement;
 const showKeyBtn = document.getElementById("showKeyBtn") as HTMLButtonElement;
 const modelSelect = document.getElementById("modelSelect") as HTMLSelectElement;
 const customModelInput = document.getElementById(
   "customModel"
 ) as HTMLInputElement;
-const openaiModelCatalogPanel = document.getElementById(
-  "openaiModelCatalogPanel"
-) as HTMLElement;
-const openaiModelCatalogStatus = document.getElementById(
-  "openaiModelCatalogStatus"
-) as HTMLElement;
-const refreshOpenAIModelCatalogBtn = document.getElementById(
-  "refreshOpenAIModelCatalogBtn"
-) as HTMLButtonElement;
-const openaiOauthPanel = document.getElementById(
-  "openaiOauthPanel"
-) as HTMLElement;
-const openaiOauthStatusBadge = document.getElementById(
-  "openaiOauthStatusBadge"
-) as HTMLElement;
-const openaiOauthStatusText = document.getElementById(
-  "openaiOauthStatusText"
-) as HTMLElement;
-const startOpenAIOAuthBtn = document.getElementById(
-  "startOpenAIOAuthBtn"
-) as HTMLButtonElement;
-const disconnectOpenAIOAuthBtn = document.getElementById(
-  "disconnectOpenAIOAuthBtn"
-) as HTMLButtonElement;
-const openaiOauthCallbackInput = document.getElementById(
-  "openaiOauthCallbackInput"
-) as HTMLTextAreaElement;
-const completeOpenAIOAuthBtn = document.getElementById(
-  "completeOpenAIOAuthBtn"
-) as HTMLButtonElement;
 const testConnectionBtn = document.getElementById(
   "testConnectionBtn"
 ) as HTMLButtonElement;
@@ -409,8 +347,6 @@ const resetDefaultsBtn = document.getElementById(
 // ====== 状态 ======
 
 let currentConfig: LingridConfig = { ...DEFAULT_CONFIG };
-let currentOpenAIOAuthStatus: OpenAIOAuthState = { status: "missing" };
-let currentOpenAIModelCatalog: OpenAIModelCatalogState | null = null;
 let currentMode: ReadingMode = null;
 let minimaxTTSResetTimer: number | null = null;
 let xiaomiTTSResetTimer: number | null = null;
@@ -418,18 +354,9 @@ let doubaoTTSResetTimer: number | null = null;
 let isTestingMiniMaxTTS = false;
 let isTestingXiaomiTTS = false;
 let isTestingDoubaoTTS = false;
-let openAIModelCatalogPollTimer: number | null = null;
-let openAIModelCatalogPollAttempt = 0;
-let isRefreshingOpenAIModelCatalog = false;
-let isLoadingOpenAIModelCatalog = false;
-let openAIModelCatalogInlineError: string | null = null;
 
 function getCurrentApiProvider(): ApiProviderType {
   return resolveConfigApiProvider(currentConfig);
-}
-
-function getCurrentOpenAIAuthMode(): OpenAIAuthMode {
-  return resolveConfigOpenAIAuthMode(currentConfig);
 }
 
 function ensureExplanationPromptPresetId(): ExplanationPromptPresetId {
@@ -551,286 +478,16 @@ async function handleResetExplanationPromptPreset(): Promise<void> {
   );
 }
 
-function isOpenAIOAuthMode(): boolean {
-  return (
-    getCurrentApiProvider() === "openai" &&
-    getCurrentOpenAIAuthMode() === "oauth"
-  );
-}
-
-function isOpenAIOAuthConnected(status: OpenAIOAuthState): boolean {
-  return status.status === "connected" || status.status === "expired";
-}
-
-function hasConfiguredAiAuth(
-  config: LingridConfig,
-  oauthStatus: OpenAIOAuthState
-): boolean {
-  const providerType = resolveConfigApiProvider(config);
-  const authMode = resolveConfigOpenAIAuthMode(config);
-  const activeModel =
-    providerType === "openai" && authMode === "oauth"
-      ? config.openai_oauth_model?.trim() || ""
-      : config.model?.trim() || "";
-
-  if (providerType === "openai" && authMode === "oauth") {
-    return isOpenAIOAuthConnected(oauthStatus);
-  }
-
+function hasConfiguredAiAuth(config: LingridConfig): boolean {
   return Boolean(
-    config.api_base_url?.trim() && config.api_key?.trim() && activeModel
+    config.api_base_url?.trim() &&
+      config.api_key?.trim() &&
+      config.model?.trim()
   );
 }
 
-function getAiConfigHintMessage(
-  config: LingridConfig,
-  oauthStatus: OpenAIOAuthState
-): string {
-  const providerType = resolveConfigApiProvider(config);
-  const authMode = resolveConfigOpenAIAuthMode(config);
-
-  if (providerType === "openai" && authMode === "oauth") {
-    if (oauthStatus.status === "pending") {
-      return "需要先完成 OpenAI OAuth 登录";
-    }
-    return "需要先连接 OpenAI OAuth";
-  }
-
+function getAiConfigHintMessage(_config: LingridConfig): string {
   return "需要先配置 API 服务";
-}
-
-function formatOpenAIOAuthExpiry(expiresAt?: number): string {
-  if (!expiresAt) {
-    return "";
-  }
-
-  const formatter = new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return formatter.format(new Date(expiresAt));
-}
-
-function formatCatalogSyncTime(timestamp?: number): string {
-  if (!timestamp) {
-    return "";
-  }
-
-  const formatter = new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return formatter.format(new Date(timestamp));
-}
-
-function clearOpenAIModelCatalogPoll(): void {
-  if (openAIModelCatalogPollTimer !== null) {
-    window.clearTimeout(openAIModelCatalogPollTimer);
-    openAIModelCatalogPollTimer = null;
-  }
-  openAIModelCatalogPollAttempt = 0;
-}
-
-function getActiveOpenAIModelCatalogScope(): OpenAIModelCatalogScope {
-  return getCurrentOpenAIAuthMode() === "oauth" ? "oauth" : "api";
-}
-
-function getCurrentOpenAIModelValue(): string {
-  if (getCurrentOpenAIAuthMode() === "oauth") {
-    return getDefaultModelForProvider(
-      "openai",
-      "oauth",
-      currentConfig.openai_oauth_model
-    );
-  }
-
-  return currentConfig.model?.trim() || "";
-}
-
-function getOpenAIModelCatalogItemsForActiveScope(): OpenAIModelItem[] {
-  if (!currentOpenAIModelCatalog) {
-    return [];
-  }
-
-  if (currentOpenAIModelCatalog.scope !== getActiveOpenAIModelCatalogScope()) {
-    return [];
-  }
-
-  return currentOpenAIModelCatalog.items;
-}
-
-function buildOpenAIModelOptions(currentValue: string): ModelOption[] {
-  const options: ModelOption[] = [];
-  const currentItems = getOpenAIModelCatalogItemsForActiveScope();
-
-  if (
-    currentValue &&
-    !currentItems.some((item) => item.id === currentValue)
-  ) {
-    options.push({
-      value: currentValue,
-      label: `当前值：${currentValue}`,
-    });
-  }
-
-  currentItems.forEach((item) => {
-    options.push({
-      value: item.id,
-      label: item.label,
-    });
-  });
-
-  options.push({ value: "custom", label: "自定义..." });
-  return options;
-}
-
-function getOpenAIModelCatalogStatusLines(): string[] {
-  if (getCurrentApiProvider() !== "openai") {
-    return [];
-  }
-
-  const scope = getActiveOpenAIModelCatalogScope();
-  const catalog = currentOpenAIModelCatalog;
-  const isScopeMatched = catalog?.scope === scope;
-
-  if (isLoadingOpenAIModelCatalog && !isScopeMatched) {
-    return ["正在同步 OpenAI 官方模型目录..."];
-  }
-
-  if (openAIModelCatalogInlineError) {
-    return [openAIModelCatalogInlineError];
-  }
-
-  if (!catalog || !isScopeMatched) {
-    return ["尚未加载当前方式对应的官方模型目录。"];
-  }
-
-  const lines: string[] = [];
-
-  if (scope === "api") {
-    if (catalog.verificationState === "verified_by_api_key") {
-      lines.push(
-        `已按当前 API Key 校验，当前可见 ${catalog.items.length} 个兼容模型。`
-      );
-    } else if (currentConfig.api_key?.trim()) {
-      lines.push("当前显示官方预览列表，保存并校验 API Key 后会收敛为账号可用模型。");
-    } else {
-      lines.push("当前显示官方预览列表，填写并保存 API Key 后会收敛为账号可用模型。");
-    }
-  } else {
-    lines.push("当前显示官方 Coding / Codex 候选，不保证你的订阅一定可用。");
-  }
-
-  const syncTime = formatCatalogSyncTime(catalog.fetchedAt);
-  if (syncTime) {
-    lines.push(`最近同步：${syncTime}`);
-  }
-
-  if (catalog.stale) {
-    lines.push("正在后台刷新目录...");
-  }
-
-  if (catalog.lastError) {
-    lines.push(`最近同步失败：${catalog.lastError}`);
-  }
-
-  return lines;
-}
-
-function updateOpenAIModelCatalogUI(): void {
-  if (getCurrentApiProvider() !== "openai") {
-    openaiModelCatalogPanel.style.display = "none";
-    return;
-  }
-
-  openaiModelCatalogPanel.style.display = "block";
-  openaiModelCatalogStatus.textContent = getOpenAIModelCatalogStatusLines().join(
-    "\n"
-  );
-  refreshOpenAIModelCatalogBtn.disabled = isRefreshingOpenAIModelCatalog;
-  refreshOpenAIModelCatalogBtn.textContent = isRefreshingOpenAIModelCatalog
-    ? "刷新中..."
-    : "刷新列表";
-}
-
-async function loadOpenAIModelCatalog(options?: {
-  force?: boolean;
-  backgroundPoll?: boolean;
-}): Promise<void> {
-  if (getCurrentApiProvider() !== "openai") {
-    clearOpenAIModelCatalogPoll();
-    updateOpenAIModelCatalogUI();
-    return;
-  }
-
-  const force = options?.force === true;
-  const backgroundPoll = options?.backgroundPoll === true;
-  const requestedScope = getActiveOpenAIModelCatalogScope();
-
-  if (force) {
-    isRefreshingOpenAIModelCatalog = true;
-  }
-  if (!backgroundPoll) {
-    isLoadingOpenAIModelCatalog = true;
-  }
-  updateOpenAIModelCatalogUI();
-
-  try {
-    openAIModelCatalogInlineError = null;
-    const response = (await chrome.runtime.sendMessage({
-      type: force
-        ? MessageType.REFRESH_OPENAI_MODEL_CATALOG
-        : MessageType.GET_OPENAI_MODEL_CATALOG,
-    })) as {
-      success: boolean;
-      data?: OpenAIModelCatalogResponseData;
-      error?: string;
-    };
-
-    if (response.success && response.data) {
-      currentOpenAIModelCatalog = response.data;
-      updateAiServiceForm();
-
-      if (
-        response.data.scope === requestedScope &&
-        response.data.stale &&
-        openAIModelCatalogPollAttempt < OPENAI_MODEL_CATALOG_POLL_MAX_ATTEMPTS
-      ) {
-        if (openAIModelCatalogPollTimer !== null) {
-          window.clearTimeout(openAIModelCatalogPollTimer);
-          openAIModelCatalogPollTimer = null;
-        }
-        openAIModelCatalogPollAttempt += 1;
-        openAIModelCatalogPollTimer = window.setTimeout(() => {
-          void loadOpenAIModelCatalog({ backgroundPoll: true });
-        }, OPENAI_MODEL_CATALOG_POLL_INTERVAL_MS);
-      } else {
-        clearOpenAIModelCatalogPoll();
-      }
-
-      return;
-    }
-
-    clearOpenAIModelCatalogPoll();
-    if (response.error) {
-      openAIModelCatalogInlineError = response.error;
-    }
-  } catch (error) {
-    clearOpenAIModelCatalogPoll();
-    openAIModelCatalogInlineError = "获取 OpenAI 模型目录失败";
-  } finally {
-    if (!backgroundPoll) {
-      isLoadingOpenAIModelCatalog = false;
-    }
-    if (force) {
-      isRefreshingOpenAIModelCatalog = false;
-    }
-    updateOpenAIModelCatalogUI();
-  }
 }
 
 function normalizeMiniMaxTTSModel(value?: string | null): MiniMaxTTSModel {
@@ -987,10 +644,7 @@ function appendTTSErrorDetail(
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Lingride] Side Panel 已加载");
 
-  await Promise.all([loadConfig(), loadOpenAIOAuthStatus()]);
-  if (getCurrentApiProvider() === "openai") {
-    await loadOpenAIModelCatalog();
-  }
+  await loadConfig();
 
   updateSettingsForm();
   updateLevelSelector();
@@ -1017,23 +671,6 @@ async function loadConfig(): Promise<void> {
     }
   } catch (error) {
     console.error("[Lingride] 加载配置失败:", error);
-  }
-}
-
-async function loadOpenAIOAuthStatus(): Promise<void> {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.GET_OPENAI_OAUTH_STATUS,
-    });
-
-    if (response.success && response.data) {
-      currentOpenAIOAuthStatus = response.data;
-    } else {
-      currentOpenAIOAuthStatus = { status: "missing" };
-    }
-  } catch (error) {
-    console.error("[Lingride] 加载 OpenAI OAuth 状态失败:", error);
-    currentOpenAIOAuthStatus = { status: "missing" };
   }
 }
 
@@ -1104,22 +741,11 @@ function bindEvents(): void {
 
   // Settings - API 配置自动保存
   apiProviderSelect.addEventListener("change", handleApiProviderChange);
-  openaiAuthModeSelect.addEventListener("change", handleOpenAIAuthModeChange);
   apiBaseUrlInput.addEventListener("blur", autoSave);
   apiBaseUrlPresetSelect.addEventListener("change", autoSave);
-  apiKeyInput.addEventListener("blur", handleApiKeyBlur);
+  apiKeyInput.addEventListener("blur", autoSave);
   modelSelect.addEventListener("change", handleModelChange);
   customModelInput.addEventListener("blur", autoSave);
-  refreshOpenAIModelCatalogBtn.addEventListener(
-    "click",
-    handleRefreshOpenAIModelCatalog
-  );
-  startOpenAIOAuthBtn.addEventListener("click", handleStartOpenAIOAuth);
-  completeOpenAIOAuthBtn.addEventListener("click", handleCompleteOpenAIOAuth);
-  disconnectOpenAIOAuthBtn.addEventListener(
-    "click",
-    handleDisconnectOpenAIOAuth
-  );
 
   // Settings - 显示/隐藏 API Key
   showKeyBtn.addEventListener("click", () => {
@@ -1242,9 +868,6 @@ function bindEvents(): void {
 
 function showSettings(): void {
   viewport.classList.add("show-settings");
-  if (getCurrentApiProvider() === "openai" && !currentOpenAIModelCatalog) {
-    void loadOpenAIModelCatalog();
-  }
 }
 
 function showMain(): void {
@@ -1270,11 +893,8 @@ function handleModeClick(e: Event): void {
       deactivateMode(currentMode);
     }
 
-    if (!hasConfiguredAiAuth(currentConfig, currentOpenAIOAuthStatus)) {
-      configHintText.textContent = getAiConfigHintMessage(
-        currentConfig,
-        currentOpenAIOAuthStatus
-      );
+    if (!hasConfiguredAiAuth(currentConfig)) {
+      configHintText.textContent = getAiConfigHintMessage(currentConfig);
       configHint.style.display = "flex";
       setTimeout(() => {
         configHint.style.display = "none";
@@ -1479,10 +1099,7 @@ async function handleEnglishLevelChange(): Promise<void> {
 // ====== Badge 控制 ======
 
 function updateBadge(): void {
-  const hasAiAuth = hasConfiguredAiAuth(
-    currentConfig,
-    currentOpenAIOAuthStatus
-  );
+  const hasAiAuth = hasConfiguredAiAuth(currentConfig);
   settingsBadge.style.display = hasAiAuth ? "none" : "";
 }
 
@@ -1548,74 +1165,14 @@ function showDirectModelInput(value: string, placeholder: string): void {
   customModelInput.value = value;
 }
 
-function updateOpenAIOAuthUI(): void {
-  if (!isOpenAIOAuthMode()) {
-    openaiOauthPanel.style.display = "none";
-    return;
-  }
-
-  openaiOauthPanel.style.display = "block";
-
-  const statusMap: Record<OpenAIOAuthStatus, string> = {
-    missing: "未连接",
-    pending: "登录进行中",
-    connected: "已连接",
-    expired: "已过期",
-  };
-
-  openaiOauthStatusBadge.textContent =
-    statusMap[currentOpenAIOAuthStatus.status];
-  openaiOauthStatusBadge.className = `oauth-status-badge ${currentOpenAIOAuthStatus.status}`;
-
-  switch (currentOpenAIOAuthStatus.status) {
-    case "connected":
-      openaiOauthStatusText.textContent = currentOpenAIOAuthStatus.accountId
-        ? `已连接账号 ${currentOpenAIOAuthStatus.accountId}，访问令牌有效期至 ${formatOpenAIOAuthExpiry(
-            currentOpenAIOAuthStatus.expiresAt
-          )}。`
-        : "OpenAI OAuth 已连接。";
-      break;
-    case "expired":
-      openaiOauthStatusText.textContent =
-        "访问令牌已过期，实际请求会自动刷新；如果刷新失败，请重新登录。";
-      break;
-    case "pending":
-      openaiOauthStatusText.textContent =
-        "浏览器授权完成后，把 localhost 回调地址或 code 粘贴到下方，然后点击“完成登录”。";
-      break;
-    case "missing":
-    default:
-      openaiOauthStatusText.textContent =
-        "使用 ChatGPT 账号登录后，完成浏览器授权，并把 localhost 回调地址粘贴回这里。";
-      break;
-  }
-
-  startOpenAIOAuthBtn.textContent = isOpenAIOAuthConnected(
-    currentOpenAIOAuthStatus
-  )
-    ? "重新登录"
-    : "开始登录";
-  disconnectOpenAIOAuthBtn.disabled =
-    currentOpenAIOAuthStatus.status === "missing";
-}
-
 async function updateAiServiceForm(): Promise<void> {
   const providerType = getCurrentApiProvider();
-  const authMode = getCurrentOpenAIAuthMode();
-  const staticModelOptions = await getStaticModelOptions(providerType, currentConfig.api_key);
-  const showOpenAIAuthMode = providerType === "openai";
-  const showApiCredentialRows =
-    !(providerType === "openai" && authMode === "oauth");
+  const staticModelOptions = await getStaticModelOptions(
+    providerType,
+    currentConfig.api_key
+  );
 
   apiProviderSelect.value = providerType;
-  openaiAuthModeSelect.value = authMode;
-
-  openaiAuthModeRow.style.display = showOpenAIAuthMode ? "flex" : "none";
-  openaiAuthModeDivider.style.display = showOpenAIAuthMode ? "block" : "none";
-  apiBaseUrlRow.style.display = showApiCredentialRows ? "flex" : "none";
-  apiBaseUrlDivider.style.display = showApiCredentialRows ? "block" : "none";
-  apiKeyRow.style.display = showApiCredentialRows ? "flex" : "none";
-  apiKeyDivider.style.display = showApiCredentialRows ? "block" : "none";
 
   applyApiProviderSelection(providerType, currentConfig.api_base_url || "");
   apiKeyInput.value = currentConfig.api_key || "";
@@ -1624,40 +1181,18 @@ async function updateAiServiceForm(): Promise<void> {
     showPresetModelControl(
       staticModelOptions,
       currentConfig.model ||
-        getDefaultModelForProvider(
-          providerType,
-          authMode,
-          currentConfig.openai_oauth_model
-        ),
+        getDefaultModelForProvider(providerType, "api_key"),
       CUSTOM_MODEL_PLACEHOLDER
-    );
-  } else if (providerType === "openai" && authMode === "oauth") {
-    showPresetModelControl(
-      buildOpenAIModelOptions(getCurrentOpenAIModelValue()),
-      getCurrentOpenAIModelValue(),
-      "输入 Codex 模型名称"
-    );
-  } else if (providerType === "openai") {
-    showPresetModelControl(
-      buildOpenAIModelOptions(getCurrentOpenAIModelValue()),
-      getCurrentOpenAIModelValue(),
-      OPENAI_API_MODEL_PLACEHOLDER
     );
   } else {
     showDirectModelInput(currentConfig.model || "", CUSTOM_MODEL_PLACEHOLDER);
   }
-
-  updateOpenAIModelCatalogUI();
-  updateOpenAIOAuthUI();
 }
 
 function collectFormData(): void {
   const selectedProvider = apiProviderSelect.value as ApiProviderType;
-  const openaiAuthMode = openaiAuthModeSelect.value as OpenAIAuthMode;
   const apiBaseUrl =
-    selectedProvider === "custom"
-      ? apiBaseUrlInput.value.trim()
-      : selectedProvider === "minimax"
+    selectedProvider === "minimax"
       ? normalizeMiniMaxAIBaseUrl(apiBaseUrlPresetSelect.value)
       : getPresetApiBaseUrl(selectedProvider);
   const modelValue =
@@ -1668,19 +1203,9 @@ function collectFormData(): void {
       : modelSelect.value.trim();
 
   currentConfig.api_provider = selectedProvider;
-  currentConfig.openai_auth_mode = openaiAuthMode;
   currentConfig.api_base_url = apiBaseUrl;
-
-  if (!(selectedProvider === "openai" && openaiAuthMode === "oauth")) {
-    currentConfig.api_key = apiKeyInput.value.trim();
-  }
-
-  if (selectedProvider === "openai" && openaiAuthMode === "oauth") {
-    currentConfig.openai_oauth_model =
-      modelValue || DEFAULT_CONFIG.openai_oauth_model;
-  } else {
-    currentConfig.model = modelValue;
-  }
+  currentConfig.api_key = apiKeyInput.value.trim();
+  currentConfig.model = modelValue;
 
   currentConfig.prompts = {
     system_prompt: systemPromptTextarea.value,
@@ -2375,85 +1900,25 @@ async function handleApiProviderChange(): Promise<void> {
     modelSelect.style.display !== "none" && modelSelect.value !== "custom";
 
   currentConfig.api_provider = nextProviderType;
-  const nextModel =
-    nextProviderType === "custom"
-      ? null
-      : normalizeModelForProviderSwitch(
-          previousProviderType,
-          nextProviderType,
-          previousSelectionWasPreset,
-          getCurrentOpenAIAuthMode(),
-          currentConfig.openai_oauth_model
-        );
+  const nextModel = normalizeModelForProviderSwitch(
+    previousProviderType,
+    nextProviderType,
+    previousSelectionWasPreset,
+    "api_key"
+  );
 
   if (nextModel !== null) {
     currentConfig.model = nextModel;
   }
 
-  if (nextProviderType !== "openai") {
-    clearOpenAIModelCatalogPoll();
-  }
-  updateAiServiceForm();
-
-  if (nextProviderType === "custom") {
-    await autoSave();
-    apiBaseUrlInput.focus();
-    return;
-  }
-
-  await autoSave();
-
-  if (nextProviderType === "openai") {
-    await loadOpenAIModelCatalog();
-  }
-}
-
-async function handleOpenAIAuthModeChange(): Promise<void> {
-  currentConfig.openai_auth_mode = openaiAuthModeSelect.value as OpenAIAuthMode;
-  clearOpenAIModelCatalogPoll();
   updateAiServiceForm();
   await autoSave();
-
-  if (getCurrentApiProvider() === "openai") {
-    await loadOpenAIModelCatalog();
-  }
-}
-
-async function handleApiKeyBlur(): Promise<void> {
-  await autoSave();
-
-  if (
-    getCurrentApiProvider() === "openai" &&
-    getCurrentOpenAIAuthMode() === "api_key"
-  ) {
-    await loadOpenAIModelCatalog({ force: true });
-  }
-}
-
-async function handleRefreshOpenAIModelCatalog(event: Event): Promise<void> {
-  event.preventDefault();
-
-  if (getCurrentApiProvider() !== "openai") {
-    return;
-  }
-
-  await autoSave();
-  await loadOpenAIModelCatalog({ force: true });
 }
 
 function applyApiProviderSelection(
   providerType: ApiProviderType,
   currentBaseUrl: string
 ): void {
-  if (providerType === "custom") {
-    apiBaseUrlInput.style.display = "";
-    apiBaseUrlPresetSelect.style.display = "none";
-    apiBaseUrlInput.readOnly = false;
-    apiBaseUrlInput.value = currentBaseUrl;
-    apiBaseUrlInput.placeholder = "https://api.example.com";
-    return;
-  }
-
   if (providerType === "minimax") {
     // MiniMax 提供国际/国内两条固定线路，按代理环境手动切换
     apiBaseUrlInput.style.display = "none";
@@ -2468,104 +1933,10 @@ function applyApiProviderSelection(
   apiBaseUrlInput.value = getPresetApiBaseUrl(providerType);
 }
 
-function getPresetApiBaseUrl(
-  providerType: Exclude<ApiProviderType, "custom">
-): string {
-  return AI_PROVIDER_BASE_URL_PRESETS[providerType];
-}
-
-async function handleStartOpenAIOAuth(): Promise<void> {
-  showStatus(connectionStatus, "正在创建 OpenAI 登录链接...", "loading");
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.START_OPENAI_OAUTH,
-    });
-
-    if (!response.success || !response.data?.authorizeUrl) {
-      showStatus(connectionStatus, response.error || "创建登录链接失败", "error");
-      return;
-    }
-
-    currentOpenAIOAuthStatus = { status: "pending" };
-    updateAiServiceForm();
-    updateBadge();
-
-    await chrome.tabs.create({
-      url: response.data.authorizeUrl,
-    });
-
-    showStatus(
-      connectionStatus,
-      "浏览器已打开登录页。完成授权后，把 localhost 回调地址粘贴回这里。",
-      "loading"
-    );
-  } catch (error) {
-    showStatus(connectionStatus, "启动 OpenAI OAuth 失败", "error");
-  }
-}
-
-async function handleCompleteOpenAIOAuth(): Promise<void> {
-  const callbackInput = openaiOauthCallbackInput.value.trim();
-  if (!callbackInput) {
-    showStatus(connectionStatus, "请先粘贴回调地址或 code", "error");
-    return;
-  }
-
-  showStatus(connectionStatus, "正在完成 OpenAI OAuth 登录...", "loading");
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.COMPLETE_OPENAI_OAUTH,
-      payload: {
-        callbackInput,
-      },
-    });
-
-    if (response.success && response.data) {
-      currentOpenAIOAuthStatus = {
-        status: "connected",
-        expiresAt: response.data.expiresAt,
-        accountId: response.data.accountId,
-      };
-      openaiOauthCallbackInput.value = "";
-      updateAiServiceForm();
-      updateBadge();
-      if (isOpenAIOAuthMode()) {
-        await loadOpenAIModelCatalog();
-      }
-      showStatus(connectionStatus, "OpenAI OAuth 已连接", "success");
-      return;
-    }
-
-    showStatus(connectionStatus, response.error || "完成登录失败", "error");
-  } catch (error) {
-    showStatus(connectionStatus, "完成 OpenAI OAuth 登录失败", "error");
-  }
-}
-
-async function handleDisconnectOpenAIOAuth(): Promise<void> {
-  showStatus(connectionStatus, "正在断开 OpenAI OAuth...", "loading");
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.DISCONNECT_OPENAI_OAUTH,
-    });
-
-    if (response.success) {
-      currentOpenAIOAuthStatus = { status: "missing" };
-      openaiOauthCallbackInput.value = "";
-      updateAiServiceForm();
-      updateBadge();
-      updateOpenAIModelCatalogUI();
-      showStatus(connectionStatus, "OpenAI OAuth 已断开", "success");
-      return;
-    }
-
-    showStatus(connectionStatus, response.error || "断开失败", "error");
-  } catch (error) {
-    showStatus(connectionStatus, "断开 OpenAI OAuth 失败", "error");
-  }
+function getPresetApiBaseUrl(providerType: ApiProviderType): string {
+  return AI_PROVIDER_BASE_URL_PRESETS[
+    providerType === "custom" ? "deepseek" : providerType
+  ];
 }
 
 // ====== 测试连接 ======
