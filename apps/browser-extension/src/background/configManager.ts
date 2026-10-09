@@ -24,7 +24,6 @@ import {
   ProviderConfig,
   resolveConfigApiProvider,
   resolveConfigModel,
-  resolveConfigOpenAIAuthMode,
   STORAGE_KEY,
   toProviderConfig,
 } from "../types";
@@ -50,10 +49,13 @@ export async function getConfig(): Promise<LingridConfig> {
     const config: LingridConfig = {
       api_provider:
         stored.api_provider || DEFAULT_CONFIG.api_provider,
-      openai_auth_mode:
-        stored.openai_auth_mode || DEFAULT_CONFIG.openai_auth_mode,
-      openai_oauth_model:
-        stored.openai_oauth_model || DEFAULT_CONFIG.openai_oauth_model,
+      // openai_* 残留字段透传给迁移函数统一剔除/重置（后续版本类型层面移除）
+      ...(stored.openai_auth_mode !== undefined
+        ? { openai_auth_mode: stored.openai_auth_mode }
+        : {}),
+      ...(stored.openai_oauth_model !== undefined
+        ? { openai_oauth_model: stored.openai_oauth_model }
+        : {}),
       api_base_url: stored.api_base_url || DEFAULT_CONFIG.api_base_url,
       api_key: stored.api_key || DEFAULT_CONFIG.api_key,
       model: stored.model || DEFAULT_CONFIG.model,
@@ -145,16 +147,10 @@ export async function getProviderConfig(): Promise<ProviderConfig> {
  * @returns 配置是否有效
  */
 export function isConfigValid(config: LingridConfig): boolean {
-  const providerId = resolveConfigApiProvider(config);
-  const authMode = resolveConfigOpenAIAuthMode(config);
   const model = resolveConfigModel(config);
 
   if (!model.trim()) {
     return false;
-  }
-
-  if (providerId === "openai" && authMode === "oauth") {
-    return true;
   }
 
   return !!config.api_base_url?.trim() && !!config.api_key?.trim();
@@ -178,9 +174,8 @@ export async function resetConfig(): Promise<LingridConfig> {
  * 把仍在使用旧默认值或已被收窄的 TTS 模型的配置改写到新默认值。
  * 不会主动 saveConfig —— 沿用「用户主动改设置时才落盘」惯例。
  */
-function migrateLegacyConfig(config: LingridConfig): LingridConfig {
+export function migrateLegacyConfig(config: LingridConfig): LingridConfig {
   const next: LingridConfig = { ...config };
-
   // 迁移 1: AI 文本模型 — 仅在 minimax provider 下,且仍指向旧默认时
   if (
     resolveConfigApiProvider(next) === "minimax" &&
@@ -202,6 +197,22 @@ function migrateLegacyConfig(config: LingridConfig): LingridConfig {
       model: MINIMAX_TTS_DEFAULT_MODEL,
     };
   }
+
+  // 迁移 3: OpenAI/自定义服务商已移除 —— 存量配置重置为 DeepSeek 默认
+  // （OpenAI 的密钥对其他服务商无意义，一并清空）
+  const legacyProvider = (next as { api_provider?: string }).api_provider;
+
+  if (legacyProvider === "openai" || legacyProvider === "custom") {
+    next.api_provider = DEFAULT_CONFIG.api_provider;
+    next.api_base_url = DEFAULT_CONFIG.api_base_url;
+    next.api_key = "";
+    next.model = DEFAULT_CONFIG.model;
+  }
+
+  // openai_* 键在 OpenAI 移除后已无消费者，统一剔除
+  const mutable = next as unknown as Record<string, unknown>;
+  delete mutable.openai_auth_mode;
+  delete mutable.openai_oauth_model;
 
   return next;
 }
