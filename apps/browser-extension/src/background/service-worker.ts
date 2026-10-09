@@ -48,15 +48,11 @@ import {
   calculateTargetLevel,
   CEFRLevel,
   ChineseToEnglishResponse,
-  CompleteOpenAIOAuthResponse,
-  DisconnectOpenAIOAuthResponse,
   DifficultyResult,
   EnglishDefinitionResponse,
   EnglishDefinitionResult,
   EnglishToChineseResponse,
   ExtractPageTextResponse,
-  GetOpenAIModelCatalogResponse,
-  GetOpenAIOAuthStatusResponse,
   GetConfigResponse,
   GetMixedTranslateStateResponse,
   GetParaphraseStateResponse,
@@ -74,7 +70,6 @@ import {
   ParaphraseResponse,
   PronunciationAssessmentResult,
   ProviderConfig,
-  RefreshOpenAIModelCatalogResponse,
   SaveConfigResponse,
   SegmentCorpusResponse,
   SegmentCorpusResult,
@@ -82,7 +77,6 @@ import {
   ShadowAssessmentResult,
   ShadowAssessResponse,
   SplitSentencesResponse,
-  StartOpenAIOAuthResponse,
   StopTTSPlaybackResponse,
   SplitSentencesResult,
   DEFAULT_TTS_SPEED,
@@ -134,17 +128,6 @@ import {
   registerCompanionPort,
 } from "./companionBridge";
 import { getConfig, saveConfig } from "./configManager";
-import {
-  completeOpenAICodexOAuth,
-  disconnectOpenAICodexOAuth,
-  getOpenAICodexOAuthStatus,
-  OpenAICodexAuthError,
-  startOpenAICodexOAuth,
-} from "./openaiCodexAuth";
-import {
-  getOpenAIModelCatalog,
-  refreshOpenAIModelCatalog,
-} from "./openaiModelCatalog";
 import {
   getMixedTranslateState,
   getParaphraseState,
@@ -1756,40 +1739,6 @@ async function handleSaveConfig(
   }
 }
 
-async function handleGetOpenAIModelCatalog(): Promise<GetOpenAIModelCatalogResponse> {
-  try {
-    const config = await getConfig();
-    const data = await getOpenAIModelCatalog(config);
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "获取 OpenAI 模型目录失败",
-    };
-  }
-}
-
-async function handleRefreshOpenAIModelCatalog(): Promise<RefreshOpenAIModelCatalogResponse> {
-  try {
-    const config = await getConfig();
-    const data = await refreshOpenAIModelCatalog(config);
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "刷新 OpenAI 模型目录失败",
-    };
-  }
-}
-
 async function getAiReadinessError(): Promise<string | null> {
   const config = await getConfig();
   const readiness = await assertAiProviderReady(config);
@@ -1813,77 +1762,6 @@ async function prepareAIProvider(): Promise<PreparedAIProviderContext> {
 
 // ====== 语伴对话 Port 注册 ======
 registerCompanionPort({ prepareAIProvider });
-
-function buildOpenAIOAuthErrorResponse(error: unknown): {
-  success: false;
-  error: string;
-  errorCode?: OpenAICodexAuthError["code"];
-} {
-  if (error instanceof OpenAICodexAuthError) {
-    return {
-      success: false,
-      error: error.message,
-      errorCode: error.code,
-    };
-  }
-
-  return {
-    success: false,
-    error: error instanceof Error ? error.message : "OpenAI OAuth 操作失败",
-  };
-}
-
-async function handleStartOpenAIOAuth(): Promise<StartOpenAIOAuthResponse> {
-  try {
-    const data = await startOpenAICodexOAuth();
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return buildOpenAIOAuthErrorResponse(error);
-  }
-}
-
-async function handleCompleteOpenAIOAuth(
-  callbackInput: string
-): Promise<CompleteOpenAIOAuthResponse> {
-  try {
-    const data = await completeOpenAICodexOAuth(callbackInput);
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return buildOpenAIOAuthErrorResponse(error);
-  }
-}
-
-async function handleGetOpenAIOAuthStatus(): Promise<GetOpenAIOAuthStatusResponse> {
-  try {
-    const data = await getOpenAICodexOAuthStatus();
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return buildOpenAIOAuthErrorResponse(error);
-  }
-}
-
-async function handleDisconnectOpenAIOAuth(): Promise<DisconnectOpenAIOAuthResponse> {
-  try {
-    await disconnectOpenAICodexOAuth();
-    return {
-      success: true,
-      data: {
-        disconnected: true,
-      },
-    };
-  } catch (error) {
-    return buildOpenAIOAuthErrorResponse(error);
-  }
-}
 
 /**
  * 处理 TOGGLE_TRANSLATION 消息
@@ -3801,32 +3679,6 @@ chrome.runtime.onMessage.addListener(
 
         case MessageType.SAVE_CONFIG:
           response = await handleSaveConfig(message.payload as LingridConfig);
-          break;
-
-        case MessageType.GET_OPENAI_MODEL_CATALOG:
-          response = await handleGetOpenAIModelCatalog();
-          break;
-
-        case MessageType.REFRESH_OPENAI_MODEL_CATALOG:
-          response = await handleRefreshOpenAIModelCatalog();
-          break;
-
-        case MessageType.START_OPENAI_OAUTH:
-          response = await handleStartOpenAIOAuth();
-          break;
-
-        case MessageType.COMPLETE_OPENAI_OAUTH:
-          response = await handleCompleteOpenAIOAuth(
-            message.payload.callbackInput
-          );
-          break;
-
-        case MessageType.GET_OPENAI_OAUTH_STATUS:
-          response = await handleGetOpenAIOAuthStatus();
-          break;
-
-        case MessageType.DISCONNECT_OPENAI_OAUTH:
-          response = await handleDisconnectOpenAIOAuth();
           break;
 
         case MessageType.TTS_SPEED_CHANGED:
