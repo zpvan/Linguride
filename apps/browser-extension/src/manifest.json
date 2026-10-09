@@ -54,8 +54,7 @@
   "host_permissions": [
     "<all_urls>",
     "https://api.deepseek.com/*",
-    "https://*.openai.com/*",
-    "https://chatgpt.com/*",
+    "https://api.moonshot.cn/*",
     "https://open.bigmodel.cn/*",
     "https://api.xiaomimimo.com/*",
     "https://api.minimax.cn/*",

@@ -33,7 +33,7 @@ docs/, feat-docs/, spec/  # 产品文档（PRD 描述的多平台为远期愿景
 - **权限页** `src/permissions/`：麦克风授权（侧边栏无法直接请求）
 
 服务提供商（设置页可配，均支持"测试连接"）：
-- **AI**：DeepSeek / GLM / MiniMax / OpenAI（API Key 或 ChatGPT OAuth）/ 自定义端点
+- **AI**：DeepSeek / GLM / MiniMax / Kimi（均为 API Key；OpenAI/自定义端点已于 2026-10 移除，存量配置自动迁移为 DeepSeek）
 - **语音合成 TTS**：MiniMax / 小米 / 豆包 / 浏览器朗读（失败自动回退浏览器）
 - **语音识别 ASR**：MiniMax / 小米 / 豆包 / 浏览器识别（顺序与 TTS 一致；默认复用对应 TTS 的 API Key，见 `resolveDoubaoASRApiKey` / `resolveXiaomiASRApiKey` / `isMiniMaxASRConfigured` in `src/types/config.ts`）
 
