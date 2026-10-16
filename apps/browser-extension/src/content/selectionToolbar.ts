@@ -819,11 +819,14 @@ function showCardLoading(action: CardAction): void {
   showCardContainer();
 
   cardEl.innerHTML = "";
+  cardEl.appendChild(createCardHeader(ACTION_LABELS[action], null));
 
-  const loading = document.createElement("div");
-  loading.className = "lingride-selection-loading";
-  loading.textContent = `${ACTION_LABELS[action]}中...`;
-  cardEl.appendChild(loading);
+  for (const width of ["100%", "82%", "58%"]) {
+    const bar = document.createElement("div");
+    bar.className = "lingride-selection-skeleton";
+    bar.style.width = width;
+    cardEl.appendChild(bar);
+  }
 }
 
 function showCardError(action: CardAction, message: string): void {
@@ -834,12 +837,12 @@ function showCardError(action: CardAction, message: string): void {
 
   cardEl.innerHTML = "";
 
-  const title = createCardTitle(ACTION_LABELS[action]);
+  const header = createCardHeader(ACTION_LABELS[action], null);
   const error = document.createElement("div");
   error.className = "lingride-selection-error";
   error.textContent = message;
 
-  cardEl.append(title, error);
+  cardEl.append(header, error);
 }
 
 async function runAction(action: CardAction): Promise<void> {
