@@ -1031,11 +1031,13 @@ function renderDefinitionResult(
   }
 
   if (data.synonyms && data.synonyms.length > 0) {
-    cardEl.appendChild(createInlineSection("Synonyms", data.synonyms.join(", ")));
+    cardEl.appendChild(createChipsSection("Synonyms", data.synonyms));
   }
 
   if (data.usageNotes) {
-    cardEl.appendChild(createTextSection("Usage", data.usageNotes));
+    const usageSection = createTextSection("Usage", data.usageNotes);
+    usageSection.classList.add("lingride-selection-usage");
+    cardEl.appendChild(usageSection);
   }
 }
 
@@ -1280,7 +1282,7 @@ function createTextSection(title: string, text: string): HTMLElement {
   return section;
 }
 
-function createInlineSection(title: string, text: string): HTMLElement {
+function createChipsSection(title: string, items: string[]): HTMLElement {
   const section = document.createElement("section");
   section.className = "lingride-selection-section";
 
@@ -1288,11 +1290,17 @@ function createInlineSection(title: string, text: string): HTMLElement {
   heading.className = "lingride-selection-section-title";
   heading.textContent = title;
 
-  const inline = document.createElement("p");
-  inline.className = "lingride-selection-inline";
-  inline.textContent = text;
+  const container = document.createElement("div");
+  container.className = "lingride-selection-chips";
 
-  section.append(heading, inline);
+  for (const item of items) {
+    const chip = document.createElement("span");
+    chip.className = "lingride-selection-chip";
+    chip.textContent = item;
+    container.appendChild(chip);
+  }
+
+  section.append(heading, container);
   return section;
 }
 
