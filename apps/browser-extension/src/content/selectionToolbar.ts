@@ -95,6 +95,14 @@ const TOOLBAR_ICON_SVGS: Record<ToolbarAction, string> = {
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a8 8 0 0 1 0 10"/></svg>',
 };
 
+/** 卡片操作按钮图标（发音 / 复制 / 复制成功对勾） */
+const CARD_SPEAK_ICON_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a8 8 0 0 1 0 10"/></svg>';
+const CARD_COPY_ICON_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg>';
+const CARD_CHECK_ICON_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
 const CEFR_LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const CARD_ACTIONS: CardAction[] = ["translate", "definition", "analyze"];
 const TOOLBAR_ACTIONS: ToolbarAction[] = [
@@ -1036,7 +1044,7 @@ function createCopyButton(): HTMLButtonElement {
   button.type = "button";
   button.className =
     "lingride-selection-card-action-btn lingride-selection-copy-btn";
-  button.textContent = "Copy";
+  button.innerHTML = CARD_COPY_ICON_SVG;
   button.title = "复制释义";
   button.setAttribute("aria-label", "复制释义");
   return button;
@@ -1083,11 +1091,11 @@ async function handleCopyDefinition(
   }
 
   button.classList.add("copied");
-  button.textContent = "Copied";
+  button.innerHTML = CARD_CHECK_ICON_SVG;
 
   copyFeedbackTimer = window.setTimeout(() => {
     button.classList.remove("copied");
-    button.textContent = "Copy";
+    button.innerHTML = CARD_COPY_ICON_SVG;
     copyFeedbackTimer = null;
   }, COPY_FEEDBACK_DURATION);
 }
@@ -1250,7 +1258,7 @@ function createSpeakButton(): HTMLButtonElement {
   button.type = "button";
   button.className =
     "lingride-selection-card-action-btn lingride-selection-speak-btn";
-  button.textContent = "发音";
+  button.innerHTML = CARD_SPEAK_ICON_SVG;
   button.title = "朗读当前内容";
   button.setAttribute("aria-label", "朗读当前内容");
   return button;
