@@ -80,6 +80,21 @@ const ACTION_LABELS: Record<ToolbarAction, string> = {
   pronounce: "发音",
 };
 
+/**
+ * 工具条按钮图标（SF Symbols 风格几何描边）。
+ * 样式由 styles.css 的 .lingride-selection-button svg 统一控制（stroke=currentColor）。
+ */
+const TOOLBAR_ICON_SVGS: Record<ToolbarAction, string> = {
+  translate:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.8" ry="8.5"/><path d="M3.5 12h17"/></svg>',
+  definition:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6 4.3 9 4.3 12 6c3-1.7 6-1.7 8-.5v13c-2-1.2-5-1.2-8 .5-3-1.7-6-1.7-8-.5z"/><path d="M12 6v13"/></svg>',
+  analyze:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M8.5 12h11.5"/><path d="M8.5 18h11.5"/><path d="M4.5 12h1"/><path d="M4.5 18h1"/></svg>',
+  pronounce:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a8 8 0 0 1 0 10"/></svg>',
+};
+
 const CEFR_LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const CARD_ACTIONS: CardAction[] = ["translate", "definition", "analyze"];
 const TOOLBAR_ACTIONS: ToolbarAction[] = [
@@ -302,7 +317,13 @@ function createActionButton(action: ToolbarAction): HTMLButtonElement {
   button.type = "button";
   button.className = "lingride-selection-button";
   button.dataset.action = action;
-  button.textContent = ACTION_LABELS[action];
+  // 图标为常量 SVG 字符串，无用户输入，innerHTML 安全
+  button.innerHTML = TOOLBAR_ICON_SVGS[action];
+
+  const label = document.createElement("span");
+  label.textContent = ACTION_LABELS[action];
+  button.appendChild(label);
+
   return button;
 }
 
