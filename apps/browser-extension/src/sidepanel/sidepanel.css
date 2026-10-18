@@ -130,13 +130,6 @@ body {
   min-height: 32px;
 }
 
-.brand {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: var(--text-primary);
-}
-
 .header-title {
   font-size: 17px;
   font-weight: 600;
@@ -147,12 +140,6 @@ body {
 
 .header-spacer {
   width: 32px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
 }
 
 /* ====== Header Actions ====== */
