@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lingride",
   "description": "英文网页双语对照翻译扩展，保留原文同时显示中文翻译",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

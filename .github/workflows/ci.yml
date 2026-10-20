@@ -6,6 +6,8 @@ on:
     branches:
       - main
       - dev_rustify
+    tags:
+      - 'chrome-extension-v*'
   workflow_dispatch:
 
 permissions:
@@ -88,3 +90,42 @@ jobs:
           path: infra_scripts/out/chrome-extension/
           if-no-files-found: error
           retention-days: 14
+
+  release:
+    name: release (chrome-extension)
+    if: startsWith(github.ref, 'refs/tags/chrome-extension-v')
+    needs: package
+    runs-on: ubuntu-latest
+
+    # job 级 permissions 完全替换 workflow 级声明（未列出的 scope 变为 none），
+    # 因此这里必须写全 contents: write；validate/package 不受影响。
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download packaged artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-extension-${{ github.sha }}
+          path: infra_scripts/out/chrome-extension/
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          zip="$(find infra_scripts/out/chrome-extension -name '*.zip' -print -quit)"
+          if [[ -z "$zip" ]]; then
+            echo "::error::未找到打包产物 zip"
+            exit 1
+          fi
+          # 幂等：tag 上已有 release 时只刷新 asset，不因 release 已存在而失败
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG 已存在，刷新产物"
+            gh release upload "$TAG" "$zip" --clobber
+          else
+            gh release create "$TAG" "$zip" \
+              --title "Lingride $TAG" \
+              --generate-notes
+          fi
