@@ -15,7 +15,7 @@ import {
 } from "../types";
 import { isLibraryIndex, isStory, type LibraryIndex, type Story } from "./model/types";
 import { renderHome } from "./view/home";
-import { renderPlayerPage } from "./view/playerPage";
+import { renderPlayerPage, stopPlayerPage } from "./view/playerPage";
 
 import rawIndex from "./data/index.json";
 
@@ -126,6 +126,7 @@ function route(): void {
     location.hash = "#/";
     return;
   }
+  stopPlayerPage();
   playerView.hidden = true;
   homeView.hidden = false;
   renderHome(categoryNav, categoryTitle, storyGrid, library.index, {
