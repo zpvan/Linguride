@@ -139,6 +139,11 @@ import {
 } from "./tabState";
 import { ttsSynthesisTaskRegistry } from "./ttsSynthesisTasks";
 import {
+  createTTSAudioCache,
+  IndexedDBTTSAudioCacheStore,
+  makeTTSAudioCacheKey,
+} from "./ttsAudioCache";
+import {
   summarizeDiagnoseSamples,
   withTimeout,
   type DiagnoseSampleResult,
@@ -231,6 +236,9 @@ interface TTSProviderRequestContext {
 
 let offscreenDocumentPromise: Promise<void> | null = null;
 let ttsPlaybackEpoch = 0;
+
+/** TTS 句子音频缓存（IndexedDB + LRU；读写失败静默降级，不影响播放） */
+const ttsAudioCache = createTTSAudioCache(new IndexedDBTTSAudioCacheStore());
 
 interface PreparedAIProviderContext {
   config: LingridConfig;
@@ -1676,9 +1684,28 @@ async function requestTTSAudioWithPriority(
     });
   }
 
+  // 音频缓存：命中则跳过合成（缓存内部异常已静默降级，不影响合成）
+  const cacheKey = await makeTTSAudioCacheKey(config, text);
+  const cached = await ttsAudioCache.get(cacheKey);
+  if (cached) {
+    return {
+      audioBase64: cached.audioBase64,
+      mimeType: cached.mimeType,
+      provider: cached.provider as TTSProviderId,
+    };
+  }
+
   // 只尝试用户选择的 AI 提供者，失败时抛出错误触发浏览器回退
   try {
-    return await requestTTSAudioByProvider(selection, context, progress);
+    const data = await requestTTSAudioByProvider(selection, context, progress);
+    void ttsAudioCache.put({
+      key: cacheKey,
+      audioBase64: data.audioBase64,
+      mimeType: data.mimeType,
+      provider: data.provider,
+      bytes: data.audioBase64.length,
+    });
+    return data;
   } catch (error) {
     throw normalizeUnknownTTSError(selection, error);
   }
