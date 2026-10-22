@@ -1,0 +1,319 @@
+/**
+ * @file library.css
+ * @description 资料库全屏页样式（iOS 风格，暗色默认 + 亮色覆盖）
+ */
+
+:root {
+  --bg: #000000;
+  --bg-elevated: #1c1c1e;
+  --bg-card: rgba(255, 255, 255, 0.07);
+  --bg-card-hover: rgba(255, 255, 255, 0.12);
+  --text: #ebebf5;
+  --text-secondary: #8e8e93;
+  --hairline: rgba(255, 255, 255, 0.12);
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.18);
+  --accent-text: #6ab3ff;
+  --playing-bg: rgba(10, 132, 255, 0.14);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* hidden 属性必须压过各视图的 display 设置 */
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; }
+
+/* ====== 首页 ====== */
+.home { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 20px 12px;
+  border-right: 0.5px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 700;
+  padding: 0 10px 16px;
+}
+
+.category-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.category-item.active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.home-main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+.category-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.story-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  border: 0.5px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--bg-card);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.story-card:hover { background: var(--bg-card-hover); transform: translateY(-1px); }
+
+.story-card-emoji { font-size: 34px; line-height: 1; }
+
+.story-card-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+.story-card-meta { font-size: 12px; color: var(--text-secondary); }
+
+.home-error {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.home-error button {
+  margin-top: 12px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ====== 播放器 ====== */
+.player { display: flex; flex-direction: column; height: 100vh; }
+
+.player-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--hairline);
+  background: rgba(28, 28, 30, 0.82);
+  backdrop-filter: blur(22px) saturate(1.9);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9);
+}
+
+.player-back {
+  border: none;
+  background: transparent;
+  color: var(--accent-text);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.player-back:hover { background: var(--accent-soft); }
+
+.player-title {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-topbar-spacer { width: 64px; }
+
+.player-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px min(6vw, 56px) 32px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.player-intro-card,
+.player-ending-card {
+  text-align: center;
+  padding: 28px 16px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+}
+
+.player-intro-emoji,
+.player-ending-emoji { font-size: 52px; margin-bottom: 10px; }
+
+.player-intro-card h2,
+.player-ending-card h2 { font-size: 22px; margin-bottom: 6px; }
+
+.player-intro-sub,
+.player-ending-sub { font-size: 14px; color: var(--text-secondary); }
+
+.player-scene { margin-bottom: 22px; }
+
+.player-scene-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.player-scene-tag {
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.player-scene-head h3 { font-size: 17px; font-weight: 700; flex: 1; }
+
+.player-scene-art {
+  font-size: 22px;
+  white-space: pre-line;
+  text-align: center;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.player-scene-caption {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-secondary);
+  white-space: pre-line;
+  margin: 2px 0 10px;
+}
+
+.player-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.player-line:hover { background: var(--bg-card); }
+
+.player-line.playing {
+  background: var(--playing-bg);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.player-line-speak {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.player-line-speak:hover { opacity: 1; }
+
+.player-line-speaker { font-size: 15px; flex-shrink: 0; }
+
+.player-line-text { font-size: 16px; line-height: 1.45; }
+
+.player-songs {
+  margin-bottom: 22px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 0.5px dashed var(--hairline);
+}
+
+.player-songs h3 { font-size: 15px; margin-bottom: 10px; }
+
+.player-song { font-size: 14px; padding: 4px 0; color: var(--text); }
+
+/* ====== 播放条 ====== */
+.playbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-top: 0.5px solid var(--hairline);
+  background: rgba(28, 28, 30, 0.82);
+  backdrop-filter: blur(22px) saturate(1.9);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9);
+}
+
+.playbar-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 22px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.playbar-btn:hover { filter: brightness(1.1); }
+
+.playbar-progress { font-size: 13px; color: var(--text-secondary); }
+
+/* ====== 亮色主题 ====== */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f2f7;
+    --bg-elevated: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.85);
+    --bg-card-hover: #ffffff;
+    --text: #1c1c1e;
+    --text-secondary: #6c6c70;
+    --hairline: rgba(0, 0, 0, 0.1);
+    --accent: #007aff;
+    --accent-soft: rgba(0, 122, 255, 0.12);
+    --accent-text: #007aff;
+    --playing-bg: rgba(0, 122, 255, 0.1);
+  }
+  .player-topbar, .playbar { background: rgba(255, 255, 255, 0.85); }
+  .sidebar { background: rgba(255, 255, 255, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

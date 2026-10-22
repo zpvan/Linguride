@@ -110,6 +110,7 @@ const MINIMAX_TTS_MODEL_OPTIONS: MiniMaxTTSModel[] = [
 const viewport = document.querySelector(".viewport") as HTMLElement;
 
 // Header
+const libraryBtn = document.getElementById("libraryBtn") as HTMLButtonElement;
 const corpusBtn = document.getElementById("corpusBtn") as HTMLButtonElement;
 const tutorBtn = document.getElementById("tutorBtn") as HTMLButtonElement;
 const companionBtn = document.getElementById("companionBtn") as HTMLButtonElement;
@@ -712,6 +713,9 @@ function bindEvents(): void {
   settingsBtn.addEventListener("click", showSettings);
   backBtn.addEventListener("click", showMain);
   configHintBtn.addEventListener("click", showSettings);
+
+  // 资料库标签页入口
+  libraryBtn.addEventListener("click", openLibraryPage);
 
   // 语料库标签页入口
   corpusBtn.addEventListener("click", openCorpusPage);
@@ -2259,6 +2263,18 @@ function listenReadAloudProgress(): void {
 }
 
 // ====== 语料库标签页 ======
+
+/**
+ * 打开资料库标签页
+ *
+ * 在新标签页中打开资料库页面（分门别类的学习资料）。
+ */
+function openLibraryPage(): void {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL("src/library/library.html"),
+  });
+  // 侧边栏保持打开，便于随时切回
+}
 
 /**
  * 打开语料库标签页

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资料库 - Lingride</title>
+  <link rel="stylesheet" href="./library.css">
+</head>
+<body>
+  <!-- 首页：左侧分类导航 + 右侧剧集卡片网格 -->
+  <div id="homeView" class="home">
+    <aside class="sidebar">
+      <div class="sidebar-title">资料库</div>
+      <nav id="categoryNav" class="category-nav"></nav>
+    </aside>
+    <main class="home-main">
+      <h1 id="categoryTitle" class="category-title"></h1>
+      <div id="storyGrid" class="story-grid"></div>
+      <div id="homeError" class="home-error" hidden>
+        <p>资料库数据加载失败</p>
+        <button id="homeRetryBtn" type="button">重试</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- 播放器：全剧滚动阅读 -->
+  <div id="playerView" class="player" hidden>
+    <header class="player-topbar">
+      <button id="playerBackBtn" class="player-back" type="button">‹ 资料库</button>
+      <div id="playerTitle" class="player-title"></div>
+      <div class="player-topbar-spacer"></div>
+    </header>
+    <div id="playerScroll" class="player-scroll"></div>
+    <footer id="playbar" class="playbar">
+      <button id="playToggleBtn" class="playbar-btn" type="button">▶ 连播</button>
+      <span id="playProgress" class="playbar-progress"></span>
+    </footer>
+  </div>
+
+  <script type="module" src="./library.ts"></script>
+</body>
+</html>

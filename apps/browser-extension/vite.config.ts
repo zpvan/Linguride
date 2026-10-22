@@ -24,6 +24,7 @@ export default defineConfig({
         "src/corpus/corpus.html",
         "src/offscreen/tts-offscreen.html",
         "src/companion/companion.html",
+        "src/library/library.html",
       ],
     }),
   ],
