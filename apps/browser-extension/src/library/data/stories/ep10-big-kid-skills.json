@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "id": "ep10-big-kid-skills",
+  "category": "story",
+  "episode": 10,
+  "title": "Big Kid Skills!",
+  "emoji": "📱",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 10 · Big Kid Skills! 📞✂️"
+    },
+    {
+      "emoji": "🎓",
+      "title": "Last Time...",
+      "sub": "Kimi's body made SO many funny noises. 😂<br>Today, Kimi learns real grown-up skills. Diploma, please!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Ring Ring! Who's Calling?",
+      "art": "📱🔔\n👧🏻📞",
+      "caption": "The phone is ringing and Mom is busy.\nKimi's first time answering — all by herself!",
+      "lines": [
+        {
+          "id": "l10-1-1",
+          "speaker": "kimi",
+          "text": "Hello! This is Kimi's residence. Who's calling, please? 📞",
+          "textHash": "110e7705dc4ffa79687a298ad83c604fc34b76ad"
+        },
+        {
+          "id": "l10-1-2",
+          "speaker": "dad",
+          "text": "Hi Kimi, it's Dad! Wow, you answered so politely!",
+          "textHash": "9c6e2bd6ad890409e50b601be10cb7ec67513f83"
+        },
+        {
+          "id": "l10-1-3",
+          "speaker": "kimi",
+          "text": "Hold on, please. ...Mom! It's for you!",
+          "textHash": "caf245cedaf83d87f242da2289b45f66d9a4a6f9"
+        },
+        {
+          "id": "l10-1-4",
+          "speaker": "mom",
+          "text": "Good job, sweetie. That was perfect phone manners! ⭐",
+          "textHash": "f72d0fdcb546ba719f2e9fb186283cc497456033"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Calling My Friend",
+      "art": "☎️🧒🏻\n👧🏻💬",
+      "caption": "Kimi wants to invite Minsu to play.\nCareful dialing, one number at a time...",
+      "lines": [
+        {
+          "id": "l10-2-1",
+          "speaker": "kimi",
+          "text": "Mom, can I call Minsu? I can call by myself!",
+          "textHash": "232d97d1bfea53946b1c1b394db34ca2b74c14d1"
+        },
+        {
+          "id": "l10-2-2",
+          "speaker": "mom",
+          "text": "You need to dial carefully. Do you remember the number?",
+          "textHash": "e131c5ed9fdcc25bfb9a8abe0b8dc610476f0f0d"
+        },
+        {
+          "id": "l10-2-3",
+          "speaker": "kimi",
+          "text": "Hello, is Minsu there? This is Kimi, Minsu's friend!",
+          "textHash": "0b922550852b327ba43d52e2b4ef0a93e1a46709"
+        },
+        {
+          "id": "l10-2-4",
+          "speaker": "mom",
+          "text": "The line is busy? No one's picking up? Let's call later. ☎️",
+          "textHash": "69aabdcfd072c803a08c2bd17167c4f52ae4474a"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Veggie Washing Squad",
+      "art": "🥒💧\n👩🏻👧🏻",
+      "caption": "Mission: squeaky-clean veggies for dinner!\nLeaf by leaf, splash by splash.",
+      "lines": [
+        {
+          "id": "l10-3-1",
+          "speaker": "mom",
+          "text": "Let's wash the cucumbers. You need to clean the vegetables well.",
+          "textHash": "4a80c7f5d2c2b1ed149ed81c92c551198bc4b2a9"
+        },
+        {
+          "id": "l10-3-2",
+          "speaker": "kimi",
+          "text": "Clean the lettuce leaves one by one! 🥬",
+          "textHash": "ac7d9c20b34239e3d800a9ec03583e0411d09991"
+        },
+        {
+          "id": "l10-3-3",
+          "speaker": "mom",
+          "text": "There can be pesticides on them. Wash them several times.",
+          "textHash": "f8d5934c86d3b23beffb328b6d4dcb7526a40f6d"
+        },
+        {
+          "id": "l10-3-4",
+          "speaker": "kimi",
+          "text": "Scrub gently, or the nutrients will get washed away!",
+          "textHash": "896e212c5257cf2efad3421731bcb1bb7735836d"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Little Chef, Careful Hands",
+      "art": "🔪🥕\n✂️👧🏻",
+      "caption": "Chop, slice, dice!\nBut sharp knives are for grown-ups...",
+      "lines": [
+        {
+          "id": "l10-4-1",
+          "speaker": "mom",
+          "text": "Let's cut it into the right size, so it will go into your mouth easily.",
+          "textHash": "0a3c2b058173007ef708025c2d8834ff902ba133"
+        },
+        {
+          "id": "l10-4-2",
+          "speaker": "kimi",
+          "text": "Can I cut it, Mom? Please?",
+          "textHash": "63f9b8ba204d98805f0548016583754bebcdaed4"
+        },
+        {
+          "id": "l10-4-3",
+          "speaker": "mom",
+          "text": "You'd better cut it with scissors. Watch out! You might hurt your hand.",
+          "textHash": "bc65065d63f70e6c621ddb3ce10511aa819157bf"
+        },
+        {
+          "id": "l10-4-4",
+          "speaker": "kimi",
+          "text": "Be careful with the knife, Mom! I'll use my scissors. ✂️",
+          "textHash": "e45522a860efa8614ccfdc6f3178f6b31d726e60"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Nail Salon Day",
+      "art": "💅✨\n✋👧🏻",
+      "caption": "Click, click, click go the nail clippers.\nKimi holds VERY still...",
+      "lines": [
+        {
+          "id": "l10-5-1",
+          "speaker": "mom",
+          "text": "Oh my! Why are your fingernails this long? You should trim your nails.",
+          "textHash": "484f3643a93c0dfa3340e60df61167bec9bf744a"
+        },
+        {
+          "id": "l10-5-2",
+          "speaker": "kimi",
+          "text": "Will you cut them?",
+          "textHash": "c11fa95cbf7c7a813d0cc0b627d48719d7dfd29e"
+        },
+        {
+          "id": "l10-5-3",
+          "speaker": "mom",
+          "text": "Don't move. You can get hurt. ...Now give me the other hand.",
+          "textHash": "b3193ef01882f6cea2b333aaac0fbbe05331bcd8"
+        },
+        {
+          "id": "l10-5-4",
+          "speaker": "kimi",
+          "text": "Can I cut them by myself next time? ...Carefully! 💅",
+          "textHash": "a665d255baed2d20ccfddb062e885b555111ffdd"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "📞 Answer the phone politely",
+    "🥒 Wash veggies one by one",
+    "✂️ Scissors for little hands",
+    "💅 Trim nails every week"
+  ],
+  "ending": {
+    "emoji": "🎄",
+    "title": "Level Up, Big Kid Kimi!",
+    "sub": "To be continued... Next episode: Happy Holidays! 🎉"
+  },
+  "source": {
+    "file": "episode-10-big-kid-skills-kimi.html",
+    "contentHash": "2c23da683943cbd5e98d2515ee12db3bcd279c3c",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "a446919bcc28acd6e82f16818bfe569cba5653de"
+  }
+}

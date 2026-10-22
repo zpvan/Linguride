@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "id": "ep05-good-manners",
+  "category": "story",
+  "episode": 5,
+  "title": "Good Manners, Big Heart!",
+  "emoji": "🛝",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 5 · Good Manners, Big Heart! 💝"
+    },
+    {
+      "emoji": "💛",
+      "title": "Last Time...",
+      "sub": "Helper Kimi earned six stars! ⭐<br>Today at the park, Kimi meets someone new... and learns about magic words."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "A New Friend!",
+      "art": "🛝🧒🏻\n👧🏻🤝",
+      "caption": "A boy on the slide waves at Kimi.\nTime to be brave and say hello!",
+      "lines": [
+        {
+          "id": "l05-1-1",
+          "speaker": "friend",
+          "text": "Hi! Glad to meet you. My name is Minsu.",
+          "textHash": "43df1f99cc8df44461f34e75953fb866e09c492b"
+        },
+        {
+          "id": "l05-1-2",
+          "speaker": "kimi",
+          "text": "Nice to meet you. I'm Kimi. I'm in first grade.",
+          "textHash": "a68e8e9d7c5e4b06826cd3bbd23926c9e5b5884f"
+        },
+        {
+          "id": "l05-1-3",
+          "speaker": "friend",
+          "text": "How old are you?",
+          "textHash": "c0dcba11d4cfd9ff21309597cdfed78578687712"
+        },
+        {
+          "id": "l05-1-4",
+          "speaker": "kimi",
+          "text": "I'm 8 years old. I like playing the piano! 🎹",
+          "textHash": "f2fb3e5b891bea456f4c3d1ff85ec32a95f88e9d"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "The Magic Words",
+      "art": "💛✨\n🎁👧🏻",
+      "caption": "Two little words can make hearts happy.\nCan you guess them?",
+      "lines": [
+        {
+          "id": "l05-2-1",
+          "speaker": "kimi",
+          "text": "Thank you for helping me!",
+          "textHash": "bc4337137738dbe4d371fd9e519c95a0c079b360"
+        },
+        {
+          "id": "l05-2-2",
+          "speaker": "mom",
+          "text": "You're welcome. It was not a big deal.",
+          "textHash": "4878515c87b1133eb89c80425876c5e362e57380"
+        },
+        {
+          "id": "l05-2-3",
+          "speaker": "kimi",
+          "text": "Mom, thank you for everything. 💛",
+          "textHash": "6c9575fb6b4f62985598c5e5347eadfabb76778c"
+        },
+        {
+          "id": "l05-2-4",
+          "speaker": "mom",
+          "text": "Aww. I'm the one who should say thanks, my treasure.",
+          "textHash": "81d812949b2e30c669dbba578bb15388f27a7397"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Slow as a Snail",
+      "art": "🐌⏰\n👧🏻🐢",
+      "caption": "Time to go home! But Kimi is moving...\nvery... very... slowly...",
+      "lines": [
+        {
+          "id": "l05-3-1",
+          "speaker": "mom",
+          "text": "It's almost time. Everyone's waiting for you!",
+          "textHash": "1c23a7fa9b6cc9bf275a2195c33fa413430fcf4b"
+        },
+        {
+          "id": "l05-3-2",
+          "speaker": "kimi",
+          "text": "I'm doing it. Wait for me...",
+          "textHash": "1a4d1f95a590ab9560af8afeaa14805c006d5ea4"
+        },
+        {
+          "id": "l05-3-3",
+          "speaker": "mom",
+          "text": "Gosh, you're as slow as a snail. 🐌",
+          "textHash": "1dbfd7a1b0be847e4228dc0f111ae57a82454e06"
+        },
+        {
+          "id": "l05-3-4",
+          "speaker": "kimi",
+          "text": "I'm almost done! Not yet!",
+          "textHash": "87a0bd9aa519c83bd00e403506e3ab354e1ccafe"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Talking-Back Trouble",
+      "art": "😠💢\n👩🏻🙅",
+      "caption": "Uh-oh. Kimi is grumpy, and her words\nare getting a little too spicy...",
+      "lines": [
+        {
+          "id": "l05-4-1",
+          "speaker": "kimi",
+          "text": "Mom, you don't understand! Why shouldn't I tell you what I want?",
+          "textHash": "79f106ff983fb7dd536848cc719b6d45c7e5c2b8"
+        },
+        {
+          "id": "l05-4-2",
+          "speaker": "mom",
+          "text": "Don't talk back to Mom. That's not polite.",
+          "textHash": "1a716ff60ed2c797505b8ce3b195e5aa5f5bda4d"
+        },
+        {
+          "id": "l05-4-3",
+          "speaker": "kimi",
+          "text": "I'm not talking back! 😠",
+          "textHash": "099041bed2886ea73394f68da249f4760b9920ec"
+        },
+        {
+          "id": "l05-4-4",
+          "speaker": "mom",
+          "text": "Do you think you should talk like that?",
+          "textHash": "8d92389d8b94497b363a446b8e60183391536988"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "The Thinking Chair",
+      "art": "🪑😞\n💭👧🏻",
+      "caption": "Kimi sits in the Thinking Chair,\nand thinks... and thinks...",
+      "lines": [
+        {
+          "id": "l05-5-1",
+          "speaker": "mom",
+          "text": "Timeout! Sit in the Thinking Chair.",
+          "textHash": "e2118abf24f88d25b361c05ad106c8d6bab45c84"
+        },
+        {
+          "id": "l05-5-2",
+          "speaker": "kimi",
+          "text": "It was not my fault! ...Well... maybe a little. 😞",
+          "textHash": "3f3e1823ae3b3e9b22b4ebd0ce377b3bc76ccbe5"
+        },
+        {
+          "id": "l05-5-3",
+          "speaker": "mom",
+          "text": "Mommy doesn't want to punish you. But you should be responsible for your actions.",
+          "textHash": "f9a3493d6e87fb22ccd9184d990d0529a6b1bc53"
+        },
+        {
+          "id": "l05-5-4",
+          "speaker": "kimi",
+          "text": "Mom, I'm sorry.",
+          "textHash": "7ab3f5813cf03104feb15d1601c702622b5b0c6b"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Sorry Means a Hug",
+      "art": "🤗💞\n👩🏻👧🏻",
+      "caption": "A real sorry is worth more\nthan a thousand grumpy words.",
+      "lines": [
+        {
+          "id": "l05-6-1",
+          "speaker": "mom",
+          "text": "Look at each other in the eyes and say sorry.",
+          "textHash": "b305ae440563f8cf9fe0732972689c4550b08d5b"
+        },
+        {
+          "id": "l05-6-2",
+          "speaker": "kimi",
+          "text": "It was a mistake. I'm really sorry. I mean it.",
+          "textHash": "b6e493efebdb5ad5eeaec3bb47948c1e1160969a"
+        },
+        {
+          "id": "l05-6-3",
+          "speaker": "mom",
+          "text": "I forgive you. Let's get along. You did so well. Two thumbs up! 👍",
+          "textHash": "ae9a953f583992b08bf28e5193f4a1331045e5c8"
+        },
+        {
+          "id": "l05-6-4",
+          "speaker": "kimi",
+          "text": "How much do you love me, Mommy?",
+          "textHash": "04491d0869dca91cb66cbf6ac6de1811ca9f29e6"
+        },
+        {
+          "id": "l05-6-5",
+          "speaker": "mom",
+          "text": "My love for you is as big as the universe. You are my treasure. ❤️",
+          "textHash": "3ca03d4efd4f902b252611c635981fa413aaa411"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🙏 Please",
+    "💛 Thank you",
+    "😔 I'm sorry",
+    "❤️ I love you",
+    "🔁 Replay your favorite songs from Episodes 1 & 3!"
+  ],
+  "ending": {
+    "emoji": "🌟",
+    "title": "Big Heart, Brave Sorry!",
+    "sub": "To be continued... Next episode: Out and About! 🛝"
+  },
+  "source": {
+    "file": "episode-05-good-manners-kimi.html",
+    "contentHash": "25f8c333821437b47683cd88a036ec8ed9041b05",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "22b83dac9d275a60bb0de3631f3ad1e8af8ca4b7"
+  }
+}

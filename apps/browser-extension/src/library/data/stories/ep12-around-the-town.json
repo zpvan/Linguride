@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "id": "ep12-around-the-town",
+  "category": "story",
+  "episode": 12,
+  "title": "Around the Town!",
+  "emoji": "🌳",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 12 · Around the Town! 🏙️"
+    },
+    {
+      "emoji": "🗺️",
+      "title": "Last Time...",
+      "sub": "Kimi celebrated festivals all year long! 🎉<br>Today is Errand Day — Kimi and Mom are going ALL around the town!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "A Walk in the Park",
+      "art": "🌳🌷\n👩🏻👧🏻",
+      "caption": "The breeze is nice, the flowers are pretty...\nLook, but don't pick!",
+      "lines": [
+        {
+          "id": "l12-1-1",
+          "speaker": "mom",
+          "text": "It's great weather for a walk. Say hi to our neighbors!",
+          "textHash": "94efd80456ed857377cebb5f93033b4c579a7ff1"
+        },
+        {
+          "id": "l12-1-2",
+          "speaker": "kimi",
+          "text": "Hi! Wow, there are a lot of people at the park!",
+          "textHash": "bc0aa2763fbf5171ab5ca63374f5c9d0d8cbae7f"
+        },
+        {
+          "id": "l12-1-3",
+          "speaker": "mom",
+          "text": "Don't pick the flowers. Don't throw trash on the ground.",
+          "textHash": "3a8ef1da20c419c0b84f00a22975802ba7800bf6"
+        },
+        {
+          "id": "l12-1-4",
+          "speaker": "kimi",
+          "text": "Mom, I need the restroom!",
+          "textHash": "0a51936f9647c3fb85a332f93a6475c93847ada6"
+        },
+        {
+          "id": "l12-1-5",
+          "speaker": "mom",
+          "text": "Knock on the door before going in. Flush when you're done, and wash your hands well. 🚻",
+          "textHash": "af07b8a4bb3c4f9502a588c06ba3b7b3aaed7905"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Supermarket Mission",
+      "art": "🛒🍎\n📝👧🏻",
+      "caption": "Mission list: fruit, fish, and...\nRAMEN ON SALE?!",
+      "lines": [
+        {
+          "id": "l12-2-1",
+          "speaker": "mom",
+          "text": "Mommy needs to go grocery shopping. Go get a cart.",
+          "textHash": "0306ac5ed57401e73724d3539356536550ac5ccd"
+        },
+        {
+          "id": "l12-2-2",
+          "speaker": "kimi",
+          "text": "Let's see the grocery list! 📝",
+          "textHash": "1f855448843c780d86323c9e5621fd006b3ec5b1"
+        },
+        {
+          "id": "l12-2-3",
+          "speaker": "mom",
+          "text": "Let's go to the produce corner first. Put it in the cart.",
+          "textHash": "12456bbe1a998835d75a9e09b0059219ce806001"
+        },
+        {
+          "id": "l12-2-4",
+          "speaker": "kimi",
+          "text": "Mom! The pack of ramen is on sale! Can we get it?",
+          "textHash": "6d786c5191b8dc004847c230ae9552d67d2b0ac7"
+        },
+        {
+          "id": "l12-2-5",
+          "speaker": "mom",
+          "text": "Check if we forgot anything. ...The cart is full! 🛒",
+          "textHash": "6cae96473fa2036ef1b431087d827c314cab91d2"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Lunch at the Restaurant",
+      "art": "🍜🥢\n😋👧🏻",
+      "caption": "Menus, chopsticks, and yummy smells.\nBut no goofing around!",
+      "lines": [
+        {
+          "id": "l12-3-1",
+          "speaker": "kimi",
+          "text": "Hello, may I order now? I want zhajiangmian and sweet and sour pork! 🍜",
+          "textHash": "117bca8dbcdeb208da0866fe10bc9ec5eb65ef25"
+        },
+        {
+          "id": "l12-3-2",
+          "speaker": "mom",
+          "text": "Can you set the spoons and chopsticks?",
+          "textHash": "6e4455ba72b6d009017b75821646ccd0c72463ec"
+        },
+        {
+          "id": "l12-3-3",
+          "speaker": "kimi",
+          "text": "Mom, I spilled my water... 😅",
+          "textHash": "f949e6bbf0bbb145f89bde275f93147c7722e861"
+        },
+        {
+          "id": "l12-3-4",
+          "speaker": "mom",
+          "text": "Don't goof around in the restaurant. ...Can we get the check, please?",
+          "textHash": "c58bcf39e585e82ec5cee0a446623ab5f9f28f95"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Movie Time!",
+      "art": "🎬🍿\n👓👧🏻",
+      "caption": "A 3D movie, a big popcorn,\nand ten minutes till it starts!",
+      "lines": [
+        {
+          "id": "l12-4-1",
+          "speaker": "kimi",
+          "text": "I want to watch a 3D movie! Did you reserve the tickets, Mom?",
+          "textHash": "ec2bf785ec5999850d63294d47f312acdea3a93d"
+        },
+        {
+          "id": "l12-4-2",
+          "speaker": "mom",
+          "text": "Yes, I got the tickets beforehand. Let's watch a matinee.",
+          "textHash": "2d07abde69f939bfd536d1745e6fce290e6b8078"
+        },
+        {
+          "id": "l12-4-3",
+          "speaker": "kimi",
+          "text": "Can I get popcorn and a drink? 🍿",
+          "textHash": "d2ff14492a0111083968803e0811628f03026160"
+        },
+        {
+          "id": "l12-4-4",
+          "speaker": "mom",
+          "text": "We have about 10 minutes till the movie starts. Wait in line here and go in.",
+          "textHash": "8bba124e91ac63c6bc0ef668e01ac5cd04e3491b"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Shhh! Book Land",
+      "art": "📚🦕\n🤫👧🏻",
+      "caption": "Dinosaur books, storybooks, science magazines...\nbut remember: library voices only!",
+      "lines": [
+        {
+          "id": "l12-5-1",
+          "speaker": "kimi",
+          "text": "Where are the dinosaur books? 🦕",
+          "textHash": "d1bffb7db4fe56ef43df9f68befb1065c8e04f5f"
+        },
+        {
+          "id": "l12-5-2",
+          "speaker": "mom",
+          "text": "Pick what you want to read. Don't be loud in the library.",
+          "textHash": "be61f1e4a574a0d17848e2ebb59c8e9a840bcef7"
+        },
+        {
+          "id": "l12-5-3",
+          "speaker": "kimi",
+          "text": "How many books can I borrow?",
+          "textHash": "c9fbd18e36892de04e2412db2e55bfab134b0869"
+        },
+        {
+          "id": "l12-5-4",
+          "speaker": "mom",
+          "text": "We can only get 4 books. Let's check them out. Give the librarian the card first. 🤫",
+          "textHash": "4f363510cb4f2dbf925916352b0b234911abc152"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Kimi's First Bank Account",
+      "art": "🏦🐷\n💰👧🏻",
+      "caption": "Last stop: the bank.\nKimi's piggy bank savings become REAL money today!",
+      "lines": [
+        {
+          "id": "l12-6-1",
+          "speaker": "kimi",
+          "text": "What is a bank for, Mom?",
+          "textHash": "4591d894c49aff1ca54930422319ac4e35cdb1e7"
+        },
+        {
+          "id": "l12-6-2",
+          "speaker": "mom",
+          "text": "We keep money in the bank. Let's open an account for you!",
+          "textHash": "2ca599082ae1458c619fc4d9dc412b8afcc1e900"
+        },
+        {
+          "id": "l12-6-3",
+          "speaker": "kimi",
+          "text": "I want to save my piggy bank money here! 🐷",
+          "textHash": "2d11fc2285030395a9c15d44892f9b339a2da1a9"
+        },
+        {
+          "id": "l12-6-4",
+          "speaker": "mom",
+          "text": "Get a number and we need to fill out the form. Good job, big saver! 💰",
+          "textHash": "5881461a005eff0347bf214aad1c2dde13078d26"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🌸 Don't pick the flowers",
+    "🚽 Flush and wash hands",
+    "🤫 Be quiet in the library",
+    "🛒 Check the grocery list"
+  ],
+  "ending": {
+    "emoji": "⛰️",
+    "title": "Errand Day: Complete!",
+    "sub": "To be continued... Next episode: Big Adventures! 🏖️"
+  },
+  "source": {
+    "file": "episode-12-around-the-town-kimi.html",
+    "contentHash": "63c2bac0d636e67dc642b5cfc1ad7fa362fbec14",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "b3aae873353999963937dfa7ffd05d804844755e"
+  }
+}

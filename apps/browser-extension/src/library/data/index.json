@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "story",
+      "name": "故事幻灯片",
+      "items": [
+        {
+          "id": "ep01-good-morning",
+          "category": "story",
+          "episode": 1,
+          "title": "Good Morning, Kimi!",
+          "emoji": "🌞",
+          "sceneCount": 6,
+          "lineCount": 24,
+          "file": "stories/ep01-good-morning.json",
+          "sourceFile": "episode-01-good-morning-kimi.html"
+        },
+        {
+          "id": "ep02-lunchtime-playtime",
+          "category": "story",
+          "episode": 2,
+          "title": "Lunchtime & Playtime!",
+          "emoji": "🕛",
+          "sceneCount": 5,
+          "lineCount": 21,
+          "file": "stories/ep02-lunchtime-playtime.json",
+          "sourceFile": "episode-02-lunchtime-playtime-kimi.html"
+        },
+        {
+          "id": "ep03-weather-adventure",
+          "category": "story",
+          "episode": 3,
+          "title": "Kimi's Weather Adventure!",
+          "emoji": "🌞",
+          "sceneCount": 6,
+          "lineCount": 22,
+          "file": "stories/ep03-weather-adventure.json",
+          "sourceFile": "episode-03-weather-adventure-kimi.html"
+        },
+        {
+          "id": "ep04-little-helper",
+          "category": "story",
+          "episode": 4,
+          "title": "Kimi the Little Helper!",
+          "emoji": "🧸",
+          "sceneCount": 6,
+          "lineCount": 24,
+          "file": "stories/ep04-little-helper.json",
+          "sourceFile": "episode-04-little-helper-kimi.html"
+        },
+        {
+          "id": "ep05-good-manners",
+          "category": "story",
+          "episode": 5,
+          "title": "Good Manners, Big Heart!",
+          "emoji": "🛝",
+          "sceneCount": 6,
+          "lineCount": 25,
+          "file": "stories/ep05-good-manners.json",
+          "sourceFile": "episode-05-good-manners-kimi.html"
+        },
+        {
+          "id": "ep06-out-and-about",
+          "category": "story",
+          "episode": 6,
+          "title": "Out and About!",
+          "emoji": "🚦",
+          "sceneCount": 6,
+          "lineCount": 24,
+          "file": "stories/ep06-out-and-about.json",
+          "sourceFile": "episode-06-out-and-about-kimi.html"
+        },
+        {
+          "id": "ep07-booboo-day",
+          "category": "story",
+          "episode": 7,
+          "title": "Ouch! Boo-Boo Day!",
+          "emoji": "🪨",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep07-booboo-day.json",
+          "sourceFile": "episode-07-booboo-day-kimi.html"
+        },
+        {
+          "id": "ep08-good-night",
+          "category": "story",
+          "episode": 8,
+          "title": "Good Night, Kimi!",
+          "emoji": "📚",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep08-good-night.json",
+          "sourceFile": "episode-08-good-night-kimi.html"
+        },
+        {
+          "id": "ep09-funny-body-noises",
+          "category": "story",
+          "episode": 9,
+          "title": "Funny Body Noises!",
+          "emoji": "😮",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep09-funny-body-noises.json",
+          "sourceFile": "episode-09-funny-body-noises-kimi.html"
+        },
+        {
+          "id": "ep10-big-kid-skills",
+          "category": "story",
+          "episode": 10,
+          "title": "Big Kid Skills!",
+          "emoji": "📱",
+          "sceneCount": 5,
+          "lineCount": 20,
+          "file": "stories/ep10-big-kid-skills.json",
+          "sourceFile": "episode-10-big-kid-skills-kimi.html"
+        },
+        {
+          "id": "ep11-happy-holidays",
+          "category": "story",
+          "episode": 11,
+          "title": "Happy Holidays!",
+          "emoji": "🧧",
+          "sceneCount": 4,
+          "lineCount": 17,
+          "file": "stories/ep11-happy-holidays.json",
+          "sourceFile": "episode-11-happy-holidays-kimi.html"
+        },
+        {
+          "id": "ep12-around-the-town",
+          "category": "story",
+          "episode": 12,
+          "title": "Around the Town!",
+          "emoji": "🌳",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep12-around-the-town.json",
+          "sourceFile": "episode-12-around-the-town-kimi.html"
+        },
+        {
+          "id": "ep13-big-adventures",
+          "category": "story",
+          "episode": 13,
+          "title": "Big Adventures!",
+          "emoji": "⛰️",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep13-big-adventures.json",
+          "sourceFile": "episode-13-big-adventures-kimi.html"
+        },
+        {
+          "id": "ep14-what-day-is-it",
+          "category": "story",
+          "episode": 14,
+          "title": "What Day Is It?",
+          "emoji": "🚶",
+          "sceneCount": 6,
+          "lineCount": 26,
+          "file": "stories/ep14-what-day-is-it.json",
+          "sourceFile": "episode-14-what-day-is-it-kimi.html"
+        },
+        {
+          "id": "ep15-little-artist",
+          "category": "story",
+          "episode": 15,
+          "title": "Little Artist!",
+          "emoji": "🦕",
+          "sceneCount": 5,
+          "lineCount": 23,
+          "file": "stories/ep15-little-artist.json",
+          "sourceFile": "episode-15-little-artist-kimi.html"
+        },
+        {
+          "id": "ep16-playdate-wheels",
+          "category": "story",
+          "episode": 16,
+          "title": "Playdate & Wheels!",
+          "emoji": "⚽",
+          "sceneCount": 5,
+          "lineCount": 21,
+          "file": "stories/ep16-playdate-wheels.json",
+          "sourceFile": "episode-16-playdate-wheels-kimi.html"
+        },
+        {
+          "id": "ep17-sniffly-day",
+          "category": "story",
+          "episode": 17,
+          "title": "The Sniffly Day!",
+          "emoji": "🩸",
+          "sceneCount": 3,
+          "lineCount": 14,
+          "file": "stories/ep17-sniffly-day.json",
+          "sourceFile": "episode-17-sniffly-day-kimi.html"
+        }
+      ]
+    }
+  ]
+}

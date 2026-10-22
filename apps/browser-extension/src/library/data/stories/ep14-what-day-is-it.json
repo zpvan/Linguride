@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "id": "ep14-what-day-is-it",
+  "category": "story",
+  "episode": 14,
+  "title": "What Day Is It?",
+  "emoji": "🚶",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 14 · What Day Is It? 🚌 (Season 2 Finale!)"
+    },
+    {
+      "emoji": "🎒",
+      "title": "Last Time...",
+      "sub": "Kimi had the best vacation ever and rode home on Mommy's back. 💗<br>Vacation is over — back to school, with buses, subways and calendars!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Walking to School",
+      "art": "🚶‍♀️🎒\n🐕👧🏻",
+      "caption": "Twenty minutes of fresh morning air.\nWalking makes us healthy!",
+      "lines": [
+        {
+          "id": "l14-1-1",
+          "speaker": "mom",
+          "text": "Will you walk to school today? Hold my hand and walk.",
+          "textHash": "d1bd644701c65a4154d1238e543e4cb4fe124a12"
+        },
+        {
+          "id": "l14-1-2",
+          "speaker": "kimi",
+          "text": "How long does it take by walking?",
+          "textHash": "792d86a27d07a5025c9f6b2423d7352299b80da3"
+        },
+        {
+          "id": "l14-1-3",
+          "speaker": "mom",
+          "text": "About 20 minutes. We can be healthy if we walk.",
+          "textHash": "5fe79abddb26ae9ad26698d44dc3fadab4e77270"
+        },
+        {
+          "id": "l14-1-4",
+          "speaker": "kimi",
+          "text": "Want to sing while we walk? La la la! 🎵",
+          "textHash": "a8959f4303c803a71fb10e0d493297cc90b012bc"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "The Green Light Rules",
+      "art": "🚦✋\n🦓👧🏻",
+      "caption": "Red light, stop. Green light, go.\nBut always — ALWAYS — look both ways!",
+      "lines": [
+        {
+          "id": "l14-2-1",
+          "speaker": "mom",
+          "text": "Stop in front of the crosswalk. Don't run in the crosswalk.",
+          "textHash": "4ab67dc6eccf5a15e900bf58c2659557fed789ba"
+        },
+        {
+          "id": "l14-2-2",
+          "speaker": "kimi",
+          "text": "Mom, the light is green! Let's go! I hold my hand up when I cross! ✋",
+          "textHash": "93954bc7d2483c2afdc350bfb1e0166944b0c774"
+        },
+        {
+          "id": "l14-2-3",
+          "speaker": "mom",
+          "text": "Stop when the green light is flickering. Let's wait for the next light.",
+          "textHash": "965693286dea365f9fbfbbade1e79ebf14b0bb98"
+        },
+        {
+          "id": "l14-2-4",
+          "speaker": "kimi",
+          "text": "Mom, that car is running the red light! 😮",
+          "textHash": "78ec2e3b32771ed1824a2b8b70e3932b85b81e49"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Kind Bus Ride",
+      "art": "🚌💺\n👵👧🏻",
+      "caption": "Beep beep! The bus arrives.\nAnd Kimi spots a grandma who needs a seat...",
+      "lines": [
+        {
+          "id": "l14-3-1",
+          "speaker": "mom",
+          "text": "Let's check the route. What number bus do we need to take?",
+          "textHash": "a11381fe395035abadeaedf461928728b63992af"
+        },
+        {
+          "id": "l14-3-2",
+          "speaker": "kimi",
+          "text": "The bus is here! Let's get in! 🚌",
+          "textHash": "fe262bb19fe92aeb4bf1e50afdaa15eee9fa701a"
+        },
+        {
+          "id": "l14-3-3",
+          "speaker": "mom",
+          "text": "Grab the handle. ...Please give your seat to this lady.",
+          "textHash": "e358ca8b9f1dceb6d84ed214a6b5776e6ec99af3"
+        },
+        {
+          "id": "l14-3-4",
+          "speaker": "kimi",
+          "text": "Sit here, ma'am! 💺",
+          "textHash": "e6c65b98e102d2f7b0893cfc775360d82d6cd2a3"
+        },
+        {
+          "id": "l14-3-5",
+          "speaker": "mom",
+          "text": "Good girl. Keep your voice down and behave on the bus.",
+          "textHash": "0bda6ac489bde153fbfb0ad2225d8c8f9bf6da76"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Three Stops to Auntie's",
+      "art": "🚇🎫\n👩🏻👧🏻",
+      "caption": "Whoosh! The subway flies under the city.\nMind the gap, Kimi!",
+      "lines": [
+        {
+          "id": "l14-4-1",
+          "speaker": "mom",
+          "text": "Let's take the subway to visit your aunt. Step behind the safety line.",
+          "textHash": "f7cb7a08716af72313ade662a1e0e7396fe8ba07"
+        },
+        {
+          "id": "l14-4-2",
+          "speaker": "kimi",
+          "text": "Mom, the train is coming! Is that the train we need to take? 🚇",
+          "textHash": "51a1c70c3e6078c903b93857a66f3f99c2b827b4"
+        },
+        {
+          "id": "l14-4-3",
+          "speaker": "mom",
+          "text": "Get on after people get off. Watch your step when you get on.",
+          "textHash": "447204101246796fa61f26039288f5abec640a8e"
+        },
+        {
+          "id": "l14-4-4",
+          "speaker": "kimi",
+          "text": "How many more stops are left?",
+          "textHash": "c43720f333e7487f02587cb428eb0aa0e76054d5"
+        },
+        {
+          "id": "l14-4-5",
+          "speaker": "mom",
+          "text": "Three stops from here.",
+          "textHash": "c15428043cf17c2c39bff99195706ef2f4abe3e0"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Tick Tock, Calendar Talk",
+      "art": "📅⏰\n😉👧🏻",
+      "caption": "Days, dates, hours, minutes...\nTime is actually pretty fun!",
+      "lines": [
+        {
+          "id": "l14-5-1",
+          "speaker": "mom",
+          "text": "What day is it today?",
+          "textHash": "37be0e6acc36fa87efaa7620718844a4134449ef"
+        },
+        {
+          "id": "l14-5-2",
+          "speaker": "kimi",
+          "text": "Today is Thursday. Tomorrow will be Friday — I like Friday the most, because I can rest the next day! 📅",
+          "textHash": "ad821b04b1117ad8ee6f1a836bdab9b6d3b33e0d"
+        },
+        {
+          "id": "l14-5-3",
+          "speaker": "mom",
+          "text": "What time is it now? The short hand tells you the hour, the long hand tells you the minute.",
+          "textHash": "ecf039e9099732b3427fc3068c67906790e29f32"
+        },
+        {
+          "id": "l14-5-4",
+          "speaker": "kimi",
+          "text": "It's four forty-five! And one second is like one blink of an eye! 😉",
+          "textHash": "2ad5d15adad7d6659efc2a14643e4af603a44379"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Subjects & Seasons",
+      "art": "🏀🌸\n📚👧🏻",
+      "caption": "PE class, funny stories, and four\nbeautiful seasons to learn about!",
+      "lines": [
+        {
+          "id": "l14-6-1",
+          "speaker": "mom",
+          "text": "What is your favorite subject?",
+          "textHash": "4a1c62b85d8bb7d442b5daece33932e7f3cbefb3"
+        },
+        {
+          "id": "l14-6-2",
+          "speaker": "kimi",
+          "text": "I like PE class the most! And today the teacher told us a very funny story! 🏀",
+          "textHash": "49aa5a9d6161166118e16505dc86c1e4f2d1fd00"
+        },
+        {
+          "id": "l14-6-3",
+          "speaker": "mom",
+          "text": "Which season do you like the most?",
+          "textHash": "78008408eb08cf0b28929148c6f437e543032fd7"
+        },
+        {
+          "id": "l14-6-4",
+          "speaker": "kimi",
+          "text": "I love spring the most. The flowers bloom, and school starts in the spring! 🌸",
+          "textHash": "1e0fb3465da9b08df3e7a9c5ebd5fc718f52368e"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "📅 Monday to Friday = weekdays",
+    "🎉 Saturday & Sunday = weekend!",
+    "⏰ Short hand = hour, long hand = minute",
+    "🌸 Spring, ☀️ Summer, 🍂 Fall, ❄️ Winter"
+  ],
+  "ending": {
+    "emoji": "🌟",
+    "title": "You Did It, Kimi — All 14 Episodes!",
+    "sub": "From sleepy mornings to big adventures,<br>Kimi's English grows every single day. Keep talking, keep growing! 💬🌱"
+  },
+  "source": {
+    "file": "episode-14-what-day-is-it-kimi.html",
+    "contentHash": "a1627c9f55c40bfbaed2433e344d9d620c573b7d",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "87a0063111a81347cfd9aee1f6d05e508025f0c9"
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "id": "ep13-big-adventures",
+  "category": "story",
+  "episode": 13,
+  "title": "Big Adventures!",
+  "emoji": "⛰️",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 13 · Big Adventures! 🏖️"
+    },
+    {
+      "emoji": "🎒",
+      "title": "Last Time...",
+      "sub": "Kimi toured the whole town and opened her first bank account! 💰<br>Now pack your bag — it's summer VACATION!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "To the Top!",
+      "art": "⛰️🥾\n📣👧🏻",
+      "caption": "Huff... puff... the mountain is SO high.\nBut Kimi never gives up!",
+      "lines": [
+        {
+          "id": "l13-1-1",
+          "speaker": "mom",
+          "text": "Let's go hiking. The air is fresh! 🌲",
+          "textHash": "7f4d8dc1e419c60a4891bea8c9f66b203fe78a02"
+        },
+        {
+          "id": "l13-1-2",
+          "speaker": "kimi",
+          "text": "The mountain is too high! My legs hurt. 😩",
+          "textHash": "ab74a31400d42e8de8f7940962be0b1e3c4583d5"
+        },
+        {
+          "id": "l13-1-3",
+          "speaker": "mom",
+          "text": "Let's rest for a little bit. Go up carefully.",
+          "textHash": "6f7774e34f63e71882de252a8910969ff5fe9376"
+        },
+        {
+          "id": "l13-1-4",
+          "speaker": "kimi",
+          "text": "We're finally at the top! Shout hooray! HOORAY! 📣",
+          "textHash": "0c5f0c36dab8d9a0908949a5a9cca99b301e136c"
+        },
+        {
+          "id": "l13-1-5",
+          "speaker": "mom",
+          "text": "It was hard at first, but it feels good here at the top. Say cheese! 📸",
+          "textHash": "ece9fd34b24ed3464644c0333fe08220ac761b39"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Sea, Sand & Salty Toes",
+      "art": "🌊🏖️\n⛺👧🏻",
+      "caption": "Waves go WHOOSH, sand goes squish,\nand tonight — a tent by the sea!",
+      "lines": [
+        {
+          "id": "l13-2-1",
+          "speaker": "kimi",
+          "text": "Wow, it's the sea! The waves are too high! 🌊",
+          "textHash": "b231923821c9d3427b077cb204a2af81fe26a1d0"
+        },
+        {
+          "id": "l13-2-2",
+          "speaker": "mom",
+          "text": "Take off your shoes and go into the sea.",
+          "textHash": "9374914dd5d011d1234ae2201108c582477664cc"
+        },
+        {
+          "id": "l13-2-3",
+          "speaker": "kimi",
+          "text": "Bleh! The water's too salty! And the sand keeps getting in my shoes!",
+          "textHash": "ce05bf3a6ad5024187927040a87d3a65a92d9036"
+        },
+        {
+          "id": "l13-2-4",
+          "speaker": "mom",
+          "text": "Want to set up the tent here? Let's set a fire tonight! ⛺",
+          "textHash": "937405b76b6654048c4ee936fc43b9eb1eb40886"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Splash! Pool Rules",
+      "art": "🏊‍♀️🛟\n💦👧🏻",
+      "caption": "Goggles on, swim cap on,\ninner tube inflated — SPLASH!",
+      "lines": [
+        {
+          "id": "l13-3-1",
+          "speaker": "mom",
+          "text": "Shower before you go in the pool. Don't forget your swim cap and goggles.",
+          "textHash": "45808ccf26fb6529caff2ad26c3b6e56b603f92b"
+        },
+        {
+          "id": "l13-3-2",
+          "speaker": "kimi",
+          "text": "All ready! Splash time! 🏊‍♀️",
+          "textHash": "2843bbaba0260abdd429bb0dcf217216f54da23f"
+        },
+        {
+          "id": "l13-3-3",
+          "speaker": "mom",
+          "text": "Don't go into the deep end. Please don't dive. The floor is slippery, be careful.",
+          "textHash": "0bb1d8635f6aab1921d00bf8f13ef40fdb979a3f"
+        },
+        {
+          "id": "l13-3-4",
+          "speaker": "kimi",
+          "text": "Okay, Mom. No goofing around in the pool!",
+          "textHash": "f000b9ed6abfda6288be989ea6695210af5b02ca"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "The Amusement Park Marathon",
+      "art": "🎡🎢\n🎠👧🏻",
+      "caption": "Merry-go-rounds, Ferris wheels, parades —\nKimi wants to ride EVERYTHING!",
+      "lines": [
+        {
+          "id": "l13-4-1",
+          "speaker": "kimi",
+          "text": "I want to ride the merry-go-round! 🎠",
+          "textHash": "645e1ca98b1d4b65f4c84f04cba1e2ede6304293"
+        },
+        {
+          "id": "l13-4-2",
+          "speaker": "mom",
+          "text": "Wait in line. ...Oh, you're too short to ride this one.",
+          "textHash": "803641bcd8023b7032b19036ddae10c591d52abb"
+        },
+        {
+          "id": "l13-4-3",
+          "speaker": "kimi",
+          "text": "The roller coaster looks too scary! I like the Viking Ride the most!",
+          "textHash": "f9f89d26dee12db3a2d29c8d61daf5380ebab676"
+        },
+        {
+          "id": "l13-4-4",
+          "speaker": "mom",
+          "text": "Let's ride the Ferris wheel and watch the parade. 🎡",
+          "textHash": "482e404c2e3ad371d12a50f2bb9296f9ba43babc"
+        },
+        {
+          "id": "l13-4-5",
+          "speaker": "kimi",
+          "text": "I'm dizzy... but I want to ride it again! 😵‍💫",
+          "textHash": "f1f586ee11e7560ab0c895c5832ae692cafd2886"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Say Cheese!",
+      "art": "📸😁\n👧🏻🧒🏻",
+      "caption": "Last day of vacation — time to capture\nevery happy memory!",
+      "lines": [
+        {
+          "id": "l13-5-1",
+          "speaker": "mom",
+          "text": "Let's take a picture here. Everyone, squeeze together. Say cheese!",
+          "textHash": "aaff9aacdf7ad767a0915363614cb77acb31cae1"
+        },
+        {
+          "id": "l13-5-2",
+          "speaker": "kimi",
+          "text": "Cheese! 📸 Mom, take a picture of Minsu and me!",
+          "textHash": "2a63a550cdff02a40333cbab353d75a759c624e8"
+        },
+        {
+          "id": "l13-5-3",
+          "speaker": "friend",
+          "text": "Cheese! 🧀",
+          "textHash": "9537e11a80948b90170ae278a700a82a22948be1"
+        },
+        {
+          "id": "l13-5-4",
+          "speaker": "mom",
+          "text": "Make a big smile, please! ...Wow, it looks great!",
+          "textHash": "f1f0e7d6ea82531b6bf21c3995b5659234804a5c"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "The Piggyback Ride Home",
+      "art": "🌅💗\n👩🏻👧🏻",
+      "caption": "Two tired little legs,\none warm, cozy back...",
+      "lines": [
+        {
+          "id": "l13-6-1",
+          "speaker": "kimi",
+          "text": "Mom, my legs are SO tired... 🥺",
+          "textHash": "3d97f9eec25e009bfa9fec573bcac834dab334d1"
+        },
+        {
+          "id": "l13-6-2",
+          "speaker": "mom",
+          "text": "Come here, Sweetie. Let me give you a piggyback ride. Just lean on Mommy.",
+          "textHash": "d98061a135fdd998ae9a76c08a5debfc4170deab"
+        },
+        {
+          "id": "l13-6-3",
+          "speaker": "kimi",
+          "text": "I can hear Mommy's heartbeat. 💓",
+          "textHash": "56432dd89f5d2cac01d905bb9f91abdf0e8e7607"
+        },
+        {
+          "id": "l13-6-4",
+          "speaker": "mom",
+          "text": "Why don't you sleep on Mommy's back? Sweet dreams, adventurer. 🌅",
+          "textHash": "8b0ca8a302e8714d59a96e4ef0c393064f1f9d76"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🥾 Rest when legs hurt",
+    "🧢 Swim cap and goggles on",
+    "🎢 Wait in line, no pushing",
+    "📸 Say CHEESE!"
+  ],
+  "ending": {
+    "emoji": "📅",
+    "title": "Best. Vacation. Ever!",
+    "sub": "To be continued... Next episode: What Day Is It? 🚌"
+  },
+  "source": {
+    "file": "episode-13-big-adventures-kimi.html",
+    "contentHash": "1210ccd15f9ac112937b01f0532bf0fbab8c0f58",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "662eba6cfc744f50322691e72f8e11ede4b38800"
+  }
+}

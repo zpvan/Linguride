@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "id": "ep16-playdate-wheels",
+  "category": "story",
+  "episode": 16,
+  "title": "Playdate & Wheels!",
+  "emoji": "⚽",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 16 · Playdate & Wheels! ⚽🚲"
+    },
+    {
+      "emoji": "🧒🏻",
+      "title": "Last Time...",
+      "sub": "Kimi filled her room with art! 🎨<br>Today Minsu is coming over to play — and something BIG happens with a bike."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Ball Games with Minsu",
+      "art": "⚽😄\n👧🏻🧒🏻",
+      "caption": "Throw! Catch! Bounce!\nThe ball flies between two friends.",
+      "lines": [
+        {
+          "id": "l16-1-1",
+          "speaker": "kimi",
+          "text": "Let's play ball, Minsu! Here it goes! ⚽",
+          "textHash": "20f1ab6257e6c45591a13ddb3bec0441683ac55f"
+        },
+        {
+          "id": "l16-1-2",
+          "speaker": "friend",
+          "text": "Oops, I missed it! 😅",
+          "textHash": "b63e9236f00222cf132a439029e82e56ef5457b9"
+        },
+        {
+          "id": "l16-1-3",
+          "speaker": "mom",
+          "text": "Catch the ball with two hands. Throw it up high!",
+          "textHash": "12f90bf4ad9dd83ac4cfd8f15dd6a2e7b76fc442"
+        },
+        {
+          "id": "l16-1-4",
+          "speaker": "mom",
+          "text": "Wow! You two can catch the ball very well!",
+          "textHash": "e3adf213e66e0b2c6e7c67e27093e81e017b3f3c"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "The Big Squabble",
+      "art": "😠💥\n🤝👧🏻",
+      "caption": "Minsu grabs the ball. Kimi's hand goes up...\nSTOP. Use words, not hands.",
+      "lines": [
+        {
+          "id": "l16-2-1",
+          "speaker": "kimi",
+          "text": "He hit me first! 😠",
+          "textHash": "ae82c03801bb12f1492e1bae9cb00fe1fd8f217a"
+        },
+        {
+          "id": "l16-2-2",
+          "speaker": "mom",
+          "text": "It's bad to hit others. Hold it even if you want to hit him.",
+          "textHash": "33d8a4a3fbf49ab1458fd7b86a09a56bccded967"
+        },
+        {
+          "id": "l16-2-3",
+          "speaker": "mom",
+          "text": "Don't hit him, talk to him. If you hit him back, you will do the wrong thing, too.",
+          "textHash": "fd2634298f2c5040de50cec97805b439014c5653"
+        },
+        {
+          "id": "l16-2-4",
+          "speaker": "kimi",
+          "text": "...I'm sorry, Minsu. 😔",
+          "textHash": "f6b01eac948853d7cd8717e0fcfedf454d4a7d14"
+        },
+        {
+          "id": "l16-2-5",
+          "speaker": "friend",
+          "text": "It's okay. Let's play again! 🤝",
+          "textHash": "79df2b619b586eeaf8e390e59db8b73707bd718f"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Promise You Won't Let Go",
+      "art": "🚲🪖\n👩🏻👧🏻",
+      "caption": "Training wheels OFF. Helmet ON.\nKimi's shaky first ride on two wheels!",
+      "lines": [
+        {
+          "id": "l16-3-1",
+          "speaker": "mom",
+          "text": "Let's learn how to ride a bike with two wheels. Make sure you put on your helmet. 🪖",
+          "textHash": "f0b60e67b62264825e92abc1063dbe162224f531"
+        },
+        {
+          "id": "l16-3-2",
+          "speaker": "kimi",
+          "text": "Can you hold the bike so I won't fall? Promise you won't let go of it!",
+          "textHash": "cfb1f0b07a606464245fb5b9a2d50eb7c60a0e43"
+        },
+        {
+          "id": "l16-3-3",
+          "speaker": "mom",
+          "text": "Don't be nervous. Grab the handlebars tightly. Step on the pedal hard!",
+          "textHash": "e397976cd21cb0d1636e6cf2b4fcd472bebea626"
+        },
+        {
+          "id": "l16-3-4",
+          "speaker": "kimi",
+          "text": "Don't let go, Mommy! ...Wait, are you still holding?! I'M RIDING! 🚲",
+          "textHash": "6e6af262aaa830a3f1d70aefae9330a378adc38c"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Everything Back in Place",
+      "art": "🧺📦\n✔️👧🏻",
+      "caption": "The playdate is over, and the floor\nis a toy ocean. Time to tidy!",
+      "lines": [
+        {
+          "id": "l16-4-1",
+          "speaker": "mom",
+          "text": "There are lots of things on the floor. Put the used things back into their place.",
+          "textHash": "eab9a96905c1d530a2e0f7858c9348713352f767"
+        },
+        {
+          "id": "l16-4-2",
+          "speaker": "kimi",
+          "text": "Where was this before?",
+          "textHash": "c94acf4b9c3203ac1a5e3ab34c5ef27266c59e9b"
+        },
+        {
+          "id": "l16-4-3",
+          "speaker": "mom",
+          "text": "Put the things where they belong, so you can find them easily.",
+          "textHash": "5f30d7abb4a3b412c0994de8217f39b662254a1a"
+        },
+        {
+          "id": "l16-4-4",
+          "speaker": "kimi",
+          "text": "Ball in the box, helmet on the shelf. All done! ✔️",
+          "textHash": "a4ccd8bf0946397dd2aaa3fd80656acb8f216893"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Pooped!",
+      "art": "🥱🛋️\n😴👧🏻",
+      "caption": "Ball games, a bike ride, big feelings...\none very sleepy champion.",
+      "lines": [
+        {
+          "id": "l16-5-1",
+          "speaker": "kimi",
+          "text": "Mom, I'm tired. I can't even move a finger... 🥱",
+          "textHash": "c3ef82f43c9a07bc2a61a092856c6bc4317a8df2"
+        },
+        {
+          "id": "l16-5-2",
+          "speaker": "mom",
+          "text": "You look exhausted. Why do you look so down? Want to take a nap?",
+          "textHash": "96f210f267efacb1e81a3d1f52d443aa160c044e"
+        },
+        {
+          "id": "l16-5-3",
+          "speaker": "kimi",
+          "text": "Just... five... more... Zzz... 😴",
+          "textHash": "981c2b65c3a6cd82fa1546d4e5f10d4f9356cced"
+        },
+        {
+          "id": "l16-5-4",
+          "speaker": "mom",
+          "text": "Sweet dreams, my little champion. 🏆",
+          "textHash": "301f50fc98c9b2b1e82718e583a15e8fb2915f87"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🗣️ Talk, don't hit",
+    "🪖 Helmet first, then ride",
+    "📦 Toys back where they belong",
+    "😴 Rest when you're tired"
+  ],
+  "ending": {
+    "emoji": "🤧",
+    "title": "What a Day, Champion!",
+    "sub": "To be continued... Next episode: The Sniffly Day! 🩸"
+  },
+  "source": {
+    "file": "episode-16-playdate-wheels-kimi.html",
+    "contentHash": "f5bad51abfd400e144ce8e1eb481c44f91ae9aa0",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "b4c7e8f9ac0be1a5241fe76aec53eebd18b152b7"
+  }
+}

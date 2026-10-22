@@ -64,7 +64,7 @@ function firstEmoji(input: string): string | null {
 function deriveTitle(sub: string, fileName: string): string {
   let rest = sub.replace(/^Episode\s+\d+\s*·\s*/, "");
   rest = rest.replace(/\s*\([^)]*\)\s*$/, "");
-  rest = rest.replace(/[^\x00-\x7F\s]+\s*$/, "").trim();
+  rest = rest.replace(/[^-~\s]+\s*$/u, "").trim();
   if (!rest) {
     throw new NormalizeStoryError(
       fileName,

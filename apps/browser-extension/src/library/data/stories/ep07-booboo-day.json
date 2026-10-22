@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "id": "ep07-booboo-day",
+  "category": "story",
+  "episode": 7,
+  "title": "Ouch! Boo-Boo Day!",
+  "emoji": "🪨",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 7 · Ouch! Boo-Boo Day! 🩹"
+    },
+    {
+      "emoji": "🤸",
+      "title": "Last Time...",
+      "sub": "Kimi played ALL day at the playground.<br>But uh-oh... running too fast can lead to... a tumble!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Oops, Down Goes Kimi",
+      "art": "🪨😢\n👧🏻💥",
+      "caption": "Trip! Tumble! THUD!\nKimi's knee meets a sneaky little rock.",
+      "lines": [
+        {
+          "id": "l07-1-1",
+          "speaker": "kimi",
+          "text": "Mom, I fell down! I tripped over a rock. 😢",
+          "textHash": "ddd12600c4d372dfb8364c729fd85330728ce8a1"
+        },
+        {
+          "id": "l07-1-2",
+          "speaker": "mom",
+          "text": "Are you okay? Did you get hurt?",
+          "textHash": "a92063c5cfb4fc8f6ba347b3aaebd05eb1a6f5b4"
+        },
+        {
+          "id": "l07-1-3",
+          "speaker": "kimi",
+          "text": "It hurts whenever I move.",
+          "textHash": "35cacdb950a8f6fc088d82fe704e45ccf451a53a"
+        },
+        {
+          "id": "l07-1-4",
+          "speaker": "mom",
+          "text": "Your knee is bleeding. You got a hole in your pants!",
+          "textHash": "b1bddf84a352801611a9342d70d23d06e777221c"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "The Band-Aid Hero",
+      "art": "🩹✨\n👩🏻👧🏻",
+      "caption": "Clean it, dab it, cover it —\nthe magic band-aid to the rescue!",
+      "lines": [
+        {
+          "id": "l07-2-1",
+          "speaker": "kimi",
+          "text": "I'm scared because I'm bleeding. 😨",
+          "textHash": "329ff16673c43b1434341e306573c18cb2e72838"
+        },
+        {
+          "id": "l07-2-2",
+          "speaker": "mom",
+          "text": "It's fine. It's going to stop soon. We need to clean the wound.",
+          "textHash": "da41d96e0b00e49fcb49647a15f5fab9c81f54d1"
+        },
+        {
+          "id": "l07-2-3",
+          "speaker": "kimi",
+          "text": "Ouch! The sterilizer hurts!",
+          "textHash": "850479284949017da9f911a11096d930aad73e5c"
+        },
+        {
+          "id": "l07-2-4",
+          "speaker": "mom",
+          "text": "Let's cover the wound with a band-aid. It keeps the germs out. 🩹",
+          "textHash": "e1f733c339f3b1a1933c135fbd5a36932b363ca2"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Itchy Bug Bite",
+      "art": "🦟😖\n🧊👧🏻",
+      "caption": "A mosquito had a snack on Kimi's arm.\nIt's SO itchy... but do NOT scratch!",
+      "lines": [
+        {
+          "id": "l07-3-1",
+          "speaker": "kimi",
+          "text": "Mom, I think I got a bug bite here. It's swollen and red.",
+          "textHash": "73cac7df3f23a7c2579aa3b6bb869dc4fe5346c1"
+        },
+        {
+          "id": "l07-3-2",
+          "speaker": "mom",
+          "text": "Don't scratch it. If you scratch it, germs will get in.",
+          "textHash": "eb2b10495269ef5e3ef7fe6d1c1a051578539c93"
+        },
+        {
+          "id": "l07-3-3",
+          "speaker": "kimi",
+          "text": "But I can't stand it! 😖",
+          "textHash": "aeffc1b4d8d28cf8e517fa90b7f1bf4447d97edd"
+        },
+        {
+          "id": "l07-3-4",
+          "speaker": "mom",
+          "text": "Put this ice pack on it. It will get better if you don't scratch it.",
+          "textHash": "92700534e9fad7efe4e9c0673abb0ffe177672fc"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "The Sniffles",
+      "art": "🤧🌡️\n🛏️👧🏻",
+      "caption": "Achoo! The next morning,\nKimi wakes up with a drippy nose...",
+      "lines": [
+        {
+          "id": "l07-4-1",
+          "speaker": "kimi",
+          "text": "Mom, I caught a cold. I have a runny nose and a sore throat. 🤧",
+          "textHash": "199656c34a22a250862482fb1d11d8aae0063d18"
+        },
+        {
+          "id": "l07-4-2",
+          "speaker": "mom",
+          "text": "Let me feel your forehead. Oh — you have a fever.",
+          "textHash": "9f47de8c68cb2da05623bb7a802688152bd0f000"
+        },
+        {
+          "id": "l07-4-3",
+          "speaker": "kimi",
+          "text": "I feel dizzy and weak. I want to lie down all day.",
+          "textHash": "8d362e7ecd23671b26024feea07a2d06e10cfd73"
+        },
+        {
+          "id": "l07-4-4",
+          "speaker": "mom",
+          "text": "Your body is fighting the germs right now. I'll cool you down with a wet towel.",
+          "textHash": "b63274c82df26694b1c3dae5053acd3346b54c68"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Brave at the Doctor's",
+      "art": "🏥💉\n👩🏻‍⚕️👧🏻",
+      "caption": "White coats, a stethoscope...\nand the question Kimi is scared to ask.",
+      "lines": [
+        {
+          "id": "l07-5-1",
+          "speaker": "mom",
+          "text": "Let's go see the doctor. It's just a regular checkup.",
+          "textHash": "f557d75ed1edf2d3baa9baa227115fb20acad6d2"
+        },
+        {
+          "id": "l07-5-2",
+          "speaker": "kimi",
+          "text": "Do I have to get a shot? 😨",
+          "textHash": "3ef90a84d853b3ed593dee56b09667b08110ba6e"
+        },
+        {
+          "id": "l07-5-3",
+          "speaker": "mom",
+          "text": "It will sting a little. Don't be scared. Take a deep breath.",
+          "textHash": "1835e3aa76907102453674f7dfe89ceeeda6e894"
+        },
+        {
+          "id": "l07-5-4",
+          "speaker": "mom",
+          "text": "Wow, you're doing well by not crying!",
+          "textHash": "c92c871c19ac734737f70b0157375b01359d4a31"
+        },
+        {
+          "id": "l07-5-5",
+          "speaker": "kimi",
+          "text": "I did it! I didn't cry! 💪",
+          "textHash": "5e253d606304b0d4ecd864c04cea045600b71858"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Medicine & the Tooth Fairy",
+      "art": "💊🍬\n🦷✨",
+      "caption": "Yucky medicine, then sweet candy...\nand wait — something is WIGGLING in Kimi's mouth!",
+      "lines": [
+        {
+          "id": "l07-6-1",
+          "speaker": "mom",
+          "text": "Let's take some medicine. This is for your cough, and this is for your runny nose.",
+          "textHash": "af0c798e86fd1fb87138d267ee32b24c4f4d1e3a"
+        },
+        {
+          "id": "l07-6-2",
+          "speaker": "kimi",
+          "text": "It's very bitter! 😖",
+          "textHash": "48f7a2ec267b35413d21466a5d1a80892b909dc7"
+        },
+        {
+          "id": "l07-6-3",
+          "speaker": "mom",
+          "text": "Drink all of it. Here's some water and candy after.",
+          "textHash": "6b0fdc616bfcf874d37a84cd0c275d8e6925757c"
+        },
+        {
+          "id": "l07-6-4",
+          "speaker": "kimi",
+          "text": "Mom! I've got a loose tooth! It's wiggling! 🦷",
+          "textHash": "a04af94685f91a40d15afbde153ef63237d72f38"
+        },
+        {
+          "id": "l07-6-5",
+          "speaker": "mom",
+          "text": "Place it under your pillow. The tooth fairy will come while you sleep. ✨",
+          "textHash": "72e901da2116d156f012eca219b79ff05ad05e5f"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🩹 Clean the wound first",
+    "🧊 Ice pack on boo-boos",
+    "🙅 Never scratch a bug bite",
+    "💧 Drink lots of water",
+    "💊 Take medicine after meals"
+  ],
+  "ending": {
+    "emoji": "🌙",
+    "title": "Get Well Soon, Kimi!",
+    "sub": "To be continued... Next episode: Good Night, Kimi! 🌙"
+  },
+  "source": {
+    "file": "episode-07-booboo-day-kimi.html",
+    "contentHash": "60fd7575957622c9efdebdd78c1a3c751e31d071",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "11f36a498bb7c366e98fe458d1c1dadc8481f4f2"
+  }
+}

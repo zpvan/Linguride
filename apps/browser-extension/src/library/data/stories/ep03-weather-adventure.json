@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "ep03-weather-adventure",
+  "category": "story",
+  "episode": 3,
+  "title": "Kimi's Weather Adventure!",
+  "emoji": "🌞",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 3 · Kimi's Weather Adventure! ☀️🌧️⛄"
+    },
+    {
+      "emoji": "🪟",
+      "title": "Last Time...",
+      "sub": "Kimi ate yummy waffles and built a block house!<br>This week, the weather outside her window keeps changing... every single day! 🪟"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Sunny & Sizzling",
+      "art": "🌞😎\n🧢👧🏻",
+      "caption": "Monday. Mr. Sun is BIG and smiley today!",
+      "lines": [
+        {
+          "id": "l03-1-1",
+          "speaker": "mom",
+          "text": "How's the weather today?",
+          "textHash": "1e52d66119ede95fc988bf899d80f20abf423d5f"
+        },
+        {
+          "id": "l03-1-2",
+          "speaker": "kimi",
+          "text": "It's a bright, sunny day! ☀️",
+          "textHash": "da163f5b0ae686040175144ae69c9442ce6ee057"
+        },
+        {
+          "id": "l03-1-3",
+          "speaker": "mom",
+          "text": "Put sunscreen on, or your face will get sunburned.",
+          "textHash": "ca464e5536934978f3c337cd7156ccd2399301ff"
+        },
+        {
+          "id": "l03-1-4",
+          "speaker": "kimi",
+          "text": "I'm sweating like crazy! Can you turn on the fan? 💦",
+          "textHash": "22a270f59b63b24f7805db52a7190801f19cc1fa"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Here Come the Dark Clouds",
+      "art": "☁️🌥️\n👧🏻🪟",
+      "caption": "Tuesday. Gray clouds are eating up the blue sky...",
+      "lines": [
+        {
+          "id": "l03-2-1",
+          "speaker": "kimi",
+          "text": "It's cloudy. There are a lot of dark clouds.",
+          "textHash": "bd5e19dd63327416a40bd3fb8de71c1011d30b95"
+        },
+        {
+          "id": "l03-2-2",
+          "speaker": "mom",
+          "text": "The sky is covered with clouds. It's going to rain soon.",
+          "textHash": "2ef118d4e05ce029e89eed7939959955aa0cf114"
+        },
+        {
+          "id": "l03-2-3",
+          "speaker": "kimi",
+          "text": "No more cloudy days! 🥺",
+          "textHash": "cadf9dba0a8985801b3e02ca91921556b2f05a12"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Rain, Rain, Go Away",
+      "art": "🌧️⛈️\n☂️👧🏻",
+      "caption": "Wednesday. Drip, drop... RUMBLE! What was THAT?!",
+      "lines": [
+        {
+          "id": "l03-3-1",
+          "speaker": "mom",
+          "text": "It's starting to rain.",
+          "textHash": "680933f9772fb4d3d888a8a4995ec2a95e167182"
+        },
+        {
+          "id": "l03-3-2",
+          "speaker": "kimi",
+          "text": "It's raining cats and dogs! There are thunder and lightning! ⛈️",
+          "textHash": "4a8d55d40a58f355616cd9fa362d4cc6a4ce94b2"
+        },
+        {
+          "id": "l03-3-3",
+          "speaker": "mom",
+          "text": "Don't be scared. Look — the rain has stopped!",
+          "textHash": "0e60021d52b03e144baf5df1479675914b9bfe38"
+        },
+        {
+          "id": "l03-3-4",
+          "speaker": "kimi",
+          "text": "Puddle jumping time! 💦",
+          "textHash": "27be63601560a7749147b83370f970fe20f4b569"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "The First Snow",
+      "art": "❄️⛄\n👧🏻👨🏻",
+      "caption": "Thursday. Kimi opens her eyes and... everything is WHITE!",
+      "lines": [
+        {
+          "id": "l03-4-1",
+          "speaker": "kimi",
+          "text": "It's snowing outside! The first snow of the year!",
+          "textHash": "80a7863484dfea2278ded48eab4bf3c753c884fb"
+        },
+        {
+          "id": "l03-4-2",
+          "speaker": "kimi",
+          "text": "The world is all white! I want to make a snowman! ⛄",
+          "textHash": "97787f347d70b53ffd34b8113716b1bf5d0f77ee"
+        },
+        {
+          "id": "l03-4-3",
+          "speaker": "kimi",
+          "text": "Let's have a snow fight, Dad!",
+          "textHash": "cb947de2ffc8f40e510b3cf3c51560adb4a5a1ce"
+        },
+        {
+          "id": "l03-4-4",
+          "speaker": "mom",
+          "text": "Be careful not to slip! The road is frozen.",
+          "textHash": "bd6c9c755cccc5d60db81fab4e79ecbf4c00b3a7"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Brrr, Freezing!",
+      "art": "🥶💨\n🧤👧🏻",
+      "caption": "Friday. The wind goes whoooosh — Kimi's hat almost flies away!",
+      "lines": [
+        {
+          "id": "l03-5-1",
+          "speaker": "kimi",
+          "text": "I'm freezing to death! My hands are freezing! 🥶",
+          "textHash": "7f9f68afee109a055d2bae5f06db12a9821d66cb"
+        },
+        {
+          "id": "l03-5-2",
+          "speaker": "mom",
+          "text": "It's chilly today. Wear a lot of clothes.",
+          "textHash": "0d0554e89d555ae28ce52e3935d42d3064b0ce49"
+        },
+        {
+          "id": "l03-5-3",
+          "speaker": "kimi",
+          "text": "My hat's going to fly off!",
+          "textHash": "b887eaf2f787ea50c157439e59014e2e54b2a11c"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "The Yellow Dust Day",
+      "art": "😷🌫️\n🏠👧🏻",
+      "caption": "Saturday. The sky turns yellow?! A dusty, sandy day...",
+      "lines": [
+        {
+          "id": "l03-6-1",
+          "speaker": "mom",
+          "text": "There's a yellow dust warning. Wear your mask today.",
+          "textHash": "df7032a161ee00133d47bbd4fa14de84502f40fb"
+        },
+        {
+          "id": "l03-6-2",
+          "speaker": "kimi",
+          "text": "Look! The car is yellow now! 😷",
+          "textHash": "a1e67509ad5e890a8c66db13057d41351165bca0"
+        },
+        {
+          "id": "l03-6-3",
+          "speaker": "mom",
+          "text": "Don't rub your eyes. We need to close the windows.",
+          "textHash": "e2cbd7ccdb245b700f27f9b291681735a6b597de"
+        },
+        {
+          "id": "l03-6-4",
+          "speaker": "mom",
+          "text": "Just stay inside today, okay?",
+          "textHash": "ace124f967280f88b281caacc9caff1dc2f67050"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🌦️ How's the Weather",
+    "🌞 Mr. Sun, Mr. Golden Sun",
+    "🌧️ Rain Rain Go Away",
+    "❄️ Little Snowflake"
+  ],
+  "ending": {
+    "emoji": "🧹",
+    "title": "Sun, Rain, Snow... Wow!",
+    "sub": "To be continued... Next episode: Kimi the Little Helper! 🧽"
+  },
+  "source": {
+    "file": "episode-03-weather-adventure-kimi.html",
+    "contentHash": "f54e321b3d0700fa73843a14dc52cd10d7e65a31",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "42b4dcfc8250a6ad20a37a51ecb24642ddecab37"
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "id": "ep08-good-night",
+  "category": "story",
+  "episode": 8,
+  "title": "Good Night, Kimi!",
+  "emoji": "📚",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 8 · Good Night, Kimi! 🌙"
+    },
+    {
+      "emoji": "🦷",
+      "title": "Last Time...",
+      "sub": "Kimi was brave at the doctor's, and found a wiggly tooth!<br>Tonight it sits under her pillow... but first, the evening routine!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Homework First!",
+      "art": "📚✏️\n👧🏻💪",
+      "caption": "Before any fun, one little mission:\nthe homework notebook!",
+      "lines": [
+        {
+          "id": "l08-1-1",
+          "speaker": "mom",
+          "text": "Do you have any homework? Show me your assignment notebook.",
+          "textHash": "3e67d1fba914d4a64040c9554c0eb85fe5550fbe"
+        },
+        {
+          "id": "l08-1-2",
+          "speaker": "kimi",
+          "text": "Yes, I do... 😅",
+          "textHash": "3a00a76be80fee908ac034205d2a8c11a9411deb"
+        },
+        {
+          "id": "l08-1-3",
+          "speaker": "mom",
+          "text": "Play after you do your homework.",
+          "textHash": "5eef066dcf07c018d0a35312c5151b4041fe2bef"
+        },
+        {
+          "id": "l08-1-4",
+          "speaker": "kimi",
+          "text": "All done! I finished it! ✅",
+          "textHash": "812c4731f547a657cedfac1b9579194d4a9ca31a"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "TV Time",
+      "art": "📺🍿\n😂👧🏻",
+      "caption": "Homework done = show time!\nBut not too close to the screen...",
+      "lines": [
+        {
+          "id": "l08-2-1",
+          "speaker": "kimi",
+          "text": "Mom, come here! It's my favorite show. It's going to start!",
+          "textHash": "722b5e59c81659363edac638ee6c363975baac92"
+        },
+        {
+          "id": "l08-2-2",
+          "speaker": "mom",
+          "text": "Back off a little. Your eyes will get bad.",
+          "textHash": "b668da075d85e6de66845367d5c6292ad0abdbb4"
+        },
+        {
+          "id": "l08-2-3",
+          "speaker": "kimi",
+          "text": "Wow, it's really fun! 😂",
+          "textHash": "f86a4878cb9ae15c3449dbd5400da6e0d39ee791"
+        },
+        {
+          "id": "l08-2-4",
+          "speaker": "mom",
+          "text": "Sit straight while watching.",
+          "textHash": "74a104f7765c8cf486f96899206bf5a6c65cb251"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Potty Dash",
+      "art": "🚽💨\n🏃‍♀️👧🏻",
+      "caption": "Uh oh... too much juice at dinner!\nQuick, quick, quick!",
+      "lines": [
+        {
+          "id": "l08-3-1",
+          "speaker": "kimi",
+          "text": "Mom, I have to pee! I can't hold it! 🚽",
+          "textHash": "340a592766b379be23113389e80a0a4ed690f2d0"
+        },
+        {
+          "id": "l08-3-2",
+          "speaker": "mom",
+          "text": "Hold it! Hold it! ...Okay, go, go, go!",
+          "textHash": "84845d478e145db7066c1009d488fb9f0f1062f1"
+        },
+        {
+          "id": "l08-3-3",
+          "speaker": "mom",
+          "text": "Don't forget to flush.",
+          "textHash": "a3ea214ba06c985478ee70f82495d359692b5c2f"
+        },
+        {
+          "id": "l08-3-4",
+          "speaker": "kimi",
+          "text": "Flushed! And I washed my hands, too! 🙌",
+          "textHash": "91ecd5aee7ad5066c33c869c229ac44ef7fff9a9"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Bubble Bath Time",
+      "art": "🛁🫧\n🧴👧🏻",
+      "caption": "Warm water, mountains of foam,\nand a bubble beard contest!",
+      "lines": [
+        {
+          "id": "l08-4-1",
+          "speaker": "mom",
+          "text": "It's time to take a bath. Want to wash your hair first?",
+          "textHash": "56164d6fc21423cde3de42fb74f8b115fc24f3a1"
+        },
+        {
+          "id": "l08-4-2",
+          "speaker": "kimi",
+          "text": "Yes! My head is itchy!",
+          "textHash": "ca3908199e8573d2e2f1bb62437fcc10f2e2ff96"
+        },
+        {
+          "id": "l08-4-3",
+          "speaker": "mom",
+          "text": "Let's make some foam with the shampoo. Now give yourself a final rinse.",
+          "textHash": "3f6a8bdbc18a769eaf93b9db83f88d992160b70f"
+        },
+        {
+          "id": "l08-4-4",
+          "speaker": "kimi",
+          "text": "Look, Mom — a bubble beard! 🫧",
+          "textHash": "958da22baaab34b16788d3089f44668e9d7d856a"
+        },
+        {
+          "id": "l08-4-5",
+          "speaker": "mom",
+          "text": "Your hair smells so good now. Let's dry it with the blow dryer.",
+          "textHash": "6961fd053d9c8d2bb6bf744640cfa0f94d789b61"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "Ponytail or Pigtails?",
+      "art": "🎀💇‍♀️\n✨👧🏻",
+      "caption": "Tomorrow is a big day.\nTime for the prettiest hair in the world.",
+      "lines": [
+        {
+          "id": "l08-5-1",
+          "speaker": "mom",
+          "text": "Let's comb your hair. Do you want a ponytail or pigtails?",
+          "textHash": "97dd3c37dceb16039d4f3dfb522fd27c2e0d2bfd"
+        },
+        {
+          "id": "l08-5-2",
+          "speaker": "kimi",
+          "text": "Pigtails, please! Two of them!",
+          "textHash": "b1e33433d05bfae77b344f5a6abe2c617934e6a0"
+        },
+        {
+          "id": "l08-5-3",
+          "speaker": "mom",
+          "text": "Don't move. ...Your hair has grown a lot!",
+          "textHash": "5f103163a57b6815eb67c4d05b054be5353de520"
+        },
+        {
+          "id": "l08-5-4",
+          "speaker": "kimi",
+          "text": "Ta-da! So pretty! 🎀",
+          "textHash": "c423c4ae28cbbd707ec1a7834c25d3712029a50e"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "One More Story",
+      "art": "📖🌙\n👩🏻👧🏻",
+      "caption": "Blanket: tucked. Pillow: fluffed.\nTooth under pillow: ready. ✨",
+      "lines": [
+        {
+          "id": "l08-6-1",
+          "speaker": "mom",
+          "text": "Choose a book you want to read.",
+          "textHash": "9eb3e375e35f75b3e9cc846fd2ad53d14cac16c8"
+        },
+        {
+          "id": "l08-6-2",
+          "speaker": "kimi",
+          "text": "This one! Will you read until I fall asleep?",
+          "textHash": "e20e28784d7e45216b92a3e57c960a8ff6a75494"
+        },
+        {
+          "id": "l08-6-3",
+          "speaker": "mom",
+          "text": "Mommy will read to you until you fall asleep.",
+          "textHash": "d8470e913d7e05c112445bdbd7b19aa45157b588"
+        },
+        {
+          "id": "l08-6-4",
+          "speaker": "kimi",
+          "text": "Mom... will the tooth fairy really come tonight? 🦷",
+          "textHash": "35a74c2a9bd6e4a81ef2d20248d26d87af8579e4"
+        },
+        {
+          "id": "l08-6-5",
+          "speaker": "mom",
+          "text": "Yes, sweetie. Close your eyes... Good night, Kimi. 🌙",
+          "textHash": "219beb42676e8c5fd2adadf7de57cda854e37c1a"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🚽 Sitting on the Potty",
+    "🌙 Are You Sleeping?",
+    "🔁 Replay all your favorites from Episodes 1-8!"
+  ],
+  "ending": {
+    "emoji": "💤",
+    "title": "The End... Sweet Dreams, Kimi!",
+    "sub": "That's the whole day with Kimi — all 8 episodes! 🎉<br>Replay any episode anytime. Good night! 🌙"
+  },
+  "source": {
+    "file": "episode-08-good-night-kimi.html",
+    "contentHash": "c2871c3aaeb01c35efb646c36b4113cf1dd36278",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "5ac06d26a86410feb42be3e34ce51829790ce0b4"
+  }
+}

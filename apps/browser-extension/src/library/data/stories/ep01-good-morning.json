@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "id": "ep01-good-morning",
+  "category": "story",
+  "episode": 1,
+  "title": "Good Morning, Kimi!",
+  "emoji": "🌞",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 1 · Good Morning, Kimi! ☀️"
+    },
+    {
+      "emoji": "👧🏻",
+      "title": "Meet Kimi!",
+      "sub": "A little girl who LOVES sleeping... maybe a little too much. 💤"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "Wake Up, Sleepyhead!",
+      "art": "🌞🐓\n🛏️😴",
+      "caption": "The sun is up. Mr. Rooster says cock-a-doodle-doo!\nBut someone is still dreaming...",
+      "lines": [
+        {
+          "id": "l01-1-1",
+          "speaker": "mom",
+          "text": "Good morning. Time to wake up!",
+          "textHash": "5b61ae41c5a25aef4048718f912862963fd22089"
+        },
+        {
+          "id": "l01-1-2",
+          "speaker": "mom",
+          "text": "Wake up, you sleepyhead. Rise and shine!",
+          "textHash": "7c01d31fb8c227e18caa4b1382ea0d284a72dbb5"
+        },
+        {
+          "id": "l01-1-3",
+          "speaker": "kimi",
+          "text": "Just five more minutes... 😴",
+          "textHash": "655274ac5166491a3c0da0eb6e543b4e15f0c4c0"
+        },
+        {
+          "id": "l01-1-4",
+          "speaker": "mom",
+          "text": "I'll count to three. One... two... Come on!",
+          "textHash": "2f38f9ed6c83da188f40cd6194c3785229acc26e"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Splash, Splash!",
+      "art": "🚿🧼\n👧🏻✨",
+      "caption": "Water goes splash! Bubbles go pop!",
+      "lines": [
+        {
+          "id": "l01-2-1",
+          "speaker": "mom",
+          "text": "Time to wash your face. Turn on the water.",
+          "textHash": "1026e23b6464965722a7ca6041a3a5c2a13333b8"
+        },
+        {
+          "id": "l01-2-2",
+          "speaker": "mom",
+          "text": "Wash your neck, too.",
+          "textHash": "421c4e218d004b672c3a156996d8d35c1771c886"
+        },
+        {
+          "id": "l01-2-3",
+          "speaker": "kimi",
+          "text": "All by myself! 🫧",
+          "textHash": "aa8afabf9a68ba386a92b83baa3aff21f8603489"
+        },
+        {
+          "id": "l01-2-4",
+          "speaker": "mom",
+          "text": "Watch out for the slippery floor!",
+          "textHash": "43c07952b06a07a4770d2264891765ee3b66b9a5"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Sugar-Bug Battle",
+      "art": "🦷⚔️\n✨👧🏻",
+      "caption": "Tiny sugar bugs are hiding in Kimi's mouth.\nToothbrush to the rescue!",
+      "lines": [
+        {
+          "id": "l01-3-1",
+          "speaker": "mom",
+          "text": "Time to brush your teeth. Brush up and down.",
+          "textHash": "ea0260bd0b2f6994a0fce83a7d5d2dc1e4d8399b"
+        },
+        {
+          "id": "l01-3-2",
+          "speaker": "mom",
+          "text": "Don't forget to brush deep inside.",
+          "textHash": "220749e679ad5a8086c89a63738558e03adfaeb2"
+        },
+        {
+          "id": "l01-3-3",
+          "speaker": "mom",
+          "text": "Don't forget to brush your tongue.",
+          "textHash": "d5c1fd145efb3abd1ffdbca8248ed944c35a60b1"
+        },
+        {
+          "id": "l01-3-4",
+          "speaker": "kimi",
+          "text": "Gargle and spit! Ptooey! 💦",
+          "textHash": "08536d0215ac44dde49037a7f454efcf70edff4b"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Breakfast Power-Up",
+      "art": "🍳🥛\n😋🍌",
+      "caption": "Yummy smells come from the kitchen...",
+      "lines": [
+        {
+          "id": "l01-4-1",
+          "speaker": "mom",
+          "text": "It's time for breakfast. Come and sit at the table.",
+          "textHash": "950b6127752049c0d6720488ceabf851ccedd029"
+        },
+        {
+          "id": "l01-4-2",
+          "speaker": "mom",
+          "text": "How is it? Isn't it good?",
+          "textHash": "a8f569d21a1dabc2b0e6585662fc31939a9442b8"
+        },
+        {
+          "id": "l01-4-3",
+          "speaker": "kimi",
+          "text": "Yummy, yummy! 🍌",
+          "textHash": "000daec283a77a944ddee54d1a67a1601a080775"
+        },
+        {
+          "id": "l01-4-4",
+          "speaker": "mom",
+          "text": "Eating breakfast makes you strong. Just take one more bite!",
+          "textHash": "3fc43ef99c93b43073ecf361c1035f30d9f9bec2"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "The Missing Sock Mystery",
+      "art": "👕🧦\n🔍🤔",
+      "caption": "One sock, two socks... wait. Where is the OTHER sock?!",
+      "lines": [
+        {
+          "id": "l01-5-1",
+          "speaker": "mom",
+          "text": "Let's get changed. Can you get dressed by yourself?",
+          "textHash": "80e3b31da6d77ee8be0bde5757651e5319bb159c"
+        },
+        {
+          "id": "l01-5-2",
+          "speaker": "kimi",
+          "text": "Yes, I can! ...Oops! 🙈",
+          "textHash": "28bb10ac9a477af112b0af33200d46564d426493"
+        },
+        {
+          "id": "l01-5-3",
+          "speaker": "mom",
+          "text": "Your socks don't match. Where is your other sock?",
+          "textHash": "6d0df05b979309fc2f14760d73ff8387c87569cd"
+        },
+        {
+          "id": "l01-5-4",
+          "speaker": "mom",
+          "text": "Let's button your shirt. There you go!",
+          "textHash": "ce78b3b8573cf5b2f395a175a564e30ca2237580"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Wrong Feet, Hee Hee!",
+      "art": "👟🚪\n😂👧🏻",
+      "caption": "Left foot, right shoe? Right foot, left shoe? Silly Kimi!",
+      "lines": [
+        {
+          "id": "l01-6-1",
+          "speaker": "mom",
+          "text": "Put on your shoes.",
+          "textHash": "689daf8ce2d643333e200b6a286fb53134f5dac3"
+        },
+        {
+          "id": "l01-6-2",
+          "speaker": "mom",
+          "text": "Your shoes are on the wrong feet. Switch shoes!",
+          "textHash": "2bdd97cd107723d6dc94339043f8a12a31ca01ae"
+        },
+        {
+          "id": "l01-6-3",
+          "speaker": "kimi",
+          "text": "Hee hee hee! 👟",
+          "textHash": "dbefd517ac23f2a9fdf181c80e7661ad630d299e"
+        },
+        {
+          "id": "l01-6-4",
+          "speaker": "mom",
+          "text": "You need your sneakers if you want to run!",
+          "textHash": "383202a97e894435dd5f27009a34690eba1cc271"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🐓 Good Morning, Mr. Rooster",
+    "😴 Are You Sleeping?",
+    "🧼 Wash Your Hands",
+    "🦷 Brush Your Teeth",
+    "👕 This Is the Way We Get Dressed",
+    "👟 Put On Your Shoes"
+  ],
+  "ending": {
+    "emoji": "🌟",
+    "title": "What a Morning, Kimi!",
+    "sub": "To be continued... Next episode: Lunchtime & Playtime! 🍱🧸"
+  },
+  "source": {
+    "file": "episode-01-good-morning-kimi.html",
+    "contentHash": "e5a7729379f42509085b15fe3a5d25c892dd1a15",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "902f86b0f01d18a417ff5de7fa8634b144efcbec"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "id": "ep11-happy-holidays",
+  "category": "story",
+  "episode": 11,
+  "title": "Happy Holidays!",
+  "emoji": "🧧",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 11 · Happy Holidays! 🎉"
+    },
+    {
+      "emoji": "📅",
+      "title": "Last Time...",
+      "sub": "Kimi leveled up her big-kid skills! 🎓<br>Now follow Kimi through a whole year of festivals — every one is a party!"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "New Year, New Kimi!",
+      "art": "🧧🎊\n👗👧🏻",
+      "caption": "New clothes, a big bow,\nand Grandma's house smells like dumplings!",
+      "lines": [
+        {
+          "id": "l11-1-1",
+          "speaker": "mom",
+          "text": "Let's go to Grandma's place with our new clothes on to give a big bow to her.",
+          "textHash": "f40c00dc1d0cf312fc66f6b7a9009a410541e280"
+        },
+        {
+          "id": "l11-1-2",
+          "speaker": "mom",
+          "text": "You look prettier with your new clothes on!",
+          "textHash": "554d14df7e8f724d23c220fe13bf617aec31bdc9"
+        },
+        {
+          "id": "l11-1-3",
+          "speaker": "kimi",
+          "text": "Time to give a big bow to the adults! Have a happy new year! 🧧",
+          "textHash": "4573d153c8cf1f94313cd157b3724e11a02f2687"
+        },
+        {
+          "id": "l11-1-4",
+          "speaker": "mom",
+          "text": "We eat a family reunion dinner. You get one year older when you eat it!",
+          "textHash": "313fc0ce2bd3cc5348f3b77e53c53db34e33423a"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "The Round Moon Party",
+      "art": "🌕🥮\n🏮👧🏻",
+      "caption": "The moon is big and round tonight.\nSo are the mooncakes!",
+      "lines": [
+        {
+          "id": "l11-2-1",
+          "speaker": "kimi",
+          "text": "Is it already Mid-Autumn Festival next week?",
+          "textHash": "1307aa34bd2ced9738bf56f42eca727b5e47cb36"
+        },
+        {
+          "id": "l11-2-2",
+          "speaker": "mom",
+          "text": "It's on August 15 on the lunar calendar. The moon will be round on that day.",
+          "textHash": "09ba0d3545af5a99b3096a64437e40f99118d3b8"
+        },
+        {
+          "id": "l11-2-3",
+          "speaker": "kimi",
+          "text": "I can't wait to eat mooncakes! 🥮",
+          "textHash": "f91192f92ee8441e58234784f3de1945975084b8"
+        },
+        {
+          "id": "l11-2-4",
+          "speaker": "mom",
+          "text": "Let's go outside to have a barbecue party. Hope the weather will be fine at night!",
+          "textHash": "851c28f63cad44b29e174dfb4a05de349120654f"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "The Best Day Ever",
+      "art": "🎁🎈\n👧🏻🎢",
+      "caption": "Presents, good food, and fun plans —\nit's KIMI'S day!",
+      "lines": [
+        {
+          "id": "l11-3-1",
+          "speaker": "kimi",
+          "text": "Yay! Children's Day is coming soon! 🎈",
+          "textHash": "3116d9e7f1f26c1ba0900d0e65f5d49c7975ee3b"
+        },
+        {
+          "id": "l11-3-2",
+          "speaker": "mom",
+          "text": "What present do you want on Children's Day?",
+          "textHash": "e8e9722ddfd9c4d121d132ca43471e02d89eda5a"
+        },
+        {
+          "id": "l11-3-3",
+          "speaker": "kimi",
+          "text": "I want a new Lego set! And I want to go to an amusement park!",
+          "textHash": "c5b60b052b3e3396131f509f646b31721a179f58"
+        },
+        {
+          "id": "l11-3-4",
+          "speaker": "mom",
+          "text": "Grandpa sent you a big present. Call Grandpa and say thank you.",
+          "textHash": "cb4ed9931b5d1c38982b51b79599c59e659c8cd7"
+        },
+        {
+          "id": "l11-3-5",
+          "speaker": "kimi",
+          "text": "I wish every day were Children's Day!",
+          "textHash": "c4f028664e5b00239043ea40f6d0e62a1d3557a8"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Santa Is Coming",
+      "art": "🎄⭐\n🎅👧🏻",
+      "caption": "A star on top, stockings by the tree...\nand one VERY excited little girl.",
+      "lines": [
+        {
+          "id": "l11-4-1",
+          "speaker": "mom",
+          "text": "Let's put up our Christmas tree. Let's put a star on the top! ⭐",
+          "textHash": "406d41971662314dd059e8952bccf1899359f5cd"
+        },
+        {
+          "id": "l11-4-2",
+          "speaker": "kimi",
+          "text": "Oops, I forgot to put up the stockings!",
+          "textHash": "3d16f28b6a56d1f3e50f1c50ab8c11728fe2a462"
+        },
+        {
+          "id": "l11-4-3",
+          "speaker": "mom",
+          "text": "Have you been a good child for the entire year? Santa only visits good kids.",
+          "textHash": "9357c5d8cffe94abb49f0294e55a931ecbce5905"
+        },
+        {
+          "id": "l11-4-4",
+          "speaker": "kimi",
+          "text": "Look! Santa put a present under the tree! I want to open my present! 🎁",
+          "textHash": "1fc6bdcfc2b9e5596a82f5e0f21d473407060b76"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🎄 Jingle Bells (our Christmas carol!)",
+    "🧧 Happy New Year!",
+    "🔁 Replay all your favorites from Episodes 1-10!"
+  ],
+  "ending": {
+    "emoji": "🛍️",
+    "title": "A Whole Year of Fun!",
+    "sub": "To be continued... Next episode: Around the Town! 🏙️"
+  },
+  "source": {
+    "file": "episode-11-happy-holidays-kimi.html",
+    "contentHash": "26bdcbed0ae12c8ffae451b02ccb1058d6f1b332",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "5b81495d617c442714433c63d4f757c5dd7b27fb"
+  }
+}

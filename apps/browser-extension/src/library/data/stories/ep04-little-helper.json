@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "id": "ep04-little-helper",
+  "category": "story",
+  "episode": 4,
+  "title": "Kimi the Little Helper!",
+  "emoji": "🧸",
+  "intro": [
+    {
+      "emoji": "🌈",
+      "title": "Kimi's English Story Time",
+      "sub": "Episode 4 · Kimi the Little Helper! 🧹⭐"
+    },
+    {
+      "emoji": "⭐",
+      "title": "Last Time...",
+      "sub": "Kimi saw sun, rain, snow and even yellow dust!<br>Today, Mom has a plan: every helper job earns Kimi a STAR. ⭐ Ready?"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "tag": "SCENE 1",
+      "title": "The Toy Tornado",
+      "art": "🧸🌪️\n😱🏠",
+      "caption": "A tornado hit Kimi's room!\nWait... no. Those are just her toys. EVERYWHERE.",
+      "lines": [
+        {
+          "id": "l04-1-1",
+          "speaker": "mom",
+          "text": "Who made such a mess?",
+          "textHash": "bee7e3b2ab995ee0eb484494c38a8fd7fa4c2320"
+        },
+        {
+          "id": "l04-1-2",
+          "speaker": "kimi",
+          "text": "Oops... it was me. 🙈",
+          "textHash": "1d2d4ed1e2cc7d6291a0f90f29913776c4a858c8"
+        },
+        {
+          "id": "l04-1-3",
+          "speaker": "mom",
+          "text": "You should clean up after you play. Put the books on the shelves.",
+          "textHash": "9a542694109772255af78f9a931690d1d2cd26e4"
+        },
+        {
+          "id": "l04-1-4",
+          "speaker": "kimi",
+          "text": "I can clean up by myself! ⭐",
+          "textHash": "00276616d8b6570268a1fbe36cfe10e25ed1e654"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "tag": "SCENE 2",
+      "title": "Sweep, Wipe, Sparkle!",
+      "art": "🧹✨\n👧🏻🧽",
+      "caption": "First the broom, then the rag.\nThe floor is going to SHINE!",
+      "lines": [
+        {
+          "id": "l04-2-1",
+          "speaker": "mom",
+          "text": "Let's wipe the floor. Can you get me the rag?",
+          "textHash": "eaaccfb4197d293655706714d9e7d7173899f5f2"
+        },
+        {
+          "id": "l04-2-2",
+          "speaker": "kimi",
+          "text": "I'm going to sweep the floor today!",
+          "textHash": "419012a56e1d5a2332b774710abf050bfac739e0"
+        },
+        {
+          "id": "l04-2-3",
+          "speaker": "mom",
+          "text": "We need to use the vacuum before we wipe the floor.",
+          "textHash": "2c6af009055e1581a716c4b5b2a4bcfcf12d2721"
+        },
+        {
+          "id": "l04-2-4",
+          "speaker": "kimi",
+          "text": "I wipe after sweeping. Sparkly clean! ⭐",
+          "textHash": "55898cca2889b10311c36b62f7aed4877c23f706"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "tag": "SCENE 3",
+      "title": "Bubble Dish Party",
+      "art": "🍽️🫧\n👩🏻👧🏻",
+      "caption": "Soapy bubbles everywhere — washing dishes is like a bubble party!",
+      "lines": [
+        {
+          "id": "l04-3-1",
+          "speaker": "mom",
+          "text": "Mommy is doing the dishes. There are a lot of dishes today.",
+          "textHash": "9f00bb73d89f1d637f8d02a79ef68a9e433e9c86"
+        },
+        {
+          "id": "l04-3-2",
+          "speaker": "kimi",
+          "text": "Can I help, Mom?",
+          "textHash": "437a92a18137778d2565da53c967f15a7a05d6d7"
+        },
+        {
+          "id": "l04-3-3",
+          "speaker": "mom",
+          "text": "Can you clear the table? Put the dishes in the sink.",
+          "textHash": "9e28bf9777bbdb54b8e624de0911aa2b50bd8d2f"
+        },
+        {
+          "id": "l04-3-4",
+          "speaker": "kimi",
+          "text": "Mission complete! ⭐",
+          "textHash": "4eab6479d9c81b716ada77c86d9715b35c3f4faa"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "tag": "SCENE 4",
+      "title": "Laundry Mountain",
+      "art": "👕🧦\n🏔️🌀",
+      "caption": "A mountain of laundry!\nColors here, whites there, socks all together!",
+      "lines": [
+        {
+          "id": "l04-4-1",
+          "speaker": "mom",
+          "text": "Let's put the laundry in the machine. Colored clothes here, whites over there.",
+          "textHash": "706e6b888d01b88eed77a801eb3171761a91b824"
+        },
+        {
+          "id": "l04-4-2",
+          "speaker": "kimi",
+          "text": "I want to hang the socks! 🧦",
+          "textHash": "41a2f5ab9e1f633e9d5b42dd73633dc242f26ca8"
+        },
+        {
+          "id": "l04-4-3",
+          "speaker": "mom",
+          "text": "The laundry is all dry. Fold it in half like this.",
+          "textHash": "d3e26043d0451cf73a8e8ed102b7e7f611ed557d"
+        },
+        {
+          "id": "l04-4-4",
+          "speaker": "kimi",
+          "text": "Put the socks in the sock bin. Done! ⭐",
+          "textHash": "4a106fb54bb3203a0bca3120d8a5128f2905f026"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "tag": "SCENE 5",
+      "title": "The Thirsty Flowers",
+      "art": "🥀💧\n👧🏻🌸",
+      "caption": "Oh no! The flowers are drooping.\nThey look very, very thirsty...",
+      "lines": [
+        {
+          "id": "l04-5-1",
+          "speaker": "kimi",
+          "text": "Mom, the flower's withered! 🥀",
+          "textHash": "3d952bd93ecf2affa42d72fb98f84a31df5a362b"
+        },
+        {
+          "id": "l04-5-2",
+          "speaker": "mom",
+          "text": "The soil is all dry. Seems like the flowers are thirsty.",
+          "textHash": "e1e9d1663e2f81fedfaeacb56294d177876f8734"
+        },
+        {
+          "id": "l04-5-3",
+          "speaker": "kimi",
+          "text": "Let's give them some water!",
+          "textHash": "4df428cd0aa646dba72e0edd2813c7987f550137"
+        },
+        {
+          "id": "l04-5-4",
+          "speaker": "mom",
+          "text": "So the flowers won't wither. Look — they're smiling! 🌸",
+          "textHash": "e20a92056f0fbfb654477ec410259b0a787d8730"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "tag": "SCENE 6",
+      "title": "Oops, I Broke It",
+      "art": "🧸🔧\n😟👧🏻",
+      "caption": "Kimi's toy car won't go.\nAnd why does that iron look like a little boat?",
+      "lines": [
+        {
+          "id": "l04-6-1",
+          "speaker": "kimi",
+          "text": "Mom, it's not working. I broke it by accident... 😟",
+          "textHash": "9b5a4d0b651e548e47e22ed6b248659c60c55e8e"
+        },
+        {
+          "id": "l04-6-2",
+          "speaker": "mom",
+          "text": "Can it be used again? I'll try. ...There! Good as new!",
+          "textHash": "62ef1ac80cb8024105d64ea713418ff1685f83f1"
+        },
+        {
+          "id": "l04-6-3",
+          "speaker": "kimi",
+          "text": "The iron looks like a boat! ⛵",
+          "textHash": "4b9130e249ac16a74ddd6e99c81f93eccb4aa07a"
+        },
+        {
+          "id": "l04-6-4",
+          "speaker": "mom",
+          "text": "The iron's too hot. It's dangerous. Don't touch it!",
+          "textHash": "9ba2c8ef3a8fc5ee90dedcdeba37b235f5b6626d"
+        }
+      ]
+    }
+  ],
+  "songs": [
+    "🧹 This Is the Way (we clean the room!)",
+    "🔁 Replay your favorites from Episode 1!"
+  ],
+  "ending": {
+    "emoji": "🏅",
+    "title": "Six Stars for Helper Kimi!",
+    "sub": "To be continued... Next episode: Good Manners, Big Heart! 💝"
+  },
+  "source": {
+    "file": "episode-04-little-helper-kimi.html",
+    "contentHash": "f43b9385c52d5dc98b0052a0962e42a6f8cfead9",
+    "syncedAt": "2026-10-22T18:17:03.596Z",
+    "normalizedHash": "8e978f1e445f97178502637f973b23823920e456"
+  }
+}

@@ -29,6 +29,7 @@ export async function computeContentHash(html: string): Promise<string> {
 
 /** 归一化内容哈希（排除 source 块，使 contentHash/syncedAt 变化不影响） */
 export async function computeNormalizedHash(story: Story): Promise<string> {
-  const { source: _source, ...rest } = story;
+  const rest: Partial<Story> = { ...story };
+  delete rest.source;
   return sha1Hex(stableStringify(rest));
 }
