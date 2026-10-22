@@ -28,7 +28,8 @@ docs/, feat-docs/, spec/  # 产品文档（PRD 描述的多平台为远期愿景
 - **侧边栏** `src/sidepanel/`：点击工具栏图标在浏览器右侧展开（`chrome.sidePanel` + `openPanelOnActionClick`，Chrome 114+），学习控制中心 + 设置（右上角齿轮进入设置视图）。快捷键 ⌘⇧Y / Ctrl+Shift+Y
 - **后台** `src/background/service-worker.ts`：消息路由、AI API 调用、配置管理（chrome.storage）、TTS 合成任务、ASR 鉴权（豆包走 DNR 会话规则注入 WS 鉴权头）
 - **内容脚本** `src/content/`：双语翻译 / 释义 / 混杂三种阅读模式、划词弹窗、文本提取
-- **全屏标签页**：`src/tutor/`（语镜：长难句分析、发音评估、影子跟读）、`src/corpus/`（语料库听力训练）
+- **全屏标签页**：`src/tutor/`（语镜：长难句分析、发音评估、影子跟读）、`src/corpus/`（语料库听力训练）、`src/library/`（资料库：分门别类的学习资料，首期故事幻灯片）
+- **资料库数据管线**：`apps/browser-extension/scripts/library/`（`sync-story-ppt.ts` 从源 HTML 归一化导入、`doctor.ts` 体检+--fix；入口 `npm run library:sync / library:doctor --workspace apps/browser-extension -- --source <目录>`）；归一化核心在 `src/library/pipeline/`（vitest 覆盖），数据在 `src/library/data/`（git 版本化），维护走 `.claude/skills/library-sync-story` / `library-doctor`
 - **Offscreen 文档** `src/offscreen/`：在扩展上下文播放 TTS 音频，规避页面 CSP
 - **权限页** `src/permissions/`：麦克风授权（侧边栏无法直接请求）
 
