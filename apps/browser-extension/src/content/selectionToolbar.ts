@@ -112,6 +112,13 @@ const TOOLBAR_ACTIONS: ToolbarAction[] = [
   "pronounce",
 ];
 
+export interface SelectionToolbarOptions {
+  /** 真正开始划词发音时通知外部（用于暂停资料库连播） */
+  onSpeechStart?: () => void;
+}
+
+let selectionSpeechStartHook: (() => void) | undefined;
+
 let isInitialized = false;
 let hasPendingInit = false;
 
@@ -153,7 +160,10 @@ const buttonMap: Record<ToolbarAction, HTMLButtonElement | null> = {
 /**
  * 初始化划词工具条
  */
-export function initSelectionToolbar(): void {
+export function initSelectionToolbar(
+  options: SelectionToolbarOptions = {}
+): void {
+  selectionSpeechStartHook = options.onSpeechStart;
   if (isInitialized) return;
   if (!document.body) {
     if (!hasPendingInit) {
@@ -231,6 +241,7 @@ export function destroySelectionToolbar(): void {
   suppressMouseUpReshow = false;
   lastSelectionUpdateText = "";
   lastSelectionUpdateAt = 0;
+  selectionSpeechStartHook = undefined;
 
   isInitialized = false;
 }
@@ -1647,6 +1658,13 @@ function startSelectionSpeech(
   activeSpeechButton = button;
   setSpeakingButtonState(button, true);
 
+  // 外部暂停逻辑不得阻断弹窗自身发音
+  try {
+    selectionSpeechStartHook?.();
+  } catch (error) {
+    console.warn("[Lingride] 划词发音开始回调失败:", error);
+  }
+
   // 原生选区的绘制层级高于 ::highlight，留着选区会遮住黄色高亮；
   // 取消选区并短暂忽略随之触发的 selectionchange，防止工具条被误隐藏
   ignoreSelectionChangeUntil = Date.now() + 220;
@@ -1696,11 +1714,16 @@ function startSelectionSpeech(
     });
 }
 
-function stopSelectionSpeech(): void {
+export function stopSelectionSpeech(): void {
   speechRequestId++;
   selectionTTSPlayer.stop();
   clearSpeakingButton();
   clearSpeechHighlight();
+}
+
+/** 弹窗发音是否活动（activeSpeechButton 覆盖逐句播放的句间间隙） */
+export function isSelectionSpeechActive(): boolean {
+  return activeSpeechButton !== null || selectionTTSPlayer.isPlaying();
 }
 
 function clearSpeakingButton(): void {
@@ -1792,13 +1815,19 @@ function applySelectionConfig(config: Partial<LingridConfig>): void {
   // 用户选择浏览器朗读时跳过 AI
   if (selection === "browser") {
     aiTTSEnabled = false;
-  } else if (selection === "minimax" || selection === "xiaomi") {
+  } else if (
+    selection === "minimax" ||
+    selection === "xiaomi" ||
+    selection === "doubao"
+  ) {
     // 用户选择了 AI 提供者
     aiTTSEnabled = true;
   } else {
     // 向后兼容：未设置时检查 API Key 是否存在
     aiTTSEnabled = Boolean(
-      config.minimax_tts?.api_key?.trim() || config.xiaomi_tts?.api_key?.trim()
+      config.minimax_tts?.api_key?.trim() ||
+        config.xiaomi_tts?.api_key?.trim() ||
+        config.doubao_tts?.api_key?.trim()
     );
   }
 
