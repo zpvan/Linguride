@@ -103,6 +103,9 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
       - name: Download packaged artifact
         uses: actions/download-artifact@v4
         with:
