@@ -4,6 +4,7 @@
  */
 
 import { SPEAKER_EMOJI, type Story, type StoryLine } from "../model/types";
+import { hasNonCollapsedTextSelection } from "../player/interaction";
 
 export interface PlayerViewHandlers {
   /** 点 🔊：仅播本句 */
@@ -38,7 +39,11 @@ function renderLine(line: StoryLine, handlers: PlayerViewHandlers): HTMLElement 
       handlers.onSpeakLine(line);
     });
     row.append(btn, speaker, text);
-    row.addEventListener("click", () => handlers.onPlayFromLine(line.id));
+    row.addEventListener("click", () => {
+      // 拖选文本后的 click 只用于划词弹窗，不触发连播
+      if (hasNonCollapsedTextSelection(window.getSelection())) return;
+      handlers.onPlayFromLine(line.id);
+    });
   } else {
     row.append(speaker, text);
   }

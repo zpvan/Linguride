@@ -3,6 +3,7 @@
  * @description 资料库全屏页入口：数据加载、hash 路由（首页 ↔ 播放器）、TTS 配置
  */
 
+import { initSelectionToolbar } from "../content/selectionToolbar";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
 import {
   DEFAULT_TTS_SPEED,
@@ -15,7 +16,12 @@ import {
 } from "../types";
 import { isLibraryIndex, isStory, type LibraryIndex, type Story } from "./model/types";
 import { renderHome } from "./view/home";
-import { renderPlayerPage, stopPlayerPage } from "./view/playerPage";
+import {
+  handlePlayerSpace,
+  pausePlayerForExternalSpeech,
+  renderPlayerPage,
+  stopPlayerPage,
+} from "./view/playerPage";
 
 import rawIndex from "./data/index.json";
 
@@ -139,6 +145,9 @@ function route(): void {
 // ====== 启动 ======
 
 document.addEventListener("DOMContentLoaded", async () => {
+  initSelectionToolbar({
+    onSpeechStart: pausePlayerForExternalSpeech,
+  });
   try {
     library = loadLibrary();
     homeError.hidden = true;
@@ -156,3 +165,9 @@ playerBackBtn.addEventListener("click", () => {
   location.hash = "#/";
 });
 window.addEventListener("hashchange", route);
+
+// 仅播放器视图响应空格；按钮/输入区等过滤由 handlePlayerSpace 处理
+document.addEventListener("keydown", (event) => {
+  if (playerView.hidden) return;
+  handlePlayerSpace(event);
+});
