@@ -34,7 +34,7 @@ interface LibraryData {
 
 function loadLibrary(): LibraryData {
   if (!isLibraryIndex(rawIndex)) {
-    throw new Error("资料库 index.json 结构非法（跑 doctor 检查）");
+    throw new Error("文库 index.json 结构非法（跑 doctor 检查）");
   }
   const stories = new Map<string, Story>();
   const modules = import.meta.glob("./data/stories/*.json", { eager: true });

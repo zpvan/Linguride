@@ -962,7 +962,7 @@ function bindClearMemory(): void {
       .then((response) => {
         const result = response as { success?: boolean; error?: string };
         if (result?.success) {
-          setStatus("语伴记忆已清除", "info");
+          setStatus("对谈记忆已清除", "info");
         } else {
           setStatus(result?.error || "清除失败，请重试");
         }
@@ -989,7 +989,7 @@ async function init(): Promise<void> {
       levelSelect.value = currentLevel;
     }
   } catch (error) {
-    console.warn("[Lingride] 语伴读取配置失败，使用默认配置:", error);
+    console.warn("[Lingride] 对谈读取配置失败，使用默认配置:", error);
   }
 
   ttsPlayer = createHybridTTSPlayer({
