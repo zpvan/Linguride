@@ -11,85 +11,77 @@
     <!-- ====== Main View - 学习控制中心 ====== -->
     <div id="mainView" class="view main-view active">
       <!-- Header -->
-      <header class="header">
-        <div class="level-badge-wrapper" id="levelBadgeWrapper">
-          <button class="level-badge" id="levelBadge">Lv.A2</button>
-          <div class="level-dropdown" id="levelDropdown">
-            <button class="level-option" data-level="A1">
-              <span class="level-code">A1</span>
-              <span class="level-desc">初中入门</span>
-            </button>
-            <button class="level-option" data-level="A2">
-              <span class="level-code">A2</span>
-              <span class="level-desc">中考水平</span>
-            </button>
-            <button class="level-option" data-level="B1">
-              <span class="level-code">B1</span>
-              <span class="level-desc">高考水平</span>
-            </button>
-            <button class="level-option" data-level="B2">
-              <span class="level-code">B2</span>
-              <span class="level-desc">四六级</span>
-            </button>
-            <button class="level-option" data-level="C1">
-              <span class="level-code">C1</span>
-              <span class="level-desc">考研/专八</span>
-            </button>
-            <button class="level-option" data-level="C2">
-              <span class="level-code">C2</span>
-              <span class="level-desc">专业翻译</span>
-            </button>
+      <header class="header main-header">
+        <div class="header-topline">
+          <div class="level-badge-wrapper" id="levelBadgeWrapper">
+            <button class="level-badge" id="levelBadge">Lv.A2</button>
+            <div class="level-dropdown" id="levelDropdown">
+              <button class="level-option" data-level="A1">
+                <span class="level-code">A1</span>
+                <span class="level-desc">初中入门</span>
+              </button>
+              <button class="level-option" data-level="A2">
+                <span class="level-code">A2</span>
+                <span class="level-desc">中考水平</span>
+              </button>
+              <button class="level-option" data-level="B1">
+                <span class="level-code">B1</span>
+                <span class="level-desc">高考水平</span>
+              </button>
+              <button class="level-option" data-level="B2">
+                <span class="level-code">B2</span>
+                <span class="level-desc">四六级</span>
+              </button>
+              <button class="level-option" data-level="C1">
+                <span class="level-code">C1</span>
+                <span class="level-desc">考研/专八</span>
+              </button>
+              <button class="level-option" data-level="C2">
+                <span class="level-code">C2</span>
+                <span class="level-desc">专业翻译</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="header-actions">
-          <button id="libraryBtn" class="icon-btn library-btn" aria-label="资料库" title="资料库">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <!-- 书架上的书 -->
-              <path d="M4 4.5C4 4.22 4.22 4 4.5 4H6.8V16H4.5C4.22 16 4 15.78 4 15.5V4.5Z" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M6.8 4H10V16H6.8" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M10.7 4.3L13.1 3.6C13.45 3.5 13.8 3.75 13.9 4.1L16.4 14.9C16.5 15.3 16.25 15.65 15.85 15.55L13.5 14.9" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-          </button>
-          <button id="corpusBtn" class="icon-btn corpus-btn" aria-label="语料库" title="语料库">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <!-- 书本 -->
-              <path d="M3 4C3 3.44772 3.44772 3 4 3H9V17H4C3.44772 17 3 16.5523 3 16V4Z" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M9 3H16C16.5523 3 17 3.44772 17 4V16C17 16.5523 16.5523 17 16 17H9V3Z" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M9 3V17" stroke="currentColor" stroke-width="1.5"/>
-              <!-- 耳机（右上角小图标） -->
-              <path d="M13 7V6.5C13 5.5 13.5 5 14.5 5C15.5 5 16 5.5 16 6.5V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              <rect x="12.5" y="7" width="1.5" height="2" rx="0.5" stroke="currentColor" stroke-width="0.8"/>
-              <rect x="15" y="7" width="1.5" height="2" rx="0.5" stroke="currentColor" stroke-width="0.8"/>
-            </svg>
-          </button>
-          <button id="tutorBtn" class="icon-btn tutor-btn" aria-label="语镜" title="语镜">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <!-- 毕业帽 -->
-              <path d="M10 3L2 7L10 11L18 7L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-              <path d="M5 8.5V13C5 13 7 15 10 15C13 15 15 13 15 13V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <!-- 对话气泡（小） -->
-              <circle cx="16" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M14.5 6L15.5 7.5" stroke="currentColor" stroke-width="1.2"/>
-            </svg>
-          </button>
-          <button id="companionBtn" class="icon-btn companion-btn" aria-label="语伴" title="语伴">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <!-- 对话气泡 -->
-              <path d="M3 5C3 4.44772 3.44772 4 4 4H16C16.5523 4 17 4.44772 17 5V12C17 12.5523 16.5523 13 16 13H8L4.5 16V13H4C3.44772 13 3 12.5523 3 12V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-              <!-- 三个点（正在聊天） -->
-              <circle cx="7" cy="8.5" r="1" fill="currentColor"/>
-              <circle cx="10" cy="8.5" r="1" fill="currentColor"/>
-              <circle cx="13" cy="8.5" r="1" fill="currentColor"/>
-            </svg>
-          </button>
-          <button id="settingsBtn" class="icon-btn" aria-label="设置">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <button id="settingsBtn" class="icon-btn" aria-label="设置" title="设置">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.5"/>
               <path d="M16.18 12.32a1.25 1.25 0 00.25 1.38l.04.05a1.52 1.52 0 11-2.15 2.14l-.04-.04a1.26 1.26 0 00-2.13.89v.11a1.52 1.52 0 01-3.03 0v-.06a1.25 1.25 0 00-.82-1.15 1.25 1.25 0 00-1.38.25l-.05.04a1.52 1.52 0 11-2.14-2.15l.04-.04a1.26 1.26 0 00-.89-2.13h-.11a1.52 1.52 0 010-3.03h.06a1.25 1.25 0 001.15-.82 1.25 1.25 0 00-.25-1.38l-.04-.05A1.52 1.52 0 116.83 4.98l.04.04a1.25 1.25 0 001.38.25h.06a1.25 1.25 0 00.76-1.15v-.11a1.52 1.52 0 013.03 0v.06a1.26 1.26 0 002.13.89l.05-.04a1.52 1.52 0 112.14 2.15l-.04.04a1.25 1.25 0 00-.25 1.38v.06a1.25 1.25 0 001.15.76h.11a1.52 1.52 0 010 3.03h-.06a1.25 1.25 0 00-1.15.76z" stroke="currentColor" stroke-width="1.5"/>
             </svg>
             <span id="settingsBadge" class="badge" style="display: none;"></span>
           </button>
         </div>
+
+        <nav class="header-actions" aria-label="学习空间">
+          <button id="libraryBtn" class="nav-entry" aria-label="文库" title="文库">
+            <svg class="nav-entry-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 8V6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/>
+              <path d="M3 9h18M12 9v7l2-1.3L16 16V9"/>
+            </svg>
+            <span class="nav-entry-label">文库</span>
+          </button>
+          <button id="corpusBtn" class="nav-entry" aria-label="听写" title="听写">
+            <svg class="nav-entry-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 14v-2a8 8 0 0 1 16 0v2"/>
+              <path d="M4 14a2 2 0 0 1 2-2h1v7H6a2 2 0 0 1-2-2v-3ZM20 14a2 2 0 0 0-2-2h-1v7h1a2 2 0 0 0 2-2v-3Z"/>
+              <path d="M10 16h4"/>
+            </svg>
+            <span class="nav-entry-label">听写</span>
+          </button>
+          <button id="tutorBtn" class="nav-entry" aria-label="研习" title="研习">
+            <svg class="nav-entry-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.5 8c3.3-1 6.1-.5 8.5 1.3v11c-2.4-1.8-5.2-2.3-8.5-1.3V8ZM21.5 8c-3.3-1-6.1-.5-8.5 1.3v11c2.4-1.8 5.2-2.3 8.5-1.3V8Z"/>
+              <path d="m18 2 .6 1.7 1.9.8-1.9.8L18 7l-.6-1.7-1.9-.8 1.9-.8L18 2Z"/>
+            </svg>
+            <span class="nav-entry-label">研习</span>
+          </button>
+          <button id="companionBtn" class="nav-entry" aria-label="对谈" title="对谈">
+            <svg class="nav-entry-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8.5 14H5l-2 2v-3.2A2 2 0 0 1 2 11V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>
+              <path d="M10 10a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-1 1.8V21l-2-2h-7a2 2 0 0 1-2-2v-7Z"/>
+            </svg>
+            <span class="nav-entry-label">对谈</span>
+          </button>
+        </nav>
       </header>
 
       <!-- 模式选择器 -->
