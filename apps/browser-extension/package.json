@@ -1,7 +1,7 @@
 {
   "name": "lingride",
   "displayName": "Lingride - 双语翻译",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "英文网页双语对照翻译扩展，使用 DeepSeek API",
   "type": "module",
   "scripts": {
