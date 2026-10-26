@@ -41,7 +41,7 @@ export class PlayQueue {
     private readonly callbacks: PlayQueueCallbacks = {},
     options: { gapMs?: number; sleep?: (ms: number) => Promise<void> } = {}
   ) {
-    this.gapMs = options.gapMs ?? 300;
+    this.gapMs = options.gapMs ?? 2000;
     this.sleep = options.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   }
 
@@ -101,9 +101,14 @@ export class PlayQueue {
         return;
       }
       if (token !== this.runToken || this.state !== "playing") return;
+
+      // 进度在句末立即更新；索引在句间等待后才前进，句间暂停才能重播本句。
+      this.callbacks.onProgress?.(this.index + 1, this.lines.length);
+      if (this.index < this.lines.length - 1) {
+        await this.sleep(this.gapMs);
+        if (token !== this.runToken || this.state !== "playing") return;
+      }
       this.index += 1;
-      this.callbacks.onProgress?.(this.index, this.lines.length);
-      await this.sleep(this.gapMs);
     }
   }
 }
