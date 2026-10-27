@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   hasNonCollapsedTextSelection,
+  resolveIdlePlaybackAction,
   resolveSpacePlaybackAction,
   shouldHandleSpaceKey,
+  shouldRestartStoryOnEnter,
 } from "./interaction";
 
 function selection(text: string, collapsed = false): Selection {
@@ -41,6 +43,41 @@ describe("resolveSpacePlaybackAction", () => {
     expect(resolveSpacePlaybackAction({ selectionSpeechActive: false, queueState: "idle", ttsAvailable: false })).toBe("none");
     expect(resolveSpacePlaybackAction({ selectionSpeechActive: false, queueState: "paused", ttsAvailable: false })).toBe("none");
     expect(resolveSpacePlaybackAction({ selectionSpeechActive: false, queueState: "playing", ttsAvailable: false })).toBe("pause");
+  });
+});
+
+describe("resolveIdlePlaybackAction", () => {
+  it("未开始或中途停止时仍从第一句连播", () => {
+    expect(resolveIdlePlaybackAction(0, 20)).toBe("start");
+    expect(resolveIdlePlaybackAction(5, 20)).toBe("start");
+  });
+
+  it("播放完成后只复读最后一句", () => {
+    expect(resolveIdlePlaybackAction(20, 20)).toBe("replay");
+    expect(resolveIdlePlaybackAction(21, 20)).toBe("replay");
+  });
+
+  it("空故事不启动播放", () => {
+    expect(resolveIdlePlaybackAction(0, 0)).toBe("none");
+  });
+});
+
+describe("shouldRestartStoryOnEnter", () => {
+  const finished = {
+    key: "Enter",
+    queueState: "idle",
+    currentIndex: 20,
+    totalLines: 20,
+  } as const;
+
+  it("播放完成后按 Enter 从第一句重新连播", () => {
+    expect(shouldRestartStoryOnEnter(finished)).toBe(true);
+  });
+
+  it("空格、未播完或播放中按 Enter 均不触发从头连播", () => {
+    expect(shouldRestartStoryOnEnter({ ...finished, key: " " })).toBe(false);
+    expect(shouldRestartStoryOnEnter({ ...finished, currentIndex: 5 })).toBe(false);
+    expect(shouldRestartStoryOnEnter({ ...finished, queueState: "playing" })).toBe(false);
   });
 });
 

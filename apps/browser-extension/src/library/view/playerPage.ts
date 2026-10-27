@@ -1,6 +1,6 @@
 /**
  * @file playerPage.ts
- * @description 资料库播放器页面组装：渲染 + 单句发音 + 连播队列 + 空格控制 + 划词发音协调
+ * @description 资料库播放器页面组装：渲染 + 单句发音 + 连播队列 + 键盘控制 + 划词发音协调
  */
 
 import {
@@ -10,8 +10,10 @@ import {
 import type { TTSSpeed } from "../../types";
 import type { Story, StoryLine } from "../model/types";
 import {
+  resolveIdlePlaybackAction,
   resolveSpacePlaybackAction,
   shouldHandleSpaceKey,
+  shouldRestartStoryOnEnter,
 } from "../player/interaction";
 import { PlayQueue, type QueueTTSPlayer } from "../player/playQueue";
 import { renderPlayerView, setPlayingLine } from "./playerView";
@@ -32,8 +34,13 @@ let playerDeps: PlayerPageDeps | null = null;
 let totalLines = 0;
 
 function updateToggle(): void {
-  if (!queue || queue.getState() === "idle") {
+  if (!queue) {
     playToggleBtn.textContent = "▶ 连播";
+  } else if (queue.getState() === "idle") {
+    playToggleBtn.textContent =
+      resolveIdlePlaybackAction(queue.getCurrentIndex(), totalLines) === "replay"
+        ? "↻ 复读"
+        : "▶ 连播";
   } else if (queue.getState() === "playing") {
     playToggleBtn.textContent = "⏸ 暂停";
   } else {
@@ -56,6 +63,13 @@ function startQueueAt(index: number): void {
   updateToggle();
 }
 
+function playFromIdle(): void {
+  if (!queue || queue.getState() !== "idle") return;
+  const action = resolveIdlePlaybackAction(queue.getCurrentIndex(), totalLines);
+  if (action === "none") return;
+  startQueueAt(action === "replay" ? totalLines - 1 : 0);
+}
+
 function resumeQueue(): void {
   if (!queue || queue.getState() !== "paused") return;
   stopSelectionSpeech();
@@ -74,12 +88,21 @@ function toggleQueue(): void {
   const state = queue.getState();
   if (state === "playing") pauseQueue();
   else if (state === "paused") resumeQueue();
-  else startQueueAt(0);
+  else playFromIdle();
 }
 
-/** 处理播放器内空格；由 library.ts 在播放器可见时调用 */
-export function handlePlayerSpace(event: KeyboardEvent): void {
-  if (event.key !== " " && event.code !== "Space") return;
+/** 处理播放器空格和播完后的 Enter；由 library.ts 在播放器可见时调用 */
+export function handlePlayerKeyboard(event: KeyboardEvent): void {
+  const isSpace = event.key === " " || event.code === "Space";
+  const restartOnEnter =
+    (playerDeps?.ttsAvailable() ?? false) &&
+    shouldRestartStoryOnEnter({
+      key: event.key,
+      queueState: queue?.getState() ?? "idle",
+      currentIndex: queue?.getCurrentIndex() ?? 0,
+      totalLines,
+    });
+  if (!isSpace && !restartOnEnter) return;
 
   const target = event.target;
   const interactiveTarget = Boolean(
@@ -87,6 +110,8 @@ export function handlePlayerSpace(event: KeyboardEvent): void {
       target.closest("button, input, textarea, select")) ||
       (target instanceof HTMLElement && target.isContentEditable)
   );
+  // 播放按钮仍聚焦时，Enter 应从头连播而不是触发按钮的末句复读 click。
+  const restartFromPlayToggle = restartOnEnter && target === playToggleBtn;
   if (
     !shouldHandleSpaceKey({
       defaultPrevented: event.defaultPrevented,
@@ -94,9 +119,15 @@ export function handlePlayerSpace(event: KeyboardEvent): void {
       ctrlKey: event.ctrlKey,
       metaKey: event.metaKey,
       altKey: event.altKey,
-      interactiveTarget,
+      interactiveTarget: interactiveTarget && !restartFromPlayToggle,
     })
   ) {
+    return;
+  }
+
+  if (restartOnEnter) {
+    event.preventDefault();
+    startQueueAt(0);
     return;
   }
 
@@ -120,7 +151,7 @@ export function handlePlayerSpace(event: KeyboardEvent): void {
       resumeQueue();
       return;
     case "start":
-      startQueueAt(0);
+      playFromIdle();
       return;
   }
 }

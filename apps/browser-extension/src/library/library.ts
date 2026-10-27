@@ -17,7 +17,7 @@ import {
 import { isLibraryIndex, isStory, type LibraryIndex, type Story } from "./model/types";
 import { renderHome } from "./view/home";
 import {
-  handlePlayerSpace,
+  handlePlayerKeyboard,
   pausePlayerForExternalSpeech,
   renderPlayerPage,
   stopPlayerPage,
@@ -166,8 +166,8 @@ playerBackBtn.addEventListener("click", () => {
 });
 window.addEventListener("hashchange", route);
 
-// 仅播放器视图响应空格；按钮/输入区等过滤由 handlePlayerSpace 处理
+// 仅播放器视图响应空格与播完后的 Enter；交互元素过滤由 handlePlayerKeyboard 处理
 document.addEventListener("keydown", (event) => {
   if (playerView.hidden) return;
-  handlePlayerSpace(event);
+  handlePlayerKeyboard(event);
 });

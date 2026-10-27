@@ -21,6 +21,36 @@ export function hasNonCollapsedTextSelection(
   );
 }
 
+export type IdlePlaybackAction = "start" | "replay" | "none";
+
+/** 空闲时从头连播；已播完后仅复读最后一句 */
+export function resolveIdlePlaybackAction(
+  currentIndex: number,
+  totalLines: number
+): IdlePlaybackAction {
+  if (totalLines <= 0) return "none";
+  return currentIndex >= totalLines ? "replay" : "start";
+}
+
+export interface EnterRestartContext {
+  key: string;
+  queueState: SpaceQueueState;
+  currentIndex: number;
+  totalLines: number;
+}
+
+/** 仅在故事播完后响应 Enter 从头连播；空格仍走末句复读 */
+export function shouldRestartStoryOnEnter(
+  context: EnterRestartContext
+): boolean {
+  return (
+    context.key === "Enter" &&
+    context.queueState === "idle" &&
+    resolveIdlePlaybackAction(context.currentIndex, context.totalLines) ===
+      "replay"
+  );
+}
+
 export interface SpacePlaybackContext {
   selectionSpeechActive: boolean;
   queueState: SpaceQueueState;
