@@ -8,6 +8,7 @@ import type { HybridTTSPlayer } from "../../shared/hybridTTSPlayer";
 import type { TTSSpeed } from "../../types";
 import { FLASHCARD_CATEGORY_META, type Flashcard, type FlashcardDeck } from "../model/flashcard";
 import { FlashcardRevealState } from "../model/flashcardState";
+import { getFlashcardRevealA11y } from "./flashcardA11y";
 import { createFlashcardArt } from "./flashcardArt";
 
 export interface FlashcardGridDeps {
@@ -88,11 +89,18 @@ export function renderFlashcardGrid(
     revealButton.addEventListener("click", () => {
       revealState.toggle(card.id);
       const revealed = revealState.isRevealed(card.id);
-      revealButton.setAttribute("aria-pressed", String(revealed));
-      revealButton.setAttribute("aria-label", revealed ? "隐藏单词" : "显示单词");
+      const a11y = getFlashcardRevealA11y(card.id, revealed);
+      revealButton.setAttribute("aria-pressed", a11y.pressed);
+      revealButton.setAttribute("aria-label", a11y.label);
+      if (a11y.describedBy) {
+        revealButton.setAttribute("aria-describedby", a11y.describedBy);
+      } else {
+        revealButton.removeAttribute("aria-describedby");
+      }
       revealButton.querySelector(".flashcard-word")?.remove();
       if (revealed) {
         const word = document.createElement("span");
+        word.id = a11y.wordId;
         word.className = "flashcard-word";
         word.textContent = card.word;
         revealButton.appendChild(word);
