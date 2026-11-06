@@ -1,6 +1,6 @@
 /**
  * @file flashcardHome.ts
- * @description 认图卡片分类首页：固定四分类、数量与单分类异常降级
+ * @description 认图卡片分类首页：固定分类顺序、数量与单分类异常降级
  */
 
 import {
@@ -15,6 +15,18 @@ const CATEGORY_BACKGROUNDS: Record<FlashcardCategoryId, [string, string]> = {
   shapes: ["#e2f4ff", "#b9dcf5"],
   colors: ["#f0e6ff", "#d6c1f5"],
   actions: ["#e5f8ed", "#bce6cc"],
+  transport: ["#e2f4ff", "#b9dcf5"],
+  fruits: ["#fff0f5", "#f6c9da"],
+  vegetables: ["#e5f8ed", "#bce6cc"],
+  food: ["#fff4d6", "#ffd7a8"],
+  drinks: ["#e0f7fa", "#b2ebf2"],
+  clothing: ["#f0e6ff", "#d6c1f5"],
+  school: ["#fff8d9", "#f3e2a4"],
+  toys: ["#fff0e1", "#ffcfbf"],
+  furniture: ["#f3eadf", "#dfc3a5"],
+  appliances: ["#f0f0f5", "#d5d5e2"],
+  kitchen: ["#fff0e1", "#ffcfbf"],
+  bathroom: ["#e2f4ff", "#b9dcf5"],
 };
 
 export interface FlashcardHomeHandlers {
