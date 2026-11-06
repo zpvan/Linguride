@@ -14,7 +14,7 @@ const B = {
   gray: ["#f0f0f5", "#d5d5e2"], brown: ["#f3eadf", "#dfc3a5"],
   white: ["#f8fafc", "#e2e8f0"], mint: ["#f0fdf4", "#bbf7d0"],
   lime: ["#f7fee7", "#d9f99d"], darkRoast: ["#f3eadf", "#c9b29a"],
-  ice: ["#eff6ff", "#bfdbfe"],
+  ice: ["#eff6ff", "#bfdbfe"], amber: ["#fff7ed", "#fed7aa"],
 } as const;
 const e = (emoji: string): FlashcardArt => ({ kind: "emoji", emoji });
 
@@ -30,7 +30,7 @@ export const foodExpansion = {
     ["pomegranate", e("🔴🍎"), B.red], ["raspberry", e("🧁🔴"), B.purple],
     ["blackberry", e("🫐⚫"), B.gray], ["blueberry", e("🫐"), B.blue],
     ["cranberry", e("🫐🔴"), B.red], ["gooseberry", e("🫐🟢"), B.green],
-    ["passion fruit", e("🍹🟣"), B.purple], ["dragon fruit", e("🐉🍓"), B.pink],
+    ["passion fruit", e("🍹🟣"), B.purple], ["dragon fruit", e("🐉🍓"), B.purple],
     ["guava", e("🍐🟢"), B.mint], ["lychee", e("🍒⚪"), B.white],
   ],
   vegetables: [
@@ -38,7 +38,7 @@ export const foodExpansion = {
     ["cabbage", e("🥬"), B.green], ["lettuce", e("🥬🥗"), B.mint],
     ["spinach", e("🍃🥗"), B.green], ["kale", e("🍃🟢"), B.lime],
     ["celery", e("🌿🟢"), B.green], ["asparagus", e("🌱🟢"), B.mint],
-    ["zucchini", e("🥒🟢"), B.green], ["eggplant", e("🍆"), B.purple],
+    ["zucchini", e("🥒🟢"), B.lime], ["eggplant", e("🍆"), B.purple],
     ["radish", e("🔴🌱"), B.red], ["turnip", e("🟣🌱"), B.purple],
     ["beet", e("🟣🥔"), B.pink], ["pea", e("🫛"), B.green],
     ["bean", e("🫘"), B.brown], ["chickpea", e("🫘🟡"), B.yellow],
@@ -62,11 +62,11 @@ export const foodExpansion = {
     ["soup", e("🍲"), B.yellow], ["dumpling", e("🥟"), B.white],
   ],
   drinks: [
-    ["mineral water", e("💧⛰️"), B.blue], ["sparkling water", e("💧✨"), B.cyan],
+    ["mineral water", e("💧⛰️"), B.blue], ["sparkling water", e("💧✨"), B.purple],
     ["soda water", e("🥤✨"), B.gray], ["tonic water", e("🥤🍋"), B.yellow],
     ["coconut water", e("🥥💧"), B.white], ["orange juice", e("🍊🧃"), B.orange],
     ["apple juice", e("🍎🧃"), B.red], ["grape juice", e("🍇🧃"), B.purple],
-    ["iced tea", e("🍵🧊"), B.cyan], ["iced coffee", e("☕🧊"), B.gray],
+    ["iced tea", e("🍵🧊"), B.amber], ["iced coffee", e("☕🧊"), B.gray],
     ["milk tea", e("🥛🍵"), B.brown], ["bubble tea", e("🧋"), B.pink],
     ["green tea", e("🍵🟢"), B.green], ["black tea", e("🍵⚫"), B.gray],
     ["herbal tea", e("🍵🌿"), B.mint], ["hot chocolate", e("🍫🥛"), B.brown],
