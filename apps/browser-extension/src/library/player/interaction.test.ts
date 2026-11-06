@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   hasNonCollapsedTextSelection,
+  pauseLibraryPlaybackForExternalSpeech,
   resolveIdlePlaybackAction,
   resolveSpacePlaybackAction,
   shouldHandleSpaceKey,
@@ -23,6 +24,17 @@ describe("hasNonCollapsedTextSelection", () => {
   });
   it("非空文本选区抑制台词行点击", () => {
     expect(hasNonCollapsedTextSelection(selection("Good morning"))).toBe(true);
+  });
+});
+
+describe("pauseLibraryPlaybackForExternalSpeech", () => {
+  it("划词发音同时暂停故事队列并停止当前卡片", () => {
+    const calls: string[] = [];
+    pauseLibraryPlaybackForExternalSpeech(
+      () => calls.push("story"),
+      () => calls.push("cards")
+    );
+    expect(calls).toEqual(["story", "cards"]);
   });
 });
 

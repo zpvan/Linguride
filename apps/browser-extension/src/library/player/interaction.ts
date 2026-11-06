@@ -12,6 +12,15 @@ export type SpacePlaybackAction =
   | "stop-selection"
   | "none";
 
+/** 划词发音接管音频时，同时暂停故事并让当前卡片播放失效 */
+export function pauseLibraryPlaybackForExternalSpeech(
+  pauseStory: () => void,
+  stopCards: () => void
+): void {
+  pauseStory();
+  stopCards();
+}
+
 /** 是否存在会抑制台词行 click 的非空文本选区 */
 export function hasNonCollapsedTextSelection(
   selection: Selection | null

@@ -22,6 +22,7 @@ import {
 } from "./model/flashcard";
 import { parseLibraryRoute } from "./model/route";
 import { isLibraryIndex, isStory, type LibraryIndex, type Story } from "./model/types";
+import { pauseLibraryPlaybackForExternalSpeech } from "./player/interaction";
 import { renderFlashcardGrid } from "./view/flashcardGrid";
 import { renderFlashcardHome } from "./view/flashcardHome";
 import { renderLibraryNav, renderStoryHome, type LibraryHomeTab } from "./view/home";
@@ -209,7 +210,14 @@ function route(): void {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  initSelectionToolbar({ onSpeechStart: pausePlayerForExternalSpeech });
+  initSelectionToolbar({
+    onSpeechStart: () => {
+      pauseLibraryPlaybackForExternalSpeech(
+        pausePlayerForExternalSpeech,
+        () => cleanupFlashcardGrid?.()
+      );
+    },
+  });
   try {
     library = loadLibrary();
     homeError.hidden = true;
