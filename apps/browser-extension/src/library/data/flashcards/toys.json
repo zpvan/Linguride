@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "toys",
   "cards": [
-    { "id": "toys-ball", "word": "ball", "art": { "kind": "emoji", "emoji": "⚽" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "toys-doll", "word": "doll", "art": { "kind": "emoji", "emoji": "🪆" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "toys-robot", "word": "robot", "art": { "kind": "emoji", "emoji": "🤖" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "toys-kite", "word": "kite", "art": { "kind": "emoji", "emoji": "🪁" }, "background": ["#fff0e1", "#ffcfbf"] }
+    {
+      "id": "toys-ball",
+      "word": "ball",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⚽"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-doll",
+      "word": "doll",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪆"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-robot",
+      "word": "robot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🤖"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-kite",
+      "word": "kite",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪁"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-teddy-bear",
+      "word": "teddy bear",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧸"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "toys-stuffed-animal",
+      "word": "stuffed animal",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧸🐰"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "toys-building-block",
+      "word": "building block",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧱"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "toys-puzzle",
+      "word": "puzzle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧩"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "toys-board-game",
+      "word": "board game",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎲"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "toys-card-game",
+      "word": "card game",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🃏"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "toys-video-game",
+      "word": "video game",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎮"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "toys-toy-car",
+      "word": "toy car",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚗🧸"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-toy-train",
+      "word": "toy train",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚂"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "toys-toy-plane",
+      "word": "toy plane",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✈️🧸"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "toys-action-figure",
+      "word": "action figure",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🦸"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "toys-building-set",
+      "word": "building set",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🏗️🧱"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "toys-yo-yo",
+      "word": "yo-yo",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪀"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "toys-spinning-top",
+      "word": "spinning top",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌀🪀"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "toys-hula-hoop",
+      "word": "hula hoop",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⭕💃"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "toys-jump-rope",
+      "word": "jump rope",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🤸➰"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-frisbee",
+      "word": "frisbee",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥏"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "toys-balloon",
+      "word": "balloon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎈"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "toys-bubble-wand",
+      "word": "bubble wand",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫧🪄"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "toys-rattle",
+      "word": "rattle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👶🔔"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "toys-pacifier",
+      "word": "pacifier",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👶😌"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "toys-rocking-horse",
+      "word": "rocking horse",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🐴🪑"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "toys-tricycle",
+      "word": "tricycle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚲3️⃣"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "toys-wagon",
+      "word": "wagon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛒🧸"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "toys-slide",
+      "word": "slide",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛝"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "toys-swing",
+      "word": "swing",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧒🪢"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "toys-seesaw",
+      "word": "seesaw",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧒↕️🧒"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "toys-sandbox",
+      "word": "sandbox",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🏖️🪣"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    }
   ]
 }

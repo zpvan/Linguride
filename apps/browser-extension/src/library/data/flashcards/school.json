@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "school",
   "cards": [
-    { "id": "school-pencil", "word": "pencil", "art": { "kind": "emoji", "emoji": "✏️" }, "background": ["#fff8d9", "#f3e2a4"] },
-    { "id": "school-pen", "word": "pen", "art": { "kind": "emoji", "emoji": "🖊️" }, "background": ["#fff8d9", "#f3e2a4"] },
-    { "id": "school-book", "word": "book", "art": { "kind": "emoji", "emoji": "📖" }, "background": ["#fff8d9", "#f3e2a4"] },
-    { "id": "school-ruler", "word": "ruler", "art": { "kind": "emoji", "emoji": "📏" }, "background": ["#fff8d9", "#f3e2a4"] }
+    {
+      "id": "school-pencil",
+      "word": "pencil",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✏️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-pen",
+      "word": "pen",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🖊️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-book",
+      "word": "book",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📖"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-ruler",
+      "word": "ruler",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📏"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-crayon",
+      "word": "crayon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🖍️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "school-marker",
+      "word": "marker",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🖊️⬛"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "school-highlighter",
+      "word": "highlighter",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🖊️🟨"
+      },
+      "background": [
+        "#f7fee7",
+        "#d9f99d"
+      ]
+    },
+    {
+      "id": "school-chalk",
+      "word": "chalk",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧑‍🏫"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "school-eraser",
+      "word": "eraser",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✏️❌"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "school-sharpener",
+      "word": "sharpener",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✏️⚙️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "school-pencil-case",
+      "word": "pencil case",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✏️👝"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "school-pencil-box",
+      "word": "pencil box",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✏️📦"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "school-notebook",
+      "word": "notebook",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📓"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "school-textbook",
+      "word": "textbook",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📚"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-workbook",
+      "word": "workbook",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📔✍️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "school-dictionary",
+      "word": "dictionary",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📖🔤"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "school-storybook",
+      "word": "storybook",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📖✨"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "school-comic-book",
+      "word": "comic book",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📖💥"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "school-library-card",
+      "word": "library card",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💳📚"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "school-backpack",
+      "word": "backpack",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎒"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "school-lunchbox",
+      "word": "lunchbox",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍱"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "school-water-bottle",
+      "word": "water bottle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚰"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "school-scissors",
+      "word": "scissors",
+      "art": {
+        "kind": "emoji",
+        "emoji": "✂️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "school-glue",
+      "word": "glue",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧴"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "school-tape",
+      "word": "tape",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🩹"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "school-paper",
+      "word": "paper",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📄"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "school-clipboard",
+      "word": "clipboard",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📋"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "school-folder",
+      "word": "folder",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📁"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "school-calculator",
+      "word": "calculator",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧮"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "school-calendar",
+      "word": "calendar",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📅"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "school-map",
+      "word": "map",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🗺️"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "school-globe",
+      "word": "globe",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌍"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    }
   ]
 }

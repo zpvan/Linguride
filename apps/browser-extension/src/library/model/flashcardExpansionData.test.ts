@@ -6,13 +6,17 @@
 import { describe, expect, it } from "vitest";
 
 import actions from "../data/flashcards/actions.json";
+import clothing from "../data/flashcards/clothing.json";
 import colors from "../data/flashcards/colors.json";
 import drinks from "../data/flashcards/drinks.json";
 import food from "../data/flashcards/food.json";
 import fruits from "../data/flashcards/fruits.json";
+import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
+import toys from "../data/flashcards/toys.json";
 import vegetables from "../data/flashcards/vegetables.json";
 import { basicExpansion } from "./__fixtures__/flashcardBasicExpansion";
+import { dailyExpansion } from "./__fixtures__/flashcardDailyExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
 import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
@@ -51,5 +55,13 @@ describe("第二批饮食认图卡片", () => {
     expectExpansion(vegetables, "vegetables", foodExpansion.vegetables);
     expectExpansion(food, "food", foodExpansion.food);
     expectExpansion(drinks, "drinks", foodExpansion.drinks);
+  });
+});
+
+describe("第三批日常物品认图卡片", () => {
+  it("衣物、学习用品、玩具各补足 32 张", () => {
+    expectExpansion(clothing, "clothing", dailyExpansion.clothing);
+    expectExpansion(school, "school", dailyExpansion.school);
+    expectExpansion(toys, "toys", dailyExpansion.toys);
   });
 });

@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "clothing",
   "cards": [
-    { "id": "clothing-shirt", "word": "shirt", "art": { "kind": "emoji", "emoji": "👕" }, "background": ["#f0e6ff", "#d6c1f5"] },
-    { "id": "clothing-dress", "word": "dress", "art": { "kind": "emoji", "emoji": "👗" }, "background": ["#f0e6ff", "#d6c1f5"] },
-    { "id": "clothing-hat", "word": "hat", "art": { "kind": "emoji", "emoji": "👒" }, "background": ["#f0e6ff", "#d6c1f5"] },
-    { "id": "clothing-coat", "word": "coat", "art": { "kind": "emoji", "emoji": "🧥" }, "background": ["#f0e6ff", "#d6c1f5"] }
+    {
+      "id": "clothing-shirt",
+      "word": "shirt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👕"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-dress",
+      "word": "dress",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👗"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-hat",
+      "word": "hat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👒"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-coat",
+      "word": "coat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-t-shirt",
+      "word": "t-shirt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👕🧒"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-jeans",
+      "word": "jeans",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👖"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-skirt",
+      "word": "skirt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👗✂️"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "clothing-blouse",
+      "word": "blouse",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👚"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-sweater",
+      "word": "sweater",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧶👕"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "clothing-cardigan",
+      "word": "cardigan",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧶🧥"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "clothing-hoodie",
+      "word": "hoodie",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥🧢"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "clothing-jacket",
+      "word": "jacket",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥✨"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "clothing-blazer",
+      "word": "blazer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥👔"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-suit",
+      "word": "suit",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🤵"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "clothing-uniform",
+      "word": "uniform",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧑‍✈️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-raincoat",
+      "word": "raincoat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥🌧️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-overcoat",
+      "word": "overcoat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥❄️"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "clothing-vest",
+      "word": "vest",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🦺"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "clothing-scarf",
+      "word": "scarf",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧣"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "clothing-gloves",
+      "word": "gloves",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧤"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-mitten",
+      "word": "mitten",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧤☝️"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "clothing-sock",
+      "word": "sock",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧦"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "clothing-boot",
+      "word": "boot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥾"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "clothing-sneaker",
+      "word": "sneaker",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👟"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "clothing-shoe",
+      "word": "shoe",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👞"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "clothing-sandal",
+      "word": "sandal",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🩴"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "clothing-slipper",
+      "word": "slipper",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥿"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "clothing-cap",
+      "word": "cap",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧢"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "clothing-beanie",
+      "word": "beanie",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧶🧢"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "clothing-helmet",
+      "word": "helmet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⛑️"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "clothing-belt",
+      "word": "belt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👖🔗"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "clothing-tie",
+      "word": "tie",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👔"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    }
   ]
 }
