@@ -2,13 +2,397 @@
   "schemaVersion": 1,
   "id": "shapes",
   "cards": [
-    { "id": "shapes-circle", "word": "circle", "art": { "kind": "vector", "shape": "circle", "color": "#3b82f6" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "shapes-square", "word": "square", "art": { "kind": "vector", "shape": "square", "color": "#f97316" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "shapes-triangle", "word": "triangle", "art": { "kind": "vector", "shape": "triangle", "color": "#22c55e" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "shapes-rectangle", "word": "rectangle", "art": { "kind": "vector", "shape": "rectangle", "color": "#8b5cf6" }, "background": ["#f0e6ff", "#d6c1f5"] },
-    { "id": "shapes-oval", "word": "oval", "art": { "kind": "vector", "shape": "oval", "color": "#ec4899" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "shapes-star", "word": "star", "art": { "kind": "vector", "shape": "star", "color": "#eab308" }, "background": ["#fff8d9", "#f3e2a4"] },
-    { "id": "shapes-heart", "word": "heart", "art": { "kind": "vector", "shape": "heart", "color": "#e5484d" }, "background": ["#fff1f2", "#fecdd3"] },
-    { "id": "shapes-diamond", "word": "diamond", "art": { "kind": "vector", "shape": "diamond", "color": "#06b6d4" }, "background": ["#e0f7fa", "#b2ebf2"] }
+    {
+      "id": "shapes-circle",
+      "word": "circle",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#3b82f6"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "shapes-square",
+      "word": "square",
+      "art": {
+        "kind": "vector",
+        "shape": "square",
+        "color": "#f97316"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "shapes-triangle",
+      "word": "triangle",
+      "art": {
+        "kind": "vector",
+        "shape": "triangle",
+        "color": "#22c55e"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "shapes-rectangle",
+      "word": "rectangle",
+      "art": {
+        "kind": "vector",
+        "shape": "rectangle",
+        "color": "#8b5cf6"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "shapes-oval",
+      "word": "oval",
+      "art": {
+        "kind": "vector",
+        "shape": "oval",
+        "color": "#ec4899"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "shapes-star",
+      "word": "star",
+      "art": {
+        "kind": "vector",
+        "shape": "star",
+        "color": "#eab308"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "shapes-heart",
+      "word": "heart",
+      "art": {
+        "kind": "vector",
+        "shape": "heart",
+        "color": "#e5484d"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "shapes-diamond",
+      "word": "diamond",
+      "art": {
+        "kind": "vector",
+        "shape": "diamond",
+        "color": "#06b6d4"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "shapes-pentagon",
+      "word": "pentagon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⬟"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "shapes-hexagon",
+      "word": "hexagon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⬡"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "shapes-octagon",
+      "word": "octagon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛑"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "shapes-trapezoid",
+      "word": "trapezoid",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⏢"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "shapes-rhombus",
+      "word": "rhombus",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔶"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "shapes-parallelogram",
+      "word": "parallelogram",
+      "art": {
+        "kind": "emoji",
+        "emoji": "▱"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "shapes-semicircle",
+      "word": "semicircle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "◒"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "shapes-crescent",
+      "word": "crescent",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌙"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "shapes-arc",
+      "word": "arc",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⌒"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "shapes-cube",
+      "word": "cube",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧊"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "shapes-sphere",
+      "word": "sphere",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔮"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "shapes-cone",
+      "word": "cone",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍦"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "shapes-cylinder",
+      "word": "cylinder",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥫"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "shapes-pyramid",
+      "word": "pyramid",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔺🏜️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "shapes-prism",
+      "word": "prism",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💎"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "shapes-cross",
+      "word": "cross",
+      "art": {
+        "kind": "emoji",
+        "emoji": "➕"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "shapes-arrow",
+      "word": "arrow",
+      "art": {
+        "kind": "emoji",
+        "emoji": "➡️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "shapes-line",
+      "word": "line",
+      "art": {
+        "kind": "emoji",
+        "emoji": "➖"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "shapes-dot",
+      "word": "dot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⚫"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "shapes-ring",
+      "word": "ring",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⭕"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "shapes-frame",
+      "word": "frame",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🖼️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "shapes-spiral",
+      "word": "spiral",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌀"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "shapes-wave",
+      "word": "wave",
+      "art": {
+        "kind": "emoji",
+        "emoji": "〰️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "shapes-zigzag",
+      "word": "zigzag",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⚡"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    }
   ]
 }

@@ -2,13 +2,421 @@
   "schemaVersion": 1,
   "id": "colors",
   "cards": [
-    { "id": "colors-red", "word": "red", "art": { "kind": "vector", "shape": "circle", "color": "#e5484d" }, "background": ["#fff7f7", "#f1f1f5"] },
-    { "id": "colors-blue", "word": "blue", "art": { "kind": "vector", "shape": "circle", "color": "#3b82f6" }, "background": ["#f7fbff", "#eeeef5"] },
-    { "id": "colors-yellow", "word": "yellow", "art": { "kind": "vector", "shape": "circle", "color": "#facc15" }, "background": ["#fffdf5", "#f3f1e8"] },
-    { "id": "colors-green", "word": "green", "art": { "kind": "vector", "shape": "circle", "color": "#22c55e" }, "background": ["#f7fff9", "#edf2ef"] },
-    { "id": "colors-orange", "word": "orange", "art": { "kind": "vector", "shape": "circle", "color": "#f97316" }, "background": ["#fffaf5", "#f3eee8"] },
-    { "id": "colors-purple", "word": "purple", "art": { "kind": "vector", "shape": "circle", "color": "#8b5cf6" }, "background": ["#fcf9ff", "#f0edf5"] },
-    { "id": "colors-pink", "word": "pink", "art": { "kind": "vector", "shape": "circle", "color": "#ec4899" }, "background": ["#fff7fb", "#f5edf2"] },
-    { "id": "colors-brown", "word": "brown", "art": { "kind": "vector", "shape": "circle", "color": "#92400e" }, "background": ["#fdfaf7", "#efeae5"] }
+    {
+      "id": "colors-red",
+      "word": "red",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#e5484d"
+      },
+      "background": [
+        "#fff7f7",
+        "#f1f1f5"
+      ]
+    },
+    {
+      "id": "colors-blue",
+      "word": "blue",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#3b82f6"
+      },
+      "background": [
+        "#f7fbff",
+        "#eeeef5"
+      ]
+    },
+    {
+      "id": "colors-yellow",
+      "word": "yellow",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#facc15"
+      },
+      "background": [
+        "#fffdf5",
+        "#f3f1e8"
+      ]
+    },
+    {
+      "id": "colors-green",
+      "word": "green",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#22c55e"
+      },
+      "background": [
+        "#f7fff9",
+        "#edf2ef"
+      ]
+    },
+    {
+      "id": "colors-orange",
+      "word": "orange",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#f97316"
+      },
+      "background": [
+        "#fffaf5",
+        "#f3eee8"
+      ]
+    },
+    {
+      "id": "colors-purple",
+      "word": "purple",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#8b5cf6"
+      },
+      "background": [
+        "#fcf9ff",
+        "#f0edf5"
+      ]
+    },
+    {
+      "id": "colors-pink",
+      "word": "pink",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#ec4899"
+      },
+      "background": [
+        "#fff7fb",
+        "#f5edf2"
+      ]
+    },
+    {
+      "id": "colors-brown",
+      "word": "brown",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#92400e"
+      },
+      "background": [
+        "#fdfaf7",
+        "#efeae5"
+      ]
+    },
+    {
+      "id": "colors-black",
+      "word": "black",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#111827"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "colors-white",
+      "word": "white",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#ffffff"
+      },
+      "background": [
+        "#e2e8f0",
+        "#cbd5e1"
+      ]
+    },
+    {
+      "id": "colors-gray",
+      "word": "gray",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#6b7280"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "colors-gold",
+      "word": "gold",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#d4af37"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "colors-silver",
+      "word": "silver",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#c0c0c0"
+      },
+      "background": [
+        "#f8fafc",
+        "#dbe3ec"
+      ]
+    },
+    {
+      "id": "colors-beige",
+      "word": "beige",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#f5f5dc"
+      },
+      "background": [
+        "#fffdf5",
+        "#e8dfc8"
+      ]
+    },
+    {
+      "id": "colors-ivory",
+      "word": "ivory",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#fffff0"
+      },
+      "background": [
+        "#f5f1e6",
+        "#ded7c7"
+      ]
+    },
+    {
+      "id": "colors-cream",
+      "word": "cream",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#fffdd0"
+      },
+      "background": [
+        "#fff8e7",
+        "#ead9b8"
+      ]
+    },
+    {
+      "id": "colors-navy",
+      "word": "navy",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#001f3f"
+      },
+      "background": [
+        "#eff6ff",
+        "#c7d2fe"
+      ]
+    },
+    {
+      "id": "colors-teal",
+      "word": "teal",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#008080"
+      },
+      "background": [
+        "#f0fdfa",
+        "#99f6e4"
+      ]
+    },
+    {
+      "id": "colors-cyan",
+      "word": "cyan",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#00ffff"
+      },
+      "background": [
+        "#ecfeff",
+        "#a5f3fc"
+      ]
+    },
+    {
+      "id": "colors-turquoise",
+      "word": "turquoise",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#40e0d0"
+      },
+      "background": [
+        "#f0fdfa",
+        "#ccfbf1"
+      ]
+    },
+    {
+      "id": "colors-aqua",
+      "word": "aqua",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#00bcd4"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "colors-sky-blue",
+      "word": "sky blue",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#87ceeb"
+      },
+      "background": [
+        "#f0f9ff",
+        "#bae6fd"
+      ]
+    },
+    {
+      "id": "colors-royal-blue",
+      "word": "royal blue",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#4169e1"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "colors-light-blue",
+      "word": "light blue",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#add8e6"
+      },
+      "background": [
+        "#f0f9ff",
+        "#e0f2fe"
+      ]
+    },
+    {
+      "id": "colors-dark-blue",
+      "word": "dark blue",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#00008b"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "colors-lime",
+      "word": "lime",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#32cd32"
+      },
+      "background": [
+        "#f7fee7",
+        "#d9f99d"
+      ]
+    },
+    {
+      "id": "colors-olive",
+      "word": "olive",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#808000"
+      },
+      "background": [
+        "#fefce8",
+        "#e7e5c0"
+      ]
+    },
+    {
+      "id": "colors-mint",
+      "word": "mint",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#98ff98"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "colors-lavender",
+      "word": "lavender",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#e6e6fa"
+      },
+      "background": [
+        "#faf5ff",
+        "#e9d5ff"
+      ]
+    },
+    {
+      "id": "colors-violet",
+      "word": "violet",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#8f00ff"
+      },
+      "background": [
+        "#faf5ff",
+        "#ddd6fe"
+      ]
+    },
+    {
+      "id": "colors-magenta",
+      "word": "magenta",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#ff00ff"
+      },
+      "background": [
+        "#fdf4ff",
+        "#f5d0fe"
+      ]
+    },
+    {
+      "id": "colors-maroon",
+      "word": "maroon",
+      "art": {
+        "kind": "vector",
+        "shape": "circle",
+        "color": "#800000"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    }
   ]
 }
