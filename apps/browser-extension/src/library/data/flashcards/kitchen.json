@@ -103,11 +103,11 @@
       "word": "spatula",
       "art": {
         "kind": "emoji",
-        "emoji": "🍳🥄"
+        "emoji": "🍳🔀"
       },
       "background": [
-        "#fff0e1",
-        "#ffcfbf"
+        "#f0e6ff",
+        "#d6c1f5"
       ]
     },
     {
@@ -178,8 +178,8 @@
         "emoji": "🥣🥄"
       },
       "background": [
-        "#e0f7fa",
-        "#b2ebf2"
+        "#e5f8ed",
+        "#bce6cc"
       ]
     },
     {
@@ -358,8 +358,8 @@
         "emoji": "🥄📏"
       },
       "background": [
-        "#fff8d9",
-        "#f3e2a4"
+        "#e2f4ff",
+        "#b9dcf5"
       ]
     },
     {

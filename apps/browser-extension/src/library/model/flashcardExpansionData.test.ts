@@ -26,7 +26,6 @@ import { dailyExpansion } from "./__fixtures__/flashcardDailyExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
 import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
-import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
