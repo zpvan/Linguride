@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "appliances",
   "cards": [
-    { "id": "appliances-television", "word": "television", "art": { "kind": "emoji", "emoji": "📺" }, "background": ["#f0f0f5", "#d5d5e2"] },
-    { "id": "appliances-computer", "word": "computer", "art": { "kind": "emoji", "emoji": "💻" }, "background": ["#f0f0f5", "#d5d5e2"] },
-    { "id": "appliances-phone", "word": "phone", "art": { "kind": "emoji", "emoji": "📱" }, "background": ["#f0f0f5", "#d5d5e2"] },
-    { "id": "appliances-camera", "word": "camera", "art": { "kind": "emoji", "emoji": "📷" }, "background": ["#f0f0f5", "#d5d5e2"] }
+    {
+      "id": "appliances-television",
+      "word": "television",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📺"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-computer",
+      "word": "computer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💻"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-phone",
+      "word": "phone",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📱"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-camera",
+      "word": "camera",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📷"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-refrigerator",
+      "word": "refrigerator",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧊🚪"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "appliances-freezer",
+      "word": "freezer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧊❄️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "appliances-washing-machine",
+      "word": "washing machine",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧺⚙️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "appliances-dryer",
+      "word": "dryer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧺💨"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-dishwasher",
+      "word": "dishwasher",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍽️💦"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "appliances-oven",
+      "word": "oven",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔥📦"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "appliances-microwave",
+      "word": "microwave",
+      "art": {
+        "kind": "emoji",
+        "emoji": "♨️📦"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-stove",
+      "word": "stove",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍳🔥"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "appliances-rice-cooker",
+      "word": "rice cooker",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍚⚙️"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "appliances-pressure-cooker",
+      "word": "pressure cooker",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍲💨"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-air-fryer",
+      "word": "air fryer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍟♨️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "appliances-blender",
+      "word": "blender",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥤⚙️"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "appliances-juicer",
+      "word": "juicer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍊⚙️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "appliances-mixer",
+      "word": "mixer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣⚙️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "appliances-toaster",
+      "word": "toaster",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍞♨️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "appliances-kettle",
+      "word": "kettle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫖⚙️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-coffee-maker",
+      "word": "coffee maker",
+      "art": {
+        "kind": "emoji",
+        "emoji": "☕⚙️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "appliances-fan",
+      "word": "fan",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌀💨"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "appliances-air-conditioner",
+      "word": "air conditioner",
+      "art": {
+        "kind": "emoji",
+        "emoji": "❄️💨"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "appliances-heater",
+      "word": "heater",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔥💨"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "appliances-humidifier",
+      "word": "humidifier",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💧💨"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "appliances-dehumidifier",
+      "word": "dehumidifier",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💧🚫"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-air-purifier",
+      "word": "air purifier",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍃💨"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "appliances-vacuum-cleaner",
+      "word": "vacuum cleaner",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧹⚙️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "appliances-iron",
+      "word": "iron",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👕♨️"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "appliances-hair-dryer",
+      "word": "hair dryer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💇💨"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "appliances-shaver",
+      "word": "shaver",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪒"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "appliances-scale",
+      "word": "scale",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⚖️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    }
   ]
 }

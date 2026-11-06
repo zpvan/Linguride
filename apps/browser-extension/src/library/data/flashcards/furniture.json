@@ -2,13 +2,389 @@
   "schemaVersion": 1,
   "id": "furniture",
   "cards": [
-    { "id": "furniture-chair", "word": "chair", "art": { "kind": "emoji", "emoji": "🪑" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-table", "word": "table", "art": { "kind": "emoji", "emoji": "🪑🍽️" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-bed", "word": "bed", "art": { "kind": "emoji", "emoji": "🛏️" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-sofa", "word": "sofa", "art": { "kind": "emoji", "emoji": "🛋️" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-lamp", "word": "lamp", "art": { "kind": "emoji", "emoji": "💡" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-door", "word": "door", "art": { "kind": "emoji", "emoji": "🚪" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-window", "word": "window", "art": { "kind": "emoji", "emoji": "🪟" }, "background": ["#f3eadf", "#dfc3a5"] },
-    { "id": "furniture-mirror", "word": "mirror", "art": { "kind": "emoji", "emoji": "🪞" }, "background": ["#f3eadf", "#dfc3a5"] }
+    {
+      "id": "furniture-chair",
+      "word": "chair",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-table",
+      "word": "table",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑🍽️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-bed",
+      "word": "bed",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛏️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-sofa",
+      "word": "sofa",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛋️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-lamp",
+      "word": "lamp",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💡"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-door",
+      "word": "door",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚪"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-window",
+      "word": "window",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪟"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-mirror",
+      "word": "mirror",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪞"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-coffee-table",
+      "word": "coffee table",
+      "art": {
+        "kind": "emoji",
+        "emoji": "☕🪑"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "furniture-dining-table",
+      "word": "dining table",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍽️🪑"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "furniture-desk",
+      "word": "desk",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑💻"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "furniture-bookshelf",
+      "word": "bookshelf",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📚🧱"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-bookcase",
+      "word": "bookcase",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📚🗄️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "furniture-cabinet",
+      "word": "cabinet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🗄️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "furniture-cupboard",
+      "word": "cupboard",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🗄️🍽️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "furniture-drawer",
+      "word": "drawer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🗄️➡️"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-wardrobe",
+      "word": "wardrobe",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚪👕"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "furniture-closet",
+      "word": "closet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚪📦"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "furniture-armchair",
+      "word": "armchair",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💺"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "furniture-rocking-chair",
+      "word": "rocking chair",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑↔️"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "furniture-stool",
+      "word": "stool",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑1️⃣"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "furniture-bench",
+      "word": "bench",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪑👥"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "furniture-ottoman",
+      "word": "ottoman",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛋️🦶"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "furniture-nightstand",
+      "word": "nightstand",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛏️💡"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "furniture-dresser",
+      "word": "dresser",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🗄️👕"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "furniture-chest",
+      "word": "chest",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧳"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "furniture-tv-stand",
+      "word": "tv stand",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📺🗄️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "furniture-shoe-rack",
+      "word": "shoe rack",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👟🗄️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "furniture-coat-rack",
+      "word": "coat rack",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧥🪝"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "furniture-hanger",
+      "word": "hanger",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪝👕"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "furniture-cushion",
+      "word": "cushion",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛋️🟨"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "furniture-curtain",
+      "word": "curtain",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪟🧵"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    }
   ]
 }

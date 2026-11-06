@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "bathroom",
   "cards": [
-    { "id": "bathroom-soap", "word": "soap", "art": { "kind": "emoji", "emoji": "🧼" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "bathroom-towel", "word": "towel", "art": { "kind": "emoji", "emoji": "🛁🧺" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "bathroom-toothbrush", "word": "toothbrush", "art": { "kind": "emoji", "emoji": "🪥" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "bathroom-shower", "word": "shower", "art": { "kind": "emoji", "emoji": "🚿" }, "background": ["#e2f4ff", "#b9dcf5"] }
+    {
+      "id": "bathroom-soap",
+      "word": "soap",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧼"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-towel",
+      "word": "towel",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛁🧺"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-toothbrush",
+      "word": "toothbrush",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪥"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-shower",
+      "word": "shower",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚿"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-bath-towel",
+      "word": "bath towel",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛁🧺💧"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-hand-towel",
+      "word": "hand towel",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧺🙌"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bathroom-washcloth",
+      "word": "washcloth",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧼🧵"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "bathroom-bath-mat",
+      "word": "bath mat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🛁🟦"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-shower-curtain",
+      "word": "shower curtain",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚿🧵"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bathroom-showerhead",
+      "word": "showerhead",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚿💧"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-faucet",
+      "word": "faucet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚰"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bathroom-sink",
+      "word": "sink",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚰🪥"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "bathroom-toilet",
+      "word": "toilet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🚽"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "bathroom-toilet-paper",
+      "word": "toilet paper",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧻"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "bathroom-tissue",
+      "word": "tissue",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🤧📄"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "bathroom-toothpaste",
+      "word": "toothpaste",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪥🧴"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "bathroom-mouthwash",
+      "word": "mouthwash",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥤🦷"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-shampoo",
+      "word": "shampoo",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧴🚿"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bathroom-conditioner",
+      "word": "conditioner",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧴💇"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bathroom-body-wash",
+      "word": "body wash",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧼🚿"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-hand-soap",
+      "word": "hand soap",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧼🙌"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "bathroom-sanitizer",
+      "word": "sanitizer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧴🙌"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "bathroom-lotion",
+      "word": "lotion",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧴🤲"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "bathroom-cream",
+      "word": "cream",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫙🤍"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "bathroom-razor",
+      "word": "razor",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪒"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bathroom-shaving-cream",
+      "word": "shaving cream",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪒🫧"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-comb",
+      "word": "comb",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🪮"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bathroom-hairbrush",
+      "word": "hairbrush",
+      "art": {
+        "kind": "emoji",
+        "emoji": "💇✨"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "bathroom-hair-tie",
+      "word": "hair tie",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎀"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "bathroom-cotton-swab",
+      "word": "cotton swab",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👂☁️"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "bathroom-cotton-ball",
+      "word": "cotton ball",
+      "art": {
+        "kind": "emoji",
+        "emoji": "☁️⚪"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bathroom-scale",
+      "word": "scale",
+      "art": {
+        "kind": "emoji",
+        "emoji": "⚖️"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    }
   ]
 }

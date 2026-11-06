@@ -2,9 +2,389 @@
   "schemaVersion": 1,
   "id": "kitchen",
   "cards": [
-    { "id": "kitchen-cup", "word": "cup", "art": { "kind": "emoji", "emoji": "☕" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "kitchen-plate", "word": "plate", "art": { "kind": "emoji", "emoji": "🍽️" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "kitchen-bowl", "word": "bowl", "art": { "kind": "emoji", "emoji": "🥣" }, "background": ["#fff0e1", "#ffcfbf"] },
-    { "id": "kitchen-spoon", "word": "spoon", "art": { "kind": "emoji", "emoji": "🥄" }, "background": ["#fff0e1", "#ffcfbf"] }
+    {
+      "id": "kitchen-cup",
+      "word": "cup",
+      "art": {
+        "kind": "emoji",
+        "emoji": "☕"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-plate",
+      "word": "plate",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍽️"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-bowl",
+      "word": "bowl",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-spoon",
+      "word": "spoon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥄"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-fork",
+      "word": "fork",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍴"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-knife",
+      "word": "knife",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔪"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-chopsticks",
+      "word": "chopsticks",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥢"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "kitchen-ladle",
+      "word": "ladle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥄🍲"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "kitchen-spatula",
+      "word": "spatula",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍳🥄"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-whisk",
+      "word": "whisk",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣🌀"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "kitchen-tongs",
+      "word": "tongs",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍗🤏"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-peeler",
+      "word": "peeler",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥔🔪"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "kitchen-grater",
+      "word": "grater",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧀🔪"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "kitchen-cutting-board",
+      "word": "cutting board",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔪🟫"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "kitchen-mixing-bowl",
+      "word": "mixing bowl",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣🥄"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "kitchen-saucepan",
+      "word": "saucepan",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍲🥄"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-frying-pan",
+      "word": "frying pan",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍳"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "kitchen-pot",
+      "word": "pot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍲"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "kitchen-skillet",
+      "word": "skillet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍳🥩"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "kitchen-kettle",
+      "word": "kettle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫖♨️"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "kitchen-lid",
+      "word": "lid",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍲⭕"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-oven-mitt",
+      "word": "oven mitt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧤🔥"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "kitchen-apron",
+      "word": "apron",
+      "art": {
+        "kind": "emoji",
+        "emoji": "👕🍳"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "kitchen-napkin",
+      "word": "napkin",
+      "art": {
+        "kind": "emoji",
+        "emoji": "📄🍽️"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "kitchen-placemat",
+      "word": "placemat",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟨🍽️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "kitchen-tray",
+      "word": "tray",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍽️⬜"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "kitchen-teapot",
+      "word": "teapot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫖🍵"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "kitchen-coffee-pot",
+      "word": "coffee pot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "☕🫖"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "kitchen-measuring-cup",
+      "word": "measuring cup",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥛📏"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "kitchen-measuring-spoon",
+      "word": "measuring spoon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥄📏"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "kitchen-strainer",
+      "word": "strainer",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍝🕳️"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "kitchen-colander",
+      "word": "colander",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥦🕳️"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    }
   ]
 }
