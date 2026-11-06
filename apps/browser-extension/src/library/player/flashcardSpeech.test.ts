@@ -15,6 +15,15 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it.each([
+    ["animals", "elephant", "elephant, elephant, elephant. This is an elephant."],
+    ["animals", "owl", "owl, owl, owl. This is an owl."],
+    ["animals", "octopus", "octopus, octopus, octopus. This is an octopus."],
+    ["shapes", "oval", "oval, oval, oval. This is an oval."],
+  ] as const)("元音开头单词使用 an：%s", (category, word, expected) => {
+    expect(buildFlashcardSpeechText(category, word)).toBe(expected);
+  });
+
   it("颜色使用不带冠词的例句", () => {
     expect(buildFlashcardSpeechText("colors", "red")).toBe(
       "red, red, red. This is red."

@@ -10,10 +10,11 @@ export function buildFlashcardSpeechText(
   word: string
 ): string {
   const repeated = `${word}, ${word}, ${word}.`;
+  const article = /^[aeiou]/i.test(word) ? "an" : "a";
   switch (category) {
     case "animals":
     case "shapes":
-      return `${repeated} This is a ${word}.`;
+      return `${repeated} This is ${article} ${word}.`;
     case "colors":
       return `${repeated} This is ${word}.`;
     case "actions":
