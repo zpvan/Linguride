@@ -40,6 +40,39 @@ describe("isFlashcardDeck", () => {
     expect(isFlashcardDeck(deck)).toBe(true);
   });
 
+  it.each([
+    ["transport", "fire truck", "transport-fire-truck"],
+    ["clothing", "t-shirt", "clothing-t-shirt"],
+    ["toys", "yo-yo", "toys-yo-yo"],
+    ["actions", "wake up", "actions-wake-up"],
+  ] as const)("接受短语并归一化 ID：%s", (category, word, id) => {
+    const deck = makeDeck();
+    deck.id = category;
+    deck.cards[0] = { ...deck.cards[0], id, word };
+    expect(isFlashcardDeck(deck)).toBe(true);
+  });
+
+  it.each([
+    ["fire  truck", "animals-fire--truck"],
+    [" fire truck", "animals--fire-truck"],
+    ["fire truck ", "animals-fire-truck-"],
+    ["fire_truck", "animals-fire_truck"],
+  ] as const)("拒绝非法分隔符：%s", (word, id) => {
+    const deck = makeDeck();
+    deck.cards[0] = { ...deck.cards[0], id, word };
+    expect(isFlashcardDeck(deck)).toBe(false);
+  });
+
+  it("拒绝空格与连字符归一化后的重复 ID", () => {
+    const deck = makeDeck();
+    deck.id = "clothing";
+    deck.cards = [
+      { ...deck.cards[0], id: "clothing-t-shirt", word: "t-shirt" },
+      { ...deck.cards[0], id: "clothing-t-shirt", word: "t shirt" },
+    ];
+    expect(isFlashcardDeck(deck)).toBe(false);
+  });
+
   const invalidCases: Array<[string, (deck: FlashcardDeck) => void]> = [
     ["未知分类", (deck) => { (deck as { id: unknown }).id = "places"; }],
     ["schemaVersion 错误", (deck) => { (deck as { schemaVersion: number }).schemaVersion = 2; }],

@@ -39,15 +39,16 @@ const expectedNewAnimals = [
 ];
 
 describe("正式认图卡片数据", () => {
-  it("四分类、数量和词条均符合设计", () => {
+  it("四分类现有 64 张的词条保持不变", () => {
     let total = 0;
     for (const id of Object.keys(decks) as Array<keyof typeof decks>) {
       const deck = decks[id];
       expect(isFlashcardDeck(deck), `${id} 数据应通过守卫`).toBe(true);
       if (!isFlashcardDeck(deck)) continue;
       expect(deck.id).toBe(id);
-      expect(deck.cards.map((card) => card.word)).toEqual(expectedWords[id]);
-      total += deck.cards.length;
+      const existingCards = deck.cards.slice(0, expectedWords[id].length);
+      expect(existingCards.map((card) => card.word)).toEqual(expectedWords[id]);
+      total += existingCards.length;
     }
     expect(total).toBe(64);
   });

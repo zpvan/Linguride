@@ -80,29 +80,30 @@ const expectedBackgroundOverrides: Record<string, [string, string]> = {
 };
 
 describe("常见物品分类正式数据", () => {
-  it("12 个分类共 72 张，词条、Emoji、ID 和背景精确符合设计", () => {
+  it("12 个分类现有 72 张保持不变", () => {
     let total = 0;
     for (const [key, deck] of Object.entries(decks)) {
       const id = key as FlashcardCategoryId;
       expect(isFlashcardDeck(deck), `${id} 应通过守卫`).toBe(true);
       if (!isFlashcardDeck(deck)) continue;
       expect(deck.id).toBe(id);
-      expect(deck.cards.map((card) => card.word)).toEqual(expectedWords[id]);
-      expect(deck.cards.map((card) => card.id)).toEqual(
+      const existingCards = deck.cards.slice(0, expectedWords[id].length);
+      expect(existingCards.map((card) => card.word)).toEqual(expectedWords[id]);
+      expect(existingCards.map((card) => card.id)).toEqual(
         expectedWords[id].map((word) => `${id}-${word}`)
       );
-      expect(deck.cards.map((card) => card.art.kind)).toEqual(
+      expect(existingCards.map((card) => card.art.kind)).toEqual(
         expectedWords[id].map(() => "emoji")
       );
-      expect(deck.cards.map((card) => card.art.kind === "emoji" ? card.art.emoji : "")).toEqual(
+      expect(existingCards.map((card) => card.art.kind === "emoji" ? card.art.emoji : "")).toEqual(
         expectedEmoji[id]
       );
-      expect(deck.cards.map((card) => card.background)).toEqual(
+      expect(existingCards.map((card) => card.background)).toEqual(
         expectedWords[id].map(
           (word) => expectedBackgroundOverrides[`${id}-${word}`] ?? expectedBackgrounds[id]
         )
       );
-      total += deck.cards.length;
+      total += existingCards.length;
     }
     expect(total).toBe(72);
     expect(64 + total).toBe(136);

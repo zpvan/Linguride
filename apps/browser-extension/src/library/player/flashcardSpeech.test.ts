@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { FlashcardCategoryId } from "../model/flashcard";
 import { buildFlashcardSpeechText } from "./flashcardSpeech";
 
 describe("buildFlashcardSpeechText", () => {
@@ -69,6 +70,49 @@ describe("buildFlashcardSpeechText", () => {
     ["drinks", "soda"],
   ] as const)("不可数名词不使用冠词：%s", (category, word) => {
     expect(buildFlashcardSpeechText(category, word)).toBe(
+      `${word}, ${word}, ${word}. This is ${word}.`
+    );
+  });
+
+  it.each([
+    ["transport", "fire truck", "fire truck, fire truck, fire truck. This is a fire truck."],
+    ["appliances", "washing machine", "washing machine, washing machine, washing machine. This is a washing machine."],
+    ["actions", "wake up", "wake up, wake up, wake up. I can wake up."],
+    ["colors", "sky blue", "sky blue, sky blue, sky blue. This is sky blue."],
+    ["clothing", "uniform", "uniform, uniform, uniform. This is a uniform."],
+    ["animals", "chicken", "chicken, chicken, chicken. This is a chicken."],
+    ["animals", "fish", "fish, fish, fish. This is a fish."],
+    ["bathroom", "tissue", "tissue, tissue, tissue. This is a tissue."],
+  ] as const)("短语和分类特例：%s %s", (category, word, expected) => {
+    expect(buildFlashcardSpeechText(category, word)).toBe(expected);
+  });
+
+  it.each([
+    ["clothing", "jeans", "a pair of jeans"],
+    ["clothing", "gloves", "a pair of gloves"],
+    ["school", "scissors", "a pair of scissors"],
+    ["kitchen", "chopsticks", "a pair of chopsticks"],
+    ["kitchen", "tongs", "a pair of tongs"],
+  ] as const)("成对物品使用固定短语：%s", (category, word, phrase) => {
+    expect(buildFlashcardSpeechText(category, word)).toBe(
+      `${word}, ${word}, ${word}. This is ${phrase}.`
+    );
+  });
+
+  const uncountableCases = {
+    food: ["bread", "rice", "cheese", "butter", "yogurt", "honey", "jam", "peanut butter", "cereal", "oatmeal", "toast", "bacon", "ham", "chicken", "beef", "pork", "lamb", "fish", "shrimp", "crab", "lobster", "soup"],
+    drinks: ["water", "milk", "juice", "tea", "coffee", "lemonade", "soda", "mineral water", "sparkling water", "soda water", "tonic water", "coconut water", "orange juice", "apple juice", "grape juice", "iced tea", "iced coffee", "green tea", "black tea", "herbal tea", "hot chocolate", "espresso", "hot water", "cold water", "warm water"],
+    vegetables: ["broccoli", "cauliflower", "lettuce", "spinach", "kale", "celery", "asparagus", "corn", "garlic", "ginger", "bok choy"],
+    school: ["chalk", "paper", "glue", "tape"],
+    bathroom: ["toilet paper", "toothpaste", "mouthwash", "shampoo", "conditioner", "body wash", "hand soap", "sanitizer", "lotion", "cream", "shaving cream"],
+  } as const;
+
+  it.each(
+    Object.entries(uncountableCases).flatMap(([category, words]) =>
+      words.map((word) => [category, word] as const)
+    )
+  )("不可数名词按分类处理：%s %s", (category, word) => {
+    expect(buildFlashcardSpeechText(category as FlashcardCategoryId, word)).toBe(
       `${word}, ${word}, ${word}. This is ${word}.`
     );
   });

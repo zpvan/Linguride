@@ -120,8 +120,8 @@ export function isFlashcardDeck(value: unknown): value is FlashcardDeck {
       !isRecord(card) ||
       typeof card.id !== "string" ||
       typeof card.word !== "string" ||
-      !/^[a-z]+$/.test(card.word) ||
-      card.id !== `${value.id}-${card.word}` ||
+      !/^[a-z]+(?:[ -][a-z]+)*$/.test(card.word) ||
+      card.id !== `${value.id}-${card.word.replace(/ /g, "-")}` ||
       !isFlashcardArt(card.art) ||
       !Array.isArray(card.background) ||
       card.background.length !== 2 ||
