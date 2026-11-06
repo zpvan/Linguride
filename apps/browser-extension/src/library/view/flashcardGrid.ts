@@ -62,6 +62,9 @@ export function renderFlashcardGrid(
         onEnd: () => {
           if (token === playbackToken) resetPlaybackButton();
         },
+        onPlaybackError: () => {
+          if (token === playbackToken) subtitle.textContent = "播放失败，请重试";
+        },
       })
       .catch(() => {
         if (token === playbackToken) subtitle.textContent = "播放失败，请重试";

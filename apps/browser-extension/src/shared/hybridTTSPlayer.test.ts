@@ -439,6 +439,49 @@ describe("createHybridTTSPlayer AI 播放所有权与回退策略", () => {
     expect(speakCalls).toEqual([]);
   });
 
+  it("offscreen 播放失败通过 onPlaybackError 上报且不回退浏览器朗读", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+    const onPlaybackError = vi.fn();
+
+    const run = player.playText({
+      text: "alpha",
+      rate: 1,
+      onPlaybackError,
+    });
+    deferreds[0].resolve({
+      success: false,
+      errorCode: "TTS_PLAYBACK_ERROR",
+      error: "音频播放失败",
+      audioPlayed: true,
+    });
+    await run;
+
+    expect(onPlaybackError).toHaveBeenCalledTimes(1);
+    expect(onPlaybackError).toHaveBeenCalledWith("音频播放失败");
+    expect(speakCalls).toEqual([]);
+  });
+
+  it("取消播放即使标记 audioPlayed 也不触发 onPlaybackError", async () => {
+    const player = createHybridTTSPlayer({ isAIEnabled: () => true });
+    const onPlaybackError = vi.fn();
+
+    const run = player.playText({
+      text: "alpha",
+      rate: 1,
+      onPlaybackError,
+    });
+    deferreds[0].resolve({
+      success: false,
+      errorCode: "TTS_CANCELLED",
+      error: "朗读已取消",
+      audioPlayed: true,
+    });
+    await run;
+
+    expect(onPlaybackError).not.toHaveBeenCalled();
+    expect(speakCalls).toEqual([]);
+  });
+
   it("合成失败（未播放）仍回退浏览器朗读一次", async () => {
     const player = createHybridTTSPlayer({ isAIEnabled: () => true });
 

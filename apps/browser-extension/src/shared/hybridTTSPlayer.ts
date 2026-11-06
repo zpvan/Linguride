@@ -39,6 +39,8 @@ export interface PlayTextOptions {
   onProgress?: (progress: TTSSynthesisProgress) => void;
   /** AI 合成失败回调，携带具体失败原因 */
   onAIError?: (message: string) => void;
+  /** AI 已接管音频后的终止性播放失败；不回退浏览器，避免重复出声 */
+  onPlaybackError?: (message: string) => void;
 }
 
 export interface HybridTTSPlayer {
@@ -399,6 +401,7 @@ export function createHybridTTSPlayer(
       onEnd,
       onProgress,
       onAIError,
+      onPlaybackError,
       onFallbackWarning,
       fallbackWarningMessage = DEFAULT_FALLBACK_WARNING,
     } = playOptions;
@@ -424,8 +427,11 @@ export function createHybridTTSPlayer(
         }
 
         // 音频已（部分）播放或请求被取消：不再出声，直接结束，
-        // 绝不能回退浏览器朗读造成同一文本读两遍
+        // 绝不能回退浏览器朗读造成同一文本读两遍。取消静默；实际播放失败单独上报。
         if (response.audioPlayed || response.errorCode === "TTS_CANCELLED") {
+          if (response.errorCode === "TTS_PLAYBACK_ERROR") {
+            onPlaybackError?.(response.error ?? "语音播放失败");
+          }
           return;
         }
 
