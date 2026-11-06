@@ -3,7 +3,7 @@
   "id": "bathroom",
   "cards": [
     { "id": "bathroom-soap", "word": "soap", "art": { "kind": "emoji", "emoji": "🧼" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "bathroom-towel", "word": "towel", "art": { "kind": "emoji", "emoji": "🧻" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "bathroom-towel", "word": "towel", "art": { "kind": "emoji", "emoji": "🛁🧺" }, "background": ["#e2f4ff", "#b9dcf5"] },
     { "id": "bathroom-toothbrush", "word": "toothbrush", "art": { "kind": "emoji", "emoji": "🪥" }, "background": ["#e2f4ff", "#b9dcf5"] },
     { "id": "bathroom-shower", "word": "shower", "art": { "kind": "emoji", "emoji": "🚿" }, "background": ["#e2f4ff", "#b9dcf5"] }
   ]

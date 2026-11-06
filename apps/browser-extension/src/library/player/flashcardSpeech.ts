@@ -14,7 +14,6 @@ const UNCOUNTABLE_WORDS = new Set([
   "tea",
   "coffee",
   "lemonade",
-  "smoothie",
   "soda",
 ]);
 

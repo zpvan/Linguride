@@ -51,6 +51,12 @@ describe("buildFlashcardSpeechText", () => {
     expect(buildFlashcardSpeechText(category, word)).toBe(expected);
   });
 
+  it("smoothie 使用冠词 a", () => {
+    expect(buildFlashcardSpeechText("drinks", "smoothie")).toBe(
+      "smoothie, smoothie, smoothie. This is a smoothie."
+    );
+  });
+
   it.each([
     ["food", "bread"],
     ["food", "rice"],
@@ -60,7 +66,6 @@ describe("buildFlashcardSpeechText", () => {
     ["drinks", "tea"],
     ["drinks", "coffee"],
     ["drinks", "lemonade"],
-    ["drinks", "smoothie"],
     ["drinks", "soda"],
   ] as const)("不可数名词不使用冠词：%s", (category, word) => {
     expect(buildFlashcardSpeechText(category, word)).toBe(

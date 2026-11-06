@@ -56,7 +56,7 @@ const expectedEmoji: Record<string, string[]> = {
   furniture: ["🪑", "🪑🍽️", "🛏️", "🛋️", "💡", "🚪", "🪟", "🪞"],
   appliances: ["📺", "💻", "📱", "📷"],
   kitchen: ["☕", "🍽️", "🥣", "🥄"],
-  bathroom: ["🧼", "🧻", "🪥", "🚿"],
+  bathroom: ["🧼", "🛁🧺", "🪥", "🚿"],
 };
 
 const expectedBackgrounds: Record<string, [string, string]> = {
