@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isLibraryIndex,
+  getLibraryCategoryTitle,
   isSpeaker,
   isStory,
   SPEAKERS,
@@ -106,5 +107,11 @@ describe("isLibraryIndex", () => {
   });
   it("拒绝 version 错误", () => {
     expect(isLibraryIndex({ version: 2, categories: [] })).toBe(false);
+  });
+});
+
+describe("getLibraryCategoryTitle", () => {
+  it("空故事分类返回空标题", () => {
+    expect(getLibraryCategoryTitle({ version: 1, categories: [] })).toBe("");
   });
 });

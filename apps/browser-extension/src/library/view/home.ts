@@ -3,7 +3,7 @@
  * @description 文库左侧顶层导航与故事首页渲染；认图卡片首页由独立组件负责
  */
 
-import type { LibraryIndex } from "../model/types";
+import { getLibraryCategoryTitle, type LibraryIndex } from "../model/types";
 
 export type LibraryHomeTab = "story" | "cards";
 
@@ -49,9 +49,9 @@ export function renderStoryHome(
   grid.className = "story-grid";
   subtitle.hidden = true;
   subtitle.textContent = "";
+  title.textContent = getLibraryCategoryTitle(index);
 
   for (const category of index.categories) {
-    title.textContent = category.name;
     for (const meta of category.items) {
       const card = document.createElement("button");
       card.type = "button";

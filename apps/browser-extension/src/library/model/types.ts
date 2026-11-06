@@ -104,6 +104,11 @@ export interface LibraryIndex {
   categories: LibraryCategory[];
 }
 
+/** 故事首页标题；空分类必须清空上一视图残留的标题 */
+export function getLibraryCategoryTitle(index: LibraryIndex): string {
+  return index.categories[0]?.name ?? "";
+}
+
 // ====== 运行时守卫 ======
 
 function isRecord(value: unknown): value is Record<string, unknown> {
