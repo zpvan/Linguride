@@ -211,7 +211,7 @@
       "word": "spinning top",
       "art": {
         "kind": "emoji",
-        "emoji": "🌀🪀"
+        "emoji": "🌀🧸"
       },
       "background": [
         "#e0f7fa",
@@ -331,11 +331,11 @@
       "word": "wagon",
       "art": {
         "kind": "emoji",
-        "emoji": "🛒🧸"
+        "emoji": "🧸🛞"
       },
       "background": [
-        "#fff0e1",
-        "#ffcfbf"
+        "#f3eadf",
+        "#dfc3a5"
       ]
     },
     {

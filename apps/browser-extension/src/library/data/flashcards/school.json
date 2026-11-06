@@ -91,7 +91,7 @@
       "word": "chalk",
       "art": {
         "kind": "emoji",
-        "emoji": "🧑‍🏫"
+        "emoji": "⬛✍️"
       },
       "background": [
         "#e5f8ed",
@@ -166,8 +166,8 @@
         "emoji": "📚"
       },
       "background": [
-        "#fff8d9",
-        "#f3e2a4"
+        "#e5f8ed",
+        "#bce6cc"
       ]
     },
     {
@@ -190,8 +190,8 @@
         "emoji": "📖🔤"
       },
       "background": [
-        "#e2f4ff",
-        "#b9dcf5"
+        "#e0f7fa",
+        "#b2ebf2"
       ]
     },
     {
@@ -259,7 +259,7 @@
       "word": "water bottle",
       "art": {
         "kind": "emoji",
-        "emoji": "🚰"
+        "emoji": "🎒💧"
       },
       "background": [
         "#e0f7fa",
@@ -295,7 +295,7 @@
       "word": "tape",
       "art": {
         "kind": "emoji",
-        "emoji": "🩹"
+        "emoji": "📦➰"
       },
       "background": [
         "#fff0f5",
@@ -343,7 +343,7 @@
       "word": "calculator",
       "art": {
         "kind": "emoji",
-        "emoji": "🧮"
+        "emoji": "🔢➕"
       },
       "background": [
         "#f0f0f5",
