@@ -142,11 +142,11 @@ function route(): void {
   if (!library) return;
   const next = parseLibraryRoute(location.hash);
   if (next.kind === "cardsHome" && location.hash !== "#/cards") {
-    location.hash = "#/cards";
+    location.replace("#/cards");
     return;
   }
   if (next.kind === "storyHome" && location.hash !== "" && location.hash !== "#/") {
-    location.hash = "#/";
+    location.replace("#/");
     return;
   }
 
@@ -157,7 +157,7 @@ function route(): void {
   if (next.kind === "storyPlayer") {
     const story = library.stories.get(next.storyId);
     if (!story) {
-      location.hash = "#/";
+      location.replace("#/");
       return;
     }
     homeView.hidden = true;
@@ -195,7 +195,7 @@ function route(): void {
 
   const deck = library.flashcards.get(next.category);
   if (!deck) {
-    location.hash = "#/cards";
+    location.replace("#/cards");
     return;
   }
   homeBackBtn.hidden = false;
