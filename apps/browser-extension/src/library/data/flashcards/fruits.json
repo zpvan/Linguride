@@ -2,13 +2,389 @@
   "schemaVersion": 1,
   "id": "fruits",
   "cards": [
-    { "id": "fruits-apple", "word": "apple", "art": { "kind": "emoji", "emoji": "🍎" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-banana", "word": "banana", "art": { "kind": "emoji", "emoji": "🍌" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-orange", "word": "orange", "art": { "kind": "emoji", "emoji": "🍊" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-pear", "word": "pear", "art": { "kind": "emoji", "emoji": "🍐" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-peach", "word": "peach", "art": { "kind": "emoji", "emoji": "🍑" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-grape", "word": "grape", "art": { "kind": "emoji", "emoji": "🍇" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-watermelon", "word": "watermelon", "art": { "kind": "emoji", "emoji": "🍉" }, "background": ["#fff0f5", "#f6c9da"] },
-    { "id": "fruits-strawberry", "word": "strawberry", "art": { "kind": "emoji", "emoji": "🍓" }, "background": ["#fff0f5", "#f6c9da"] }
+    {
+      "id": "fruits-apple",
+      "word": "apple",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍎"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-banana",
+      "word": "banana",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍌"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-orange",
+      "word": "orange",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍊"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-pear",
+      "word": "pear",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍐"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-peach",
+      "word": "peach",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍑"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-grape",
+      "word": "grape",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍇"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-watermelon",
+      "word": "watermelon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍉"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-strawberry",
+      "word": "strawberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍓"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-lemon",
+      "word": "lemon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍋"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "fruits-lime",
+      "word": "lime",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍋🟢"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "fruits-coconut",
+      "word": "coconut",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥥"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "fruits-pineapple",
+      "word": "pineapple",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍍"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "fruits-mango",
+      "word": "mango",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥭"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "fruits-papaya",
+      "word": "papaya",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥭🟠"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-melon",
+      "word": "melon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍈"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "fruits-cantaloupe",
+      "word": "cantaloupe",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍈🟠"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "fruits-cherry",
+      "word": "cherry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍒"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "fruits-plum",
+      "word": "plum",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟣🍑"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "fruits-apricot",
+      "word": "apricot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟠🍑"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "fruits-kiwi",
+      "word": "kiwi",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥝"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "fruits-fig",
+      "word": "fig",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟤🍐"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "fruits-date",
+      "word": "date",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌴🟤"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "fruits-pomegranate",
+      "word": "pomegranate",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔴🍎"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "fruits-raspberry",
+      "word": "raspberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍓🔴"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "fruits-blackberry",
+      "word": "blackberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫐⚫"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "fruits-blueberry",
+      "word": "blueberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫐"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "fruits-cranberry",
+      "word": "cranberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫐🔴"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "fruits-gooseberry",
+      "word": "gooseberry",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫐🟢"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "fruits-passion-fruit",
+      "word": "passion fruit",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥝🟣"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "fruits-dragon-fruit",
+      "word": "dragon fruit",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🐉🍓"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "fruits-guava",
+      "word": "guava",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍐🟢"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "fruits-lychee",
+      "word": "lychee",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍒⚪"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    }
   ]
 }

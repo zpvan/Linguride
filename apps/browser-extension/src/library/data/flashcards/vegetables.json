@@ -2,13 +2,389 @@
   "schemaVersion": 1,
   "id": "vegetables",
   "cards": [
-    { "id": "vegetables-carrot", "word": "carrot", "art": { "kind": "emoji", "emoji": "🥕" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-tomato", "word": "tomato", "art": { "kind": "emoji", "emoji": "🍅" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-potato", "word": "potato", "art": { "kind": "emoji", "emoji": "🥔" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-cucumber", "word": "cucumber", "art": { "kind": "emoji", "emoji": "🥒" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-onion", "word": "onion", "art": { "kind": "emoji", "emoji": "🧅" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-pepper", "word": "pepper", "art": { "kind": "emoji", "emoji": "🫑" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-pumpkin", "word": "pumpkin", "art": { "kind": "emoji", "emoji": "🎃" }, "background": ["#e5f8ed", "#bce6cc"] },
-    { "id": "vegetables-mushroom", "word": "mushroom", "art": { "kind": "emoji", "emoji": "🍄" }, "background": ["#e5f8ed", "#bce6cc"] }
+    {
+      "id": "vegetables-carrot",
+      "word": "carrot",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥕"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-tomato",
+      "word": "tomato",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍅"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-potato",
+      "word": "potato",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥔"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-cucumber",
+      "word": "cucumber",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥒"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-onion",
+      "word": "onion",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧅"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-pepper",
+      "word": "pepper",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫑"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-pumpkin",
+      "word": "pumpkin",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🎃"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-mushroom",
+      "word": "mushroom",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍄"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-broccoli",
+      "word": "broccoli",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥦"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-cauliflower",
+      "word": "cauliflower",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥦⚪"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "vegetables-cabbage",
+      "word": "cabbage",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥬"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-lettuce",
+      "word": "lettuce",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥬🥗"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "vegetables-spinach",
+      "word": "spinach",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍃🥗"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-kale",
+      "word": "kale",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍃🟢"
+      },
+      "background": [
+        "#f7fee7",
+        "#d9f99d"
+      ]
+    },
+    {
+      "id": "vegetables-celery",
+      "word": "celery",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌿🟢"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-asparagus",
+      "word": "asparagus",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌱🟢"
+      },
+      "background": [
+        "#f0fdf4",
+        "#bbf7d0"
+      ]
+    },
+    {
+      "id": "vegetables-zucchini",
+      "word": "zucchini",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥒🟢"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-eggplant",
+      "word": "eggplant",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍆"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "vegetables-radish",
+      "word": "radish",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🔴🌱"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "vegetables-turnip",
+      "word": "turnip",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟣🌱"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "vegetables-beet",
+      "word": "beet",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🟣🥔"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "vegetables-pea",
+      "word": "pea",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫛"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "vegetables-bean",
+      "word": "bean",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫘"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "vegetables-chickpea",
+      "word": "chickpea",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫘🟡"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "vegetables-lentil",
+      "word": "lentil",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫘🟤"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "vegetables-corn",
+      "word": "corn",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌽"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "vegetables-garlic",
+      "word": "garlic",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧄"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "vegetables-ginger",
+      "word": "ginger",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫚"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "vegetables-chili",
+      "word": "chili",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌶️"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "vegetables-bell-pepper",
+      "word": "bell pepper",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🫑🟢"
+      },
+      "background": [
+        "#f7fee7",
+        "#d9f99d"
+      ]
+    },
+    {
+      "id": "vegetables-artichoke",
+      "word": "artichoke",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌿🟣"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "vegetables-bok-choy",
+      "word": "bok choy",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥬🤍"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    }
   ]
 }

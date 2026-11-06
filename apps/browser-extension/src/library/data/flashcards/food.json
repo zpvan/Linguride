@@ -2,13 +2,389 @@
   "schemaVersion": 1,
   "id": "food",
   "cards": [
-    { "id": "food-egg", "word": "egg", "art": { "kind": "emoji", "emoji": "🥚" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-bread", "word": "bread", "art": { "kind": "emoji", "emoji": "🍞" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-rice", "word": "rice", "art": { "kind": "emoji", "emoji": "🍚" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-noodle", "word": "noodle", "art": { "kind": "emoji", "emoji": "🍜" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-sandwich", "word": "sandwich", "art": { "kind": "emoji", "emoji": "🥪" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-burger", "word": "burger", "art": { "kind": "emoji", "emoji": "🍔" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-pizza", "word": "pizza", "art": { "kind": "emoji", "emoji": "🍕" }, "background": ["#fff4d6", "#ffd7a8"] },
-    { "id": "food-salad", "word": "salad", "art": { "kind": "emoji", "emoji": "🥗" }, "background": ["#fff4d6", "#ffd7a8"] }
+    {
+      "id": "food-egg",
+      "word": "egg",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥚"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-bread",
+      "word": "bread",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍞"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-rice",
+      "word": "rice",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍚"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-noodle",
+      "word": "noodle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍜"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-sandwich",
+      "word": "sandwich",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥪"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-burger",
+      "word": "burger",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍔"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-pizza",
+      "word": "pizza",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍕"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-salad",
+      "word": "salad",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥗"
+      },
+      "background": [
+        "#fff4d6",
+        "#ffd7a8"
+      ]
+    },
+    {
+      "id": "food-cheese",
+      "word": "cheese",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧀"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "food-butter",
+      "word": "butter",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧈"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "food-yogurt",
+      "word": "yogurt",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣🥛"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    },
+    {
+      "id": "food-honey",
+      "word": "honey",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍯"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "food-jam",
+      "word": "jam",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍓🫙"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "food-peanut-butter",
+      "word": "peanut butter",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥜🧈"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "food-cereal",
+      "word": "cereal",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣🌽"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "food-oatmeal",
+      "word": "oatmeal",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥣🌾"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "food-pancake",
+      "word": "pancake",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥞"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "food-waffle",
+      "word": "waffle",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🧇"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "food-toast",
+      "word": "toast",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍞🔥"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "food-bacon",
+      "word": "bacon",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥓"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "food-sausage",
+      "word": "sausage",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🌭"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "food-ham",
+      "word": "ham",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍖"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "food-chicken",
+      "word": "chicken",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍗"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "food-beef",
+      "word": "beef",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥩"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "food-pork",
+      "word": "pork",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥩🐷"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "food-lamb",
+      "word": "lamb",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥩🐑"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "food-fish",
+      "word": "fish",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🐟🍽️"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "food-shrimp",
+      "word": "shrimp",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🦐"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "food-crab",
+      "word": "crab",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🦀"
+      },
+      "background": [
+        "#fff1f2",
+        "#fecdd3"
+      ]
+    },
+    {
+      "id": "food-lobster",
+      "word": "lobster",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🦞"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "food-soup",
+      "word": "soup",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🍲"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "food-dumpling",
+      "word": "dumpling",
+      "art": {
+        "kind": "emoji",
+        "emoji": "🥟"
+      },
+      "background": [
+        "#f8fafc",
+        "#e2e8f0"
+      ]
+    }
   ]
 }

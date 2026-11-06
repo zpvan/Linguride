@@ -7,9 +7,14 @@ import { describe, expect, it } from "vitest";
 
 import actions from "../data/flashcards/actions.json";
 import colors from "../data/flashcards/colors.json";
+import drinks from "../data/flashcards/drinks.json";
+import food from "../data/flashcards/food.json";
+import fruits from "../data/flashcards/fruits.json";
 import shapes from "../data/flashcards/shapes.json";
+import vegetables from "../data/flashcards/vegetables.json";
 import { basicExpansion } from "./__fixtures__/flashcardBasicExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
+import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -37,5 +42,14 @@ describe("第一批基础认图卡片", () => {
     expectExpansion(shapes, "shapes", basicExpansion.shapes);
     expectExpansion(colors, "colors", basicExpansion.colors);
     expectExpansion(actions, "actions", basicExpansion.actions);
+  });
+});
+
+describe("第二批饮食认图卡片", () => {
+  it("水果、蔬菜、食物、饮品各补足 32 张", () => {
+    expectExpansion(fruits, "fruits", foodExpansion.fruits);
+    expectExpansion(vegetables, "vegetables", foodExpansion.vegetables);
+    expectExpansion(food, "food", foodExpansion.food);
+    expectExpansion(drinks, "drinks", foodExpansion.drinks);
   });
 });
