@@ -1,6 +1,6 @@
 /**
  * @file library.ts
- * @description 资料库全屏页入口：数据加载、hash 路由（首页 ↔ 播放器）、TTS 配置
+ * @description 文库入口：故事/认图卡片数据加载、hash 路由、视图清理与 TTS 配置
  */
 
 import { initSelectionToolbar } from "../content/selectionToolbar";
@@ -14,8 +14,17 @@ import {
   type TTSSpeed,
   type TTSSelectionMode,
 } from "../types";
+import {
+  FLASHCARD_CATEGORY_IDS,
+  isFlashcardDeck,
+  type FlashcardCategoryId,
+  type FlashcardDeck,
+} from "./model/flashcard";
+import { parseLibraryRoute } from "./model/route";
 import { isLibraryIndex, isStory, type LibraryIndex, type Story } from "./model/types";
-import { renderHome } from "./view/home";
+import { renderFlashcardGrid } from "./view/flashcardGrid";
+import { renderFlashcardHome } from "./view/flashcardHome";
+import { renderLibraryNav, renderStoryHome, type LibraryHomeTab } from "./view/home";
 import {
   handlePlayerKeyboard,
   pausePlayerForExternalSpeech,
@@ -25,55 +34,63 @@ import {
 
 import rawIndex from "./data/index.json";
 
-// ====== 数据加载（构建期内联，import.meta.glob 打包 stories/*.json） ======
-
 interface LibraryData {
   index: LibraryIndex;
   stories: Map<string, Story>;
+  flashcards: Map<FlashcardCategoryId, FlashcardDeck>;
+  invalidFlashcards: Set<FlashcardCategoryId>;
 }
 
 function loadLibrary(): LibraryData {
   if (!isLibraryIndex(rawIndex)) {
     throw new Error("文库 index.json 结构非法（跑 doctor 检查）");
   }
+
   const stories = new Map<string, Story>();
-  const modules = import.meta.glob("./data/stories/*.json", { eager: true });
-  for (const [path, mod] of Object.entries(modules)) {
+  const storyModules = import.meta.glob("./data/stories/*.json", { eager: true });
+  for (const [path, mod] of Object.entries(storyModules)) {
     const data = (mod as { default: unknown }).default;
-    if (isStory(data)) {
-      stories.set(data.id, data);
+    if (isStory(data)) stories.set(data.id, data);
+    else console.warn("[Library] 跳过非法 story 数据:", path);
+  }
+
+  const flashcards = new Map<FlashcardCategoryId, FlashcardDeck>();
+  const invalidFlashcards = new Set<FlashcardCategoryId>(FLASHCARD_CATEGORY_IDS);
+  const cardModules = import.meta.glob("./data/flashcards/*.json", { eager: true });
+  for (const category of FLASHCARD_CATEGORY_IDS) {
+    const path = `./data/flashcards/${category}.json`;
+    const mod = cardModules[path] as { default: unknown } | undefined;
+    const data = mod?.default;
+    if (isFlashcardDeck(data) && data.id === category) {
+      flashcards.set(category, data);
+      invalidFlashcards.delete(category);
     } else {
-      console.warn("[Library] 跳过非法 story 数据:", path);
+      console.warn("[Library] 认图卡片数据缺失或非法:", path);
     }
   }
-  return { index: rawIndex, stories };
+  return { index: rawIndex, stories, flashcards, invalidFlashcards };
 }
-
-// ====== DOM ======
 
 const homeView = document.getElementById("homeView") as HTMLElement;
 const playerView = document.getElementById("playerView") as HTMLElement;
 const categoryNav = document.getElementById("categoryNav") as HTMLElement;
 const categoryTitle = document.getElementById("categoryTitle") as HTMLElement;
+const homeSubtitle = document.getElementById("homeSubtitle") as HTMLElement;
 const storyGrid = document.getElementById("storyGrid") as HTMLElement;
 const homeError = document.getElementById("homeError") as HTMLElement;
 const homeRetryBtn = document.getElementById("homeRetryBtn") as HTMLButtonElement;
+const homeBackBtn = document.getElementById("homeBackBtn") as HTMLButtonElement;
 const playerBackBtn = document.getElementById("playerBackBtn") as HTMLButtonElement;
-
-// ====== TTS 配置（与 corpus 同款模式） ======
 
 let aiTTSEnabled = false;
 let ttsSpeed: TTSSpeed = DEFAULT_TTS_SPEED;
-
 const ttsPlayer = createHybridTTSPlayer({ isAIEnabled: () => aiTTSEnabled });
 
 function applyAITTSConfig(config: Partial<LingridConfig>): void {
   const selection = config.tts_selection as TTSSelectionMode | undefined;
-  if (selection === "browser") {
-    aiTTSEnabled = false;
-  } else if (selection === "minimax" || selection === "xiaomi" || selection === "doubao") {
-    aiTTSEnabled = true;
-  } else {
+  if (selection === "browser") aiTTSEnabled = false;
+  else if (selection === "minimax" || selection === "xiaomi" || selection === "doubao") aiTTSEnabled = true;
+  else {
     aiTTSEnabled = Boolean(
       config.minimax_tts?.api_key?.trim() ||
         config.xiaomi_tts?.api_key?.trim() ||
@@ -83,20 +100,13 @@ function applyAITTSConfig(config: Partial<LingridConfig>): void {
 }
 
 function resolveTTSSpeed(value: unknown): TTSSpeed {
-  const parsed =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? parseFloat(value)
-        : Number.NaN;
+  const parsed = typeof value === "number" ? value : typeof value === "string" ? parseFloat(value) : Number.NaN;
   return TTS_SPEED_OPTIONS.includes(parsed as TTSSpeed) ? (parsed as TTSSpeed) : DEFAULT_TTS_SPEED;
 }
 
 async function loadConfig(): Promise<void> {
   try {
-    const response: GetConfigResponse = await chrome.runtime.sendMessage({
-      type: MessageType.GET_CONFIG,
-    });
+    const response: GetConfigResponse = await chrome.runtime.sendMessage({ type: MessageType.GET_CONFIG });
     if (response.success && response.data) {
       applyAITTSConfig(response.data);
       ttsSpeed = resolveTTSSpeed(response.data.tts_speed);
@@ -110,44 +120,96 @@ export function isTTSAvailable(): boolean {
   return aiTTSEnabled || "speechSynthesis" in window;
 }
 
-// ====== 路由 ======
-
 let library: LibraryData | null = null;
+let cleanupFlashcardGrid: (() => void) | null = null;
 
-function route(): void {
-  if (!library) return;
-  const match = /^#\/story\/(.+)$/.exec(location.hash);
-  if (match) {
-    const story = library.stories.get(decodeURIComponent(match[1]));
-    if (story) {
-      homeView.hidden = true;
-      playerView.hidden = false;
-      renderPlayerPage(story, {
-        player: ttsPlayer,
-        getRate: () => ttsSpeed,
-        ttsAvailable: isTTSAvailable,
-      });
-      return;
-    }
-    location.hash = "#/";
-    return;
-  }
-  stopPlayerPage();
-  playerView.hidden = true;
-  homeView.hidden = false;
-  renderHome(categoryNav, categoryTitle, storyGrid, library.index, {
-    onOpenStory: (id) => {
-      location.hash = `#/story/${encodeURIComponent(id)}`;
-    },
+function renderNav(active: LibraryHomeTab): void {
+  renderLibraryNav(categoryNav, active, {
+    onOpenStories: () => { location.hash = "#/"; },
+    onOpenCards: () => { location.hash = "#/cards"; },
   });
 }
 
-// ====== 启动 ======
+function leaveCurrentView(): void {
+  cleanupFlashcardGrid?.();
+  cleanupFlashcardGrid = null;
+  stopPlayerPage();
+  ttsPlayer.stop();
+  homeBackBtn.hidden = true;
+}
+
+function route(): void {
+  if (!library) return;
+  const next = parseLibraryRoute(location.hash);
+  if (next.kind === "cardsHome" && location.hash !== "#/cards") {
+    location.hash = "#/cards";
+    return;
+  }
+  if (next.kind === "storyHome" && location.hash !== "" && location.hash !== "#/") {
+    location.hash = "#/";
+    return;
+  }
+
+  leaveCurrentView();
+  homeError.hidden = true;
+  storyGrid.hidden = false;
+
+  if (next.kind === "storyPlayer") {
+    const story = library.stories.get(next.storyId);
+    if (!story) {
+      location.hash = "#/";
+      return;
+    }
+    homeView.hidden = true;
+    playerView.hidden = false;
+    renderPlayerPage(story, {
+      player: ttsPlayer,
+      getRate: () => ttsSpeed,
+      ttsAvailable: isTTSAvailable,
+    });
+    return;
+  }
+
+  playerView.hidden = true;
+  homeView.hidden = false;
+  if (next.kind === "storyHome") {
+    renderNav("story");
+    renderStoryHome(categoryTitle, homeSubtitle, storyGrid, library.index, (id) => {
+      location.hash = `#/story/${encodeURIComponent(id)}`;
+    });
+    return;
+  }
+
+  renderNav("cards");
+  if (next.kind === "cardsHome") {
+    renderFlashcardHome(
+      categoryTitle,
+      homeSubtitle,
+      storyGrid,
+      library.flashcards,
+      library.invalidFlashcards,
+      { onOpenCategory: (category) => { location.hash = `#/cards/${category}`; } }
+    );
+    return;
+  }
+
+  const deck = library.flashcards.get(next.category);
+  if (!deck) {
+    location.hash = "#/cards";
+    return;
+  }
+  homeBackBtn.hidden = false;
+  cleanupFlashcardGrid = renderFlashcardGrid(
+    categoryTitle,
+    homeSubtitle,
+    storyGrid,
+    deck,
+    { player: ttsPlayer, getRate: () => ttsSpeed }
+  );
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
-  initSelectionToolbar({
-    onSpeechStart: pausePlayerForExternalSpeech,
-  });
+  initSelectionToolbar({ onSpeechStart: pausePlayerForExternalSpeech });
   try {
     library = loadLibrary();
     homeError.hidden = true;
@@ -161,12 +223,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 homeRetryBtn.addEventListener("click", () => location.reload());
-playerBackBtn.addEventListener("click", () => {
-  location.hash = "#/";
-});
+homeBackBtn.addEventListener("click", () => { location.hash = "#/cards"; });
+playerBackBtn.addEventListener("click", () => { location.hash = "#/"; });
 window.addEventListener("hashchange", route);
 
-// 仅播放器视图响应空格与播完后的 Enter；交互元素过滤由 handlePlayerKeyboard 处理
 document.addEventListener("keydown", (event) => {
   if (playerView.hidden) return;
   handlePlayerKeyboard(event);
