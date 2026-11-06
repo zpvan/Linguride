@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "shapes",
+  "cards": [
+    { "id": "shapes-circle", "word": "circle", "art": { "kind": "vector", "shape": "circle", "color": "#3b82f6" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "shapes-square", "word": "square", "art": { "kind": "vector", "shape": "square", "color": "#f97316" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "shapes-triangle", "word": "triangle", "art": { "kind": "vector", "shape": "triangle", "color": "#22c55e" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "shapes-rectangle", "word": "rectangle", "art": { "kind": "vector", "shape": "rectangle", "color": "#8b5cf6" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "shapes-oval", "word": "oval", "art": { "kind": "vector", "shape": "oval", "color": "#ec4899" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "shapes-star", "word": "star", "art": { "kind": "vector", "shape": "star", "color": "#eab308" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "shapes-heart", "word": "heart", "art": { "kind": "vector", "shape": "heart", "color": "#e5484d" }, "background": ["#fff1f2", "#fecdd3"] },
+    { "id": "shapes-diamond", "word": "diamond", "art": { "kind": "vector", "shape": "diamond", "color": "#06b6d4" }, "background": ["#e0f7fa", "#b2ebf2"] }
+  ]
+}

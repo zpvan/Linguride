@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "colors",
+  "cards": [
+    { "id": "colors-red", "word": "red", "art": { "kind": "vector", "shape": "circle", "color": "#e5484d" }, "background": ["#fff7f7", "#f1f1f5"] },
+    { "id": "colors-blue", "word": "blue", "art": { "kind": "vector", "shape": "circle", "color": "#3b82f6" }, "background": ["#f7fbff", "#eeeef5"] },
+    { "id": "colors-yellow", "word": "yellow", "art": { "kind": "vector", "shape": "circle", "color": "#facc15" }, "background": ["#fffdf5", "#f3f1e8"] },
+    { "id": "colors-green", "word": "green", "art": { "kind": "vector", "shape": "circle", "color": "#22c55e" }, "background": ["#f7fff9", "#edf2ef"] },
+    { "id": "colors-orange", "word": "orange", "art": { "kind": "vector", "shape": "circle", "color": "#f97316" }, "background": ["#fffaf5", "#f3eee8"] },
+    { "id": "colors-purple", "word": "purple", "art": { "kind": "vector", "shape": "circle", "color": "#8b5cf6" }, "background": ["#fcf9ff", "#f0edf5"] },
+    { "id": "colors-pink", "word": "pink", "art": { "kind": "vector", "shape": "circle", "color": "#ec4899" }, "background": ["#fff7fb", "#f5edf2"] },
+    { "id": "colors-brown", "word": "brown", "art": { "kind": "vector", "shape": "circle", "color": "#92400e" }, "background": ["#fdfaf7", "#efeae5"] }
+  ]
+}

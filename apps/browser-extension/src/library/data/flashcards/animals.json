@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "animals",
+  "cards": [
+    { "id": "animals-cat", "word": "cat", "art": { "kind": "emoji", "emoji": "🐱" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "animals-dog", "word": "dog", "art": { "kind": "emoji", "emoji": "🐶" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "animals-rabbit", "word": "rabbit", "art": { "kind": "emoji", "emoji": "🐰" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "animals-bear", "word": "bear", "art": { "kind": "emoji", "emoji": "🐻" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "animals-panda", "word": "panda", "art": { "kind": "emoji", "emoji": "🐼" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "animals-lion", "word": "lion", "art": { "kind": "emoji", "emoji": "🦁" }, "background": ["#fff2cc", "#efc776"] },
+    { "id": "animals-tiger", "word": "tiger", "art": { "kind": "emoji", "emoji": "🐯" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "animals-elephant", "word": "elephant", "art": { "kind": "emoji", "emoji": "🐘" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "animals-monkey", "word": "monkey", "art": { "kind": "emoji", "emoji": "🐵" }, "background": ["#e8f3ef", "#b9d8ce"] },
+    { "id": "animals-giraffe", "word": "giraffe", "art": { "kind": "emoji", "emoji": "🦒" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "animals-zebra", "word": "zebra", "art": { "kind": "emoji", "emoji": "🦓" }, "background": ["#f0f0f5", "#d5d5e2"] },
+    { "id": "animals-horse", "word": "horse", "art": { "kind": "emoji", "emoji": "🐴" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "animals-cow", "word": "cow", "art": { "kind": "emoji", "emoji": "🐮" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "animals-pig", "word": "pig", "art": { "kind": "emoji", "emoji": "🐷" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "animals-duck", "word": "duck", "art": { "kind": "emoji", "emoji": "🦆" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "animals-fish", "word": "fish", "art": { "kind": "emoji", "emoji": "🐟" }, "background": ["#e0f7fa", "#b2ebf2"] }
+  ]
+}
