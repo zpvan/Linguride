@@ -17,6 +17,10 @@ const UNCOUNTABLE_WORDS = new Set([
   "soda",
 ]);
 
+const NOUN_PHRASE_OVERRIDES: Record<string, string> = {
+  soap: "a bar of soap",
+};
+
 export function buildFlashcardSpeechText(
   category: FlashcardCategoryId,
   word: string
@@ -41,7 +45,7 @@ export function buildFlashcardSpeechText(
       if (UNCOUNTABLE_WORDS.has(word)) {
         return `${repeated} This is ${word}.`;
       }
-      return `${repeated} This is ${article} ${word}.`;
+      return `${repeated} This is ${NOUN_PHRASE_OVERRIDES[word] ?? `${article} ${word}`}.`;
     case "colors":
       return `${repeated} This is ${word}.`;
     case "actions":

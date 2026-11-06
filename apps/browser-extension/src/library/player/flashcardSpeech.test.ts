@@ -46,7 +46,7 @@ describe("buildFlashcardSpeechText", () => {
     ["furniture", "chair", "chair, chair, chair. This is a chair."],
     ["appliances", "television", "television, television, television. This is a television."],
     ["kitchen", "cup", "cup, cup, cup. This is a cup."],
-    ["bathroom", "soap", "soap, soap, soap. This is a soap."],
+    ["bathroom", "soap", "soap, soap, soap. This is a bar of soap."],
   ] as const)("新增名词分类：%s", (category, word, expected) => {
     expect(buildFlashcardSpeechText(category, word)).toBe(expected);
   });

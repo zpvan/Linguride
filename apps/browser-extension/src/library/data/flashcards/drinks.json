@@ -8,7 +8,7 @@
     { "id": "drinks-tea", "word": "tea", "art": { "kind": "emoji", "emoji": "🍵" }, "background": ["#e0f7fa", "#b2ebf2"] },
     { "id": "drinks-coffee", "word": "coffee", "art": { "kind": "emoji", "emoji": "☕" }, "background": ["#e0f7fa", "#b2ebf2"] },
     { "id": "drinks-lemonade", "word": "lemonade", "art": { "kind": "emoji", "emoji": "🍋" }, "background": ["#e0f7fa", "#b2ebf2"] },
-    { "id": "drinks-smoothie", "word": "smoothie", "art": { "kind": "emoji", "emoji": "🥤" }, "background": ["#e0f7fa", "#b2ebf2"] },
-    { "id": "drinks-soda", "word": "soda", "art": { "kind": "emoji", "emoji": "🥤" }, "background": ["#e0f7fa", "#b2ebf2"] }
+    { "id": "drinks-smoothie", "word": "smoothie", "art": { "kind": "emoji", "emoji": "🥤🍓" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "drinks-soda", "word": "soda", "art": { "kind": "emoji", "emoji": "🥤🧊" }, "background": ["#e2f4ff", "#b9dcf5"] }
   ]
 }

@@ -49,7 +49,7 @@ const expectedEmoji: Record<string, string[]> = {
   fruits: ["🍎", "🍌", "🍊", "🍐", "🍑", "🍇", "🍉", "🍓"],
   vegetables: ["🥕", "🍅", "🥔", "🥒", "🧅", "🫑", "🎃", "🍄"],
   food: ["🥚", "🍞", "🍚", "🍜", "🥪", "🍔", "🍕", "🥗"],
-  drinks: ["💧", "🥛", "🧃", "🍵", "☕", "🍋", "🥤", "🥤"],
+  drinks: ["💧", "🥛", "🧃", "🍵", "☕", "🍋", "🥤🍓", "🥤🧊"],
   clothing: ["👕", "👗", "👒", "🧥"],
   school: ["✏️", "🖊️", "📖", "📏"],
   toys: ["⚽", "🪆", "🤖", "🪁"],
@@ -74,6 +74,11 @@ const expectedBackgrounds: Record<string, [string, string]> = {
   bathroom: ["#e2f4ff", "#b9dcf5"],
 };
 
+const expectedBackgroundOverrides: Record<string, [string, string]> = {
+  "drinks-smoothie": ["#fff0f5", "#f6c9da"],
+  "drinks-soda": ["#e2f4ff", "#b9dcf5"],
+};
+
 describe("常见物品分类正式数据", () => {
   it("12 个分类共 72 张，词条、Emoji、ID 和背景精确符合设计", () => {
     let total = 0;
@@ -93,7 +98,9 @@ describe("常见物品分类正式数据", () => {
         expectedEmoji[id]
       );
       expect(deck.cards.map((card) => card.background)).toEqual(
-        expectedWords[id].map(() => expectedBackgrounds[id])
+        expectedWords[id].map(
+          (word) => expectedBackgroundOverrides[`${id}-${word}`] ?? expectedBackgrounds[id]
+        )
       );
       total += deck.cards.length;
     }
