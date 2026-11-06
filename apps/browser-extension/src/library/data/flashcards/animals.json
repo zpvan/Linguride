@@ -17,6 +17,22 @@
     { "id": "animals-cow", "word": "cow", "art": { "kind": "emoji", "emoji": "🐮" }, "background": ["#e5f8ed", "#bce6cc"] },
     { "id": "animals-pig", "word": "pig", "art": { "kind": "emoji", "emoji": "🐷" }, "background": ["#fff0f5", "#f6c9da"] },
     { "id": "animals-duck", "word": "duck", "art": { "kind": "emoji", "emoji": "🦆" }, "background": ["#e2f4ff", "#b9dcf5"] },
-    { "id": "animals-fish", "word": "fish", "art": { "kind": "emoji", "emoji": "🐟" }, "background": ["#e0f7fa", "#b2ebf2"] }
+    { "id": "animals-fish", "word": "fish", "art": { "kind": "emoji", "emoji": "🐟" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "animals-fox", "word": "fox", "art": { "kind": "emoji", "emoji": "🦊" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "animals-wolf", "word": "wolf", "art": { "kind": "emoji", "emoji": "🐺" }, "background": ["#f0f0f5", "#d5d5e2"] },
+    { "id": "animals-deer", "word": "deer", "art": { "kind": "emoji", "emoji": "🦌" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "animals-sheep", "word": "sheep", "art": { "kind": "emoji", "emoji": "🐑" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "animals-goat", "word": "goat", "art": { "kind": "emoji", "emoji": "🐐" }, "background": ["#e8f3ef", "#b9d8ce"] },
+    { "id": "animals-chicken", "word": "chicken", "art": { "kind": "emoji", "emoji": "🐔" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "animals-penguin", "word": "penguin", "art": { "kind": "emoji", "emoji": "🐧" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "animals-bird", "word": "bird", "art": { "kind": "emoji", "emoji": "🐦" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "animals-owl", "word": "owl", "art": { "kind": "emoji", "emoji": "🦉" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "animals-frog", "word": "frog", "art": { "kind": "emoji", "emoji": "🐸" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "animals-turtle", "word": "turtle", "art": { "kind": "emoji", "emoji": "🐢" }, "background": ["#e8f3ef", "#b9d8ce"] },
+    { "id": "animals-snake", "word": "snake", "art": { "kind": "emoji", "emoji": "🐍" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "animals-dolphin", "word": "dolphin", "art": { "kind": "emoji", "emoji": "🐬" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "animals-whale", "word": "whale", "art": { "kind": "emoji", "emoji": "🐋" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "animals-octopus", "word": "octopus", "art": { "kind": "emoji", "emoji": "🐙" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "animals-bee", "word": "bee", "art": { "kind": "emoji", "emoji": "🐝" }, "background": ["#fff8d9", "#f3e2a4"] }
   ]
 }

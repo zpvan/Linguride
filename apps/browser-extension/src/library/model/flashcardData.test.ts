@@ -12,7 +12,12 @@ import {
 
 const decks = { animals, shapes, colors, actions };
 const expectedWords: Record<FlashcardCategoryId, readonly string[]> = {
-  animals: ["cat", "dog", "rabbit", "bear", "panda", "lion", "tiger", "elephant", "monkey", "giraffe", "zebra", "horse", "cow", "pig", "duck", "fish"],
+  animals: [
+    "cat", "dog", "rabbit", "bear", "panda", "lion", "tiger", "elephant",
+    "monkey", "giraffe", "zebra", "horse", "cow", "pig", "duck", "fish",
+    "fox", "wolf", "deer", "sheep", "goat", "chicken", "penguin", "bird",
+    "owl", "frog", "turtle", "snake", "dolphin", "whale", "octopus", "bee",
+  ],
   shapes: ["circle", "square", "triangle", "rectangle", "oval", "star", "heart", "diamond"],
   colors: ["red", "blue", "yellow", "green", "orange", "purple", "pink", "brown"],
   actions: ["run", "walk", "jump", "swim", "dance", "sing", "eat", "drink", "sleep", "read", "write", "draw", "ride", "clap", "sit", "stand"],
@@ -29,6 +34,6 @@ describe("正式认图卡片数据", () => {
       expect(deck.cards.map((card) => card.word)).toEqual(expectedWords[id]);
       total += deck.cards.length;
     }
-    expect(total).toBe(48);
+    expect(total).toBe(64);
   });
 });
