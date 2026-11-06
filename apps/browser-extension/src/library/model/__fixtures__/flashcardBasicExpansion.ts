@@ -13,13 +13,13 @@ const B = {
   red: ["#fff1f2", "#fecdd3"], cyan: ["#e0f7fa", "#b2ebf2"],
   gray: ["#f0f0f5", "#d5d5e2"], brown: ["#f3eadf", "#dfc3a5"],
   slate: ["#f8fafc", "#e2e8f0"], silver: ["#f8fafc", "#dbe3ec"],
-  cream: ["#fffdf5", "#e8dfc8"], ivory: ["#f5f1e6", "#ded7c7"],
-  paleYellow: ["#fff8e7", "#ead9b8"], navy: ["#eff6ff", "#c7d2fe"],
+  cream: ["#c7b892", "#a58f65"], ivory: ["#f5f1e6", "#ded7c7"],
+  paleYellow: ["#e7c876", "#c39a45"], navy: ["#eff6ff", "#c7d2fe"],
   teal: ["#f0fdfa", "#99f6e4"], paleCyan: ["#ecfeff", "#a5f3fc"],
   paleTeal: ["#f0fdfa", "#ccfbf1"], sky: ["#f0f9ff", "#bae6fd"],
   lightBlue: ["#f0f9ff", "#e0f2fe"], lime: ["#f7fee7", "#d9f99d"],
   olive: ["#fefce8", "#e7e5c0"], mint: ["#f0fdf4", "#bbf7d0"],
-  lavender: ["#faf5ff", "#e9d5ff"], violet: ["#faf5ff", "#ddd6fe"],
+  lavender: ["#d1c4e9", "#a793cc"], violet: ["#faf5ff", "#ddd6fe"],
   magenta: ["#fdf4ff", "#f5d0fe"], white: ["#e2e8f0", "#cbd5e1"],
 } as const;
 const e = (emoji: string): FlashcardArt => ({ kind: "emoji", emoji });

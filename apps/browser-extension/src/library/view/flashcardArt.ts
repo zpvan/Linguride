@@ -52,6 +52,8 @@ export function createFlashcardArt(art: FlashcardArt): HTMLElement {
   });
   const shape = createShape(art.shape);
   shape.setAttribute("fill", art.color);
+  shape.setAttribute("stroke", "rgba(0, 0, 0, 0.22)");
+  shape.setAttribute("stroke-width", "1.5");
   svg.appendChild(shape);
   container.appendChild(svg);
   return container;

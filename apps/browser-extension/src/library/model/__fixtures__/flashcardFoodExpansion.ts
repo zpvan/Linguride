@@ -22,15 +22,15 @@ export const foodExpansion = {
   fruits: [
     ["lemon", e("🍋"), B.yellow], ["lime", e("🍋🟢"), B.green],
     ["coconut", e("🥥"), B.brown], ["pineapple", e("🍍"), B.yellow],
-    ["mango", e("🥭"), B.orange], ["papaya", e("🥗🟠"), B.pink],
+    ["mango", e("🥭"), B.orange], ["papaya", e("🟠⚫"), B.pink],
     ["melon", e("🍈"), B.green], ["cantaloupe", e("🍈🟠"), B.orange],
     ["cherry", e("🍒"), B.red], ["plum", e("🟣🍑"), B.purple],
     ["apricot", e("🟠🍑"), B.orange], ["kiwi", e("🥝"), B.green],
     ["fig", e("🟤🍐"), B.brown], ["date", e("🌴🟤"), B.yellow],
-    ["pomegranate", e("🔴🍎"), B.red], ["raspberry", e("🧁🔴"), B.purple],
+    ["pomegranate", e("🔴🍎"), B.red], ["raspberry", e("🔴🔴🌿"), B.purple],
     ["blackberry", e("🫐⚫"), B.gray], ["blueberry", e("🫐"), B.blue],
     ["cranberry", e("🫐🔴"), B.red], ["gooseberry", e("🫐🟢"), B.green],
-    ["passion fruit", e("🍹🟣"), B.purple], ["dragon fruit", e("🐉🍓"), B.purple],
+    ["passion fruit", e("🟣🟡"), B.purple], ["dragon fruit", e("🐉🍓"), B.purple],
     ["guava", e("🍐🟢"), B.mint], ["lychee", e("🍒⚪"), B.white],
   ],
   vegetables: [
