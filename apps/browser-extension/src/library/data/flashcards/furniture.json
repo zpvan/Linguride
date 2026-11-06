@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "furniture",
+  "cards": [
+    { "id": "furniture-chair", "word": "chair", "art": { "kind": "emoji", "emoji": "🪑" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-table", "word": "table", "art": { "kind": "emoji", "emoji": "🪑🍽️" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-bed", "word": "bed", "art": { "kind": "emoji", "emoji": "🛏️" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-sofa", "word": "sofa", "art": { "kind": "emoji", "emoji": "🛋️" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-lamp", "word": "lamp", "art": { "kind": "emoji", "emoji": "💡" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-door", "word": "door", "art": { "kind": "emoji", "emoji": "🚪" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-window", "word": "window", "art": { "kind": "emoji", "emoji": "🪟" }, "background": ["#f3eadf", "#dfc3a5"] },
+    { "id": "furniture-mirror", "word": "mirror", "art": { "kind": "emoji", "emoji": "🪞" }, "background": ["#f3eadf", "#dfc3a5"] }
+  ]
+}

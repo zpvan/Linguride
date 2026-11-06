@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "kitchen",
+  "cards": [
+    { "id": "kitchen-cup", "word": "cup", "art": { "kind": "emoji", "emoji": "☕" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "kitchen-plate", "word": "plate", "art": { "kind": "emoji", "emoji": "🍽️" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "kitchen-bowl", "word": "bowl", "art": { "kind": "emoji", "emoji": "🥣" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "kitchen-spoon", "word": "spoon", "art": { "kind": "emoji", "emoji": "🥄" }, "background": ["#fff0e1", "#ffcfbf"] }
+  ]
+}

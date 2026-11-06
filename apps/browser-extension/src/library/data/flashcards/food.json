@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "food",
+  "cards": [
+    { "id": "food-egg", "word": "egg", "art": { "kind": "emoji", "emoji": "🥚" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-bread", "word": "bread", "art": { "kind": "emoji", "emoji": "🍞" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-rice", "word": "rice", "art": { "kind": "emoji", "emoji": "🍚" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-noodle", "word": "noodle", "art": { "kind": "emoji", "emoji": "🍜" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-sandwich", "word": "sandwich", "art": { "kind": "emoji", "emoji": "🥪" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-burger", "word": "burger", "art": { "kind": "emoji", "emoji": "🍔" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-pizza", "word": "pizza", "art": { "kind": "emoji", "emoji": "🍕" }, "background": ["#fff4d6", "#ffd7a8"] },
+    { "id": "food-salad", "word": "salad", "art": { "kind": "emoji", "emoji": "🥗" }, "background": ["#fff4d6", "#ffd7a8"] }
+  ]
+}

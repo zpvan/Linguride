@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "transport",
+  "cards": [
+    { "id": "transport-car", "word": "car", "art": { "kind": "emoji", "emoji": "🚗" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-bus", "word": "bus", "art": { "kind": "emoji", "emoji": "🚌" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-taxi", "word": "taxi", "art": { "kind": "emoji", "emoji": "🚕" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-train", "word": "train", "art": { "kind": "emoji", "emoji": "🚆" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-airplane", "word": "airplane", "art": { "kind": "emoji", "emoji": "✈️" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-ship", "word": "ship", "art": { "kind": "emoji", "emoji": "🚢" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-bicycle", "word": "bicycle", "art": { "kind": "emoji", "emoji": "🚲" }, "background": ["#e2f4ff", "#b9dcf5"] },
+    { "id": "transport-motorcycle", "word": "motorcycle", "art": { "kind": "emoji", "emoji": "🏍️" }, "background": ["#e2f4ff", "#b9dcf5"] }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "fruits",
+  "cards": [
+    { "id": "fruits-apple", "word": "apple", "art": { "kind": "emoji", "emoji": "🍎" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-banana", "word": "banana", "art": { "kind": "emoji", "emoji": "🍌" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-orange", "word": "orange", "art": { "kind": "emoji", "emoji": "🍊" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-pear", "word": "pear", "art": { "kind": "emoji", "emoji": "🍐" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-peach", "word": "peach", "art": { "kind": "emoji", "emoji": "🍑" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-grape", "word": "grape", "art": { "kind": "emoji", "emoji": "🍇" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-watermelon", "word": "watermelon", "art": { "kind": "emoji", "emoji": "🍉" }, "background": ["#fff0f5", "#f6c9da"] },
+    { "id": "fruits-strawberry", "word": "strawberry", "art": { "kind": "emoji", "emoji": "🍓" }, "background": ["#fff0f5", "#f6c9da"] }
+  ]
+}

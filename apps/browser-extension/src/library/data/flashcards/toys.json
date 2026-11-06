@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "toys",
+  "cards": [
+    { "id": "toys-ball", "word": "ball", "art": { "kind": "emoji", "emoji": "⚽" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "toys-doll", "word": "doll", "art": { "kind": "emoji", "emoji": "🪆" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "toys-robot", "word": "robot", "art": { "kind": "emoji", "emoji": "🤖" }, "background": ["#fff0e1", "#ffcfbf"] },
+    { "id": "toys-kite", "word": "kite", "art": { "kind": "emoji", "emoji": "🪁" }, "background": ["#fff0e1", "#ffcfbf"] }
+  ]
+}

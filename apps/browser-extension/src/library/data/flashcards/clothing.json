@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "clothing",
+  "cards": [
+    { "id": "clothing-shirt", "word": "shirt", "art": { "kind": "emoji", "emoji": "👕" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "clothing-dress", "word": "dress", "art": { "kind": "emoji", "emoji": "👗" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "clothing-hat", "word": "hat", "art": { "kind": "emoji", "emoji": "👒" }, "background": ["#f0e6ff", "#d6c1f5"] },
+    { "id": "clothing-coat", "word": "coat", "art": { "kind": "emoji", "emoji": "🧥" }, "background": ["#f0e6ff", "#d6c1f5"] }
+  ]
+}

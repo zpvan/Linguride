@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "drinks",
+  "cards": [
+    { "id": "drinks-water", "word": "water", "art": { "kind": "emoji", "emoji": "💧" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-milk", "word": "milk", "art": { "kind": "emoji", "emoji": "🥛" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-juice", "word": "juice", "art": { "kind": "emoji", "emoji": "🧃" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-tea", "word": "tea", "art": { "kind": "emoji", "emoji": "🍵" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-coffee", "word": "coffee", "art": { "kind": "emoji", "emoji": "☕" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-lemonade", "word": "lemonade", "art": { "kind": "emoji", "emoji": "🍋" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-smoothie", "word": "smoothie", "art": { "kind": "emoji", "emoji": "🥤" }, "background": ["#e0f7fa", "#b2ebf2"] },
+    { "id": "drinks-soda", "word": "soda", "art": { "kind": "emoji", "emoji": "🥤" }, "background": ["#e0f7fa", "#b2ebf2"] }
+  ]
+}

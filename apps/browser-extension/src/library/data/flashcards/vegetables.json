@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "vegetables",
+  "cards": [
+    { "id": "vegetables-carrot", "word": "carrot", "art": { "kind": "emoji", "emoji": "🥕" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-tomato", "word": "tomato", "art": { "kind": "emoji", "emoji": "🍅" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-potato", "word": "potato", "art": { "kind": "emoji", "emoji": "🥔" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-cucumber", "word": "cucumber", "art": { "kind": "emoji", "emoji": "🥒" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-onion", "word": "onion", "art": { "kind": "emoji", "emoji": "🧅" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-pepper", "word": "pepper", "art": { "kind": "emoji", "emoji": "🫑" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-pumpkin", "word": "pumpkin", "art": { "kind": "emoji", "emoji": "🎃" }, "background": ["#e5f8ed", "#bce6cc"] },
+    { "id": "vegetables-mushroom", "word": "mushroom", "art": { "kind": "emoji", "emoji": "🍄" }, "background": ["#e5f8ed", "#bce6cc"] }
+  ]
+}

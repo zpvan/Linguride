@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "school",
+  "cards": [
+    { "id": "school-pencil", "word": "pencil", "art": { "kind": "emoji", "emoji": "✏️" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "school-pen", "word": "pen", "art": { "kind": "emoji", "emoji": "🖊️" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "school-book", "word": "book", "art": { "kind": "emoji", "emoji": "📖" }, "background": ["#fff8d9", "#f3e2a4"] },
+    { "id": "school-ruler", "word": "ruler", "art": { "kind": "emoji", "emoji": "📏" }, "background": ["#fff8d9", "#f3e2a4"] }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "appliances",
+  "cards": [
+    { "id": "appliances-television", "word": "television", "art": { "kind": "emoji", "emoji": "📺" }, "background": ["#f0f0f5", "#d5d5e2"] },
+    { "id": "appliances-computer", "word": "computer", "art": { "kind": "emoji", "emoji": "💻" }, "background": ["#f0f0f5", "#d5d5e2"] },
+    { "id": "appliances-phone", "word": "phone", "art": { "kind": "emoji", "emoji": "📱" }, "background": ["#f0f0f5", "#d5d5e2"] },
+    { "id": "appliances-camera", "word": "camera", "art": { "kind": "emoji", "emoji": "📷" }, "background": ["#f0f0f5", "#d5d5e2"] }
+  ]
+}
