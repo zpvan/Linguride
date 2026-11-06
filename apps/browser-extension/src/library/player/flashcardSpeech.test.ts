@@ -35,4 +35,36 @@ describe("buildFlashcardSpeechText", () => {
       "run, run, run. I can run."
     );
   });
+
+  it.each([
+    ["transport", "car", "car, car, car. This is a car."],
+    ["fruits", "orange", "orange, orange, orange. This is an orange."],
+    ["vegetables", "onion", "onion, onion, onion. This is an onion."],
+    ["clothing", "shirt", "shirt, shirt, shirt. This is a shirt."],
+    ["school", "pencil", "pencil, pencil, pencil. This is a pencil."],
+    ["toys", "ball", "ball, ball, ball. This is a ball."],
+    ["furniture", "chair", "chair, chair, chair. This is a chair."],
+    ["appliances", "television", "television, television, television. This is a television."],
+    ["kitchen", "cup", "cup, cup, cup. This is a cup."],
+    ["bathroom", "soap", "soap, soap, soap. This is a soap."],
+  ] as const)("新增名词分类：%s", (category, word, expected) => {
+    expect(buildFlashcardSpeechText(category, word)).toBe(expected);
+  });
+
+  it.each([
+    ["food", "bread"],
+    ["food", "rice"],
+    ["drinks", "water"],
+    ["drinks", "milk"],
+    ["drinks", "juice"],
+    ["drinks", "tea"],
+    ["drinks", "coffee"],
+    ["drinks", "lemonade"],
+    ["drinks", "smoothie"],
+    ["drinks", "soda"],
+  ] as const)("不可数名词不使用冠词：%s", (category, word) => {
+    expect(buildFlashcardSpeechText(category, word)).toBe(
+      `${word}, ${word}, ${word}. This is ${word}.`
+    );
+  });
 });

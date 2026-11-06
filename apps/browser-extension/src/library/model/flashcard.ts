@@ -3,7 +3,24 @@
  * @description 文库认图卡片的数据模型、固定分类元数据与运行时守卫
  */
 
-export const FLASHCARD_CATEGORY_IDS = ["animals", "shapes", "colors", "actions"] as const;
+export const FLASHCARD_CATEGORY_IDS = [
+  "animals",
+  "shapes",
+  "colors",
+  "actions",
+  "transport",
+  "fruits",
+  "vegetables",
+  "food",
+  "drinks",
+  "clothing",
+  "school",
+  "toys",
+  "furniture",
+  "appliances",
+  "kitchen",
+  "bathroom",
+] as const;
 export type FlashcardCategoryId = (typeof FLASHCARD_CATEGORY_IDS)[number];
 
 export const FLASHCARD_SHAPES = [
@@ -43,6 +60,18 @@ export const FLASHCARD_CATEGORY_META: Record<
   shapes: { name: "形状", emoji: "🔷" },
   colors: { name: "颜色", emoji: "🎨" },
   actions: { name: "动作", emoji: "🏃" },
+  transport: { name: "交通工具", emoji: "🚗" },
+  fruits: { name: "水果", emoji: "🍎" },
+  vegetables: { name: "蔬菜", emoji: "🥕" },
+  food: { name: "食物", emoji: "🍔" },
+  drinks: { name: "饮品", emoji: "🥛" },
+  clothing: { name: "衣物", emoji: "👕" },
+  school: { name: "学习用品", emoji: "📚" },
+  toys: { name: "玩具", emoji: "🪀" },
+  furniture: { name: "家具", emoji: "🪑" },
+  appliances: { name: "家电", emoji: "📺" },
+  kitchen: { name: "厨房用品", emoji: "🍽️" },
+  bathroom: { name: "浴室用品", emoji: "🛁" },
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

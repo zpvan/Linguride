@@ -5,7 +5,6 @@ import animals from "../data/flashcards/animals.json";
 import colors from "../data/flashcards/colors.json";
 import shapes from "../data/flashcards/shapes.json";
 import {
-  FLASHCARD_CATEGORY_IDS,
   isFlashcardDeck,
   type FlashcardCategoryId,
 } from "./flashcard";
@@ -45,7 +44,7 @@ const expectedNewAnimals = [
 describe("正式认图卡片数据", () => {
   it("四分类、数量和词条均符合设计", () => {
     let total = 0;
-    for (const id of FLASHCARD_CATEGORY_IDS) {
+    for (const id of Object.keys(decks) as FlashcardCategoryId[]) {
       const deck = decks[id];
       expect(isFlashcardDeck(deck), `${id} 数据应通过守卫`).toBe(true);
       if (!isFlashcardDeck(deck)) continue;

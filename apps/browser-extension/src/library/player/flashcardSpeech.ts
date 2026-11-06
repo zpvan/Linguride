@@ -5,6 +5,19 @@
 
 import type { FlashcardCategoryId } from "../model/flashcard";
 
+const UNCOUNTABLE_WORDS = new Set([
+  "bread",
+  "rice",
+  "water",
+  "milk",
+  "juice",
+  "tea",
+  "coffee",
+  "lemonade",
+  "smoothie",
+  "soda",
+]);
+
 export function buildFlashcardSpeechText(
   category: FlashcardCategoryId,
   word: string
@@ -14,6 +27,21 @@ export function buildFlashcardSpeechText(
   switch (category) {
     case "animals":
     case "shapes":
+    case "transport":
+    case "fruits":
+    case "vegetables":
+    case "food":
+    case "drinks":
+    case "clothing":
+    case "school":
+    case "toys":
+    case "furniture":
+    case "appliances":
+    case "kitchen":
+    case "bathroom":
+      if (UNCOUNTABLE_WORDS.has(word)) {
+        return `${repeated} This is ${word}.`;
+      }
       return `${repeated} This is ${article} ${word}.`;
     case "colors":
       return `${repeated} This is ${word}.`;
