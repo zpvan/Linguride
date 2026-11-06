@@ -8,6 +8,7 @@ import type { HybridTTSPlayer } from "../../shared/hybridTTSPlayer";
 import type { TTSSpeed } from "../../types";
 import { FLASHCARD_CATEGORY_META, type Flashcard, type FlashcardDeck } from "../model/flashcard";
 import { FlashcardRevealState } from "../model/flashcardState";
+import { buildFlashcardSpeechText } from "../player/flashcardSpeech";
 import { getFlashcardRevealA11y } from "./flashcardA11y";
 import { createFlashcardArt } from "./flashcardArt";
 
@@ -54,7 +55,7 @@ export function renderFlashcardGrid(
 
     void deps.player
       .playText({
-        text: card.word,
+        text: buildFlashcardSpeechText(deck.id, card.word),
         rate: deps.getRate(),
         lang: "en-US",
         onStart: () => {
