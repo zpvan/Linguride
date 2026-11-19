@@ -13,7 +13,7 @@
     <path d="M77 44c19-4 21 23 2 25" fill="none" stroke="#57534e" stroke-width="7"/>
     <ellipse cx="47" cy="37" rx="30" ry="10" fill="#d6a15f"/>
     <ellipse cx="47" cy="38" rx="26" ry="7" fill="url(#drinks-americano-main)"/>
-    <path d="M32 36c10-3 21-3 30 0" stroke="#a16207" stroke-width="2" opacity=".65"/>
+    <path fill="none" d="M32 36c10-3 21-3 30 0" stroke="#a16207" stroke-width="2" opacity=".65"/>
     <path d="M37 22c-6-7 6-10 0-18M55 22c-6-7 6-10 0-18" stroke="#d6d3d1" stroke-width="2.5" fill="none" opacity=".65"/>
   </g>
 </svg>

@@ -12,8 +12,8 @@
     <path d="M24 29h43l-5 57c-10 6-22 6-32 0Z" fill="#f8fafc" fill-opacity=".5" stroke="#b45309" stroke-width="2"/>
     <path d="M28 43h35l-4 41c-9 6-19 6-28 0Z" fill="url(#drinks-apple-juice-main)" fill-opacity=".85"/>
     <path d="M69 31c-10-8-20 1-18 14 2 16 12 28 21 25 9 3 20-10 20-25 0-13-12-21-21-13Z" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
-    <path d="M70 31c0-9 4-15 10-19" stroke="#713f12" stroke-width="4" stroke-linecap="round"/>
+    <path fill="none" d="M70 31c0-9 4-15 10-19" stroke="#713f12" stroke-width="4" stroke-linecap="round"/>
     <path d="M73 20c8-7 16-5 20 1-7 7-14 8-20-1Z" fill="#65a30d"/>
-    <path d="M45 35 51 9" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+    <path fill="none" d="M45 35 51 9" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>

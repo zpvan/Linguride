@@ -11,7 +11,7 @@
   <g filter="url(#drinks-soda-shadow)">
     <path d="M30 17h40l-4 70c-10 5-22 5-32 0Z" fill="url(#drinks-soda-main)" stroke="#991b1b" stroke-width="2"/>
     <ellipse cx="50" cy="17" rx="20" ry="6" fill="#e5e7eb"/><ellipse cx="50" cy="16" rx="8" ry="3" fill="#78716c"/>
-    <path d="M34 32h32M33 73h34" stroke="#fecdd3" stroke-width="3" opacity=".65"/>
+    <path fill="none" d="M34 32h32M33 73h34" stroke="#fecdd3" stroke-width="3" opacity=".65"/>
     <path d="M39 43c7-8 16-8 23 0-7 9-16 9-23 0Z" fill="#fff1f2" opacity=".8"/>
     <g fill="#fff" opacity=".75"><circle cx="78" cy="28" r="4"/><circle cx="83" cy="18" r="3"/><circle cx="79" cy="44" r="3"/><circle cx="87" cy="35" r="2"/></g>
   </g>

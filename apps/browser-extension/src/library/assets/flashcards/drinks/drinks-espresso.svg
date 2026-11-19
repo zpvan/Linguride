@@ -13,8 +13,8 @@
     <path d="M69 52c16-3 17 18 2 20" fill="none" stroke="#713f12" stroke-width="5"/>
     <ellipse cx="47" cy="49" rx="22" ry="8" fill="#d6a15f"/>
     <ellipse cx="47" cy="50" rx="18" ry="5" fill="url(#drinks-espresso-main)"/>
-    <path d="M34 48c8-3 18-3 26 0" stroke="#f5e6cf" stroke-width="2" opacity=".6"/>
-    <path d="M25 88h45" stroke="#a16207" stroke-width="4" stroke-linecap="round"/>
+    <path fill="none" d="M34 48c8-3 18-3 26 0" stroke="#f5e6cf" stroke-width="2" opacity=".6"/>
+    <path fill="none" d="M25 88h45" stroke="#a16207" stroke-width="4" stroke-linecap="round"/>
     <path d="M41 33c-5-6 5-9 0-15M54 33c-5-6 5-9 0-15" stroke="#d6a15f" stroke-width="2" fill="none" opacity=".6"/>
   </g>
 </svg>

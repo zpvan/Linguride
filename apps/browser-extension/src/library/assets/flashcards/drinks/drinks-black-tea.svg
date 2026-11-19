@@ -13,7 +13,7 @@
     <path d="M75 48c18-4 20 22 2 24" fill="none" stroke="#92400e" stroke-width="6"/>
     <ellipse cx="47" cy="43" rx="29" ry="10" fill="#f5e6cf"/>
     <ellipse cx="47" cy="44" rx="25" ry="7" fill="url(#drinks-black-tea-main)"/>
-    <path d="M57 22v20" stroke="#78350f" stroke-width="2"/>
+    <path fill="none" d="M57 22v20" stroke="#78350f" stroke-width="2"/>
     <path d="M51 19h13l2 15H49Z" fill="#d6a15f" stroke="#78350f" stroke-width="1.5"/>
     <path d="M33 29c-6-7 6-10 0-18" stroke="#e7c49a" stroke-width="2.5" fill="none" opacity=".7"/>
   </g>

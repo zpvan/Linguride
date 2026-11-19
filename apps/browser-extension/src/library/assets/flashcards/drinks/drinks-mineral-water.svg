@@ -13,6 +13,6 @@
     <path d="M39 8h22v10H39Z" fill="#0284c7"/>
     <path d="M28 56c13 6 31 6 44 0l3 28c-12 5-38 5-50 0Z" fill="#e0f2fe" opacity=".75"/>
     <path d="m31 68 13-19 9 12 8-9 13 16Z" fill="#7dd3fc" stroke="#0284c7" stroke-width="1.5"/>
-    <path d="M42 25c-4 14-6 24-5 32" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+    <path fill="none" d="M42 25c-4 14-6 24-5 32" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".65"/>
   </g>
 </svg>

@@ -12,7 +12,7 @@
     <path d="M25 20h50l-6 66c-12 6-26 6-38 0Z" fill="#f8fafc" fill-opacity=".45" stroke="#3f2415" stroke-width="2"/>
     <path d="M29 38h42l-4 46c-11 6-23 6-34 0Z" fill="url(#drinks-iced-coffee-main)"/>
     <g fill="#e0f2fe" stroke="#fff" stroke-width="1.5" opacity=".85"><rect x="33" y="27" width="17" height="15" rx="3" transform="rotate(-12 33 27)"/><rect x="52" y="31" width="16" height="15" rx="3" transform="rotate(14 52 31)"/><rect x="43" y="47" width="16" height="14" rx="3" transform="rotate(-8 43 47)"/></g>
-    <path d="M60 29 73 6" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
-    <path d="M35 75c9-4 20-4 30 0" stroke="#d6a15f" stroke-width="2" opacity=".5"/>
+    <path fill="none" d="M60 29 73 6" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+    <path fill="none" d="M35 75c9-4 20-4 30 0" stroke="#d6a15f" stroke-width="2" opacity=".5"/>
   </g>
 </svg>

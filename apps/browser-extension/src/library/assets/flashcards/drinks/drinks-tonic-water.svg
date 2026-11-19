@@ -13,7 +13,7 @@
     <path d="M29 48h40l-4 35c-10 6-21 6-31 0Z" fill="url(#drinks-tonic-water-main)" fill-opacity=".55"/>
     <g fill="#fff" stroke="#ca8a04" stroke-width="1"><circle cx="40" cy="72" r="3"/><circle cx="55" cy="63" r="3"/><circle cx="45" cy="53" r="2"/><circle cx="61" cy="44" r="2.5"/></g>
     <path d="M66 23c15-5 25 4 22 16-3 13-15 18-26 11-8-8-5-23 4-27Z" fill="#fde047" stroke="#ca8a04" stroke-width="2"/>
-    <path d="m68 29 12 14M63 39l19-4M70 47l5-20" stroke="#fff7ed" stroke-width="2"/>
+    <path fill="none" d="m68 29 12 14M63 39l19-4M70 47l5-20" stroke="#fff7ed" stroke-width="2"/>
     <path d="M56 33c-4-10-13-14-21-10 4 9 11 13 21 10Z" fill="#65a30d"/>
   </g>
 </svg>

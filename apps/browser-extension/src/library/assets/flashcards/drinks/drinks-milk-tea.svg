@@ -12,8 +12,8 @@
     <path d="M25 24h50l-6 62c-12 6-26 6-38 0Z" fill="url(#drinks-milk-tea-main)" stroke="#92400e" stroke-width="2"/>
     <ellipse cx="50" cy="24" rx="25" ry="8" fill="#f3e0c7"/>
     <path d="M32 44c12 5 25 5 37 0M33 59c11 5 23 5 34 0" stroke="#f5e6cf" stroke-width="3" opacity=".6" fill="none"/>
-    <path d="M59 30 72 6" stroke="#f87171" stroke-width="5" stroke-linecap="round"/>
+    <path fill="none" d="M59 30 72 6" stroke="#f87171" stroke-width="5" stroke-linecap="round"/>
     <path d="M39 77c6-10 16-12 24-5-5 10-14 13-24 5Z" fill="#4d7c0f"/>
-    <path d="m42 77 16-5" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path fill="none" d="m42 77 16-5" stroke="#bbf7d0" stroke-width="1.5"/>
   </g>
 </svg>

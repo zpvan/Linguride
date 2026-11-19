@@ -13,7 +13,7 @@
     <path d="M24 39h35l-4 45c-9 6-19 6-28 0Z" fill="url(#drinks-orange-juice-main)"/>
     <path d="M64 25c15-7 28 1 27 15-1 15-14 24-27 18-12-7-11-27 0-33Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
     <path d="M67 30c9-4 17 1 17 9-1 8-8 13-15 9-7-4-7-14-2-18Z" fill="#ffedd5"/>
-    <path d="m69 32 9 14M65 41l17-5M73 49l2-19" stroke="#fb923c" stroke-width="1.5"/>
-    <path d="M45 35 56 8" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+    <path fill="none" d="m69 32 9 14M65 41l17-5M73 49l2-19" stroke="#fb923c" stroke-width="1.5"/>
+    <path fill="none" d="M45 35 56 8" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>
