@@ -31,6 +31,12 @@ function expectSafeSvg(svg: string, cardId: string): void {
     expect(match[1].startsWith(`${cardId}-`)).toBe(true);
     expect(ids).toContain(match[1]);
   }
+  for (const match of svg.matchAll(/<(?:path|g)\b[^>]*>/g)) {
+    const tag = match[0];
+    if (/\bstroke\s*=/.test(tag)) {
+      expect(/\bfill\s*=/.test(tag), `${cardId} 描边元素缺少显式 fill：${tag}`).toBe(true);
+    }
+  }
 }
 
 describe("饮品定制 SVG 插画", () => {

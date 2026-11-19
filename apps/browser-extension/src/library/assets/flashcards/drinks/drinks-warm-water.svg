@@ -9,11 +9,11 @@
     </filter>
   </defs>
   <g filter="url(#drinks-warm-water-shadow)">
-    <path d="M22 40h55v27c-3 16-15 22-27 22S25 83 22 67Z" fill="#fff7ed" fill-opacity=".7" stroke="#7dd3fc" stroke-width="2"/>
-    <path d="M76 47c18-4 20 22 2 24" fill="none" stroke="#bae6fd" stroke-width="6"/>
-    <ellipse cx="49" cy="41" rx="27" ry="9" fill="#fff"/>
-    <ellipse cx="49" cy="42" rx="23" ry="6" fill="url(#drinks-warm-water-main)" fill-opacity=".45"/>
-    <path d="M50 29c-7-8 7-11 0-20" stroke="#d6d3d1" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M22 40h55v27c-3 16-15 22-27 22S25 83 22 67Z" fill="#f0f9ff" fill-opacity=".92" stroke="#0284c7" stroke-width="2.5"/>
+    <path d="M76 47c18-4 20 22 2 24" fill="none" stroke="#38bdf8" stroke-width="5"/>
+    <ellipse cx="49" cy="41" rx="27" ry="9" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <ellipse cx="49" cy="42" rx="23" ry="6" fill="url(#drinks-warm-water-main)" fill-opacity=".65"/>
+    <path d="M50 29c-7-8 7-11 0-20" stroke="#78716c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85"/>
     <path d="M32 61c10 4 22 4 34 0" fill="none" stroke="#fff" stroke-width="3" opacity=".75"/>
   </g>
 </svg>
