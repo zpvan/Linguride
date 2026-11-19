@@ -37,7 +37,8 @@ export type FlashcardShape = (typeof FLASHCARD_SHAPES)[number];
 
 export type FlashcardArt =
   | { kind: "emoji"; emoji: string }
-  | { kind: "vector"; shape: FlashcardShape; color: string };
+  | { kind: "vector"; shape: FlashcardShape; color: string }
+  | { kind: "illustration"; illustration: string };
 
 export interface Flashcard {
   id: string;
@@ -94,6 +95,9 @@ function isFlashcardArt(value: unknown): value is FlashcardArt {
   if (value.kind === "emoji") {
     return typeof value.emoji === "string" && value.emoji.trim().length > 0;
   }
+  if (value.kind === "illustration") {
+    return typeof value.illustration === "string" && /^[a-z]+(?:-[a-z]+)+$/.test(value.illustration);
+  }
   return (
     value.kind === "vector" &&
     typeof value.shape === "string" &&
@@ -123,6 +127,7 @@ export function isFlashcardDeck(value: unknown): value is FlashcardDeck {
       !/^[a-z]+(?:[ -][a-z]+)*$/.test(card.word) ||
       card.id !== `${value.id}-${card.word.replace(/ /g, "-")}` ||
       !isFlashcardArt(card.art) ||
+      (card.art.kind === "illustration" && card.art.illustration !== card.id) ||
       !Array.isArray(card.background) ||
       card.background.length !== 2 ||
       !card.background.every(isHexColor) ||

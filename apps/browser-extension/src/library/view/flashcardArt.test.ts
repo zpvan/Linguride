@@ -10,6 +10,20 @@ import { createFlashcardArt } from "./flashcardArt";
 class FakeElement {
   readonly children: FakeElement[] = [];
   private readonly attributes = new Map<string, string>();
+  private markup = "";
+
+  set innerHTML(value: string) {
+    this.markup = value;
+    this.children.splice(0, this.children.length, new FakeElement());
+  }
+
+  get innerHTML(): string {
+    return this.markup;
+  }
+
+  querySelector(): FakeElement | null {
+    return this.children[0] ?? null;
+  }
 
   setAttribute(name: string, value: string): void {
     this.attributes.set(name, value);
@@ -37,5 +51,16 @@ describe("createFlashcardArt", () => {
     const circle = art.children[0].children[0];
     expect(circle.getAttribute("stroke")).toBe("rgba(0, 0, 0, 0.22)");
     expect(circle.getAttribute("stroke-width")).toBe("1.5");
+  });
+
+  it("渲染已注册的本地插画", () => {
+    vi.stubGlobal("document", {
+      createElement: () => new FakeElement(),
+      createElementNS: () => new FakeElement(),
+    });
+    const art = createFlashcardArt({ kind: "illustration", illustration: "shapes-pyramid" });
+    expect(art.innerHTML).toContain("shapes-pyramid");
+    expect(art.children[0].getAttribute("role")).toBe("img");
+    expect(art.children[0].getAttribute("focusable")).toBe("false");
   });
 });

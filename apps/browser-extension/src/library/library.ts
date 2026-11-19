@@ -5,6 +5,7 @@
 
 import { initSelectionToolbar } from "../content/selectionToolbar";
 import { createHybridTTSPlayer } from "../shared/hybridTTSPlayer";
+import { hasCompleteFlashcardIllustrations } from "./assets/flashcardArt";
 import {
   DEFAULT_TTS_SPEED,
   MessageType,
@@ -62,7 +63,11 @@ function loadLibrary(): LibraryData {
     const path = `./data/flashcards/${category}.json`;
     const mod = cardModules[path] as { default: unknown } | undefined;
     const data = mod?.default;
-    if (isFlashcardDeck(data) && data.id === category) {
+    if (
+      isFlashcardDeck(data) &&
+      data.id === category &&
+      hasCompleteFlashcardIllustrations(data)
+    ) {
       flashcards.set(category, data);
       invalidFlashcards.delete(category);
     } else {

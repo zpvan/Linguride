@@ -3,6 +3,7 @@
  * @description 认图卡片图案渲染：Emoji 文本与八种本地 SVG 矢量形状
  */
 
+import { getFlashcardIllustration } from "../assets/flashcardArt";
 import type { FlashcardArt, FlashcardShape } from "../model/flashcard";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -42,6 +43,18 @@ export function createFlashcardArt(art: FlashcardArt): HTMLElement {
   container.setAttribute("aria-hidden", "true");
   if (art.kind === "emoji") {
     container.textContent = art.emoji;
+    return container;
+  }
+  if (art.kind === "illustration") {
+    const svg = getFlashcardIllustration(art.illustration);
+    if (!svg) {
+      console.warn(`[Library] 缺少插画资源：${art.illustration}`);
+      return container;
+    }
+    container.innerHTML = svg;
+    const svgRoot = container.querySelector("svg");
+    svgRoot?.setAttribute("role", "img");
+    svgRoot?.setAttribute("focusable", "false");
     return container;
   }
 

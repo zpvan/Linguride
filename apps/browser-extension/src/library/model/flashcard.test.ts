@@ -73,6 +73,18 @@ describe("isFlashcardDeck", () => {
     expect(isFlashcardDeck(deck)).toBe(false);
   });
 
+  it("接受 ID 与卡片一致的插画", () => {
+    const deck = makeDeck();
+    deck.cards[0].art = { kind: "illustration", illustration: "animals-cat" };
+    expect(isFlashcardDeck(deck)).toBe(true);
+  });
+
+  it("拒绝 ID 与卡片不一致的插画", () => {
+    const deck = makeDeck();
+    deck.cards[0].art = { kind: "illustration", illustration: "animals-dog" };
+    expect(isFlashcardDeck(deck)).toBe(false);
+  });
+
   const invalidCases: Array<[string, (deck: FlashcardDeck) => void]> = [
     ["未知分类", (deck) => { (deck as { id: unknown }).id = "places"; }],
     ["schemaVersion 错误", (deck) => { (deck as { schemaVersion: number }).schemaVersion = 2; }],

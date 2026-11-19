@@ -23,6 +23,7 @@ const B = {
   magenta: ["#fdf4ff", "#f5d0fe"], white: ["#e2e8f0", "#cbd5e1"],
 } as const;
 const e = (emoji: string): FlashcardArt => ({ kind: "emoji", emoji });
+const i = (cardId: string): FlashcardArt => ({ kind: "illustration", illustration: cardId });
 const circle = (color: string): FlashcardArt => ({ kind: "vector", shape: "circle", color });
 
 export const basicExpansion = {
@@ -33,7 +34,7 @@ export const basicExpansion = {
     ["semicircle", e("◒"), B.yellow], ["crescent", e("🌙"), B.gray],
     ["arc", e("⌒"), B.blue], ["cube", e("🧊"), B.cyan],
     ["sphere", e("🔮"), B.purple], ["cone", e("🍦"), B.orange],
-    ["cylinder", e("🥫"), B.gray], ["pyramid", e("🔺🏜️"), B.yellow],
+    ["cylinder", e("🥫"), B.gray], ["pyramid", i("shapes-pyramid"), B.yellow],
     ["prism", e("💎"), B.pink], ["cross", e("➕"), B.red],
     ["arrow", e("➡️"), B.blue], ["line", e("➖"), B.gray],
     ["dot", e("⚫"), B.purple], ["ring", e("⭕"), B.red],

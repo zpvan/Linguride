@@ -266,8 +266,8 @@
       "id": "shapes-pyramid",
       "word": "pyramid",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔺🏜️"
+        "kind": "illustration",
+        "illustration": "shapes-pyramid"
       },
       "background": [
         "#fff8d9",
