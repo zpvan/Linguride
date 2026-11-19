@@ -78,8 +78,8 @@
       "id": "drinks-smoothie",
       "word": "smoothie",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤🍓"
+        "kind": "illustration",
+        "illustration": "drinks-smoothie"
       },
       "background": [
         "#fff0f5",
@@ -90,8 +90,8 @@
       "id": "drinks-soda",
       "word": "soda",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤🧊"
+        "kind": "illustration",
+        "illustration": "drinks-soda"
       },
       "background": [
         "#e2f4ff",
@@ -102,8 +102,8 @@
       "id": "drinks-mineral-water",
       "word": "mineral water",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧⛰️"
+        "kind": "illustration",
+        "illustration": "drinks-mineral-water"
       },
       "background": [
         "#e2f4ff",
@@ -114,8 +114,8 @@
       "id": "drinks-sparkling-water",
       "word": "sparkling water",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧✨"
+        "kind": "illustration",
+        "illustration": "drinks-sparkling-water"
       },
       "background": [
         "#f0e6ff",
@@ -126,8 +126,8 @@
       "id": "drinks-soda-water",
       "word": "soda water",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤✨"
+        "kind": "illustration",
+        "illustration": "drinks-soda-water"
       },
       "background": [
         "#f0f0f5",
@@ -138,8 +138,8 @@
       "id": "drinks-tonic-water",
       "word": "tonic water",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤🍋"
+        "kind": "illustration",
+        "illustration": "drinks-tonic-water"
       },
       "background": [
         "#fff8d9",
@@ -150,8 +150,8 @@
       "id": "drinks-coconut-water",
       "word": "coconut water",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥥💧"
+        "kind": "illustration",
+        "illustration": "drinks-coconut-water"
       },
       "background": [
         "#f8fafc",
@@ -162,8 +162,8 @@
       "id": "drinks-orange-juice",
       "word": "orange juice",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍊🧃"
+        "kind": "illustration",
+        "illustration": "drinks-orange-juice"
       },
       "background": [
         "#fff0e1",
@@ -174,8 +174,8 @@
       "id": "drinks-apple-juice",
       "word": "apple juice",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍎🧃"
+        "kind": "illustration",
+        "illustration": "drinks-apple-juice"
       },
       "background": [
         "#fff1f2",
@@ -186,8 +186,8 @@
       "id": "drinks-grape-juice",
       "word": "grape juice",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍇🧃"
+        "kind": "illustration",
+        "illustration": "drinks-grape-juice"
       },
       "background": [
         "#f0e6ff",
@@ -198,8 +198,8 @@
       "id": "drinks-iced-tea",
       "word": "iced tea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍵🧊"
+        "kind": "illustration",
+        "illustration": "drinks-iced-tea"
       },
       "background": [
         "#fff7ed",
@@ -210,8 +210,8 @@
       "id": "drinks-iced-coffee",
       "word": "iced coffee",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕🧊"
+        "kind": "illustration",
+        "illustration": "drinks-iced-coffee"
       },
       "background": [
         "#f0f0f5",
@@ -222,8 +222,8 @@
       "id": "drinks-milk-tea",
       "word": "milk tea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥛🍵"
+        "kind": "illustration",
+        "illustration": "drinks-milk-tea"
       },
       "background": [
         "#f3eadf",
@@ -246,8 +246,8 @@
       "id": "drinks-green-tea",
       "word": "green tea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍵🟢"
+        "kind": "illustration",
+        "illustration": "drinks-green-tea"
       },
       "background": [
         "#e5f8ed",
@@ -258,8 +258,8 @@
       "id": "drinks-black-tea",
       "word": "black tea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍵⚫"
+        "kind": "illustration",
+        "illustration": "drinks-black-tea"
       },
       "background": [
         "#f0f0f5",
@@ -270,8 +270,8 @@
       "id": "drinks-herbal-tea",
       "word": "herbal tea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍵🌿"
+        "kind": "illustration",
+        "illustration": "drinks-herbal-tea"
       },
       "background": [
         "#f0fdf4",
@@ -282,8 +282,8 @@
       "id": "drinks-hot-chocolate",
       "word": "hot chocolate",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍫🥛"
+        "kind": "illustration",
+        "illustration": "drinks-hot-chocolate"
       },
       "background": [
         "#f3eadf",
@@ -294,8 +294,8 @@
       "id": "drinks-cappuccino",
       "word": "cappuccino",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕🤎"
+        "kind": "illustration",
+        "illustration": "drinks-cappuccino"
       },
       "background": [
         "#fff0e1",
@@ -306,8 +306,8 @@
       "id": "drinks-latte",
       "word": "latte",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕🥛"
+        "kind": "illustration",
+        "illustration": "drinks-latte"
       },
       "background": [
         "#f8fafc",
@@ -318,8 +318,8 @@
       "id": "drinks-espresso",
       "word": "espresso",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕⚫"
+        "kind": "illustration",
+        "illustration": "drinks-espresso"
       },
       "background": [
         "#f3eadf",
@@ -330,8 +330,8 @@
       "id": "drinks-americano",
       "word": "americano",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕💧"
+        "kind": "illustration",
+        "illustration": "drinks-americano"
       },
       "background": [
         "#e2f4ff",
@@ -342,8 +342,8 @@
       "id": "drinks-mocha",
       "word": "mocha",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕🍫"
+        "kind": "illustration",
+        "illustration": "drinks-mocha"
       },
       "background": [
         "#f0e6ff",
@@ -354,8 +354,8 @@
       "id": "drinks-hot-water",
       "word": "hot water",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧🔥"
+        "kind": "illustration",
+        "illustration": "drinks-hot-water"
       },
       "background": [
         "#fff0e1",
@@ -366,8 +366,8 @@
       "id": "drinks-cold-water",
       "word": "cold water",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧🧊"
+        "kind": "illustration",
+        "illustration": "drinks-cold-water"
       },
       "background": [
         "#eff6ff",
@@ -378,8 +378,8 @@
       "id": "drinks-warm-water",
       "word": "warm water",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧♨️"
+        "kind": "illustration",
+        "illustration": "drinks-warm-water"
       },
       "background": [
         "#fff8d9",

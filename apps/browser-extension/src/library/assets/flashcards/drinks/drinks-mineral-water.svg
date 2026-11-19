@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="drinks-mineral-water-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bae6fd"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="drinks-mineral-water-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#drinks-mineral-water-shadow)">
+    <path d="M40 10h20v14c0 5 12 10 14 22l4 38c-11 7-45 7-56 0l4-38c2-12 14-17 14-22Z" fill="url(#drinks-mineral-water-main)" fill-opacity=".65" stroke="#0284c7" stroke-width="2"/>
+    <path d="M39 8h22v10H39Z" fill="#0284c7"/>
+    <path d="M28 56c13 6 31 6 44 0l3 28c-12 5-38 5-50 0Z" fill="#e0f2fe" opacity=".75"/>
+    <path d="m31 68 13-19 9 12 8-9 13 16Z" fill="#7dd3fc" stroke="#0284c7" stroke-width="1.5"/>
+    <path d="M42 25c-4 14-6 24-5 32" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+  </g>
+</svg>

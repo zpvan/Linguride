@@ -59,6 +59,8 @@ const expectedEmoji: Record<string, string[]> = {
   bathroom: ["🧼", "🛁🧺", "🪥", "🚿"],
 };
 
+const originalIllustrationIds = new Set(["drinks-smoothie", "drinks-soda"]);
+
 const expectedBackgrounds: Record<string, [string, string]> = {
   transport: ["#e2f4ff", "#b9dcf5"],
   fruits: ["#fff0f5", "#f6c9da"],
@@ -80,7 +82,7 @@ const expectedBackgroundOverrides: Record<string, [string, string]> = {
 };
 
 describe("常见物品分类正式数据", () => {
-  it("12 个分类现有 72 张保持不变", () => {
+  it("12 个分类原始 72 张仅允许目标图案升级为插画", () => {
     let total = 0;
     for (const [key, deck] of Object.entries(decks)) {
       const id = key as FlashcardCategoryId;
@@ -93,11 +95,14 @@ describe("常见物品分类正式数据", () => {
         expectedWords[id].map((word) => `${id}-${word}`)
       );
       expect(existingCards.map((card) => card.art.kind)).toEqual(
-        expectedWords[id].map(() => "emoji")
+        expectedWords[id].map((word) => originalIllustrationIds.has(`${id}-${word}`) ? "illustration" : "emoji")
       );
       expect(existingCards.map((card) => card.art.kind === "emoji" ? card.art.emoji : "")).toEqual(
-        expectedEmoji[id]
+        expectedEmoji[id].map((emoji, index) => originalIllustrationIds.has(`${id}-${expectedWords[id][index]}`) ? "" : emoji)
       );
+      for (const card of existingCards) {
+        if (card.art.kind === "illustration") expect(card.art.illustration).toBe(card.id);
+      }
       expect(existingCards.map((card) => card.background)).toEqual(
         expectedWords[id].map(
           (word) => expectedBackgroundOverrides[`${id}-${word}`] ?? expectedBackgrounds[id]

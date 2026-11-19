@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="drinks-hot-chocolate-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#92400e"/>
+      <stop offset="1" stop-color="#451a03"/>
+    </linearGradient>
+    <filter id="drinks-hot-chocolate-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#drinks-hot-chocolate-shadow)">
+    <path d="M19 39h57v27c-3 17-16 23-28 23S23 83 19 66Z" fill="url(#drinks-hot-chocolate-main)" stroke="#451a03" stroke-width="2"/>
+    <path d="M75 46c19-4 21 23 2 25" fill="none" stroke="#78350f" stroke-width="7"/>
+    <ellipse cx="47" cy="40" rx="28" ry="10" fill="#5b260b"/>
+    <path d="M30 41c-3-8 4-14 11-12-1-8 10-11 15-5 7-5 16 1 14 8 9 0 10 10 2 13-13 5-29 3-42-4Z" fill="#fff7ed"/>
+    <path d="M39 31c8 4 16 4 24 0M43 37c5 2 11 2 17 0" stroke="#d6a15f" stroke-width="2" fill="none"/>
+    <g fill="#78350f"><rect x="36" y="26" width="4" height="4" rx="1"/><rect x="57" y="25" width="4" height="4" rx="1"/><rect x="51" y="34" width="4" height="4" rx="1"/></g>
+  </g>
+</svg>
