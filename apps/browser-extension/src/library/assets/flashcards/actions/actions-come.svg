@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="actions-come-person" x2="0" y2="1"><stop stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="actions-come-arrow" x2="0" y2="1"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
+    <filter id="actions-come-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#actions-come-shadow)">
+    <circle cx="64" cy="21" r="10" fill="#f4b183"/>
+    <path d="M55 35Q64 29 72 37L75 56H53Z" fill="url(#actions-come-person)"/>
+    <path d="M58 54L48 78M70 54L80 77" stroke="#5b21b6" stroke-width="8" stroke-linecap="round"/>
+    <path d="M56 39L45 48M71 39L82 51" stroke="#f4b183" stroke-width="6" stroke-linecap="round"/>
+    <path d="M44 50H12M25 37L12 50L25 63" stroke="url(#actions-come-arrow)" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M41 80H54M74 79H86" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

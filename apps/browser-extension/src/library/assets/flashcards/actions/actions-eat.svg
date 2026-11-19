@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="actions-eat-plate"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#bfdbfe"/></radialGradient>
+    <linearGradient id="actions-eat-food" x2="0" y2="1"><stop stop-color="#fde68a"/><stop offset="1" stop-color="#f97316"/></linearGradient>
+    <filter id="actions-eat-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#actions-eat-shadow)">
+    <ellipse cx="47" cy="66" rx="37" ry="20" fill="url(#actions-eat-plate)" stroke="#93c5fd" stroke-width="2"/>
+    <path d="M28 65Q47 42 66 65Q47 79 28 65" fill="url(#actions-eat-food)"/>
+    <circle cx="40" cy="60" r="4" fill="#65a30d"/><circle cx="54" cy="62" r="4" fill="#dc2626"/>
+    <path d="M67 13L51 55" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="70" cy="15" rx="7" ry="11" transform="rotate(25 70 15)" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M32 55Q46 47 60 55" stroke="#fff7ed" stroke-width="3" fill="none" opacity=".7"/>
+  </g>
+</svg>

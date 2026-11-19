@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="actions-get-up-person" x2="0" y2="1"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient>
+    <linearGradient id="actions-get-up-bed" x2="0" y2="1"><stop stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+    <filter id="actions-get-up-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#actions-get-up-shadow)">
+    <path d="M8 62H49V82H8Z" fill="url(#actions-get-up-bed)"/>
+    <path d="M8 51H18V82H8Z" fill="#6d28d9"/>
+    <rect x="18" y="55" width="17" height="10" rx="4" fill="#fff"/>
+    <circle cx="61" cy="25" r="10" fill="#f4b183"/>
+    <path d="M52 39Q61 33 70 39L73 61H50Z" fill="url(#actions-get-up-person)"/>
+    <path d="M55 60L52 84M68 60L73 84" stroke="#166534" stroke-width="8" stroke-linecap="round"/>
+    <path d="M53 43L42 55M69 43L79 31" stroke="#f4b183" stroke-width="6" stroke-linecap="round"/>
+    <path d="M85 12V32M78 20L85 12L92 20" stroke="#f59e0b" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M45 85H55M68 85H79" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

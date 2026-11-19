@@ -162,8 +162,8 @@
       "id": "transport-school-bus",
       "word": "school bus",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚌🎒"
+        "kind": "illustration",
+        "illustration": "transport-school-bus"
       },
       "background": [
         "#fff8d9",
@@ -198,8 +198,8 @@
       "id": "transport-metro",
       "word": "metro",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚇🎫"
+        "kind": "illustration",
+        "illustration": "transport-metro"
       },
       "background": [
         "#e0f7fa",
@@ -258,8 +258,8 @@
       "id": "transport-kayak",
       "word": "kayak",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛶↔️"
+        "kind": "illustration",
+        "illustration": "transport-kayak"
       },
       "background": [
         "#f0fdf4",
@@ -330,8 +330,8 @@
       "id": "transport-bulldozer",
       "word": "bulldozer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚧🟨"
+        "kind": "illustration",
+        "illustration": "transport-bulldozer"
       },
       "background": [
         "#fff8d9",
@@ -342,8 +342,8 @@
       "id": "transport-excavator",
       "word": "excavator",
       "art": {
-        "kind": "emoji",
-        "emoji": "⛏️🚧"
+        "kind": "illustration",
+        "illustration": "transport-excavator"
       },
       "background": [
         "#fff0e1",
@@ -366,8 +366,8 @@
       "id": "transport-camper",
       "word": "camper",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚐🏕️"
+        "kind": "illustration",
+        "illustration": "transport-camper"
       },
       "background": [
         "#e5f8ed",

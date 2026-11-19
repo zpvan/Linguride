@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-metro-train" x2="0" y2="1"><stop stop-color="#e2e8f0"/><stop offset="1" stop-color="#64748b"/></linearGradient>
+    <linearGradient id="transport-metro-window" x2="0" y2="1"><stop stop-color="#7dd3fc"/><stop offset="1" stop-color="#0369a1"/></linearGradient>
+    <filter id="transport-metro-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".24"/></filter>
+  </defs>
+  <path d="M8 83V47Q8 8 50 8Q92 8 92 47V83" fill="#334155" opacity=".22"/>
+  <g filter="url(#transport-metro-shadow)">
+    <path d="M25 25Q25 14 50 14Q75 14 75 25V70Q75 81 50 81Q25 81 25 70Z" fill="url(#transport-metro-train)" stroke="#475569" stroke-width="2"/>
+    <rect x="32" y="23" width="36" height="24" rx="5" fill="url(#transport-metro-window)"/>
+    <path d="M50 23V47" stroke="#0e7490" stroke-width="2"/>
+    <path d="M27 55H73" stroke="#dc2626" stroke-width="5"/>
+    <circle cx="37" cy="65" r="5" fill="#fef3c7"/><circle cx="63" cy="65" r="5" fill="#fef3c7"/>
+    <path d="M38 81L28 93M62 81L72 93M20 91H80" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

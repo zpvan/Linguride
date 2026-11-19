@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-excavator-body" x2="0" y2="1"><stop stop-color="#fde047"/><stop offset="1" stop-color="#d97706"/></linearGradient>
+    <linearGradient id="transport-excavator-arm" x2="1" y2="1"><stop stop-color="#fbbf24"/><stop offset="1" stop-color="#b45309"/></linearGradient>
+    <filter id="transport-excavator-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".24"/></filter>
+  </defs>
+  <g filter="url(#transport-excavator-shadow)">
+    <path d="M10 70H59V82H10Q4 76 10 70Z" fill="#334155"/>
+    <g fill="#94a3b8"><circle cx="18" cy="76" r="4"/><circle cx="31" cy="76" r="4"/><circle cx="44" cy="76" r="4"/><circle cx="55" cy="76" r="4"/></g>
+    <path d="M17 45H51V69H17Z" fill="url(#transport-excavator-body)"/>
+    <path d="M24 29H43V47H24Z" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+    <path d="M28 33H39V43H28Z" fill="#bae6fd"/>
+    <path d="M45 44L62 15L75 22L59 50" fill="url(#transport-excavator-arm)" stroke="#b45309" stroke-width="2"/>
+    <path d="M68 20L86 46" stroke="url(#transport-excavator-arm)" stroke-width="9" stroke-linecap="round"/>
+    <path d="M83 42Q96 48 91 64L75 57Z" fill="#64748b" stroke="#334155" stroke-width="2"/>
+  </g>
+</svg>

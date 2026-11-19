@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-school-bus-body" x2="0" y2="1"><stop stop-color="#fde047"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+    <linearGradient id="transport-school-bus-window" x2="0" y2="1"><stop stop-color="#e0f2fe"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+    <filter id="transport-school-bus-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#transport-school-bus-shadow)">
+    <path d="M10 28Q10 19 20 19H73Q84 19 87 31L92 63V73H8V35Q8 28 10 28Z" fill="url(#transport-school-bus-body)" stroke="#b45309" stroke-width="2"/>
+    <rect x="18" y="27" width="56" height="22" rx="4" fill="url(#transport-school-bus-window)"/>
+    <path d="M32 27V49M46 27V49M60 27V49" stroke="#0e7490" stroke-width="2"/>
+    <rect x="77" y="34" width="10" height="29" rx="2" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+    <path d="M9 57H91" stroke="#1f2937" stroke-width="4"/>
+    <circle cx="27" cy="75" r="10" fill="#334155"/><circle cx="27" cy="75" r="4" fill="#cbd5e1"/>
+    <circle cx="75" cy="75" r="10" fill="#334155"/><circle cx="75" cy="75" r="4" fill="#cbd5e1"/>
+    <path d="M15 64H25M80 64H89" stroke="#fef3c7" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-bulldozer-body" x2="0" y2="1"><stop stop-color="#fde047"/><stop offset="1" stop-color="#d97706"/></linearGradient>
+    <linearGradient id="transport-bulldozer-blade" x2="0" y2="1"><stop stop-color="#e2e8f0"/><stop offset="1" stop-color="#64748b"/></linearGradient>
+    <filter id="transport-bulldozer-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".24"/></filter>
+  </defs>
+  <g filter="url(#transport-bulldozer-shadow)">
+    <path d="M17 68H76V82H17Q10 75 17 68Z" fill="#334155"/>
+    <g fill="#94a3b8"><circle cx="25" cy="75" r="5"/><circle cx="40" cy="75" r="5"/><circle cx="55" cy="75" r="5"/><circle cx="70" cy="75" r="5"/></g>
+    <path d="M24 34H58V67H24Z" fill="url(#transport-bulldozer-body)"/>
+    <path d="M33 17H58V40H33Z" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+    <path d="M38 21H53V35H38Z" fill="#bae6fd"/>
+    <path d="M58 52L80 59" stroke="#b45309" stroke-width="6"/>
+    <path d="M75 44L94 49L88 76L69 71Z" fill="url(#transport-bulldozer-blade)" stroke="#475569" stroke-width="2"/>
+    <path d="M20 46H30" stroke="#fef3c7" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

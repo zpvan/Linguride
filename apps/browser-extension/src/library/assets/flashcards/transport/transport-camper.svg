@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-camper-body" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
+    <linearGradient id="transport-camper-window" x2="0" y2="1"><stop stop-color="#e0f2fe"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+    <filter id="transport-camper-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#transport-camper-shadow)">
+    <path d="M10 27Q10 19 18 19H65V34H82Q90 34 92 45V72H8V27Z" fill="url(#transport-camper-body)" stroke="#059669" stroke-width="2"/>
+    <rect x="18" y="28" width="28" height="21" rx="4" fill="url(#transport-camper-window)"/>
+    <rect x="52" y="39" width="20" height="33" rx="3" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+    <rect x="75" y="41" width="12" height="13" rx="2" fill="url(#transport-camper-window)"/>
+    <path d="M12 58H88" stroke="#10b981" stroke-width="5"/>
+    <circle cx="26" cy="75" r="10" fill="#334155"/><circle cx="26" cy="75" r="4" fill="#cbd5e1"/>
+    <circle cx="75" cy="75" r="10" fill="#334155"/><circle cx="75" cy="75" r="4" fill="#cbd5e1"/>
+    <circle cx="66" cy="56" r="2" fill="#047857"/>
+  </g>
+</svg>

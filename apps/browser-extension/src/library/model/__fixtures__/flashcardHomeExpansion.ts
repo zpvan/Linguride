@@ -15,21 +15,22 @@ const B = {
   white: ["#f8fafc", "#e2e8f0"], mint: ["#f0fdf4", "#bbf7d0"],
 } as const;
 const e = (emoji: string): FlashcardArt => ({ kind: "emoji", emoji });
+const i = (cardId: string): FlashcardArt => ({ kind: "illustration", illustration: cardId });
 
 export const homeExpansion = {
   transport: [
     ["truck", e("🚚"), B.gray], ["van", e("🚐"), B.white],
     ["ambulance", e("🚑"), B.white], ["police car", e("🚓"), B.gray],
-    ["fire truck", e("🚒"), B.red], ["school bus", e("🚌🎒"), B.yellow],
+    ["fire truck", e("🚒"), B.red], ["school bus", i("transport-school-bus"), B.yellow],
     ["subway", e("🚇"), B.gray], ["tram", e("🚋"), B.green],
-    ["metro", e("🚇🎫"), B.cyan], ["boat", e("⛵"), B.cyan],
+    ["metro", i("transport-metro"), B.cyan], ["boat", e("⛵"), B.cyan],
     ["ferry", e("⛴️"), B.gray], ["yacht", e("🛥️"), B.white],
-    ["canoe", e("🛶"), B.brown], ["kayak", e("🛶↔️"), B.mint],
+    ["canoe", e("🛶"), B.brown], ["kayak", i("transport-kayak"), B.mint],
     ["helicopter", e("🚁"), B.gray], ["rocket", e("🚀"), B.purple],
     ["scooter", e("🛴"), B.green], ["skateboard", e("🛹"), B.orange],
-    ["tractor", e("🚜"), B.green], ["bulldozer", e("🚧🟨"), B.yellow],
-    ["excavator", e("⛏️🚧"), B.orange], ["crane", e("🏗️"), B.gray],
-    ["camper", e("🚐🏕️"), B.green], ["sled", e("🛷"), B.cyan],
+    ["tractor", e("🚜"), B.green], ["bulldozer", i("transport-bulldozer"), B.yellow],
+    ["excavator", i("transport-excavator"), B.orange], ["crane", e("🏗️"), B.gray],
+    ["camper", i("transport-camper"), B.green], ["sled", e("🛷"), B.cyan],
   ],
   furniture: [
     ["coffee table", e("☕🪑"), B.yellow], ["dining table", e("🍽️🪑"), B.orange],

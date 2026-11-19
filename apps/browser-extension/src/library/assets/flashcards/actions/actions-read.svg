@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="actions-read-cover" x2="1" y2="1"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#4338ca"/></linearGradient>
+    <linearGradient id="actions-read-paper" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#fde68a"/></linearGradient>
+    <filter id="actions-read-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#actions-read-shadow)">
+    <path d="M10 25Q30 17 50 29V84Q30 72 10 80Z" fill="url(#actions-read-cover)"/>
+    <path d="M90 25Q70 17 50 29V84Q70 72 90 80Z" fill="url(#actions-read-cover)"/>
+    <path d="M15 27Q32 23 47 32V75Q32 67 15 72Z" fill="url(#actions-read-paper)"/>
+    <path d="M85 27Q68 23 53 32V75Q68 67 85 72Z" fill="url(#actions-read-paper)"/>
+    <path d="M23 39L39 43M23 49L39 53M61 43L77 39M61 53L77 49" stroke="#c7a75a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M50 29V84" stroke="#312e81" stroke-width="2"/>
+    <path d="M64 26V47L69 42L74 47V25" fill="#f472b6"/>
+  </g>
+</svg>

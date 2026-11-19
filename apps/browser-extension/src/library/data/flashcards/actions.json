@@ -78,8 +78,8 @@
       "id": "actions-eat",
       "word": "eat",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒🍽️"
+        "kind": "illustration",
+        "illustration": "actions-eat"
       },
       "background": [
         "#fff0e1",
@@ -90,8 +90,8 @@
       "id": "actions-drink",
       "word": "drink",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒🥤"
+        "kind": "illustration",
+        "illustration": "actions-drink"
       },
       "background": [
         "#e2f4ff",
@@ -114,8 +114,8 @@
       "id": "actions-read",
       "word": "read",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒📖"
+        "kind": "illustration",
+        "illustration": "actions-read"
       },
       "background": [
         "#fff8d9",
@@ -174,8 +174,8 @@
       "id": "actions-sit",
       "word": "sit",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒🪑"
+        "kind": "illustration",
+        "illustration": "actions-sit"
       },
       "background": [
         "#f3eadf",
@@ -198,8 +198,8 @@
       "id": "actions-wake-up",
       "word": "wake up",
       "art": {
-        "kind": "emoji",
-        "emoji": "⏰😴"
+        "kind": "illustration",
+        "illustration": "actions-wake-up"
       },
       "background": [
         "#fff8d9",
@@ -210,8 +210,8 @@
       "id": "actions-get-up",
       "word": "get up",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧍🛏️"
+        "kind": "illustration",
+        "illustration": "actions-get-up"
       },
       "background": [
         "#fff0e1",
@@ -222,8 +222,8 @@
       "id": "actions-go",
       "word": "go",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒➡️"
+        "kind": "illustration",
+        "illustration": "actions-go"
       },
       "background": [
         "#e2f4ff",
@@ -234,8 +234,8 @@
       "id": "actions-come",
       "word": "come",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒⬅️"
+        "kind": "illustration",
+        "illustration": "actions-come"
       },
       "background": [
         "#e5f8ed",
@@ -258,8 +258,8 @@
       "id": "actions-listen",
       "word": "listen",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒🎧"
+        "kind": "illustration",
+        "illustration": "actions-listen"
       },
       "background": [
         "#f0e6ff",
@@ -282,8 +282,8 @@
       "id": "actions-watch",
       "word": "watch",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒📺"
+        "kind": "illustration",
+        "illustration": "actions-watch"
       },
       "background": [
         "#f0f0f5",
@@ -342,8 +342,8 @@
       "id": "actions-ask",
       "word": "ask",
       "art": {
-        "kind": "emoji",
-        "emoji": "🙋❓"
+        "kind": "illustration",
+        "illustration": "actions-ask"
       },
       "background": [
         "#fff0f5",
@@ -354,8 +354,8 @@
       "id": "actions-answer",
       "word": "answer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒✅"
+        "kind": "illustration",
+        "illustration": "actions-answer"
       },
       "background": [
         "#e5f8ed",
@@ -366,8 +366,8 @@
       "id": "actions-open",
       "word": "open",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚪🔓"
+        "kind": "illustration",
+        "illustration": "actions-open"
       },
       "background": [
         "#fff8d9",
@@ -378,8 +378,8 @@
       "id": "actions-close",
       "word": "close",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚪🔒"
+        "kind": "illustration",
+        "illustration": "actions-close"
       },
       "background": [
         "#f0f0f5",

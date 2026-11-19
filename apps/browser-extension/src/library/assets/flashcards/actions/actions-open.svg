@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="actions-open-door" x2="1" y2="1"><stop stop-color="#fbbf24"/><stop offset="1" stop-color="#b45309"/></linearGradient>
+    <linearGradient id="actions-open-light" x2="0" y2="1"><stop stop-color="#fffbeb"/><stop offset="1" stop-color="#fde68a"/></linearGradient>
+    <filter id="actions-open-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#actions-open-shadow)">
+    <rect x="18" y="10" width="58" height="80" rx="4" fill="url(#actions-open-light)" stroke="#92400e" stroke-width="4"/>
+    <path d="M25 15L61 24V84L25 88Z" fill="url(#actions-open-door)" stroke="#92400e" stroke-width="2"/>
+    <circle cx="52" cy="55" r="3" fill="#fef3c7"/>
+    <path d="M66 51H92M82 41L92 51L82 61" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

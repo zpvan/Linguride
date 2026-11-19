@@ -14,7 +14,15 @@ import {
 } from "../assets/flashcardArt";
 import type { FlashcardDeck } from "./flashcard";
 
-const FIRST_BATCH_IDS = new Set(["shapes-pyramid"]);
+const FIRST_BATCH_IDS = new Set([
+  "shapes-pyramid",
+  "actions-eat", "actions-drink", "actions-read", "actions-sit",
+  "actions-wake-up", "actions-get-up", "actions-go", "actions-come",
+  "actions-listen", "actions-watch", "actions-ask", "actions-answer",
+  "actions-open", "actions-close",
+  "transport-school-bus", "transport-metro", "transport-kayak",
+  "transport-bulldozer", "transport-excavator", "transport-camper",
+]);
 const decks = { shapes, actions, transport };
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -42,7 +50,8 @@ describe("第一批定制 SVG 插画", () => {
         expect(card.art).toEqual({ kind: "illustration", illustration: card.id });
         const svg = getFlashcardIllustration(card.id);
         expect(svg, `${card.id} 缺少 SVG`).toBeDefined();
-        expectSafeSvg(svg!, card.id);
+        if (!svg) throw new Error(`${card.id} 缺少 SVG`);
+        expectSafeSvg(svg, card.id);
       }
     }
   });

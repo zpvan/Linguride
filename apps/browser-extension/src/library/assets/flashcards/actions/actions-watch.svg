@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="actions-watch-frame" x2="0" y2="1"><stop stop-color="#64748b"/><stop offset="1" stop-color="#1e293b"/></linearGradient>
+    <radialGradient id="actions-watch-screen"><stop stop-color="#e0f2fe"/><stop offset="1" stop-color="#38bdf8"/></radialGradient>
+    <filter id="actions-watch-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#actions-watch-shadow)">
+    <rect x="10" y="19" width="80" height="56" rx="10" fill="url(#actions-watch-frame)"/>
+    <rect x="16" y="25" width="68" height="43" rx="6" fill="url(#actions-watch-screen)"/>
+    <path d="M29 47Q50 29 71 47Q50 65 29 47Z" fill="#f0f9ff" stroke="#0369a1" stroke-width="2"/>
+    <circle cx="50" cy="47" r="9" fill="#2563eb"/><circle cx="50" cy="47" r="4" fill="#0f172a"/>
+    <path d="M42 76V84H58V76M32 85H68" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>
