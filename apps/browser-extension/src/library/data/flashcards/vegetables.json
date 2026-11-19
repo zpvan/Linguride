@@ -114,8 +114,8 @@
       "id": "vegetables-cauliflower",
       "word": "cauliflower",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥦⚪"
+        "kind": "illustration",
+        "illustration": "vegetables-cauliflower"
       },
       "background": [
         "#f8fafc",
@@ -138,8 +138,8 @@
       "id": "vegetables-lettuce",
       "word": "lettuce",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥬🥗"
+        "kind": "illustration",
+        "illustration": "vegetables-lettuce"
       },
       "background": [
         "#f0fdf4",
@@ -150,8 +150,8 @@
       "id": "vegetables-spinach",
       "word": "spinach",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍃🥗"
+        "kind": "illustration",
+        "illustration": "vegetables-spinach"
       },
       "background": [
         "#e5f8ed",
@@ -162,8 +162,8 @@
       "id": "vegetables-kale",
       "word": "kale",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍃🟢"
+        "kind": "illustration",
+        "illustration": "vegetables-kale"
       },
       "background": [
         "#f7fee7",
@@ -174,8 +174,8 @@
       "id": "vegetables-celery",
       "word": "celery",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌿🟢"
+        "kind": "illustration",
+        "illustration": "vegetables-celery"
       },
       "background": [
         "#e5f8ed",
@@ -186,8 +186,8 @@
       "id": "vegetables-asparagus",
       "word": "asparagus",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌱🟢"
+        "kind": "illustration",
+        "illustration": "vegetables-asparagus"
       },
       "background": [
         "#f0fdf4",
@@ -198,8 +198,8 @@
       "id": "vegetables-zucchini",
       "word": "zucchini",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥒🟢"
+        "kind": "illustration",
+        "illustration": "vegetables-zucchini"
       },
       "background": [
         "#f7fee7",
@@ -222,8 +222,8 @@
       "id": "vegetables-radish",
       "word": "radish",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔴🌱"
+        "kind": "illustration",
+        "illustration": "vegetables-radish"
       },
       "background": [
         "#fff1f2",
@@ -234,8 +234,8 @@
       "id": "vegetables-turnip",
       "word": "turnip",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟣🌱"
+        "kind": "illustration",
+        "illustration": "vegetables-turnip"
       },
       "background": [
         "#f0e6ff",
@@ -246,8 +246,8 @@
       "id": "vegetables-beet",
       "word": "beet",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟣🥔"
+        "kind": "illustration",
+        "illustration": "vegetables-beet"
       },
       "background": [
         "#fff0f5",
@@ -282,8 +282,8 @@
       "id": "vegetables-chickpea",
       "word": "chickpea",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫘🟡"
+        "kind": "illustration",
+        "illustration": "vegetables-chickpea"
       },
       "background": [
         "#fff8d9",
@@ -294,8 +294,8 @@
       "id": "vegetables-lentil",
       "word": "lentil",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫘🟤"
+        "kind": "illustration",
+        "illustration": "vegetables-lentil"
       },
       "background": [
         "#fff0e1",
@@ -354,8 +354,8 @@
       "id": "vegetables-bell-pepper",
       "word": "bell pepper",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫑🟢"
+        "kind": "illustration",
+        "illustration": "vegetables-bell-pepper"
       },
       "background": [
         "#f7fee7",
@@ -366,8 +366,8 @@
       "id": "vegetables-artichoke",
       "word": "artichoke",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌿🟣"
+        "kind": "illustration",
+        "illustration": "vegetables-artichoke"
       },
       "background": [
         "#f0e6ff",
@@ -378,8 +378,8 @@
       "id": "vegetables-bok-choy",
       "word": "bok choy",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥬🤍"
+        "kind": "illustration",
+        "illustration": "vegetables-bok-choy"
       },
       "background": [
         "#f8fafc",

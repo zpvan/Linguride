@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="fruits-date-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="1" stop-color="#713f12"/>
+    </linearGradient>
+    <filter id="fruits-date-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#fruits-date-shadow)">
+    <path d="M47 20c2-8 8-11 14-10" stroke="#65a30d" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="38" cy="39" rx="16" ry="24" fill="url(#fruits-date-main)" transform="rotate(-25 38 39)"/>
+    <ellipse cx="61" cy="59" rx="16" ry="25" fill="#92400e" transform="rotate(28 61 59)"/>
+    <ellipse cx="36" cy="69" rx="14" ry="21" fill="#78350f" transform="rotate(35 36 69)"/>
+    <path d="M28 24c8 7 13 18 14 29M55 39c9 9 13 23 11 36M25 58c8 5 14 14 16 23" stroke="#d6a15f" stroke-width="1.5" fill="none" opacity=".6"/>
+    <ellipse cx="73" cy="30" rx="7" ry="16" fill="#d6a15f" transform="rotate(35 73 30)"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="food-toast-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="food-toast-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#food-toast-shadow)">
+    <path d="M27 30C15 14 34 7 50 13 66 7 85 14 73 30l5 48c-17 12-39 12-56 0Z" fill="#b45309"/>
+    <path d="M31 32C23 21 36 16 50 21 64 16 77 21 69 32l4 42c-14 9-32 9-46 0Z" fill="url(#food-toast-main)"/>
+    <path d="M34 37c10-7 22-7 32 0M32 66c12 7 24 7 36 0" stroke="#fde68a" stroke-width="3" opacity=".5" fill="none"/>
+    <g fill="#92400e" opacity=".45"><circle cx="39" cy="42" r="2"/><circle cx="57" cy="36" r="2"/><circle cx="62" cy="55" r="2"/><circle cx="43" cy="61" r="2"/><circle cx="53" cy="70" r="2"/></g>
+  </g>
+</svg>

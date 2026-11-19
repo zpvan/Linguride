@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="vegetables-lettuce-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bbf7d0"/>
+      <stop offset="1" stop-color="#4d7c0f"/>
+    </linearGradient>
+    <filter id="vegetables-lettuce-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#vegetables-lettuce-shadow)">
+    <path d="M50 84C27 88 11 73 16 53 4 36 23 20 38 26 49 8 70 18 70 31c20-1 25 22 12 34 4 17-14 23-32 19Z" fill="url(#vegetables-lettuce-main)"/>
+    <g fill="none" stroke="#65a30d" stroke-width="2"><path d="M50 82c-3-23-1-41 4-57M48 69 29 48M51 59l20-20M47 48 36 34M51 74l22-14"/></g>
+    <path d="M50 82c-15-8-20-21-13-32 4 12 10 20 13 32Zm2-2c15-8 23-18 20-31-8 11-15 19-20 31Z" fill="#86efac" opacity=".75"/>
+  </g>
+</svg>

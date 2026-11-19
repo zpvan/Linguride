@@ -114,8 +114,8 @@
       "id": "fruits-lime",
       "word": "lime",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍋🟢"
+        "kind": "illustration",
+        "illustration": "fruits-lime"
       },
       "background": [
         "#e5f8ed",
@@ -162,8 +162,8 @@
       "id": "fruits-papaya",
       "word": "papaya",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟠⚫"
+        "kind": "illustration",
+        "illustration": "fruits-papaya"
       },
       "background": [
         "#fff0f5",
@@ -186,8 +186,8 @@
       "id": "fruits-cantaloupe",
       "word": "cantaloupe",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍈🟠"
+        "kind": "illustration",
+        "illustration": "fruits-cantaloupe"
       },
       "background": [
         "#fff0e1",
@@ -210,8 +210,8 @@
       "id": "fruits-plum",
       "word": "plum",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟣🍑"
+        "kind": "illustration",
+        "illustration": "fruits-plum"
       },
       "background": [
         "#f0e6ff",
@@ -222,8 +222,8 @@
       "id": "fruits-apricot",
       "word": "apricot",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟠🍑"
+        "kind": "illustration",
+        "illustration": "fruits-apricot"
       },
       "background": [
         "#fff0e1",
@@ -246,8 +246,8 @@
       "id": "fruits-fig",
       "word": "fig",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟤🍐"
+        "kind": "illustration",
+        "illustration": "fruits-fig"
       },
       "background": [
         "#f3eadf",
@@ -258,8 +258,8 @@
       "id": "fruits-date",
       "word": "date",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌴🟤"
+        "kind": "illustration",
+        "illustration": "fruits-date"
       },
       "background": [
         "#fff8d9",
@@ -270,8 +270,8 @@
       "id": "fruits-pomegranate",
       "word": "pomegranate",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔴🍎"
+        "kind": "illustration",
+        "illustration": "fruits-pomegranate"
       },
       "background": [
         "#fff1f2",
@@ -282,8 +282,8 @@
       "id": "fruits-raspberry",
       "word": "raspberry",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔴🔴🌿"
+        "kind": "illustration",
+        "illustration": "fruits-raspberry"
       },
       "background": [
         "#f0e6ff",
@@ -294,8 +294,8 @@
       "id": "fruits-blackberry",
       "word": "blackberry",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫐⚫"
+        "kind": "illustration",
+        "illustration": "fruits-blackberry"
       },
       "background": [
         "#f0f0f5",
@@ -318,8 +318,8 @@
       "id": "fruits-cranberry",
       "word": "cranberry",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫐🔴"
+        "kind": "illustration",
+        "illustration": "fruits-cranberry"
       },
       "background": [
         "#fff1f2",
@@ -330,8 +330,8 @@
       "id": "fruits-gooseberry",
       "word": "gooseberry",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫐🟢"
+        "kind": "illustration",
+        "illustration": "fruits-gooseberry"
       },
       "background": [
         "#e5f8ed",
@@ -342,8 +342,8 @@
       "id": "fruits-passion-fruit",
       "word": "passion fruit",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟣🟡"
+        "kind": "illustration",
+        "illustration": "fruits-passion-fruit"
       },
       "background": [
         "#f0e6ff",
@@ -354,8 +354,8 @@
       "id": "fruits-dragon-fruit",
       "word": "dragon fruit",
       "art": {
-        "kind": "emoji",
-        "emoji": "🐉🍓"
+        "kind": "illustration",
+        "illustration": "fruits-dragon-fruit"
       },
       "background": [
         "#f0e6ff",
@@ -366,8 +366,8 @@
       "id": "fruits-guava",
       "word": "guava",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍐🟢"
+        "kind": "illustration",
+        "illustration": "fruits-guava"
       },
       "background": [
         "#f0fdf4",
@@ -378,8 +378,8 @@
       "id": "fruits-lychee",
       "word": "lychee",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍒⚪"
+        "kind": "illustration",
+        "illustration": "fruits-lychee"
       },
       "background": [
         "#f8fafc",

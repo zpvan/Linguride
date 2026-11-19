@@ -126,8 +126,8 @@
       "id": "food-yogurt",
       "word": "yogurt",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣🥛"
+        "kind": "illustration",
+        "illustration": "food-yogurt"
       },
       "background": [
         "#f8fafc",
@@ -150,8 +150,8 @@
       "id": "food-jam",
       "word": "jam",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍓🫙"
+        "kind": "illustration",
+        "illustration": "food-jam"
       },
       "background": [
         "#fff0f5",
@@ -162,8 +162,8 @@
       "id": "food-peanut-butter",
       "word": "peanut butter",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥜🧈"
+        "kind": "illustration",
+        "illustration": "food-peanut-butter"
       },
       "background": [
         "#f3eadf",
@@ -174,8 +174,8 @@
       "id": "food-cereal",
       "word": "cereal",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣🌽"
+        "kind": "illustration",
+        "illustration": "food-cereal"
       },
       "background": [
         "#fff8d9",
@@ -186,8 +186,8 @@
       "id": "food-oatmeal",
       "word": "oatmeal",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣🌾"
+        "kind": "illustration",
+        "illustration": "food-oatmeal"
       },
       "background": [
         "#f3eadf",
@@ -222,8 +222,8 @@
       "id": "food-toast",
       "word": "toast",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍞🔥"
+        "kind": "illustration",
+        "illustration": "food-toast"
       },
       "background": [
         "#fff0e1",
@@ -294,8 +294,8 @@
       "id": "food-pork",
       "word": "pork",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥩🐷"
+        "kind": "illustration",
+        "illustration": "food-pork"
       },
       "background": [
         "#fff0f5",
@@ -306,8 +306,8 @@
       "id": "food-lamb",
       "word": "lamb",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥩🐑"
+        "kind": "illustration",
+        "illustration": "food-lamb"
       },
       "background": [
         "#f3eadf",
@@ -318,8 +318,8 @@
       "id": "food-fish",
       "word": "fish",
       "art": {
-        "kind": "emoji",
-        "emoji": "🐟🍽️"
+        "kind": "illustration",
+        "illustration": "food-fish"
       },
       "background": [
         "#e2f4ff",
