@@ -59,12 +59,12 @@ describe("水果、蔬菜与食物定制 SVG 插画", () => {
     expect(count).toBe(40);
   });
 
-  it("同分类没有重复构图", () => {
+  it("同分类没有完全相同的 SVG", () => {
     for (const [category, deck] of Object.entries(decks)) {
       const svgs = deck.cards
         .filter((card) => TARGET_IDS.has(card.id))
         .map((card) => getFlashcardIllustration(card.id));
-      expect(new Set(svgs).size, `${category} 插画重复`).toBe(svgs.length);
+      expect(new Set(svgs).size, `${category} 插画内容完全相同`).toBe(svgs.length);
     }
   });
 });

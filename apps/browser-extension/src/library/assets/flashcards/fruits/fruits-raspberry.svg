@@ -9,8 +9,15 @@
     </filter>
   </defs>
   <g filter="url(#fruits-raspberry-shadow)">
-    <path d="M49 27c-5-11-16-13-24-9 5 9 13 13 24 9Zm3 0c5-11 16-13 24-9-5 9-13 13-24 9Z" fill="#4d7c0f"/>
-    <g fill="url(#fruits-raspberry-main)" stroke="#fecdd3" stroke-width=".7"><circle cx="38" cy="38" r="10"/><circle cx="53" cy="36" r="10"/><circle cx="66" cy="42" r="10"/><circle cx="31" cy="52" r="10"/><circle cx="47" cy="51" r="10"/><circle cx="62" cy="56" r="10"/><circle cx="38" cy="66" r="10"/><circle cx="53" cy="68" r="10"/><circle cx="47" cy="80" r="8"/></g>
-    <ellipse cx="51" cy="42" rx="5" ry="8" fill="#881337" opacity=".5"/>
+    <path d="M48 30c-8-12-20-13-28-6 8 9 17 12 28 6Zm5-1c5-12 17-16 27-11-4 10-14 16-27 11Z" fill="#4d7c0f"/>
+    <path d="M31 35c4-13 33-17 40 0l-9 42c-3 13-20 14-24 1Z" fill="#9f1239" opacity=".45"/>
+    <g fill="url(#fruits-raspberry-main)" stroke="#fecdd3" stroke-width=".8">
+      <circle cx="35" cy="36" r="9"/><circle cx="50" cy="32" r="9"/><circle cx="65" cy="36" r="9"/>
+      <circle cx="31" cy="50" r="8"/><circle cx="45" cy="48" r="8"/><circle cx="59" cy="48" r="8"/><circle cx="71" cy="50" r="8"/>
+      <circle cx="38" cy="62" r="8"/><circle cx="52" cy="62" r="8"/><circle cx="65" cy="62" r="8"/>
+      <circle cx="44" cy="74" r="7"/><circle cx="57" cy="74" r="7"/><circle cx="51" cy="84" r="6"/>
+    </g>
+    <ellipse cx="50" cy="31" rx="8" ry="4" fill="#881337"/>
+    <path d="M45 30c3-2 7-2 10 0" stroke="#fecdd3" stroke-width="1.5" fill="none" opacity=".65"/>
   </g>
 </svg>
