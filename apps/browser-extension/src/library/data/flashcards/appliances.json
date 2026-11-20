@@ -54,8 +54,8 @@
       "id": "appliances-refrigerator",
       "word": "refrigerator",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧊🚪"
+        "kind": "illustration",
+        "illustration": "appliances-refrigerator"
       },
       "background": [
         "#e0f7fa",
@@ -66,8 +66,8 @@
       "id": "appliances-freezer",
       "word": "freezer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧊❄️"
+        "kind": "illustration",
+        "illustration": "appliances-freezer"
       },
       "background": [
         "#e2f4ff",
@@ -78,8 +78,8 @@
       "id": "appliances-washing-machine",
       "word": "washing machine",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧺⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-washing-machine"
       },
       "background": [
         "#e2f4ff",
@@ -90,8 +90,8 @@
       "id": "appliances-dryer",
       "word": "dryer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧺💨"
+        "kind": "illustration",
+        "illustration": "appliances-dryer"
       },
       "background": [
         "#f0f0f5",
@@ -102,8 +102,8 @@
       "id": "appliances-dishwasher",
       "word": "dishwasher",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍽️💦"
+        "kind": "illustration",
+        "illustration": "appliances-dishwasher"
       },
       "background": [
         "#e0f7fa",
@@ -114,8 +114,8 @@
       "id": "appliances-oven",
       "word": "oven",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔥📦"
+        "kind": "illustration",
+        "illustration": "appliances-oven"
       },
       "background": [
         "#fff0e1",
@@ -126,8 +126,8 @@
       "id": "appliances-microwave",
       "word": "microwave",
       "art": {
-        "kind": "emoji",
-        "emoji": "♨️📦"
+        "kind": "illustration",
+        "illustration": "appliances-microwave"
       },
       "background": [
         "#f0f0f5",
@@ -138,8 +138,8 @@
       "id": "appliances-stove",
       "word": "stove",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍳🔥"
+        "kind": "illustration",
+        "illustration": "appliances-stove"
       },
       "background": [
         "#fff1f2",
@@ -150,8 +150,8 @@
       "id": "appliances-rice-cooker",
       "word": "rice cooker",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍚⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-rice-cooker"
       },
       "background": [
         "#f8fafc",
@@ -162,8 +162,8 @@
       "id": "appliances-pressure-cooker",
       "word": "pressure cooker",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍲💨"
+        "kind": "illustration",
+        "illustration": "appliances-pressure-cooker"
       },
       "background": [
         "#f0f0f5",
@@ -174,8 +174,8 @@
       "id": "appliances-air-fryer",
       "word": "air fryer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍟♨️"
+        "kind": "illustration",
+        "illustration": "appliances-air-fryer"
       },
       "background": [
         "#fff0e1",
@@ -186,8 +186,8 @@
       "id": "appliances-blender",
       "word": "blender",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-blender"
       },
       "background": [
         "#fff0f5",
@@ -198,8 +198,8 @@
       "id": "appliances-juicer",
       "word": "juicer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍊⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-juicer"
       },
       "background": [
         "#fff0e1",
@@ -210,8 +210,8 @@
       "id": "appliances-mixer",
       "word": "mixer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-mixer"
       },
       "background": [
         "#fff8d9",
@@ -222,8 +222,8 @@
       "id": "appliances-toaster",
       "word": "toaster",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍞♨️"
+        "kind": "illustration",
+        "illustration": "appliances-toaster"
       },
       "background": [
         "#f3eadf",
@@ -234,8 +234,8 @@
       "id": "appliances-kettle",
       "word": "kettle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫖⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-kettle"
       },
       "background": [
         "#f0f0f5",
@@ -246,8 +246,8 @@
       "id": "appliances-coffee-maker",
       "word": "coffee maker",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-coffee-maker"
       },
       "background": [
         "#f3eadf",
@@ -258,8 +258,8 @@
       "id": "appliances-fan",
       "word": "fan",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌀💨"
+        "kind": "illustration",
+        "illustration": "appliances-fan"
       },
       "background": [
         "#e0f7fa",
@@ -270,8 +270,8 @@
       "id": "appliances-air-conditioner",
       "word": "air conditioner",
       "art": {
-        "kind": "emoji",
-        "emoji": "❄️💨"
+        "kind": "illustration",
+        "illustration": "appliances-air-conditioner"
       },
       "background": [
         "#e2f4ff",
@@ -282,8 +282,8 @@
       "id": "appliances-heater",
       "word": "heater",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔥💨"
+        "kind": "illustration",
+        "illustration": "appliances-heater"
       },
       "background": [
         "#fff1f2",
@@ -294,8 +294,8 @@
       "id": "appliances-humidifier",
       "word": "humidifier",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧💨"
+        "kind": "illustration",
+        "illustration": "appliances-humidifier"
       },
       "background": [
         "#f0e6ff",
@@ -306,8 +306,8 @@
       "id": "appliances-dehumidifier",
       "word": "dehumidifier",
       "art": {
-        "kind": "emoji",
-        "emoji": "💧🚫"
+        "kind": "illustration",
+        "illustration": "appliances-dehumidifier"
       },
       "background": [
         "#f0f0f5",
@@ -318,8 +318,8 @@
       "id": "appliances-air-purifier",
       "word": "air purifier",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍃💨"
+        "kind": "illustration",
+        "illustration": "appliances-air-purifier"
       },
       "background": [
         "#e5f8ed",
@@ -330,8 +330,8 @@
       "id": "appliances-vacuum-cleaner",
       "word": "vacuum cleaner",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧹⚙️"
+        "kind": "illustration",
+        "illustration": "appliances-vacuum-cleaner"
       },
       "background": [
         "#f0f0f5",
@@ -342,8 +342,8 @@
       "id": "appliances-iron",
       "word": "iron",
       "art": {
-        "kind": "emoji",
-        "emoji": "👕♨️"
+        "kind": "illustration",
+        "illustration": "appliances-iron"
       },
       "background": [
         "#f0e6ff",
@@ -354,8 +354,8 @@
       "id": "appliances-hair-dryer",
       "word": "hair dryer",
       "art": {
-        "kind": "emoji",
-        "emoji": "💇💨"
+        "kind": "illustration",
+        "illustration": "appliances-hair-dryer"
       },
       "background": [
         "#fff0f5",

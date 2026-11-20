@@ -59,7 +59,7 @@ const expectedEmoji: Record<string, string[]> = {
   bathroom: ["🧼", "🛁🧺", "🪥", "🚿"],
 };
 
-const originalIllustrationIds = new Set(["drinks-smoothie", "drinks-soda"]);
+const originalIllustrationIds = new Set(["drinks-smoothie", "drinks-soda", "furniture-table"]);
 
 const expectedBackgrounds: Record<string, [string, string]> = {
   transport: ["#e2f4ff", "#b9dcf5"],

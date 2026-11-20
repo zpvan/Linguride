@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="furniture-shoe-rack-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#c2410c"/>
+    </linearGradient>
+    <filter id="furniture-shoe-rack-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#furniture-shoe-rack-shadow)">
+    <path d="M15 20h70v65H15Z" fill="none" stroke="#9a3412" stroke-width="5"/>
+    <path d="M15 41h70M15 63h70" fill="none" stroke="#9a3412" stroke-width="4"/>
+    <g fill="#60a5fa"><path d="M23 28h19v10H23Z"/><path d="M50 28h19v10H50Z"/></g>
+    <g fill="#fb7185"><path d="M23 49h19v11H23Z"/><path d="M50 49h19v11H50Z"/></g>
+    <g fill="#4b5563"><path d="M23 70h19v12H23Z"/><path d="M50 70h19v12H50Z"/></g>
+    <path d="M27 28v5M54 28v5M27 49v5M54 49v5" fill="none" stroke="#fff" stroke-width="2"/>
+  </g>
+</svg>
