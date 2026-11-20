@@ -14,7 +14,8 @@
     <path d="M22 43c10-8 18 4 28-3s18 4 28-1" fill="none" stroke="#fef3c7" stroke-width="3" opacity=".7"/>
     <path d="M58 15h23l-3 27H61Z" fill="#60a5fa" stroke="#1d4ed8" stroke-width="2"/>
     <path d="M60 15c-2-14 24-14 22 0" fill="none" stroke="#1d4ed8" stroke-width="3"/>
-    <path d="m35 16 12 29" fill="none" stroke="#78350f" stroke-width="4"/>
-    <path d="m28 8 14 5-4 13-14-5Z" fill="#fb7185" stroke="#9f1239" stroke-width="1.5"/>
+    <path d="m29 11 14 39" fill="none" stroke="#78350f" stroke-width="4"/>
+    <path d="M23 4h13v11H23Z" fill="none" stroke="#78350f" stroke-width="4" stroke-linejoin="round"/>
+    <path d="m38 39 14-5 5 15c-6 8-15 9-19 2Z" fill="#fb7185" stroke="#9f1239" stroke-width="1.5"/>
   </g>
 </svg>

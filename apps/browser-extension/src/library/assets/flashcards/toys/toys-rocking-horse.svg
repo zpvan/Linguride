@@ -10,7 +10,7 @@
   </defs>
   <g filter="url(#toys-rocking-horse-shadow)">
     <path d="M31 42 25 18l16 8c14-9 29-2 31 12l13 9-9 14-15-4-6 18H35l-7-20Z" fill="url(#toys-rocking-horse-main)" stroke="#713f12" stroke-width="2"/>
-    <path d="M38 75v10M63 72v13" fill="none" stroke="#713f12" stroke-width="6"/>
+    <path d="M38 75v17M63 72v19" fill="none" stroke="#713f12" stroke-width="6"/>
     <path d="M15 80c17 17 52 17 72 0" fill="none" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
     <path d="M30 25c8 3 13 9 15 18" fill="none" stroke="#4b5563" stroke-width="5"/>
     <circle cx="60" cy="36" r="2.5" fill="#27272a"/>

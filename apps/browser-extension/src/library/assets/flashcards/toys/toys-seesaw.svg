@@ -11,7 +11,7 @@
   <g filter="url(#toys-seesaw-shadow)">
     <path d="m12 45 76-20 3 10-76 20Z" fill="url(#toys-seesaw-main)" stroke="#c2410c" stroke-width="2"/>
     <path d="M50 48 35 85h30Z" fill="#60a5fa" stroke="#1d4ed8" stroke-width="2"/>
-    <path d="M20 35v15M80 20v15" fill="none" stroke="#4b5563" stroke-width="4"/>
+    <path d="M20 30v20M80 15v20" fill="none" stroke="#4b5563" stroke-width="4"/>
     <path d="M11 30h18M71 15h18" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
     <path d="M15 89h70" fill="none" stroke="#86efac" stroke-width="5" stroke-linecap="round"/>
     <circle cx="50" cy="45" r="5" fill="#fef3c7"/>

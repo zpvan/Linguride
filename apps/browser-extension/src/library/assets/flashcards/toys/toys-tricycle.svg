@@ -9,11 +9,11 @@
     </filter>
   </defs>
   <g filter="url(#toys-tricycle-shadow)">
-    <circle cx="29" cy="69" r="18" fill="#27272a" stroke="#86efac" stroke-width="5"/>
-    <circle cx="76" cy="69" r="13" fill="#27272a" stroke="#86efac" stroke-width="4"/>
-    <circle cx="54" cy="39" r="10" fill="#27272a" stroke="#86efac" stroke-width="3"/>
-    <path d="M29 69 44 43h20l12 26M44 43l10 26M29 69h25M54 39l10 4" fill="none" stroke="url(#toys-tricycle-main)" stroke-width="5"/>
-    <path d="M54 29v10M44 29h20M38 35h17" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="25" cy="68" r="13" fill="#27272a" stroke="#86efac" stroke-width="4"/>
+    <circle cx="49" cy="73" r="12" fill="#27272a" stroke="#86efac" stroke-width="4"/>
+    <circle cx="73" cy="66" r="17" fill="#27272a" stroke="#86efac" stroke-width="5"/>
+    <path d="M25 68 42 42h20l11 24M42 42l7 31M25 68h24M49 73l24-7M62 42l11 24" fill="none" stroke="url(#toys-tricycle-main)" stroke-width="5"/>
+    <path d="M54 28v14M43 28h20M38 37h17" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
     <path d="M25 26h23" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>

@@ -11,8 +11,9 @@
   <g filter="url(#school-highlighter-shadow)">
     <path d="m24 65 42-42 17 17-42 42Z" fill="url(#school-highlighter-main)" fill-opacity=".85" stroke="#65a30d" stroke-width="2"/>
     <path d="m62 27 8-8 17 17-8 8Z" fill="#ecfccb" stroke="#65a30d" stroke-width="2"/>
-    <path d="m18 70 18 18-17 6-7-7Z" fill="#facc15"/>
-    <path d="m12 87 7 7-10 3Z" fill="#ca8a04"/>
+    <path d="m16 68 20 20-10 10-20-20Z" fill="#facc15" stroke="#a16207" stroke-width="1.5"/>
+    <path d="m6 78 10 10-8 6-8-8Z" fill="#ca8a04" stroke="#a16207" stroke-width="1.5"/>
+    <path d="m8 80 6 6" fill="none" stroke="#fef3c7" stroke-width="2"/>
     <path d="m32 62 15 15" fill="none" stroke="#fff7ed" stroke-width="4" opacity=".65"/>
   </g>
 </svg>

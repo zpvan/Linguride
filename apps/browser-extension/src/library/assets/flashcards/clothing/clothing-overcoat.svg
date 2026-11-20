@@ -9,9 +9,11 @@
     </filter>
   </defs>
   <g filter="url(#clothing-overcoat-shadow)">
-    <path d="m35 17-20 11-8 46 15 4 9-23v38h38V55l9 23 15-4-8-46-20-11-15 13Z" fill="url(#clothing-overcoat-main)" stroke="#4b5563" stroke-width="2"/>
+    <path d="m35 17-20 11-8 46 15 4 9-23v41l-5 3h48l-5-3V55l9 23 15-4-8-46-20-11-15 13Z" fill="url(#clothing-overcoat-main)" stroke="#4b5563" stroke-width="2"/>
     <path d="m35 17 15 13-11 19 11 7 11-7-11-19 15-13-15 13Z" fill="#f3f4f6" stroke="#4b5563" stroke-width="1.5"/>
-    <path d="M50 56v37M29 80h42" fill="none" stroke="#f3f4f6" stroke-width="2.5"/>
-    <g fill="#4b5563"><circle cx="56" cy="62" r="2.5"/><circle cx="56" cy="74" r="2.5"/><circle cx="56" cy="85" r="2.5"/></g>
+    <path d="M50 56v40M29 94h45M31 66h38" fill="none" stroke="#f3f4f6" stroke-width="2.5"/>
+    <path d="M31 63h38v7H31Z" fill="#9ca3af" stroke="#4b5563" stroke-width="1.5"/>
+    <path d="M45 63h10v7H45Z" fill="#facc15" stroke="#a16207" stroke-width="1"/>
+    <g fill="#4b5563"><circle cx="57" cy="76" r="2.5"/><circle cx="57" cy="88" r="2.5"/></g>
   </g>
 </svg>
