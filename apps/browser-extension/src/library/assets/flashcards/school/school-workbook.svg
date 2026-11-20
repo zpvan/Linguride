@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="school-workbook-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#c2410c"/>
+    </linearGradient>
+    <filter id="school-workbook-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#school-workbook-shadow)">
+    <path d="M12 25c14-6 27-4 38 4 11-8 24-10 38-4v57c-14-5-27-3-38 5-11-8-24-10-38-5Z" fill="#fff7ed" stroke="#9a3412" stroke-width="2"/>
+    <path d="M50 30v56M20 39c8-2 15-1 22 2M20 49c8-2 15-1 22 2M58 40c8-3 15-3 22-1M58 50c8-3 15-3 22-1" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <path d="m61 66 22-35 8 6-23 35-9 4Z" fill="#facc15" stroke="#92400e" stroke-width="1.5"/>
+    <path d="m59 76 9-4-2 7Z" fill="#292524"/>
+  </g>
+</svg>

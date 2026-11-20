@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="toys-seesaw-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <filter id="toys-seesaw-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#toys-seesaw-shadow)">
+    <path d="m12 45 76-20 3 10-76 20Z" fill="url(#toys-seesaw-main)" stroke="#c2410c" stroke-width="2"/>
+    <path d="M50 48 35 85h30Z" fill="#60a5fa" stroke="#1d4ed8" stroke-width="2"/>
+    <path d="M20 35v15M80 20v15" fill="none" stroke="#4b5563" stroke-width="4"/>
+    <path d="M11 30h18M71 15h18" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
+    <path d="M15 89h70" fill="none" stroke="#86efac" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="50" cy="45" r="5" fill="#fef3c7"/>
+  </g>
+</svg>

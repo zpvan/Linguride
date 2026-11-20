@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="clothing-slipper-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbcfe8"/>
+      <stop offset="1" stop-color="#db2777"/>
+    </linearGradient>
+    <filter id="clothing-slipper-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#clothing-slipper-shadow)">
+    <path d="M20 58c4-24 22-37 40-29 13 6 19 19 17 34l8 6c11 9 4 20-10 21H29C10 90 5 77 20 58Z" fill="url(#clothing-slipper-main)" stroke="#be185d" stroke-width="2"/>
+    <path d="M27 56c5-16 19-23 31-17 8 4 12 12 12 22-13-7-28-8-43-5Z" fill="#fff1f2" stroke="#be185d" stroke-width="2"/>
+    <path d="M18 77c18 6 40 6 63 0" fill="none" stroke="#fff1f2" stroke-width="4"/>
+  </g>
+</svg>

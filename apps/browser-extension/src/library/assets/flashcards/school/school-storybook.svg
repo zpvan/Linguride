@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="school-storybook-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4b5fd"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="school-storybook-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#school-storybook-shadow)">
+    <path d="M20 15h60v72H20c-6 0-10-4-10-10V25c0-6 4-10 10-10Z" fill="url(#school-storybook-main)" stroke="#6d28d9" stroke-width="2"/>
+    <path d="M24 15v72" fill="none" stroke="#ede9fe" stroke-width="3"/>
+    <path d="M65 26c-9 1-14 10-9 17 4 6 12 6 17 1-2 9-9 14-17 12-12-2-18-15-11-24 5-7 13-9 20-6Z" fill="#fef3c7"/>
+    <path d="m35 72 7-17 7 9 8-14 15 22Z" fill="#86efac"/>
+    <path d="m42 55 2-10 4 4 4-4 2 10" fill="#facc15"/>
+  </g>
+</svg>

@@ -66,8 +66,8 @@
       "id": "school-marker",
       "word": "marker",
       "art": {
-        "kind": "emoji",
-        "emoji": "🖊️⬛"
+        "kind": "illustration",
+        "illustration": "school-marker"
       },
       "background": [
         "#f0f0f5",
@@ -78,8 +78,8 @@
       "id": "school-highlighter",
       "word": "highlighter",
       "art": {
-        "kind": "emoji",
-        "emoji": "🖊️🟨"
+        "kind": "illustration",
+        "illustration": "school-highlighter"
       },
       "background": [
         "#f7fee7",
@@ -90,8 +90,8 @@
       "id": "school-chalk",
       "word": "chalk",
       "art": {
-        "kind": "emoji",
-        "emoji": "⬛✍️"
+        "kind": "illustration",
+        "illustration": "school-chalk"
       },
       "background": [
         "#e5f8ed",
@@ -102,8 +102,8 @@
       "id": "school-eraser",
       "word": "eraser",
       "art": {
-        "kind": "emoji",
-        "emoji": "✏️❌"
+        "kind": "illustration",
+        "illustration": "school-eraser"
       },
       "background": [
         "#fff0f5",
@@ -114,8 +114,8 @@
       "id": "school-sharpener",
       "word": "sharpener",
       "art": {
-        "kind": "emoji",
-        "emoji": "✏️⚙️"
+        "kind": "illustration",
+        "illustration": "school-sharpener"
       },
       "background": [
         "#f0f0f5",
@@ -126,8 +126,8 @@
       "id": "school-pencil-case",
       "word": "pencil case",
       "art": {
-        "kind": "emoji",
-        "emoji": "✏️👝"
+        "kind": "illustration",
+        "illustration": "school-pencil-case"
       },
       "background": [
         "#f0e6ff",
@@ -138,8 +138,8 @@
       "id": "school-pencil-box",
       "word": "pencil box",
       "art": {
-        "kind": "emoji",
-        "emoji": "✏️📦"
+        "kind": "illustration",
+        "illustration": "school-pencil-box"
       },
       "background": [
         "#f3eadf",
@@ -174,8 +174,8 @@
       "id": "school-workbook",
       "word": "workbook",
       "art": {
-        "kind": "emoji",
-        "emoji": "📔✍️"
+        "kind": "illustration",
+        "illustration": "school-workbook"
       },
       "background": [
         "#fff0e1",
@@ -186,8 +186,8 @@
       "id": "school-dictionary",
       "word": "dictionary",
       "art": {
-        "kind": "emoji",
-        "emoji": "📖🔤"
+        "kind": "illustration",
+        "illustration": "school-dictionary"
       },
       "background": [
         "#e0f7fa",
@@ -198,8 +198,8 @@
       "id": "school-storybook",
       "word": "storybook",
       "art": {
-        "kind": "emoji",
-        "emoji": "📖✨"
+        "kind": "illustration",
+        "illustration": "school-storybook"
       },
       "background": [
         "#f0e6ff",
@@ -210,8 +210,8 @@
       "id": "school-comic-book",
       "word": "comic book",
       "art": {
-        "kind": "emoji",
-        "emoji": "📖💥"
+        "kind": "illustration",
+        "illustration": "school-comic-book"
       },
       "background": [
         "#fff1f2",
@@ -222,8 +222,8 @@
       "id": "school-library-card",
       "word": "library card",
       "art": {
-        "kind": "emoji",
-        "emoji": "💳📚"
+        "kind": "illustration",
+        "illustration": "school-library-card"
       },
       "background": [
         "#e5f8ed",
@@ -258,8 +258,8 @@
       "id": "school-water-bottle",
       "word": "water bottle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴💧"
+        "kind": "illustration",
+        "illustration": "school-water-bottle"
       },
       "background": [
         "#e0f7fa",
@@ -294,8 +294,8 @@
       "id": "school-tape",
       "word": "tape",
       "art": {
-        "kind": "emoji",
-        "emoji": "📦➰"
+        "kind": "illustration",
+        "illustration": "school-tape"
       },
       "background": [
         "#fff0f5",
@@ -342,8 +342,8 @@
       "id": "school-calculator",
       "word": "calculator",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔢➕"
+        "kind": "illustration",
+        "illustration": "school-calculator"
       },
       "background": [
         "#f0f0f5",

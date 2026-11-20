@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="toys-jump-rope-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#c2410c"/>
+    </linearGradient>
+    <filter id="toys-jump-rope-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#toys-jump-rope-shadow)">
+    <path d="M23 23c-22 45 8 69 28 69s48-24 26-69" fill="none" stroke="url(#toys-jump-rope-main)" stroke-width="5" stroke-linecap="round"/>
+    <path d="m19 17 12 5-8 25-12-5Z" fill="#4b5563" stroke="#27272a" stroke-width="2"/>
+    <path d="m69 22 12-5 8 25-12 5Z" fill="#4b5563" stroke="#27272a" stroke-width="2"/>
+    <path d="m15 27 12 5M74 32l12-5" fill="none" stroke="#facc15" stroke-width="3"/>
+  </g>
+</svg>

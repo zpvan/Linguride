@@ -66,8 +66,8 @@
       "id": "toys-stuffed-animal",
       "word": "stuffed animal",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧸🐰"
+        "kind": "illustration",
+        "illustration": "toys-stuffed-animal"
       },
       "background": [
         "#fff0f5",
@@ -138,8 +138,8 @@
       "id": "toys-toy-car",
       "word": "toy car",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚗🧸"
+        "kind": "illustration",
+        "illustration": "toys-toy-car"
       },
       "background": [
         "#fff0e1",
@@ -162,8 +162,8 @@
       "id": "toys-toy-plane",
       "word": "toy plane",
       "art": {
-        "kind": "emoji",
-        "emoji": "✈️🧸"
+        "kind": "illustration",
+        "illustration": "toys-toy-plane"
       },
       "background": [
         "#e0f7fa",
@@ -186,8 +186,8 @@
       "id": "toys-building-set",
       "word": "building set",
       "art": {
-        "kind": "emoji",
-        "emoji": "🏗️🧱"
+        "kind": "illustration",
+        "illustration": "toys-building-set"
       },
       "background": [
         "#fff8d9",
@@ -210,8 +210,8 @@
       "id": "toys-spinning-top",
       "word": "spinning top",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌀🧸"
+        "kind": "illustration",
+        "illustration": "toys-spinning-top"
       },
       "background": [
         "#e0f7fa",
@@ -222,8 +222,8 @@
       "id": "toys-hula-hoop",
       "word": "hula hoop",
       "art": {
-        "kind": "emoji",
-        "emoji": "⭕💃"
+        "kind": "illustration",
+        "illustration": "toys-hula-hoop"
       },
       "background": [
         "#fff0f5",
@@ -234,8 +234,8 @@
       "id": "toys-jump-rope",
       "word": "jump rope",
       "art": {
-        "kind": "emoji",
-        "emoji": "🤸➰"
+        "kind": "illustration",
+        "illustration": "toys-jump-rope"
       },
       "background": [
         "#fff0e1",
@@ -270,8 +270,8 @@
       "id": "toys-bubble-wand",
       "word": "bubble wand",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫧🪄"
+        "kind": "illustration",
+        "illustration": "toys-bubble-wand"
       },
       "background": [
         "#e0f7fa",
@@ -282,8 +282,8 @@
       "id": "toys-rattle",
       "word": "rattle",
       "art": {
-        "kind": "emoji",
-        "emoji": "👶🔔"
+        "kind": "illustration",
+        "illustration": "toys-rattle"
       },
       "background": [
         "#fff8d9",
@@ -294,8 +294,8 @@
       "id": "toys-pacifier",
       "word": "pacifier",
       "art": {
-        "kind": "emoji",
-        "emoji": "👶⭕"
+        "kind": "illustration",
+        "illustration": "toys-pacifier"
       },
       "background": [
         "#fff0f5",
@@ -306,8 +306,8 @@
       "id": "toys-rocking-horse",
       "word": "rocking horse",
       "art": {
-        "kind": "emoji",
-        "emoji": "🐴🪑"
+        "kind": "illustration",
+        "illustration": "toys-rocking-horse"
       },
       "background": [
         "#f3eadf",
@@ -318,8 +318,8 @@
       "id": "toys-tricycle",
       "word": "tricycle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚲3️⃣"
+        "kind": "illustration",
+        "illustration": "toys-tricycle"
       },
       "background": [
         "#e5f8ed",
@@ -330,8 +330,8 @@
       "id": "toys-wagon",
       "word": "wagon",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧸🛞"
+        "kind": "illustration",
+        "illustration": "toys-wagon"
       },
       "background": [
         "#f3eadf",
@@ -354,8 +354,8 @@
       "id": "toys-swing",
       "word": "swing",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒🪢"
+        "kind": "illustration",
+        "illustration": "toys-swing"
       },
       "background": [
         "#f0e6ff",
@@ -366,8 +366,8 @@
       "id": "toys-seesaw",
       "word": "seesaw",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧒↕️🧒"
+        "kind": "illustration",
+        "illustration": "toys-seesaw"
       },
       "background": [
         "#fff8d9",
@@ -378,8 +378,8 @@
       "id": "toys-sandbox",
       "word": "sandbox",
       "art": {
-        "kind": "emoji",
-        "emoji": "🏖️🪣"
+        "kind": "illustration",
+        "illustration": "toys-sandbox"
       },
       "background": [
         "#fff0e1",

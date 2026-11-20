@@ -54,8 +54,8 @@
       "id": "clothing-t-shirt",
       "word": "t-shirt",
       "art": {
-        "kind": "emoji",
-        "emoji": "👕🧒"
+        "kind": "illustration",
+        "illustration": "clothing-t-shirt"
       },
       "background": [
         "#e2f4ff",
@@ -78,8 +78,8 @@
       "id": "clothing-skirt",
       "word": "skirt",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔻🧵"
+        "kind": "illustration",
+        "illustration": "clothing-skirt"
       },
       "background": [
         "#fff0f5",
@@ -102,8 +102,8 @@
       "id": "clothing-sweater",
       "word": "sweater",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧶👕"
+        "kind": "illustration",
+        "illustration": "clothing-sweater"
       },
       "background": [
         "#fff0e1",
@@ -114,8 +114,8 @@
       "id": "clothing-cardigan",
       "word": "cardigan",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧶🧥"
+        "kind": "illustration",
+        "illustration": "clothing-cardigan"
       },
       "background": [
         "#f3eadf",
@@ -126,8 +126,8 @@
       "id": "clothing-hoodie",
       "word": "hoodie",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧥🧢"
+        "kind": "illustration",
+        "illustration": "clothing-hoodie"
       },
       "background": [
         "#f0f0f5",
@@ -138,8 +138,8 @@
       "id": "clothing-jacket",
       "word": "jacket",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧥✨"
+        "kind": "illustration",
+        "illustration": "clothing-jacket"
       },
       "background": [
         "#e0f7fa",
@@ -150,8 +150,8 @@
       "id": "clothing-blazer",
       "word": "blazer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧥👔"
+        "kind": "illustration",
+        "illustration": "clothing-blazer"
       },
       "background": [
         "#faf5ff",
@@ -186,8 +186,8 @@
       "id": "clothing-raincoat",
       "word": "raincoat",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧥🌧️"
+        "kind": "illustration",
+        "illustration": "clothing-raincoat"
       },
       "background": [
         "#e2f4ff",
@@ -198,8 +198,8 @@
       "id": "clothing-overcoat",
       "word": "overcoat",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧥❄️"
+        "kind": "illustration",
+        "illustration": "clothing-overcoat"
       },
       "background": [
         "#f8fafc",
@@ -246,8 +246,8 @@
       "id": "clothing-mitten",
       "word": "mitten",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧤☝️"
+        "kind": "illustration",
+        "illustration": "clothing-mitten"
       },
       "background": [
         "#fff0f5",
@@ -318,8 +318,8 @@
       "id": "clothing-slipper",
       "word": "slipper",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛏️👣"
+        "kind": "illustration",
+        "illustration": "clothing-slipper"
       },
       "background": [
         "#fff0f5",
@@ -342,8 +342,8 @@
       "id": "clothing-beanie",
       "word": "beanie",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧶🧢"
+        "kind": "illustration",
+        "illustration": "clothing-beanie"
       },
       "background": [
         "#faf5ff",
@@ -366,8 +366,8 @@
       "id": "clothing-belt",
       "word": "belt",
       "art": {
-        "kind": "emoji",
-        "emoji": "👖🔗"
+        "kind": "illustration",
+        "illustration": "clothing-belt"
       },
       "background": [
         "#f3eadf",
