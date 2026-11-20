@@ -1,19 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="kitchen-kettle-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#67e8f9"/>
-      <stop offset="1" stop-color="#0891b2"/>
+      <stop offset="0" stop-color="#a5f3fc"/>
+      <stop offset=".48" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="kitchen-kettle-metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#475569"/>
+      <stop offset=".5" stop-color="#cbd5e1"/>
+      <stop offset="1" stop-color="#334155"/>
     </linearGradient>
     <filter id="kitchen-kettle-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#kitchen-kettle-shadow)">
-    <path d="M29 37c4-24 38-24 43 0l6 37c-12 17-43 17-55 0Z" fill="url(#kitchen-kettle-main)" stroke="#155e75" stroke-width="2"/>
-    <path d="M35 30c5-14 26-14 31 0" fill="none" stroke="#155e75" stroke-width="3"/>
-    <path d="M70 40c20-4 20 26 3 28" fill="none" stroke="#155e75" stroke-width="5"/>
-    <path d="m29 44-21-8-3 7 20 19" fill="#67e8f9" stroke="#155e75" stroke-width="2"/>
-    <path d="M44 19h12" fill="none" stroke="#155e75" stroke-width="5" stroke-linecap="round"/>
-    <path d="M39 48c-4 8-4 16 0 23" fill="none" stroke="#ecfeff" stroke-width="3"/>
+    <ellipse cx="51" cy="82" rx="29" ry="6" fill="#164e63"/>
+    <path d="M28 42c-4 12-3 26 3 35 11 9 30 9 41 0 6-9 7-23 2-35Z" fill="url(#kitchen-kettle-main)" stroke="#155e75" stroke-width="2.4"/>
+    <path d="M30 47c-10 0-12-12-20-17l-4 6c10 7 8 25 23 27" fill="url(#kitchen-kettle-main)" stroke="#155e75" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="m6 30 5-4 5 5-6 7Z" fill="url(#kitchen-kettle-metal)" stroke="#334155" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M31 42C24 10 75 8 71 42" fill="none" stroke="#334155" stroke-width="7" stroke-linecap="round"/>
+    <path d="M34 38C30 16 69 15 68 38" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="51" cy="42" rx="23" ry="6" fill="#67e8f9" stroke="#155e75" stroke-width="2"/>
+    <path d="M45 35h12" fill="none" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+    <path d="M38 51c-3 7-3 15 0 21" fill="none" stroke="#ecfeff" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M5 21c-5-5 4-7 0-13M14 20c-4-4 3-6 1-10" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round"/>
   </g>
 </svg>

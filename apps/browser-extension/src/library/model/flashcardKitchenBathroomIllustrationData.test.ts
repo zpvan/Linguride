@@ -35,6 +35,52 @@ const TARGET_IDS = new Set([
   "bathroom-cotton-swab", "bathroom-cotton-ball",
 ]);
 const decks = { kitchen, bathroom };
+const EXPECTED_ILLUSTRATION_IDS = new Set([
+  ...TARGET_IDS,
+  "shapes-pyramid",
+  "actions-eat", "actions-drink", "actions-read", "actions-sit",
+  "actions-wake-up", "actions-get-up", "actions-go", "actions-come",
+  "actions-listen", "actions-watch", "actions-ask", "actions-answer",
+  "actions-open", "actions-close",
+  "transport-school-bus", "transport-metro", "transport-kayak",
+  "transport-bulldozer", "transport-excavator", "transport-camper",
+  "fruits-lime", "fruits-papaya", "fruits-cantaloupe", "fruits-plum",
+  "fruits-apricot", "fruits-fig", "fruits-date", "fruits-pomegranate",
+  "fruits-raspberry", "fruits-blackberry", "fruits-cranberry", "fruits-gooseberry",
+  "fruits-passion-fruit", "fruits-dragon-fruit", "fruits-guava", "fruits-lychee",
+  "vegetables-cauliflower", "vegetables-lettuce", "vegetables-spinach", "vegetables-kale",
+  "vegetables-celery", "vegetables-asparagus", "vegetables-zucchini", "vegetables-radish",
+  "vegetables-turnip", "vegetables-beet", "vegetables-chickpea", "vegetables-lentil",
+  "vegetables-bell-pepper", "vegetables-artichoke", "vegetables-bok-choy",
+  "food-yogurt", "food-jam", "food-peanut-butter", "food-cereal", "food-oatmeal",
+  "food-toast", "food-pork", "food-lamb", "food-fish",
+  "drinks-smoothie", "drinks-soda", "drinks-mineral-water", "drinks-sparkling-water",
+  "drinks-soda-water", "drinks-tonic-water", "drinks-coconut-water", "drinks-orange-juice",
+  "drinks-apple-juice", "drinks-grape-juice", "drinks-iced-tea", "drinks-iced-coffee",
+  "drinks-milk-tea", "drinks-green-tea", "drinks-black-tea", "drinks-herbal-tea",
+  "drinks-hot-chocolate", "drinks-cappuccino", "drinks-latte", "drinks-espresso",
+  "drinks-americano", "drinks-mocha", "drinks-hot-water", "drinks-cold-water", "drinks-warm-water",
+  "clothing-t-shirt", "clothing-skirt", "clothing-sweater", "clothing-cardigan", "clothing-hoodie",
+  "clothing-jacket", "clothing-blazer", "clothing-raincoat", "clothing-overcoat", "clothing-mitten",
+  "clothing-slipper", "clothing-beanie", "clothing-belt",
+  "school-marker", "school-highlighter", "school-chalk", "school-eraser", "school-sharpener",
+  "school-pencil-case", "school-pencil-box", "school-workbook", "school-dictionary", "school-storybook",
+  "school-comic-book", "school-library-card", "school-water-bottle", "school-tape", "school-calculator",
+  "toys-stuffed-animal", "toys-toy-car", "toys-toy-plane", "toys-building-set", "toys-spinning-top",
+  "toys-hula-hoop", "toys-jump-rope", "toys-bubble-wand", "toys-rattle", "toys-pacifier",
+  "toys-rocking-horse", "toys-tricycle", "toys-wagon", "toys-swing", "toys-seesaw", "toys-sandbox",
+  "furniture-table", "furniture-coffee-table", "furniture-dining-table", "furniture-desk", "furniture-bookshelf",
+  "furniture-bookcase", "furniture-cupboard", "furniture-drawer", "furniture-wardrobe", "furniture-closet",
+  "furniture-rocking-chair", "furniture-stool", "furniture-bench", "furniture-ottoman", "furniture-nightstand",
+  "furniture-dresser", "furniture-chest", "furniture-tv-stand", "furniture-shoe-rack", "furniture-coat-rack",
+  "furniture-hanger", "furniture-cushion", "furniture-curtain",
+  "appliances-refrigerator", "appliances-freezer", "appliances-washing-machine", "appliances-dryer",
+  "appliances-dishwasher", "appliances-oven", "appliances-microwave", "appliances-stove", "appliances-rice-cooker",
+  "appliances-pressure-cooker", "appliances-air-fryer", "appliances-blender", "appliances-juicer", "appliances-mixer",
+  "appliances-toaster", "appliances-kettle", "appliances-coffee-maker", "appliances-fan", "appliances-air-conditioner",
+  "appliances-heater", "appliances-humidifier", "appliances-dehumidifier", "appliances-air-purifier",
+  "appliances-vacuum-cleaner", "appliances-iron", "appliances-hair-dryer",
+]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
   expect(svg).toContain('viewBox="0 0 100 100"');
@@ -50,7 +96,7 @@ function expectSafeSvg(svg: string, cardId: string): void {
     expect(match[1].startsWith(`${cardId}-`)).toBe(true);
     expect(ids).toContain(match[1]);
   }
-  for (const match of svg.matchAll(/<(?:path|g)\b[^>]*>/g)) {
+  for (const match of svg.matchAll(/<(?:path|g|rect|circle|ellipse|polygon|polyline|line)\b[^>]*>/g)) {
     const tag = match[0];
     if (/\bstroke\s*=/.test(tag)) expect(/\bfill\s*=/.test(tag), `${cardId} 描边元素缺少 fill`).toBe(true);
   }
@@ -88,6 +134,8 @@ describe("厨房与浴室定制 SVG", () => {
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
     expect(cards).toHaveLength(512);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
-    expect(cards.filter((card) => card.art.kind === "illustration")).toHaveLength(224);
+    expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
+      .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(224);
   });
 });
