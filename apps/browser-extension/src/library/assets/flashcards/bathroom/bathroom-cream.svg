@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bathroom-cream-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="bathroom-cream-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#bathroom-cream-shadow)">
+    <path d="M22 42h56l-5 42c-13 9-33 9-46 0Z" fill="url(#bathroom-cream-main)" stroke="#94a3b8" stroke-width="2"/>
+    <ellipse cx="50" cy="42" rx="28" ry="11" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <ellipse cx="50" cy="41" rx="22" ry="7" fill="#fff"/>
+    <path d="M33 18h34l5 17H28Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M38 41c4-8 20-8 24 0-7-3-10 5-18 2" fill="none" stroke="#fff" stroke-width="3"/>
+    <path d="M35 65c10 4 20 4 30 0" fill="none" stroke="#fff" stroke-width="3"/>
+  </g>
+</svg>

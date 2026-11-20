@@ -18,8 +18,8 @@
       "id": "bathroom-towel",
       "word": "towel",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛁🧺"
+        "kind": "illustration",
+        "illustration": "bathroom-towel"
       },
       "background": [
         "#e2f4ff",
@@ -54,8 +54,8 @@
       "id": "bathroom-bath-towel",
       "word": "bath towel",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛁🧺💧"
+        "kind": "illustration",
+        "illustration": "bathroom-bath-towel"
       },
       "background": [
         "#e0f7fa",
@@ -66,8 +66,8 @@
       "id": "bathroom-hand-towel",
       "word": "hand towel",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧺🙌"
+        "kind": "illustration",
+        "illustration": "bathroom-hand-towel"
       },
       "background": [
         "#f0e6ff",
@@ -78,8 +78,8 @@
       "id": "bathroom-washcloth",
       "word": "washcloth",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧼🧵"
+        "kind": "illustration",
+        "illustration": "bathroom-washcloth"
       },
       "background": [
         "#fff8d9",
@@ -90,8 +90,8 @@
       "id": "bathroom-bath-mat",
       "word": "bath mat",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛁🟦"
+        "kind": "illustration",
+        "illustration": "bathroom-bath-mat"
       },
       "background": [
         "#e2f4ff",
@@ -102,8 +102,8 @@
       "id": "bathroom-shower-curtain",
       "word": "shower curtain",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚿🧵"
+        "kind": "illustration",
+        "illustration": "bathroom-shower-curtain"
       },
       "background": [
         "#f0e6ff",
@@ -114,8 +114,8 @@
       "id": "bathroom-showerhead",
       "word": "showerhead",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚿💧"
+        "kind": "illustration",
+        "illustration": "bathroom-showerhead"
       },
       "background": [
         "#e0f7fa",
@@ -138,8 +138,8 @@
       "id": "bathroom-sink",
       "word": "sink",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚰🪥"
+        "kind": "illustration",
+        "illustration": "bathroom-sink"
       },
       "background": [
         "#f8fafc",
@@ -174,8 +174,8 @@
       "id": "bathroom-tissue",
       "word": "tissue",
       "art": {
-        "kind": "emoji",
-        "emoji": "🤧📄"
+        "kind": "illustration",
+        "illustration": "bathroom-tissue"
       },
       "background": [
         "#fff0f5",
@@ -186,8 +186,8 @@
       "id": "bathroom-toothpaste",
       "word": "toothpaste",
       "art": {
-        "kind": "emoji",
-        "emoji": "🪥🧴"
+        "kind": "illustration",
+        "illustration": "bathroom-toothpaste"
       },
       "background": [
         "#f0fdf4",
@@ -198,8 +198,8 @@
       "id": "bathroom-mouthwash",
       "word": "mouthwash",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥤🦷"
+        "kind": "illustration",
+        "illustration": "bathroom-mouthwash"
       },
       "background": [
         "#e0f7fa",
@@ -210,8 +210,8 @@
       "id": "bathroom-shampoo",
       "word": "shampoo",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴🚿"
+        "kind": "illustration",
+        "illustration": "bathroom-shampoo"
       },
       "background": [
         "#e2f4ff",
@@ -222,8 +222,8 @@
       "id": "bathroom-conditioner",
       "word": "conditioner",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴💇"
+        "kind": "illustration",
+        "illustration": "bathroom-conditioner"
       },
       "background": [
         "#f0e6ff",
@@ -234,8 +234,8 @@
       "id": "bathroom-body-wash",
       "word": "body wash",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧼🚿"
+        "kind": "illustration",
+        "illustration": "bathroom-body-wash"
       },
       "background": [
         "#e0f7fa",
@@ -246,8 +246,8 @@
       "id": "bathroom-hand-soap",
       "word": "hand soap",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧼🙌"
+        "kind": "illustration",
+        "illustration": "bathroom-hand-soap"
       },
       "background": [
         "#fff8d9",
@@ -258,8 +258,8 @@
       "id": "bathroom-sanitizer",
       "word": "sanitizer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴🙌"
+        "kind": "illustration",
+        "illustration": "bathroom-sanitizer"
       },
       "background": [
         "#f0fdf4",
@@ -270,8 +270,8 @@
       "id": "bathroom-lotion",
       "word": "lotion",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴🤲"
+        "kind": "illustration",
+        "illustration": "bathroom-lotion"
       },
       "background": [
         "#fff0f5",
@@ -282,8 +282,8 @@
       "id": "bathroom-cream",
       "word": "cream",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫙🤍"
+        "kind": "illustration",
+        "illustration": "bathroom-cream"
       },
       "background": [
         "#f8fafc",
@@ -306,8 +306,8 @@
       "id": "bathroom-shaving-cream",
       "word": "shaving cream",
       "art": {
-        "kind": "emoji",
-        "emoji": "🪒🫧"
+        "kind": "illustration",
+        "illustration": "bathroom-shaving-cream"
       },
       "background": [
         "#e0f7fa",
@@ -330,8 +330,8 @@
       "id": "bathroom-hairbrush",
       "word": "hairbrush",
       "art": {
-        "kind": "emoji",
-        "emoji": "💇✨"
+        "kind": "illustration",
+        "illustration": "bathroom-hairbrush"
       },
       "background": [
         "#fff0f5",
@@ -354,8 +354,8 @@
       "id": "bathroom-cotton-swab",
       "word": "cotton swab",
       "art": {
-        "kind": "emoji",
-        "emoji": "👂☁️"
+        "kind": "illustration",
+        "illustration": "bathroom-cotton-swab"
       },
       "background": [
         "#f8fafc",
@@ -366,8 +366,8 @@
       "id": "bathroom-cotton-ball",
       "word": "cotton ball",
       "art": {
-        "kind": "emoji",
-        "emoji": "☁️⚪"
+        "kind": "illustration",
+        "illustration": "bathroom-cotton-ball"
       },
       "background": [
         "#e0f7fa",

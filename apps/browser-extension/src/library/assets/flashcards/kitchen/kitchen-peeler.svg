@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="kitchen-peeler-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d6a15f"/>
+      <stop offset="1" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="kitchen-peeler-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#kitchen-peeler-shadow)">
+    <path d="M45 42 25 88h18l17-46Z" fill="url(#kitchen-peeler-main)" stroke="#713f12" stroke-width="2"/>
+    <path d="M46 44 30 15M55 45l20-27" fill="none" stroke="#92400e" stroke-width="6"/>
+    <path d="M24 9h58v14H24Z" fill="#d1d5db" stroke="#4b5563" stroke-width="2"/>
+    <path d="M34 16h38" fill="none" stroke="#f3f4f6" stroke-width="3"/>
+    <path d="M37 58h12" fill="none" stroke="#fef3c7" stroke-width="3"/>
+  </g>
+</svg>

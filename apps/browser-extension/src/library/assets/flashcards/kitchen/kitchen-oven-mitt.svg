@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="kitchen-oven-mitt-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#be123c"/>
+    </linearGradient>
+    <filter id="kitchen-oven-mitt-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#kitchen-oven-mitt-shadow)">
+    <path d="M42 15c17-5 29 8 28 25l-1 15 10-7c12-8 22 5 13 15L72 84c-12 12-40 6-45-9L17 42c-3-13 8-21 17-13l4 5c-1-8-1-16 4-19Z" fill="url(#kitchen-oven-mitt-main)" stroke="#9f1239" stroke-width="2"/>
+    <path d="M28 75c12 8 29 12 44 5M32 36l34 39M25 50l28 32M52 28l25 29" fill="none" stroke="#ffe4e6" stroke-width="2.5"/>
+    <path d="m31 52 32-23M39 68l36-25" fill="none" stroke="#ffe4e6" stroke-width="2.5"/>
+  </g>
+</svg>

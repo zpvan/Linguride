@@ -90,8 +90,8 @@
       "id": "kitchen-ladle",
       "word": "ladle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥄🍲"
+        "kind": "illustration",
+        "illustration": "kitchen-ladle"
       },
       "background": [
         "#fff8d9",
@@ -102,8 +102,8 @@
       "id": "kitchen-spatula",
       "word": "spatula",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍳🔀"
+        "kind": "illustration",
+        "illustration": "kitchen-spatula"
       },
       "background": [
         "#f0e6ff",
@@ -114,8 +114,8 @@
       "id": "kitchen-whisk",
       "word": "whisk",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣🌀"
+        "kind": "illustration",
+        "illustration": "kitchen-whisk"
       },
       "background": [
         "#e0f7fa",
@@ -126,8 +126,8 @@
       "id": "kitchen-tongs",
       "word": "tongs",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍗🤏"
+        "kind": "illustration",
+        "illustration": "kitchen-tongs"
       },
       "background": [
         "#f0f0f5",
@@ -138,8 +138,8 @@
       "id": "kitchen-peeler",
       "word": "peeler",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥔🔪"
+        "kind": "illustration",
+        "illustration": "kitchen-peeler"
       },
       "background": [
         "#f3eadf",
@@ -150,8 +150,8 @@
       "id": "kitchen-grater",
       "word": "grater",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧀🔪"
+        "kind": "illustration",
+        "illustration": "kitchen-grater"
       },
       "background": [
         "#fff8d9",
@@ -162,8 +162,8 @@
       "id": "kitchen-cutting-board",
       "word": "cutting board",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔪🟫"
+        "kind": "illustration",
+        "illustration": "kitchen-cutting-board"
       },
       "background": [
         "#f3eadf",
@@ -174,8 +174,8 @@
       "id": "kitchen-mixing-bowl",
       "word": "mixing bowl",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥣🥄"
+        "kind": "illustration",
+        "illustration": "kitchen-mixing-bowl"
       },
       "background": [
         "#e5f8ed",
@@ -186,8 +186,8 @@
       "id": "kitchen-saucepan",
       "word": "saucepan",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍲🥄"
+        "kind": "illustration",
+        "illustration": "kitchen-saucepan"
       },
       "background": [
         "#f0f0f5",
@@ -222,8 +222,8 @@
       "id": "kitchen-skillet",
       "word": "skillet",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍳🥩"
+        "kind": "illustration",
+        "illustration": "kitchen-skillet"
       },
       "background": [
         "#fff1f2",
@@ -234,8 +234,8 @@
       "id": "kitchen-kettle",
       "word": "kettle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫖♨️"
+        "kind": "illustration",
+        "illustration": "kitchen-kettle"
       },
       "background": [
         "#e0f7fa",
@@ -246,8 +246,8 @@
       "id": "kitchen-lid",
       "word": "lid",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍲⭕"
+        "kind": "illustration",
+        "illustration": "kitchen-lid"
       },
       "background": [
         "#f0f0f5",
@@ -258,8 +258,8 @@
       "id": "kitchen-oven-mitt",
       "word": "oven mitt",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧤🔥"
+        "kind": "illustration",
+        "illustration": "kitchen-oven-mitt"
       },
       "background": [
         "#fff1f2",
@@ -270,8 +270,8 @@
       "id": "kitchen-apron",
       "word": "apron",
       "art": {
-        "kind": "emoji",
-        "emoji": "👕🍳"
+        "kind": "illustration",
+        "illustration": "kitchen-apron"
       },
       "background": [
         "#e2f4ff",
@@ -282,8 +282,8 @@
       "id": "kitchen-napkin",
       "word": "napkin",
       "art": {
-        "kind": "emoji",
-        "emoji": "📄🍽️"
+        "kind": "illustration",
+        "illustration": "kitchen-napkin"
       },
       "background": [
         "#f8fafc",
@@ -294,8 +294,8 @@
       "id": "kitchen-placemat",
       "word": "placemat",
       "art": {
-        "kind": "emoji",
-        "emoji": "🟨🍽️"
+        "kind": "illustration",
+        "illustration": "kitchen-placemat"
       },
       "background": [
         "#fff8d9",
@@ -306,8 +306,8 @@
       "id": "kitchen-tray",
       "word": "tray",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍽️⬜"
+        "kind": "illustration",
+        "illustration": "kitchen-tray"
       },
       "background": [
         "#f0f0f5",
@@ -318,8 +318,8 @@
       "id": "kitchen-teapot",
       "word": "teapot",
       "art": {
-        "kind": "emoji",
-        "emoji": "🫖🍵"
+        "kind": "illustration",
+        "illustration": "kitchen-teapot"
       },
       "background": [
         "#e5f8ed",
@@ -330,8 +330,8 @@
       "id": "kitchen-coffee-pot",
       "word": "coffee pot",
       "art": {
-        "kind": "emoji",
-        "emoji": "☕🫖"
+        "kind": "illustration",
+        "illustration": "kitchen-coffee-pot"
       },
       "background": [
         "#f3eadf",
@@ -342,8 +342,8 @@
       "id": "kitchen-measuring-cup",
       "word": "measuring cup",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥛📏"
+        "kind": "illustration",
+        "illustration": "kitchen-measuring-cup"
       },
       "background": [
         "#f8fafc",
@@ -354,8 +354,8 @@
       "id": "kitchen-measuring-spoon",
       "word": "measuring spoon",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥄📏"
+        "kind": "illustration",
+        "illustration": "kitchen-measuring-spoon"
       },
       "background": [
         "#e2f4ff",
@@ -366,8 +366,8 @@
       "id": "kitchen-strainer",
       "word": "strainer",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍝🕳️"
+        "kind": "illustration",
+        "illustration": "kitchen-strainer"
       },
       "background": [
         "#fff8d9",
@@ -378,8 +378,8 @@
       "id": "kitchen-colander",
       "word": "colander",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥦🕳️"
+        "kind": "illustration",
+        "illustration": "kitchen-colander"
       },
       "background": [
         "#e5f8ed",

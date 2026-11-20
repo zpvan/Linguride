@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bathroom-shampoo-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="bathroom-shampoo-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#bathroom-shampoo-shadow)">
+    <path d="M30 30h40v57c-10 8-30 8-40 0Z" fill="url(#bathroom-shampoo-main)" stroke="#1d4ed8" stroke-width="2"/>
+    <path d="M40 18h20v13H40Z" fill="#1e40af"/>
+    <path d="M50 18V9h24v6H56" fill="none" stroke="#1e40af" stroke-width="4"/>
+    <path d="M38 48h24M38 58h24" fill="none" stroke="#dbeafe" stroke-width="3"/>
+    <path d="M43 71c-4 6-4 10 0 12 4-2 4-6 0-12Z" fill="#dbeafe"/>
+  </g>
+</svg>
