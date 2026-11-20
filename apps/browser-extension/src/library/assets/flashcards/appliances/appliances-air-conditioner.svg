@@ -11,7 +11,7 @@
   <g filter="url(#appliances-air-conditioner-shadow)">
     <path d="M9 18h82v36H9Z" fill="url(#appliances-air-conditioner-main)" stroke="#2563eb" stroke-width="2"/>
     <path d="M18 41h64" fill="none" stroke="#2563eb" stroke-width="4"/>
-    <path d="M25 61c-8 8 8 12 0 21M45 61c-8 8 8 12 0 21M65 61c-8 8 8 12 0 21" fill="none" stroke="#7dd3fc" stroke-width="3"/>
+    <path d="M25 61c-8 8 8 12 0 21M45 61c-8 8 8 12 0 21M65 61c-8 8 8 12 0 21" fill="none" stroke="#0284c7" stroke-width="4"/>
     <path d="M20 27h45" fill="none" stroke="#fff" stroke-width="3"/>
     <circle cx="80" cy="29" r="3" fill="#22c55e"/>
   </g>

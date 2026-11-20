@@ -11,7 +11,7 @@
   <g filter="url(#appliances-humidifier-shadow)">
     <path d="M27 38h46l6 45c-12 13-46 13-58 0Z" fill="url(#appliances-humidifier-main)" stroke="#5b21b6" stroke-width="2"/>
     <path d="M34 58h32v25H34Z" fill="#e0f2fe" opacity=".8"/>
-    <path d="M40 31c-8-9 8-13 0-23M56 31c-8-9 8-13 0-23M70 31c-8-9 8-13 0-23" fill="none" stroke="#bae6fd" stroke-width="3"/>
+    <path d="M40 31c-8-9 8-13 0-23M56 31c-8-9 8-13 0-23M70 31c-8-9 8-13 0-23" fill="none" stroke="#0284c7" stroke-width="4"/>
     <path d="M44 49h12" fill="none" stroke="#ede9fe" stroke-width="3"/>
     <circle cx="50" cy="71" r="4" fill="#7c3aed"/>
   </g>

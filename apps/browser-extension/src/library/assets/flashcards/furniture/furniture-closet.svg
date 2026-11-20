@@ -9,10 +9,13 @@
     </filter>
   </defs>
   <g filter="url(#furniture-closet-shadow)">
-    <path d="M12 12h76v77H12Z" fill="url(#furniture-closet-main)" stroke="#4b5563" stroke-width="3"/>
-    <path d="M50 13v75M18 20h27v60H18ZM55 20h27v60H55Z" fill="#f3f4f6" stroke="#4b5563" stroke-width="2"/>
-    <path d="M28 26h8v45M65 26h8v45" fill="none" stroke="#9ca3af" stroke-width="3"/>
-    <path d="M58 63h20v13H58Z" fill="#d6a15f" stroke="#92400e" stroke-width="1.5"/>
-    <path d="M9 89h82" fill="none" stroke="#4b5563" stroke-width="5"/>
+    <path d="M5 7h90v86H5Z" fill="url(#furniture-closet-main)" stroke="#4b5563" stroke-width="3"/>
+    <path d="M15 15h70v70H15Z" fill="#f3f4f6" stroke="#4b5563" stroke-width="2"/>
+    <path d="M20 26h60M20 58h60" fill="none" stroke="#6b7280" stroke-width="4"/>
+    <path d="M25 35h50" fill="none" stroke="#4b5563" stroke-width="3"/>
+    <path d="m32 37-6 11h12Zm18 0-6 11h12Zm18 0-6 11h12Z" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1.5"/>
+    <path d="M25 65h20v15H25Z" fill="#d6a15f" stroke="#92400e" stroke-width="1.5"/>
+    <path d="M55 65h20v6H55ZM55 75h20v6H55Z" fill="#93c5fd" stroke="#2563eb" stroke-width="1.5"/>
+    <path d="M12 12h76" fill="none" stroke="#f9fafb" stroke-width="3" opacity=".7"/>
   </g>
 </svg>
