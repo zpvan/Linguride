@@ -162,8 +162,8 @@
       "id": "school-textbook",
       "word": "textbook",
       "art": {
-        "kind": "emoji",
-        "emoji": "📚"
+        "kind": "illustration",
+        "illustration": "school-textbook"
       },
       "background": [
         "#e5f8ed",
@@ -171,11 +171,11 @@
       ]
     },
     {
-      "id": "school-workbook",
-      "word": "workbook",
+      "id": "school-stapler",
+      "word": "stapler",
       "art": {
         "kind": "illustration",
-        "illustration": "school-workbook"
+        "illustration": "school-stapler"
       },
       "background": [
         "#fff0e1",
@@ -246,8 +246,8 @@
       "id": "school-lunchbox",
       "word": "lunchbox",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍱"
+        "kind": "illustration",
+        "illustration": "school-lunchbox"
       },
       "background": [
         "#fff0e1",
@@ -282,8 +282,8 @@
       "id": "school-glue",
       "word": "glue",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧴"
+        "kind": "illustration",
+        "illustration": "school-glue"
       },
       "background": [
         "#f8fafc",
@@ -378,8 +378,8 @@
       "id": "school-globe",
       "word": "globe",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌍"
+        "kind": "illustration",
+        "illustration": "school-globe"
       },
       "background": [
         "#e2f4ff",

@@ -15,12 +15,13 @@ import {
 import type { FlashcardDeck } from "./flashcard";
 
 const FIRST_BATCH_IDS = new Set([
-  "shapes-pyramid",
+  "shapes-octagon", "shapes-cube", "shapes-sphere", "shapes-cone", "shapes-cylinder", "shapes-pyramid", "shapes-prism",
+  "shapes-right-triangle", "shapes-zigzag",
   "actions-eat", "actions-drink", "actions-read", "actions-sit",
   "actions-wake-up", "actions-get-up", "actions-go", "actions-come",
   "actions-listen", "actions-watch", "actions-ask", "actions-answer",
   "actions-open", "actions-close",
-  "transport-school-bus", "transport-metro", "transport-kayak",
+  "transport-school-bus", "transport-monorail", "transport-kayak",
   "transport-bulldozer", "transport-excavator", "transport-camper",
 ]);
 const decks = { shapes, actions, transport };
@@ -62,6 +63,35 @@ describe("第一批定制 SVG 插画", () => {
         .filter((card) => FIRST_BATCH_IDS.has(card.id))
         .map((card) => getFlashcardIllustration(card.id));
       expect(new Set(svgs).size, `${category} 插画重复`).toBe(svgs.length);
+    }
+  });
+
+  it("交通工具不再同时教授 subway 和 metro", () => {
+    const words = new Set(transport.cards.map((card) => card.word));
+    expect(words.has("metro")).toBe(false);
+    expect(words.has("subway")).toBe(true);
+    expect(words.has("monorail")).toBe(true);
+    for (const retained of ["car", "taxi", "ship", "boat", "canoe", "kayak", "bulldozer", "excavator"]) {
+      expect(words.has(retained)).toBe(true);
+    }
+  });
+
+  it("动作不再并排使用难以区分的感知和说话近义词", () => {
+    const words = new Set(actions.cards.map((card) => card.word));
+    for (const removed of ["see", "hear", "talk"]) expect(words.has(removed)).toBe(false);
+    for (const added of ["point", "smell", "wave"]) expect(words.has(added)).toBe(true);
+    for (const retained of ["look", "watch", "listen", "speak", "wake up", "get up", "go", "come", "ask", "answer"]) {
+      expect(words.has(retained)).toBe(true);
+    }
+  });
+
+  it("形状使用几何图形而非不相关物品", () => {
+    const words = new Set(shapes.cards.map((card) => card.word));
+    expect(words.has("frame")).toBe(false);
+    expect(words.has("right triangle")).toBe(true);
+    for (const upgraded of ["octagon", "cube", "sphere", "cone", "cylinder", "prism", "zigzag"]) {
+      const card = shapes.cards.find((item) => item.word === upgraded);
+      expect(card?.art).toEqual({ kind: "illustration", illustration: `shapes-${upgraded.replace(/ /g, "-")}` });
     }
   });
 

@@ -1,17 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bathroom-lotion-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f9a8d4"/>
-      <stop offset="1" stop-color="#db2777"/>
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeafe"/>
     </linearGradient>
     <filter id="bathroom-lotion-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#bathroom-lotion-shadow)">
-    <path d="M30 25h40l5 60c-12 8-38 8-50 0Z" fill="url(#bathroom-lotion-main)" stroke="#be185d" stroke-width="2"/>
-    <path d="M35 12h30v15H35Z" fill="#fff1f2" stroke="#be185d" stroke-width="2"/>
-    <path d="M37 44c9-8 19-8 27 0-2 18-3 27-13 36-10-9-12-18-14-36Z" fill="#fff1f2" opacity=".75"/>
-    <path d="M42 54c5-4 11-4 16 0" fill="none" stroke="#f9a8d4" stroke-width="2"/>
+    <path d="M34 9h32v17H34Z" fill="#1e40af" stroke="#172554" stroke-width="2"/>
+    <path d="M35 26h30c8 5 13 12 13 23v36c-15 8-41 8-56 0V49c0-11 5-18 13-23Z" fill="url(#bathroom-lotion-main)" stroke="#1e40af" stroke-width="2"/>
+    <circle cx="50" cy="54" r="19" fill="#1d4ed8"/>
+    <g transform="translate(50 54) rotate(0) scale(0.8674 -0.8674) translate(-17.63 -3.65)"><path d="M0.92 7.29L3.02 7.29L5.67 2.29L5.67 7.29L7.45 7.29L7.45 0.00L5.35 0.00L2.70 5.00L2.70 0.00L0.92 0.00L0.92 7.29ZM9.29 7.29L11.17 7.29L11.17 0.00L9.29 0.00L9.29 7.29ZM12.14 7.29L14.03 7.29L15.96 1.91L17.89 7.29L19.78 7.29L17.08 0.00L14.84 0.00L12.14 7.29ZM20.75 7.29L25.82 7.29L25.82 5.87L22.63 5.87L22.63 4.51L25.63 4.51L25.63 3.09L22.63 3.09L22.63 1.42L25.93 1.42L25.93 0.00L20.75 0.00L20.75 7.29ZM32.00 1.33L29.06 1.33L28.60 0.00L26.71 0.00L29.41 7.29L31.65 7.29L34.35 0.00L32.46 0.00L32.00 1.33ZM29.53 2.68L31.53 2.68L30.53 5.58L29.53 2.68Z" fill="#ffffff"/></g>
+    <path d="M31 36c-3 5-4 11-4 17" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M39 81h22" fill="none" stroke="#93c5fd" stroke-width="2"/>
   </g>
 </svg>

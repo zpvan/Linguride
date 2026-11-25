@@ -18,9 +18,9 @@ const TARGET_IDS = new Set([
   "vegetables-cauliflower", "vegetables-lettuce", "vegetables-spinach", "vegetables-kale",
   "vegetables-celery", "vegetables-asparagus", "vegetables-zucchini", "vegetables-radish",
   "vegetables-turnip", "vegetables-beet", "vegetables-chickpea", "vegetables-lentil",
-  "vegetables-bell-pepper", "vegetables-artichoke", "vegetables-bok-choy",
+  "vegetables-okra", "vegetables-artichoke", "vegetables-bok-choy",
   "food-yogurt", "food-jam", "food-peanut-butter", "food-cereal", "food-oatmeal",
-  "food-toast", "food-pork", "food-lamb", "food-fish",
+  "food-toast", "food-sausage", "food-ham", "food-chicken", "food-pork", "food-lamb", "food-fish",
 ]);
 const decks = { fruits, vegetables, food };
 
@@ -40,7 +40,7 @@ function expectSafeSvg(svg: string, cardId: string): void {
 }
 
 describe("水果、蔬菜与食物定制 SVG 插画", () => {
-  it("只将 40 个目标词条连接到同名安全资源", () => {
+  it("只将 43 个目标词条连接到同名安全资源", () => {
     let count = 0;
     for (const deck of Object.values(decks)) {
       for (const card of deck.cards) {
@@ -56,7 +56,7 @@ describe("水果、蔬菜与食物定制 SVG 插画", () => {
         expectSafeSvg(svg, card.id);
       }
     }
-    expect(count).toBe(40);
+    expect(count).toBe(43);
   });
 
   it("同分类没有完全相同的 SVG", () => {
@@ -65,6 +65,25 @@ describe("水果、蔬菜与食物定制 SVG 插画", () => {
         .filter((card) => TARGET_IDS.has(card.id))
         .map((card) => getFlashcardIllustration(card.id));
       expect(new Set(svgs).size, `${category} 插画内容完全相同`).toBe(svgs.length);
+    }
+  });
+
+  it("食物不再用热狗、鸡腿或带骨肉代替大类", () => {
+    for (const upgraded of ["sausage", "ham", "chicken"]) {
+      const card = food.cards.find((item) => item.word === upgraded);
+      expect(card?.art).toEqual({ kind: "illustration", illustration: `food-${upgraded}` });
+    }
+    for (const retained of ["bread", "toast", "cereal", "oatmeal", "beef", "pork", "lamb", "fish"]) {
+      expect(food.cards.some((card) => card.word === retained)).toBe(true);
+    }
+  });
+
+  it("蔬菜不再重复教授甜椒", () => {
+    const words = new Set(vegetables.cards.map((card) => card.word));
+    expect(words.has("bell pepper")).toBe(false);
+    expect(words.has("okra")).toBe(true);
+    for (const retained of ["pepper", "chili", "lettuce", "spinach", "kale", "celery", "asparagus", "zucchini", "cucumber"]) {
+      expect(words.has(retained)).toBe(true);
     }
   });
 });

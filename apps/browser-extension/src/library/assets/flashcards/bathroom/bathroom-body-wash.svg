@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bathroom-body-wash-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f9a8d4"/>
-      <stop offset="1" stop-color="#db2777"/>
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e0f2fe"/>
     </linearGradient>
     <filter id="bathroom-body-wash-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#bathroom-body-wash-shadow)">
-    <path d="M28 32h44v54c-10 9-34 9-44 0Z" fill="url(#bathroom-body-wash-main)" stroke="#be185d" stroke-width="2"/>
-    <path d="M39 19h22v13H39Z" fill="#9f1239"/>
-    <path d="M50 19V9h25v6H56" fill="none" stroke="#9f1239" stroke-width="4"/>
-    <g fill="#fff1f2" stroke="#be185d" stroke-width="1"><circle cx="39" cy="52" r="7"/><circle cx="53" cy="46" r="8"/><circle cx="62" cy="57" r="7"/><circle cx="48" cy="63" r="8"/></g>
-    <path d="M38 77h24" fill="none" stroke="#fff1f2" stroke-width="3"/>
+    <path d="M36 10h28c0 11 13 20 14 36l2 33c-17 9-43 9-60 0l2-33c1-16 14-25 14-36Z" fill="url(#bathroom-body-wash-main)" stroke="#1d4ed8" stroke-width="2"/>
+    <path d="M27 78h46v12H27Z" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
+    <path d="M31 29c-4 8-5 18-5 29" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <g transform="translate(50 44) rotate(0) scale(1.3299 -1.3299) translate(-14.45 -3.57)"><path d="M2.80 5.87L2.80 1.42L3.47 1.42Q4.62 1.42 5.23 1.99Q5.84 2.56 5.84 3.65Q5.84 4.74 5.23 5.30Q4.63 5.87 3.47 5.87L2.80 5.87ZM0.92 7.29L2.90 7.29Q4.56 7.29 5.37 7.05Q6.19 6.82 6.77 6.25Q7.28 5.76 7.53 5.11Q7.78 4.47 7.78 3.65Q7.78 2.83 7.53 2.18Q7.28 1.53 6.77 1.04Q6.18 0.47 5.36 0.24Q4.54 0.00 2.90 0.00L0.92 0.00L0.92 7.29ZM11.74 4.35Q11.16 4.35 10.86 3.93Q10.55 3.52 10.55 2.73Q10.55 1.94 10.86 1.53Q11.16 1.11 11.74 1.11Q12.31 1.11 12.62 1.53Q12.92 1.94 12.92 2.73Q12.92 3.52 12.62 3.93Q12.31 4.35 11.74 4.35ZM11.74 5.60Q13.15 5.60 13.95 4.84Q14.74 4.08 14.74 2.73Q14.74 1.38 13.95 0.62Q13.15 -0.14 11.74 -0.14Q10.33 -0.14 9.53 0.62Q8.73 1.38 8.73 2.73Q8.73 4.08 9.53 4.84Q10.33 5.60 11.74 5.60ZM15.32 5.47L17.07 5.47L18.43 1.69L19.79 5.47L21.54 5.47L19.39 0.00L17.47 0.00L15.32 5.47ZM27.99 2.75L27.99 2.25L23.90 2.25Q23.96 1.64 24.35 1.33Q24.73 1.02 25.41 1.02Q25.96 1.02 26.54 1.18Q27.12 1.35 27.73 1.68L27.73 0.33Q27.11 0.10 26.49 -0.02Q25.87 -0.14 25.25 -0.14Q23.76 -0.14 22.94 0.61Q22.12 1.37 22.12 2.73Q22.12 4.07 22.93 4.83Q23.73 5.60 25.15 5.60Q26.44 5.60 27.21 4.82Q27.99 4.05 27.99 2.75ZM26.19 3.33Q26.19 3.83 25.90 4.13Q25.61 4.44 25.14 4.44Q24.63 4.44 24.32 4.15Q24.00 3.87 23.92 3.33L26.19 3.33Z" fill="#1d4ed8"/></g>
+    <path d="M35 61c9-10 20-10 30 0-12-4-18 1-15 10-8-1-13-5-15-10Z" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+    <path d="M38 73h24" fill="none" stroke="#93c5fd" stroke-width="2"/>
   </g>
 </svg>

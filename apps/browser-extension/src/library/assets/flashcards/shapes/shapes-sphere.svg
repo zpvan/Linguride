@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><radialGradient id="shapes-sphere-main" cx=".3" cy=".25" r=".8"><stop stop-color="#ede9fe"/><stop offset=".45" stop-color="#a78bfa"/><stop offset="1" stop-color="#5b21b6"/></radialGradient><filter id="shapes-sphere-shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity=".22"/></filter></defs>
+  <g filter="url(#shapes-sphere-shadow)">
+    <circle cx="50" cy="49" r="39" fill="url(#shapes-sphere-main)" stroke="#5b21b6" stroke-width="2"/>
+    <ellipse cx="36" cy="32" rx="11" ry="7" fill="#fff" opacity=".45" transform="rotate(-35 36 32)"/>
+  </g>
+</svg>

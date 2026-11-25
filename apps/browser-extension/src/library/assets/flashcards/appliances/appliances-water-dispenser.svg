@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="appliances-water-dispenser-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="appliances-water-dispenser-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#appliances-water-dispenser-shadow)">
+    <path d="M34 6h32l6 13-5 26H33l-5-26Z" fill="#7dd3fc" fill-opacity=".85" stroke="#0284c7" stroke-width="2"/>
+    <path d="M37 6h26M32 20h36M34 34h32" fill="none" stroke="#e0f2fe" stroke-width="2"/>
+    <path d="M23 43h54v50H23Z" fill="url(#appliances-water-dispenser-main)" stroke="#475569" stroke-width="2"/>
+    <path d="M29 51h42v25H29Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+    <path d="M33 55h12v9H33ZM55 55h12v9H55Z" fill="#38bdf8" stroke="#0369a1" stroke-width="1.5"/>
+    <path d="M55 55h12v9H55Z" fill="#fb7185" stroke="#be123c" stroke-width="1.5"/>
+    <path d="M39 64v7M61 64v7" fill="none" stroke="#475569" stroke-width="3"/>
+    <path d="M45 70h14l-2 15H47Z" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
+    <path d="M30 93v3M70 93v3" fill="none" stroke="#475569" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bathroom-plunger-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f87171"/>
+      <stop offset="1" stop-color="#b91c1c"/>
+    </linearGradient>
+    <filter id="bathroom-plunger-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#bathroom-plunger-shadow)">
+    <path d="M46 9h8v49h-8Z" fill="#d6a15d" stroke="#854d0e" stroke-width="2"/>
+    <path d="M46 12h8" fill="none" stroke="#fde68a" stroke-width="2"/>
+    <path d="M24 78c0-20 10-30 26-30s26 10 26 30Z" fill="url(#bathroom-plunger-main)" stroke="#7f1d1d" stroke-width="2"/>
+    <path d="M19 77h62v10H19Z" fill="#991b1b" stroke="#7f1d1d" stroke-width="2"/>
+    <path d="M33 65c5-8 12-10 19-10" fill="none" stroke="#fecaca" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+  </g>
+</svg>

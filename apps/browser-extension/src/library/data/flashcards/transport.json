@@ -195,11 +195,11 @@
       ]
     },
     {
-      "id": "transport-metro",
-      "word": "metro",
+      "id": "transport-monorail",
+      "word": "monorail",
       "art": {
         "kind": "illustration",
-        "illustration": "transport-metro"
+        "illustration": "transport-monorail"
       },
       "background": [
         "#e0f7fa",

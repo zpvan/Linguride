@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="drinks-energy-drink-main" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#475569"/><stop offset="1" stop-color="#111827"/></linearGradient><filter id="drinks-energy-drink-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
+  <g filter="url(#drinks-energy-drink-shadow)">
+    <path d="M30 8h40l4 82H26Z" fill="url(#drinks-energy-drink-main)" stroke="#020617" stroke-width="2"/>
+    <ellipse cx="50" cy="9" rx="20" ry="5" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+    <ellipse cx="50" cy="89" rx="24" ry="5" fill="#1f2937"/>
+    <path d="m55 21-20 34h16l-7 27 23-39H51Z" fill="#a3e635" stroke="#65a30d" stroke-width="1.5"/>
+    <path d="M33 18h34" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M32 29v43" fill="none" stroke="#94a3b8" stroke-width="2" opacity=".55"/>
+  </g>
+</svg>

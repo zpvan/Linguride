@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部224张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部249张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -25,24 +25,25 @@ import { getFlashcardIllustration } from "../assets/flashcardArt";
 
 const TARGET_IDS = new Set([
   "kitchen-ladle", "kitchen-spatula", "kitchen-whisk", "kitchen-tongs", "kitchen-peeler", "kitchen-grater",
-  "kitchen-cutting-board", "kitchen-mixing-bowl", "kitchen-saucepan", "kitchen-skillet", "kitchen-kettle",
+  "kitchen-cutting-board", "kitchen-rolling-pin", "kitchen-dish-rack", "kitchen-can-opener", "kitchen-kettle",
   "kitchen-lid", "kitchen-oven-mitt", "kitchen-apron", "kitchen-napkin", "kitchen-placemat", "kitchen-tray",
-  "kitchen-teapot", "kitchen-coffee-pot", "kitchen-measuring-cup", "kitchen-measuring-spoon", "kitchen-strainer", "kitchen-colander",
-  "bathroom-towel", "bathroom-bath-towel", "bathroom-hand-towel", "bathroom-washcloth", "bathroom-bath-mat",
+  "kitchen-teapot", "kitchen-kitchen-timer", "kitchen-measuring-cup", "kitchen-measuring-spoon", "kitchen-sponge", "kitchen-colander",
+  "bathroom-bathtub", "bathroom-mirror", "bathroom-bath-towel", "bathroom-plunger", "bathroom-washcloth", "bathroom-bath-mat",
   "bathroom-shower-curtain", "bathroom-showerhead", "bathroom-sink", "bathroom-tissue", "bathroom-toothpaste",
   "bathroom-mouthwash", "bathroom-shampoo", "bathroom-conditioner", "bathroom-body-wash", "bathroom-hand-soap",
-  "bathroom-sanitizer", "bathroom-lotion", "bathroom-cream", "bathroom-shaving-cream", "bathroom-hairbrush",
-  "bathroom-cotton-swab", "bathroom-cotton-ball",
+  "bathroom-sanitizer", "bathroom-lotion", "bathroom-cream", "bathroom-shaving-cream", "bathroom-comb", "bathroom-hairbrush",
+  "bathroom-cotton-swab", "bathroom-cotton-ball", "bathroom-scale",
 ]);
 const decks = { kitchen, bathroom };
 const EXPECTED_ILLUSTRATION_IDS = new Set([
   ...TARGET_IDS,
-  "shapes-pyramid",
+  "shapes-octagon", "shapes-cube", "shapes-sphere", "shapes-cone", "shapes-cylinder", "shapes-pyramid", "shapes-prism",
+  "shapes-right-triangle", "shapes-zigzag",
   "actions-eat", "actions-drink", "actions-read", "actions-sit",
   "actions-wake-up", "actions-get-up", "actions-go", "actions-come",
   "actions-listen", "actions-watch", "actions-ask", "actions-answer",
   "actions-open", "actions-close",
-  "transport-school-bus", "transport-metro", "transport-kayak",
+  "transport-school-bus", "transport-monorail", "transport-kayak",
   "transport-bulldozer", "transport-excavator", "transport-camper",
   "fruits-lime", "fruits-papaya", "fruits-cantaloupe", "fruits-plum",
   "fruits-apricot", "fruits-fig", "fruits-date", "fruits-pomegranate",
@@ -51,35 +52,35 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "vegetables-cauliflower", "vegetables-lettuce", "vegetables-spinach", "vegetables-kale",
   "vegetables-celery", "vegetables-asparagus", "vegetables-zucchini", "vegetables-radish",
   "vegetables-turnip", "vegetables-beet", "vegetables-chickpea", "vegetables-lentil",
-  "vegetables-bell-pepper", "vegetables-artichoke", "vegetables-bok-choy",
+  "vegetables-okra", "vegetables-artichoke", "vegetables-bok-choy",
   "food-yogurt", "food-jam", "food-peanut-butter", "food-cereal", "food-oatmeal",
-  "food-toast", "food-pork", "food-lamb", "food-fish",
+  "food-toast", "food-sausage", "food-ham", "food-chicken", "food-pork", "food-lamb", "food-fish",
   "drinks-smoothie", "drinks-soda", "drinks-mineral-water", "drinks-sparkling-water",
-  "drinks-soda-water", "drinks-tonic-water", "drinks-coconut-water", "drinks-orange-juice",
+  "drinks-milkshake", "drinks-sports-drink", "drinks-coconut-water", "drinks-orange-juice",
   "drinks-apple-juice", "drinks-grape-juice", "drinks-iced-tea", "drinks-iced-coffee",
   "drinks-milk-tea", "drinks-green-tea", "drinks-black-tea", "drinks-herbal-tea",
   "drinks-hot-chocolate", "drinks-cappuccino", "drinks-latte", "drinks-espresso",
-  "drinks-americano", "drinks-mocha", "drinks-hot-water", "drinks-cold-water", "drinks-warm-water",
-  "clothing-t-shirt", "clothing-skirt", "clothing-sweater", "clothing-cardigan", "clothing-hoodie",
-  "clothing-jacket", "clothing-blazer", "clothing-raincoat", "clothing-overcoat", "clothing-mitten",
+  "drinks-energy-drink", "drinks-hot-cider", "drinks-soy-milk", "drinks-tomato-juice", "drinks-pear-juice",
+  "clothing-shirt", "clothing-t-shirt", "clothing-skirt", "clothing-sweater", "clothing-cardigan", "clothing-hoodie",
+  "clothing-jacket", "clothing-blazer", "clothing-raincoat", "clothing-pajamas", "clothing-mitten",
   "clothing-slipper", "clothing-beanie", "clothing-belt",
   "school-marker", "school-highlighter", "school-chalk", "school-eraser", "school-sharpener",
-  "school-pencil-case", "school-pencil-box", "school-workbook", "school-dictionary", "school-storybook",
-  "school-comic-book", "school-library-card", "school-water-bottle", "school-tape", "school-calculator",
-  "toys-stuffed-animal", "toys-toy-car", "toys-toy-plane", "toys-building-set", "toys-spinning-top",
+  "school-pencil-case", "school-pencil-box", "school-textbook", "school-stapler", "school-dictionary", "school-storybook",
+  "school-comic-book", "school-library-card", "school-lunchbox", "school-water-bottle", "school-glue", "school-tape", "school-calculator", "school-globe",
+  "toys-rubber-duck", "toys-building-block", "toys-board-game", "toys-toy-car", "toys-toy-plane", "toys-toy-drum", "toys-spinning-top",
   "toys-hula-hoop", "toys-jump-rope", "toys-bubble-wand", "toys-rattle", "toys-pacifier",
   "toys-rocking-horse", "toys-tricycle", "toys-wagon", "toys-swing", "toys-seesaw", "toys-sandbox",
-  "furniture-table", "furniture-coffee-table", "furniture-dining-table", "furniture-desk", "furniture-bookshelf",
-  "furniture-bookcase", "furniture-cupboard", "furniture-drawer", "furniture-wardrobe", "furniture-closet",
+  "furniture-table", "furniture-lamp", "furniture-rug", "furniture-wall-clock", "furniture-desk", "furniture-bookshelf",
+  "furniture-picture-frame", "furniture-cupboard", "furniture-drawer", "furniture-wardrobe", "furniture-vase", "furniture-armchair",
   "furniture-rocking-chair", "furniture-stool", "furniture-bench", "furniture-ottoman", "furniture-nightstand",
   "furniture-dresser", "furniture-chest", "furniture-tv-stand", "furniture-shoe-rack", "furniture-coat-rack",
   "furniture-hanger", "furniture-cushion", "furniture-curtain",
-  "appliances-refrigerator", "appliances-freezer", "appliances-washing-machine", "appliances-dryer",
+  "appliances-refrigerator", "appliances-freezer", "appliances-washing-machine", "appliances-clothes-dryer",
   "appliances-dishwasher", "appliances-oven", "appliances-microwave", "appliances-stove", "appliances-rice-cooker",
   "appliances-pressure-cooker", "appliances-air-fryer", "appliances-blender", "appliances-juicer", "appliances-mixer",
-  "appliances-toaster", "appliances-kettle", "appliances-coffee-maker", "appliances-fan", "appliances-air-conditioner",
-  "appliances-heater", "appliances-humidifier", "appliances-dehumidifier", "appliances-air-purifier",
-  "appliances-vacuum-cleaner", "appliances-iron", "appliances-hair-dryer",
+  "appliances-toaster", "appliances-electric-kettle", "appliances-coffee-maker", "appliances-fan", "appliances-air-conditioner",
+  "appliances-heater", "appliances-humidifier", "appliances-water-dispenser", "appliances-air-purifier",
+  "appliances-vacuum-cleaner", "appliances-iron", "appliances-hair-dryer", "appliances-electric-shaver", "appliances-sewing-machine",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -103,7 +104,7 @@ function expectSafeSvg(svg: string, cardId: string): void {
 }
 
 describe("厨房与浴室定制 SVG", () => {
-  it("只将45个目标词条连接到同名安全资源", () => {
+  it("只将48个目标词条连接到同名安全资源", () => {
     let count = 0;
     for (const deck of Object.values(decks)) {
       for (const card of deck.cards) {
@@ -119,7 +120,7 @@ describe("厨房与浴室定制 SVG", () => {
         expectSafeSvg(svg, card.id);
       }
     }
-    expect(count).toBe(45);
+    expect(count).toBe(48);
   });
 
   it("同分类没有完全相同的 SVG", () => {
@@ -129,13 +130,34 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部224张组合Emoji已替换且16类仍为512张", () => {
+  it("浴室不再并排使用难以仅凭图案区分的近义词", () => {
+    const words = new Set(bathroom.cards.map((card) => card.word));
+    for (const removed of ["towel", "hand towel", "shower"]) expect(words.has(removed)).toBe(false);
+    for (const added of ["bathtub", "mirror", "plunger", "bath towel", "washcloth", "showerhead"]) {
+      expect(words.has(added)).toBe(true);
+    }
+  });
+
+  it("厨房不再并排使用同义锅具或形近工具", () => {
+    const words = new Set(kitchen.cards.map((card) => card.word));
+    for (const removed of ["mixing bowl", "saucepan", "skillet", "coffee pot", "strainer"]) {
+      expect(words.has(removed)).toBe(false);
+    }
+    for (const added of ["rolling pin", "dish rack", "can opener", "kitchen timer", "sponge"]) {
+      expect(words.has(added)).toBe(true);
+    }
+    for (const retained of ["bowl", "pot", "frying pan", "kettle", "teapot", "colander"]) {
+      expect(words.has(retained)).toBe(true);
+    }
+  });
+
+  it("全部249张组合Emoji已替换且16类仍为512张", () => {
     const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
     expect(cards).toHaveLength(512);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(224);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(249);
   });
 });

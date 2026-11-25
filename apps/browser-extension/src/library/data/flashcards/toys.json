@@ -63,11 +63,11 @@
       ]
     },
     {
-      "id": "toys-stuffed-animal",
-      "word": "stuffed animal",
+      "id": "toys-rubber-duck",
+      "word": "rubber duck",
       "art": {
         "kind": "illustration",
-        "illustration": "toys-stuffed-animal"
+        "illustration": "toys-rubber-duck"
       },
       "background": [
         "#fff0f5",
@@ -78,8 +78,8 @@
       "id": "toys-building-block",
       "word": "building block",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧱"
+        "kind": "illustration",
+        "illustration": "toys-building-block"
       },
       "background": [
         "#fff1f2",
@@ -102,8 +102,8 @@
       "id": "toys-board-game",
       "word": "board game",
       "art": {
-        "kind": "emoji",
-        "emoji": "🎲"
+        "kind": "illustration",
+        "illustration": "toys-board-game"
       },
       "background": [
         "#e5f8ed",
@@ -183,11 +183,11 @@
       ]
     },
     {
-      "id": "toys-building-set",
-      "word": "building set",
+      "id": "toys-toy-drum",
+      "word": "toy drum",
       "art": {
         "kind": "illustration",
-        "illustration": "toys-building-set"
+        "illustration": "toys-toy-drum"
       },
       "background": [
         "#fff8d9",

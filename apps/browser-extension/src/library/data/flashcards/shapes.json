@@ -134,8 +134,8 @@
       "id": "shapes-octagon",
       "word": "octagon",
       "art": {
-        "kind": "emoji",
-        "emoji": "🛑"
+        "kind": "illustration",
+        "illustration": "shapes-octagon"
       },
       "background": [
         "#fff1f2",
@@ -218,8 +218,8 @@
       "id": "shapes-cube",
       "word": "cube",
       "art": {
-        "kind": "emoji",
-        "emoji": "🧊"
+        "kind": "illustration",
+        "illustration": "shapes-cube"
       },
       "background": [
         "#e0f7fa",
@@ -230,8 +230,8 @@
       "id": "shapes-sphere",
       "word": "sphere",
       "art": {
-        "kind": "emoji",
-        "emoji": "🔮"
+        "kind": "illustration",
+        "illustration": "shapes-sphere"
       },
       "background": [
         "#f0e6ff",
@@ -242,8 +242,8 @@
       "id": "shapes-cone",
       "word": "cone",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍦"
+        "kind": "illustration",
+        "illustration": "shapes-cone"
       },
       "background": [
         "#fff0e1",
@@ -254,8 +254,8 @@
       "id": "shapes-cylinder",
       "word": "cylinder",
       "art": {
-        "kind": "emoji",
-        "emoji": "🥫"
+        "kind": "illustration",
+        "illustration": "shapes-cylinder"
       },
       "background": [
         "#f0f0f5",
@@ -278,8 +278,8 @@
       "id": "shapes-prism",
       "word": "prism",
       "art": {
-        "kind": "emoji",
-        "emoji": "💎"
+        "kind": "illustration",
+        "illustration": "shapes-prism"
       },
       "background": [
         "#fff0f5",
@@ -347,11 +347,11 @@
       ]
     },
     {
-      "id": "shapes-frame",
-      "word": "frame",
+      "id": "shapes-right-triangle",
+      "word": "right triangle",
       "art": {
-        "kind": "emoji",
-        "emoji": "🖼️"
+        "kind": "illustration",
+        "illustration": "shapes-right-triangle"
       },
       "background": [
         "#f3eadf",
@@ -386,8 +386,8 @@
       "id": "shapes-zigzag",
       "word": "zigzag",
       "art": {
-        "kind": "emoji",
-        "emoji": "⚡"
+        "kind": "illustration",
+        "illustration": "shapes-zigzag"
       },
       "background": [
         "#fff8d9",

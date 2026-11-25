@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="shapes-octagon-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fb7185"/><stop offset="1" stop-color="#be123c"/></linearGradient><filter id="shapes-octagon-shadow"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".2"/></filter></defs>
+  <g filter="url(#shapes-octagon-shadow)">
+    <path d="M34 10h32l24 24v32L66 90H34L10 66V34Z" fill="url(#shapes-octagon-main)" stroke="#9f1239" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M37 21h26l16 16v26L63 79H37L21 63V37Z" fill="none" stroke="#fecdd3" stroke-width="2" opacity=".65"/>
+  </g>
+</svg>

@@ -123,11 +123,11 @@
       ]
     },
     {
-      "id": "drinks-soda-water",
-      "word": "soda water",
+      "id": "drinks-milkshake",
+      "word": "milkshake",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-soda-water"
+        "illustration": "drinks-milkshake"
       },
       "background": [
         "#f0f0f5",
@@ -135,11 +135,11 @@
       ]
     },
     {
-      "id": "drinks-tonic-water",
-      "word": "tonic water",
+      "id": "drinks-sports-drink",
+      "word": "sports drink",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-tonic-water"
+        "illustration": "drinks-sports-drink"
       },
       "background": [
         "#fff8d9",
@@ -327,11 +327,11 @@
       ]
     },
     {
-      "id": "drinks-americano",
-      "word": "americano",
+      "id": "drinks-energy-drink",
+      "word": "energy drink",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-americano"
+        "illustration": "drinks-energy-drink"
       },
       "background": [
         "#e2f4ff",
@@ -339,11 +339,11 @@
       ]
     },
     {
-      "id": "drinks-mocha",
-      "word": "mocha",
+      "id": "drinks-hot-cider",
+      "word": "hot cider",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-mocha"
+        "illustration": "drinks-hot-cider"
       },
       "background": [
         "#f0e6ff",
@@ -351,11 +351,11 @@
       ]
     },
     {
-      "id": "drinks-hot-water",
-      "word": "hot water",
+      "id": "drinks-soy-milk",
+      "word": "soy milk",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-hot-water"
+        "illustration": "drinks-soy-milk"
       },
       "background": [
         "#fff0e1",
@@ -363,11 +363,11 @@
       ]
     },
     {
-      "id": "drinks-cold-water",
-      "word": "cold water",
+      "id": "drinks-tomato-juice",
+      "word": "tomato juice",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-cold-water"
+        "illustration": "drinks-tomato-juice"
       },
       "background": [
         "#eff6ff",
@@ -375,11 +375,11 @@
       ]
     },
     {
-      "id": "drinks-warm-water",
-      "word": "warm water",
+      "id": "drinks-pear-juice",
+      "word": "pear juice",
       "art": {
         "kind": "illustration",
-        "illustration": "drinks-warm-water"
+        "illustration": "drinks-pear-juice"
       },
       "background": [
         "#fff8d9",

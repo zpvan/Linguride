@@ -1,17 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bathroom-washcloth-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#facc15"/>
-      <stop offset="1" stop-color="#f97316"/>
+      <stop offset="0" stop-color="#fde047"/>
+      <stop offset="1" stop-color="#f59e0b"/>
     </linearGradient>
     <filter id="bathroom-washcloth-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#bathroom-washcloth-shadow)">
-    <path d="M24 24h52v52H24Z" fill="url(#bathroom-washcloth-main)" stroke="#c2410c" stroke-width="2"/>
-    <path d="M30 30h40v40H30Z" fill="none" stroke="#fef3c7" stroke-width="2"/>
-    <path d="M35 36h30M35 45h30M35 54h30M35 63h30" fill="none" stroke="#fde68a" stroke-width="2"/>
-    <path d="m70 24 6 6-6 6" fill="none" stroke="#c2410c" stroke-width="2"/>
+    <g transform="rotate(-8 48 54)">
+      <path d="M23 29h50v50H23Z" fill="url(#bathroom-washcloth-main)" stroke="#b45309" stroke-width="2"/>
+      <path d="M29 35h38v38H29Z" fill="none" stroke="#fff7ed" stroke-width="2" stroke-dasharray="3 2"/>
+      <path d="M34 45h28M34 54h28M34 63h28" fill="none" stroke="#fef3c7" stroke-width="2"/>
+    </g>
+    <circle cx="73" cy="24" r="8" fill="#fff" stroke="#7dd3fc" stroke-width="2"/>
+    <circle cx="83" cy="36" r="5" fill="#fff" stroke="#7dd3fc" stroke-width="2"/>
+    <path d="M77 10c-5 7-5 11 0 13 5-2 5-6 0-13Z" fill="#38bdf8"/>
   </g>
 </svg>

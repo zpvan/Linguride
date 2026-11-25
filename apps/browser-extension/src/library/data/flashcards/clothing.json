@@ -6,8 +6,8 @@
       "id": "clothing-shirt",
       "word": "shirt",
       "art": {
-        "kind": "emoji",
-        "emoji": "👕"
+        "kind": "illustration",
+        "illustration": "clothing-shirt"
       },
       "background": [
         "#f0e6ff",
@@ -195,11 +195,11 @@
       ]
     },
     {
-      "id": "clothing-overcoat",
-      "word": "overcoat",
+      "id": "clothing-pajamas",
+      "word": "pajamas",
       "art": {
         "kind": "illustration",
-        "illustration": "clothing-overcoat"
+        "illustration": "clothing-pajamas"
       },
       "background": [
         "#f8fafc",

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="clothing-shirt-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#86efac"/>
+      <stop offset="1" stop-color="#16a34a"/>
+    </linearGradient>
+    <filter id="clothing-shirt-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#clothing-shirt-shadow)">
+    <path d="m35 16-19 9-10 53 16 4 8-31v36h40V51l8 31 16-4-10-53-19-9-15 12Z" fill="url(#clothing-shirt-main)" stroke="#15803d" stroke-width="2"/>
+    <path d="m35 16 15 12-12 13-6-19ZM65 16 50 28l12 13 6-19Z" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <path d="M50 29v58" fill="none" stroke="#dcfce7" stroke-width="3"/>
+    <g fill="#f8fafc"><circle cx="55" cy="46" r="2.3"/><circle cx="55" cy="58" r="2.3"/><circle cx="55" cy="70" r="2.3"/></g>
+    <path d="M56 49h10v12H56ZM11 72l13 4M76 76l13-4" fill="none" stroke="#dcfce7" stroke-width="2"/>
+    <path d="M18 29c5-4 10-6 15-7" fill="none" stroke="#bbf7d0" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -87,11 +87,11 @@
       ]
     },
     {
-      "id": "appliances-dryer",
-      "word": "dryer",
+      "id": "appliances-clothes-dryer",
+      "word": "clothes dryer",
       "art": {
         "kind": "illustration",
-        "illustration": "appliances-dryer"
+        "illustration": "appliances-clothes-dryer"
       },
       "background": [
         "#f0f0f5",
@@ -231,11 +231,11 @@
       ]
     },
     {
-      "id": "appliances-kettle",
-      "word": "kettle",
+      "id": "appliances-electric-kettle",
+      "word": "electric kettle",
       "art": {
         "kind": "illustration",
-        "illustration": "appliances-kettle"
+        "illustration": "appliances-electric-kettle"
       },
       "background": [
         "#f0f0f5",
@@ -303,11 +303,11 @@
       ]
     },
     {
-      "id": "appliances-dehumidifier",
-      "word": "dehumidifier",
+      "id": "appliances-water-dispenser",
+      "word": "water dispenser",
       "art": {
         "kind": "illustration",
-        "illustration": "appliances-dehumidifier"
+        "illustration": "appliances-water-dispenser"
       },
       "background": [
         "#f0f0f5",
@@ -363,11 +363,11 @@
       ]
     },
     {
-      "id": "appliances-shaver",
-      "word": "shaver",
+      "id": "appliances-electric-shaver",
+      "word": "electric shaver",
       "art": {
-        "kind": "emoji",
-        "emoji": "🪒"
+        "kind": "illustration",
+        "illustration": "appliances-electric-shaver"
       },
       "background": [
         "#e2f4ff",
@@ -375,11 +375,11 @@
       ]
     },
     {
-      "id": "appliances-scale",
-      "word": "scale",
+      "id": "appliances-sewing-machine",
+      "word": "sewing machine",
       "art": {
-        "kind": "emoji",
-        "emoji": "⚖️"
+        "kind": "illustration",
+        "illustration": "appliances-sewing-machine"
       },
       "background": [
         "#f0f0f5",

@@ -171,11 +171,11 @@
       ]
     },
     {
-      "id": "kitchen-mixing-bowl",
-      "word": "mixing bowl",
+      "id": "kitchen-rolling-pin",
+      "word": "rolling pin",
       "art": {
         "kind": "illustration",
-        "illustration": "kitchen-mixing-bowl"
+        "illustration": "kitchen-rolling-pin"
       },
       "background": [
         "#e5f8ed",
@@ -183,11 +183,11 @@
       ]
     },
     {
-      "id": "kitchen-saucepan",
-      "word": "saucepan",
+      "id": "kitchen-dish-rack",
+      "word": "dish rack",
       "art": {
         "kind": "illustration",
-        "illustration": "kitchen-saucepan"
+        "illustration": "kitchen-dish-rack"
       },
       "background": [
         "#f0f0f5",
@@ -219,11 +219,11 @@
       ]
     },
     {
-      "id": "kitchen-skillet",
-      "word": "skillet",
+      "id": "kitchen-can-opener",
+      "word": "can opener",
       "art": {
         "kind": "illustration",
-        "illustration": "kitchen-skillet"
+        "illustration": "kitchen-can-opener"
       },
       "background": [
         "#fff1f2",
@@ -327,11 +327,11 @@
       ]
     },
     {
-      "id": "kitchen-coffee-pot",
-      "word": "coffee pot",
+      "id": "kitchen-kitchen-timer",
+      "word": "kitchen timer",
       "art": {
         "kind": "illustration",
-        "illustration": "kitchen-coffee-pot"
+        "illustration": "kitchen-kitchen-timer"
       },
       "background": [
         "#f3eadf",
@@ -363,11 +363,11 @@
       ]
     },
     {
-      "id": "kitchen-strainer",
-      "word": "strainer",
+      "id": "kitchen-sponge",
+      "word": "sponge",
       "art": {
         "kind": "illustration",
-        "illustration": "kitchen-strainer"
+        "illustration": "kitchen-sponge"
       },
       "background": [
         "#fff8d9",

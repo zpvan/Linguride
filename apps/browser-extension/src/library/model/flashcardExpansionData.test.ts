@@ -91,4 +91,11 @@ describe("第四批家居与交通认图卡片", () => {
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(512);
   });
+
+  it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {
+    const words = new Set(colors.cards.map((card) => card.word));
+    for (const removed of ["ivory", "cream", "turquoise", "aqua"]) expect(words.has(removed)).toBe(false);
+    for (const added of ["coral", "peach", "indigo", "charcoal"]) expect(words.has(added)).toBe(true);
+    for (const retained of ["gray", "silver", "beige", "cyan", "teal"]) expect(words.has(retained)).toBe(true);
+  });
 });

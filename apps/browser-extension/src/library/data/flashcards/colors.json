@@ -185,12 +185,12 @@
       ]
     },
     {
-      "id": "colors-ivory",
-      "word": "ivory",
+      "id": "colors-coral",
+      "word": "coral",
       "art": {
         "kind": "vector",
         "shape": "circle",
-        "color": "#fffff0"
+        "color": "#ff7f50"
       },
       "background": [
         "#f5f1e6",
@@ -198,12 +198,12 @@
       ]
     },
     {
-      "id": "colors-cream",
-      "word": "cream",
+      "id": "colors-peach",
+      "word": "peach",
       "art": {
         "kind": "vector",
         "shape": "circle",
-        "color": "#fffdd0"
+        "color": "#ffdab9"
       },
       "background": [
         "#e7c876",
@@ -250,12 +250,12 @@
       ]
     },
     {
-      "id": "colors-turquoise",
-      "word": "turquoise",
+      "id": "colors-indigo",
+      "word": "indigo",
       "art": {
         "kind": "vector",
         "shape": "circle",
-        "color": "#40e0d0"
+        "color": "#4b0082"
       },
       "background": [
         "#f0fdfa",
@@ -263,12 +263,12 @@
       ]
     },
     {
-      "id": "colors-aqua",
-      "word": "aqua",
+      "id": "colors-charcoal",
+      "word": "charcoal",
       "art": {
         "kind": "vector",
         "shape": "circle",
-        "color": "#00bcd4"
+        "color": "#36454f"
       },
       "background": [
         "#e0f7fa",

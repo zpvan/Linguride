@@ -41,7 +41,7 @@ const expectedWords: Record<string, string[]> = {
   furniture: ["chair", "table", "bed", "sofa", "lamp", "door", "window", "mirror"],
   appliances: ["television", "computer", "phone", "camera"],
   kitchen: ["cup", "plate", "bowl", "spoon"],
-  bathroom: ["soap", "towel", "toothbrush", "shower"],
+  bathroom: ["soap", "bathtub", "toothbrush", "mirror"],
 };
 
 const expectedEmoji: Record<string, string[]> = {
@@ -50,16 +50,18 @@ const expectedEmoji: Record<string, string[]> = {
   vegetables: ["🥕", "🍅", "🥔", "🥒", "🧅", "🫑", "🎃", "🍄"],
   food: ["🥚", "🍞", "🍚", "🍜", "🥪", "🍔", "🍕", "🥗"],
   drinks: ["💧", "🥛", "🧃", "🍵", "☕", "🍋", "🥤🍓", "🥤🧊"],
-  clothing: ["👕", "👗", "👒", "🧥"],
+  clothing: ["", "👗", "👒", "🧥"],
   school: ["✏️", "🖊️", "📖", "📏"],
   toys: ["⚽", "🪆", "🤖", "🪁"],
-  furniture: ["🪑", "🪑🍽️", "🛏️", "🛋️", "💡", "🚪", "🪟", "🪞"],
+  furniture: ["🪑", "🪑🍽️", "🛏️", "🛋️", "", "🚪", "🪟", "🪞"],
   appliances: ["📺", "💻", "📱", "📷"],
   kitchen: ["☕", "🍽️", "🥣", "🥄"],
-  bathroom: ["🧼", "🛁🧺", "🪥", "🚿"],
+  bathroom: ["🧼", "", "🪥", ""],
 };
 
-const originalIllustrationIds = new Set(["drinks-smoothie", "drinks-soda", "furniture-table", "bathroom-towel"]);
+const originalIllustrationIds = new Set([
+  "drinks-smoothie", "drinks-soda", "clothing-shirt", "furniture-table", "furniture-lamp", "bathroom-bathtub", "bathroom-mirror",
+]);
 
 const expectedBackgrounds: Record<string, [string, string]> = {
   transport: ["#e2f4ff", "#b9dcf5"],

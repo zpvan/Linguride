@@ -291,11 +291,11 @@
       ]
     },
     {
-      "id": "actions-see",
-      "word": "see",
+      "id": "actions-point",
+      "word": "point",
       "art": {
         "kind": "emoji",
-        "emoji": "👁️"
+        "emoji": "👆"
       },
       "background": [
         "#e2f4ff",
@@ -303,11 +303,11 @@
       ]
     },
     {
-      "id": "actions-hear",
-      "word": "hear",
+      "id": "actions-smell",
+      "word": "smell",
       "art": {
         "kind": "emoji",
-        "emoji": "👂"
+        "emoji": "👃"
       },
       "background": [
         "#f3eadf",
@@ -327,11 +327,11 @@
       ]
     },
     {
-      "id": "actions-talk",
-      "word": "talk",
+      "id": "actions-wave",
+      "word": "wave",
       "art": {
         "kind": "emoji",
-        "emoji": "💬"
+        "emoji": "👋"
       },
       "background": [
         "#e0f7fa",

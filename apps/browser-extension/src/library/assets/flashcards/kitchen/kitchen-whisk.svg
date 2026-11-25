@@ -1,16 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="kitchen-whisk-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#67e8f9"/>
-      <stop offset="1" stop-color="#0891b2"/>
+      <stop offset="0" stop-color="#e2e8f0"/>
+      <stop offset="1" stop-color="#94a3b8"/>
     </linearGradient>
     <filter id="kitchen-whisk-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#kitchen-whisk-shadow)">
-    <path d="M49 45v43" fill="none" stroke="#0e7490" stroke-width="8" stroke-linecap="round"/>
-    <path d="M50 45C10 26 24 4 50 45Zm0 0C90 26 76 4 50 45Zm0 0C26 18 38 0 50 45Zm0 0c24-27 12-45 0 0Z" fill="none" stroke="url(#kitchen-whisk-main)" stroke-width="3"/>
-    <path d="M42 88h16" fill="none" stroke="#155e75" stroke-width="7" stroke-linecap="round"/>
+    <path d="M42 7h16v35H42Z" fill="#0e7490" stroke="#155e75" stroke-width="2"/>
+    <path d="M45 12h10" fill="none" stroke="#67e8f9" stroke-width="2" stroke-linecap="round"/>
+    <path d="M50 41C18 55 19 89 50 92C81 89 82 55 50 41Z" fill="none" stroke="#64748b" stroke-width="2.5"/>
+    <path d="M50 41C32 57 31 84 50 92C69 84 68 57 50 41Z" fill="none" stroke="#94a3b8" stroke-width="2.5"/>
+    <path d="M50 41C42 59 41 82 50 92C59 82 58 59 50 41Z" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+    <path d="M42 38h16v8H42Z" fill="#475569" stroke="#334155" stroke-width="2"/>
   </g>
 </svg>

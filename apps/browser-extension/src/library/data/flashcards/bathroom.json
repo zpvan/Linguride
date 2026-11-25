@@ -15,11 +15,11 @@
       ]
     },
     {
-      "id": "bathroom-towel",
-      "word": "towel",
+      "id": "bathroom-bathtub",
+      "word": "bathtub",
       "art": {
         "kind": "illustration",
-        "illustration": "bathroom-towel"
+        "illustration": "bathroom-bathtub"
       },
       "background": [
         "#e2f4ff",
@@ -39,11 +39,11 @@
       ]
     },
     {
-      "id": "bathroom-shower",
-      "word": "shower",
+      "id": "bathroom-mirror",
+      "word": "mirror",
       "art": {
-        "kind": "emoji",
-        "emoji": "🚿"
+        "kind": "illustration",
+        "illustration": "bathroom-mirror"
       },
       "background": [
         "#e2f4ff",
@@ -63,11 +63,11 @@
       ]
     },
     {
-      "id": "bathroom-hand-towel",
-      "word": "hand towel",
+      "id": "bathroom-plunger",
+      "word": "plunger",
       "art": {
         "kind": "illustration",
-        "illustration": "bathroom-hand-towel"
+        "illustration": "bathroom-plunger"
       },
       "background": [
         "#f0e6ff",
@@ -318,8 +318,8 @@
       "id": "bathroom-comb",
       "word": "comb",
       "art": {
-        "kind": "emoji",
-        "emoji": "🪮"
+        "kind": "illustration",
+        "illustration": "bathroom-comb"
       },
       "background": [
         "#f0e6ff",
@@ -378,8 +378,8 @@
       "id": "bathroom-scale",
       "word": "scale",
       "art": {
-        "kind": "emoji",
-        "emoji": "⚖️"
+        "kind": "illustration",
+        "illustration": "bathroom-scale"
       },
       "background": [
         "#f0f0f5",

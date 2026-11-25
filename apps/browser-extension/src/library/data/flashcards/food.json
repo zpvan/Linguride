@@ -246,8 +246,8 @@
       "id": "food-sausage",
       "word": "sausage",
       "art": {
-        "kind": "emoji",
-        "emoji": "🌭"
+        "kind": "illustration",
+        "illustration": "food-sausage"
       },
       "background": [
         "#f3eadf",
@@ -258,8 +258,8 @@
       "id": "food-ham",
       "word": "ham",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍖"
+        "kind": "illustration",
+        "illustration": "food-ham"
       },
       "background": [
         "#fff1f2",
@@ -270,8 +270,8 @@
       "id": "food-chicken",
       "word": "chicken",
       "art": {
-        "kind": "emoji",
-        "emoji": "🍗"
+        "kind": "illustration",
+        "illustration": "food-chicken"
       },
       "background": [
         "#fff0e1",

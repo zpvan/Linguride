@@ -54,8 +54,8 @@
       "id": "furniture-lamp",
       "word": "lamp",
       "art": {
-        "kind": "emoji",
-        "emoji": "💡"
+        "kind": "illustration",
+        "illustration": "furniture-lamp"
       },
       "background": [
         "#f3eadf",
@@ -99,11 +99,11 @@
       ]
     },
     {
-      "id": "furniture-coffee-table",
-      "word": "coffee table",
+      "id": "furniture-rug",
+      "word": "rug",
       "art": {
         "kind": "illustration",
-        "illustration": "furniture-coffee-table"
+        "illustration": "furniture-rug"
       },
       "background": [
         "#fff8d9",
@@ -111,11 +111,11 @@
       ]
     },
     {
-      "id": "furniture-dining-table",
-      "word": "dining table",
+      "id": "furniture-wall-clock",
+      "word": "wall clock",
       "art": {
         "kind": "illustration",
-        "illustration": "furniture-dining-table"
+        "illustration": "furniture-wall-clock"
       },
       "background": [
         "#fff0e1",
@@ -147,11 +147,11 @@
       ]
     },
     {
-      "id": "furniture-bookcase",
-      "word": "bookcase",
+      "id": "furniture-picture-frame",
+      "word": "picture frame",
       "art": {
         "kind": "illustration",
-        "illustration": "furniture-bookcase"
+        "illustration": "furniture-picture-frame"
       },
       "background": [
         "#fff8d9",
@@ -159,8 +159,8 @@
       ]
     },
     {
-      "id": "furniture-cabinet",
-      "word": "cabinet",
+      "id": "furniture-filing-cabinet",
+      "word": "filing cabinet",
       "art": {
         "kind": "emoji",
         "emoji": "🗄️"
@@ -207,11 +207,11 @@
       ]
     },
     {
-      "id": "furniture-closet",
-      "word": "closet",
+      "id": "furniture-vase",
+      "word": "vase",
       "art": {
         "kind": "illustration",
-        "illustration": "furniture-closet"
+        "illustration": "furniture-vase"
       },
       "background": [
         "#f0f0f5",
@@ -222,8 +222,8 @@
       "id": "furniture-armchair",
       "word": "armchair",
       "art": {
-        "kind": "emoji",
-        "emoji": "💺"
+        "kind": "illustration",
+        "illustration": "furniture-armchair"
       },
       "background": [
         "#f0e6ff",

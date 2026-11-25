@@ -10,11 +10,11 @@ import { getFlashcardIllustration } from "../assets/flashcardArt";
 
 const TARGET_IDS = new Set([
   "drinks-smoothie", "drinks-soda", "drinks-mineral-water", "drinks-sparkling-water",
-  "drinks-soda-water", "drinks-tonic-water", "drinks-coconut-water", "drinks-orange-juice",
+  "drinks-milkshake", "drinks-sports-drink", "drinks-coconut-water", "drinks-orange-juice",
   "drinks-apple-juice", "drinks-grape-juice", "drinks-iced-tea", "drinks-iced-coffee",
   "drinks-milk-tea", "drinks-green-tea", "drinks-black-tea", "drinks-herbal-tea",
   "drinks-hot-chocolate", "drinks-cappuccino", "drinks-latte", "drinks-espresso",
-  "drinks-americano", "drinks-mocha", "drinks-hot-water", "drinks-cold-water", "drinks-warm-water",
+  "drinks-energy-drink", "drinks-hot-cider", "drinks-soy-milk", "drinks-tomato-juice", "drinks-pear-juice",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -62,5 +62,18 @@ describe("饮品定制 SVG 插画", () => {
       .filter((card) => TARGET_IDS.has(card.id))
       .map((card) => getFlashcardIllustration(card.id));
     expect(new Set(svgs).size).toBe(svgs.length);
+  });
+
+  it("饮品不再用包装或温度重复教授相似概念", () => {
+    const words = new Set(drinks.cards.map((card) => card.word));
+    for (const removed of ["soda water", "tonic water", "americano", "mocha", "hot water", "cold water", "warm water"]) {
+      expect(words.has(removed)).toBe(false);
+    }
+    for (const added of ["milkshake", "sports drink", "energy drink", "hot cider", "soy milk", "tomato juice", "pear juice"]) {
+      expect(words.has(added)).toBe(true);
+    }
+    for (const retained of ["water", "mineral water", "sparkling water", "coffee", "cappuccino", "latte", "espresso"]) {
+      expect(words.has(retained)).toBe(true);
+    }
   });
 });

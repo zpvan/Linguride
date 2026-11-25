@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="toys-toy-drum-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#be123c"/>
+    </linearGradient>
+    <filter id="toys-toy-drum-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#toys-toy-drum-shadow)">
+    <path d="M20 32h60v50c-12 13-48 13-60 0Z" fill="url(#toys-toy-drum-main)" stroke="#881337" stroke-width="2"/>
+    <ellipse cx="50" cy="32" rx="30" ry="13" fill="#fff7ed" stroke="#881337" stroke-width="2"/>
+    <ellipse cx="50" cy="82" rx="30" ry="12" fill="#9f1239" stroke="#881337" stroke-width="2"/>
+    <path d="m24 43 16 32 20-30 16 32M24 75l16-32 20 34 16-34" fill="none" stroke="#fecdd3" stroke-width="2"/>
+    <path d="M17 7 62 40M83 5 42 39" fill="none" stroke="#92400e" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="17" cy="7" r="5" fill="#d6a15d" stroke="#92400e" stroke-width="1.5"/>
+    <circle cx="83" cy="5" r="5" fill="#d6a15d" stroke="#92400e" stroke-width="1.5"/>
+    <path d="M38 27c8-3 17-3 24 0" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

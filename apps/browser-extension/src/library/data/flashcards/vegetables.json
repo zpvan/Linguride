@@ -351,11 +351,11 @@
       ]
     },
     {
-      "id": "vegetables-bell-pepper",
-      "word": "bell pepper",
+      "id": "vegetables-okra",
+      "word": "okra",
       "art": {
         "kind": "illustration",
-        "illustration": "vegetables-bell-pepper"
+        "illustration": "vegetables-okra"
       },
       "background": [
         "#f7fee7",

@@ -1,19 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bathroom-sanitizer-main" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#86efac"/>
-      <stop offset="1" stop-color="#16a34a"/>
+      <stop offset="0" stop-color="#bae6fd"/>
+      <stop offset="1" stop-color="#38bdf8"/>
     </linearGradient>
     <filter id="bathroom-sanitizer-shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
     </filter>
   </defs>
   <g filter="url(#bathroom-sanitizer-shadow)">
-    <path d="M32 35h36v50c-9 8-27 8-36 0Z" fill="url(#bathroom-sanitizer-main)" fill-opacity=".85" stroke="#15803d" stroke-width="2"/>
-    <path d="M40 22h20v13H40Z" fill="#15803d"/>
-    <path d="M50 22V12h22v6H55" fill="none" stroke="#15803d" stroke-width="4"/>
-    <path d="M41 48h18v25H41Z" fill="#f0fdf4" opacity=".75"/>
-    <path d="M50 51c-6 8-6 13 0 16 6-3 6-8 0-16Z" fill="#4ade80"/>
-    <path d="M70 16c6 4 8 8 7 13" fill="none" stroke="#bbf7d0" stroke-width="3"/>
+    <path d="M40 21h20v13H40Z" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+    <path d="M50 21V11h25v7H55" fill="none" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+    <path d="M34 34h32l8 12v39H26V46Z" fill="#f0f9ff" fill-opacity=".85" stroke="#0369a1" stroke-width="2"/>
+    <path d="M28 60h44v25H28Z" fill="url(#bathroom-sanitizer-main)" fill-opacity=".6"/>
+    <path d="M29 47h42v24H29Z" fill="#1d4ed8" stroke="#1e40af" stroke-width="1.5"/>
+    <g transform="translate(50 55) rotate(0) scale(0.8186 -0.8186) translate(-21.68 -3.57)"><path d="M0.92 7.29L4.04 7.29Q5.43 7.29 6.17 6.67Q6.92 6.05 6.92 4.91Q6.92 3.76 6.17 3.15Q5.43 2.53 4.04 2.53L2.80 2.53L2.80 0.00L0.92 0.00L0.92 7.29ZM2.80 5.93L2.80 3.89L3.84 3.89Q4.38 3.89 4.68 4.16Q4.98 4.42 4.98 4.91Q4.98 5.40 4.68 5.66Q4.38 5.93 3.84 5.93L2.80 5.93ZM8.25 7.29L10.13 7.29L10.13 2.92Q10.13 2.02 10.42 1.63Q10.72 1.24 11.39 1.24Q12.06 1.24 12.36 1.63Q12.65 2.02 12.65 2.92L12.65 7.29L14.53 7.29L14.53 2.92Q14.53 1.37 13.75 0.61Q12.98 -0.14 11.39 -0.14Q9.80 -0.14 9.02 0.61Q8.25 1.37 8.25 2.92L8.25 7.29ZM19.04 4.06Q19.63 4.06 19.89 4.28Q20.14 4.50 20.14 5.00Q20.14 5.50 19.89 5.71Q19.63 5.93 19.04 5.93L18.25 5.93L18.25 4.06L19.04 4.06ZM18.25 2.76L18.25 0.00L16.37 0.00L16.37 7.29L19.24 7.29Q20.68 7.29 21.35 6.81Q22.02 6.32 22.02 5.28Q22.02 4.56 21.67 4.09Q21.32 3.63 20.62 3.41Q21.01 3.32 21.31 3.01Q21.62 2.70 21.93 2.07L22.95 0.00L20.95 0.00L20.06 1.81Q19.79 2.36 19.51 2.56Q19.24 2.76 18.78 2.76L18.25 2.76ZM24.07 7.29L29.14 7.29L29.14 5.87L25.95 5.87L25.95 4.51L28.95 4.51L28.95 3.09L25.95 3.09L25.95 1.42L29.25 1.42L29.25 0.00L24.07 0.00L24.07 7.29ZM30.90 7.29L32.78 7.29L32.78 1.42L36.08 1.42L36.08 0.00L30.90 0.00L30.90 7.29ZM37.27 7.29L39.15 7.29L39.15 1.42L42.45 1.42L42.45 0.00L37.27 0.00L37.27 7.29Z" fill="#ffffff"/></g>
+    <path d="M47 63h6v5h5v6h-5v5h-6v-5h-5v-6h5Z" fill="#fff"/>
+    <path d="M33 39h7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
   </g>
 </svg>

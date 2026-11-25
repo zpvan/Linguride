@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="transport-monorail-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="transport-monorail-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#transport-monorail-shadow)">
+    <path d="M8 23h67c13 0 21 7 19 18l-4 18H8Z" fill="url(#transport-monorail-main)" stroke="#0369a1" stroke-width="2"/>
+    <path d="M16 30h15v17H16ZM36 30h15v17H36ZM56 30h15v17H56ZM76 31c7 1 11 4 12 9H76Z" fill="#075985"/>
+    <path d="M8 52h86v10H8Z" fill="#0284c7"/>
+    <path d="M4 64h92v10H4Z" fill="#94a3b8" stroke="#475569" stroke-width="2"/>
+    <path d="M22 74v20M76 74v20" fill="none" stroke="#64748b" stroke-width="7"/>
+    <path d="M13 94h18M67 94h18" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+    <path d="M12 25h58" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  </g>
+</svg>

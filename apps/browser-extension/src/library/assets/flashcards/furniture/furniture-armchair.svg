@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="furniture-armchair-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4b5fd"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="furniture-armchair-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#furniture-armchair-shadow)">
+    <path d="M27 17c0-9 46-9 46 0v42H27Z" fill="url(#furniture-armchair-main)" stroke="#5b21b6" stroke-width="2"/>
+    <path d="M20 42c-9-5-14 4-12 16l5 22h18V49Z" fill="#8b5cf6" stroke="#5b21b6" stroke-width="2"/>
+    <path d="M80 42c9-5 14 4 12 16l-5 22H69V49Z" fill="#8b5cf6" stroke="#5b21b6" stroke-width="2"/>
+    <path d="M25 54h50v29H25Z" fill="#a78bfa" stroke="#5b21b6" stroke-width="2"/>
+    <path d="M32 58c10-5 26-5 36 0" fill="none" stroke="#ede9fe" stroke-width="3" stroke-linecap="round"/>
+    <path d="M20 81v10M80 81v10" fill="none" stroke="#4c1d95" stroke-width="5" stroke-linecap="round"/>
+    <path d="M35 22c8-4 22-4 30 0" fill="none" stroke="#ede9fe" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  </g>
+</svg>
