@@ -23,6 +23,7 @@ import sports from "../data/flashcards/sports.json";
 import toys from "../data/flashcards/toys.json";
 import transport from "../data/flashcards/transport.json";
 import vegetables from "../data/flashcards/vegetables.json";
+import weather from "../data/flashcards/weather.json";
 import { basicExpansion } from "./__fixtures__/flashcardBasicExpansion";
 import { dailyExpansion } from "./__fixtures__/flashcardDailyExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
@@ -30,6 +31,7 @@ import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { bicyclePartsExpansion } from "./__fixtures__/flashcardBicyclePartsExpansion";
 import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
 import { sportsExpansion } from "./__fixtures__/flashcardSportsExpansion";
+import { weatherExpansion } from "./__fixtures__/flashcardWeatherExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -120,6 +122,19 @@ describe("第六批自行车零部件认图卡片", () => {
     expect(allDecks).toHaveLength(18);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(576);
+  });
+});
+
+describe("第七批天气气候认图卡片", () => {
+  it("天气气候分类包含 32 张且总数为 608", () => {
+    expectExpansion(weather, "weather", weatherExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, bicycleParts, weather,
+    ];
+    expect(allDecks).toHaveLength(19);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(608);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {

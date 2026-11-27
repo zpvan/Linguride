@@ -13,6 +13,15 @@ const UNCOUNTABLE_WORDS: Partial<Record<FlashcardCategoryId, ReadonlySet<string>
   bathroom: new Set(["toilet paper", "toothpaste", "mouthwash", "shampoo", "conditioner", "body wash", "hand soap", "sanitizer", "lotion", "cream", "shaving cream"]),
 };
 
+const WEATHER_ADJECTIVES = new Set([
+  "sunny", "partly cloudy", "cloudy", "rainy", "snowy", "foggy", "windy", "stormy",
+  "hot", "cold", "warm", "cool", "humid", "dry",
+]);
+const WEATHER_COUNTABLE_NOUNS = new Set([
+  "thunderstorm", "blizzard", "tornado", "hurricane", "rainbow", "drought", "flood",
+  "heat wave", "monsoon", "tropical climate", "polar climate",
+]);
+
 const NOUN_PHRASE_OVERRIDES: Record<string, string> = {
   soap: "a bar of soap",
   jeans: "a pair of jeans",
@@ -49,6 +58,10 @@ export function buildFlashcardSpeechText(
         return `${repeated} This is ${word}.`;
       }
       return `${repeated} This is ${NOUN_PHRASE_OVERRIDES[word] ?? `${article} ${word}`}.`;
+    case "weather":
+      if (WEATHER_ADJECTIVES.has(word)) return `${repeated} It is ${word}.`;
+      if (WEATHER_COUNTABLE_NOUNS.has(word)) return `${repeated} This is ${article} ${word}.`;
+      return `${repeated} This is ${word}.`;
     case "colors":
     case "sports":
       return `${repeated} This is ${word}.`;

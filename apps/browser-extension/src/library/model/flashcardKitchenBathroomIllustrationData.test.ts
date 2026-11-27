@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部313张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部345张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -23,6 +23,7 @@ import sports from "../data/flashcards/sports.json";
 import toys from "../data/flashcards/toys.json";
 import transport from "../data/flashcards/transport.json";
 import vegetables from "../data/flashcards/vegetables.json";
+import weather from "../data/flashcards/weather.json";
 import { getFlashcardIllustration } from "../assets/flashcardArt";
 
 const TARGET_IDS = new Set([
@@ -95,6 +96,12 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "bicycle-parts-gear-shifter", "bicycle-parts-brake-lever", "bicycle-parts-brake-caliper", "bicycle-parts-brake-pad", "bicycle-parts-brake-cable", "bicycle-parts-headset",
   "bicycle-parts-stem", "bicycle-parts-kickstand", "bicycle-parts-mudguard", "bicycle-parts-chain-guard", "bicycle-parts-bell", "bicycle-parts-water-bottle-cage",
   "bicycle-parts-front-light", "bicycle-parts-reflector",
+  "weather-sunny", "weather-partly-cloudy", "weather-cloudy", "weather-rainy", "weather-drizzle", "weather-thunderstorm",
+  "weather-lightning", "weather-snowy", "weather-blizzard", "weather-sleet", "weather-hail", "weather-foggy",
+  "weather-windy", "weather-stormy", "weather-tornado", "weather-hurricane", "weather-rainbow", "weather-frost",
+  "weather-ice", "weather-dew", "weather-hot", "weather-cold", "weather-warm", "weather-cool",
+  "weather-humid", "weather-dry", "weather-drought", "weather-flood", "weather-heat-wave", "weather-monsoon",
+  "weather-tropical-climate", "weather-polar-climate",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -165,13 +172,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部313张组合Emoji已替换且18类仍为576张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts };
+  it("全部345张组合Emoji已替换且19类仍为608张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(576);
+    expect(cards).toHaveLength(608);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(313);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(345);
   });
 });

@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "weather",
+  "cards": [
+    {
+      "id": "weather-sunny",
+      "word": "sunny",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-sunny"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "weather-partly-cloudy",
+      "word": "partly cloudy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-partly-cloudy"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "weather-cloudy",
+      "word": "cloudy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-cloudy"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-rainy",
+      "word": "rainy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-rainy"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-drizzle",
+      "word": "drizzle",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-drizzle"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-thunderstorm",
+      "word": "thunderstorm",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-thunderstorm"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-lightning",
+      "word": "lightning",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-lightning"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "weather-snowy",
+      "word": "snowy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-snowy"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-blizzard",
+      "word": "blizzard",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-blizzard"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-sleet",
+      "word": "sleet",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-sleet"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-hail",
+      "word": "hail",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-hail"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-foggy",
+      "word": "foggy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-foggy"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-windy",
+      "word": "windy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-windy"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-stormy",
+      "word": "stormy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-stormy"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-tornado",
+      "word": "tornado",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-tornado"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "weather-hurricane",
+      "word": "hurricane",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-hurricane"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "weather-rainbow",
+      "word": "rainbow",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-rainbow"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "weather-frost",
+      "word": "frost",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-frost"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-ice",
+      "word": "ice",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-ice"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-dew",
+      "word": "dew",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-dew"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "weather-hot",
+      "word": "hot",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-hot"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "weather-cold",
+      "word": "cold",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-cold"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-warm",
+      "word": "warm",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-warm"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "weather-cool",
+      "word": "cool",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-cool"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-humid",
+      "word": "humid",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-humid"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "weather-dry",
+      "word": "dry",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-dry"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "weather-drought",
+      "word": "drought",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-drought"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "weather-flood",
+      "word": "flood",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-flood"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-heat-wave",
+      "word": "heat wave",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-heat-wave"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "weather-monsoon",
+      "word": "monsoon",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-monsoon"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "weather-tropical-climate",
+      "word": "tropical climate",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-tropical-climate"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "weather-polar-climate",
+      "word": "polar climate",
+      "art": {
+        "kind": "illustration",
+        "illustration": "weather-polar-climate"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    }
+  ]
+}

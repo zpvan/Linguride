@@ -43,6 +43,14 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it.each([
+    ["sunny", "sunny, sunny, sunny. It is sunny."],
+    ["hurricane", "hurricane, hurricane, hurricane. This is a hurricane."],
+    ["lightning", "lightning, lightning, lightning. This is lightning."],
+  ] as const)("天气使用匹配词性的例句：%s", (word, expected) => {
+    expect(buildFlashcardSpeechText("weather", word)).toBe(expected);
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."
