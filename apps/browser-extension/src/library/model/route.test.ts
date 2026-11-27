@@ -22,7 +22,7 @@ describe("parseLibraryRoute", () => {
     expect(parseLibraryRoute("#/cards")).toEqual({ kind: "cardsHome" });
   });
 
-  it.each(["animals", "shapes", "colors", "actions", "sports", "bicycle-parts", "weather", "marine-animals"] as const)("解析分类：%s", (category) => {
+  it.each(["animals", "shapes", "colors", "actions", "sports", "bicycle-parts", "weather", "marine-animals", "jobs"] as const)("解析分类：%s", (category) => {
     expect(parseLibraryRoute(`#/cards/${category}`)).toEqual({
       kind: "cardsCategory",
       category,

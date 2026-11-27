@@ -16,6 +16,7 @@ import drinks from "../data/flashcards/drinks.json";
 import food from "../data/flashcards/food.json";
 import fruits from "../data/flashcards/fruits.json";
 import furniture from "../data/flashcards/furniture.json";
+import jobs from "../data/flashcards/jobs.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import marineAnimals from "../data/flashcards/marine-animals.json";
 import school from "../data/flashcards/school.json";
@@ -34,6 +35,7 @@ import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
 import { sportsExpansion } from "./__fixtures__/flashcardSportsExpansion";
 import { weatherExpansion } from "./__fixtures__/flashcardWeatherExpansion";
 import { marineAnimalsExpansion } from "./__fixtures__/flashcardMarineAnimalsExpansion";
+import { jobsExpansion } from "./__fixtures__/flashcardJobsExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -150,6 +152,19 @@ describe("第八批海洋动物认图卡片", () => {
     expect(allDecks).toHaveLength(20);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(640);
+  });
+});
+
+describe("第九批职业与工作认图卡片", () => {
+  it("职业与工作分类包含 32 张且总数为 672", () => {
+    expectExpansion(jobs, "jobs", jobsExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, bicycleParts, weather, marineAnimals, jobs,
+    ];
+    expect(allDecks).toHaveLength(21);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(672);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {

@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "jobs",
+  "cards": [
+    {
+      "id": "jobs-teacher",
+      "word": "teacher",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-teacher"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "jobs-doctor",
+      "word": "doctor",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-doctor"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "jobs-nurse",
+      "word": "nurse",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-nurse"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "jobs-firefighter",
+      "word": "firefighter",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-firefighter"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "jobs-police-officer",
+      "word": "police officer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-police-officer"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "jobs-chef",
+      "word": "chef",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-chef"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "jobs-baker",
+      "word": "baker",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-baker"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "jobs-farmer",
+      "word": "farmer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-farmer"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "jobs-pilot",
+      "word": "pilot",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-pilot"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "jobs-flight-attendant",
+      "word": "flight attendant",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-flight-attendant"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "jobs-astronaut",
+      "word": "astronaut",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-astronaut"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "jobs-sailor",
+      "word": "sailor",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-sailor"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "jobs-fisherman",
+      "word": "fisherman",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-fisherman"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "jobs-construction-worker",
+      "word": "construction worker",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-construction-worker"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "jobs-electrician",
+      "word": "electrician",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-electrician"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "jobs-plumber",
+      "word": "plumber",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-plumber"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "jobs-mechanic",
+      "word": "mechanic",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-mechanic"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "jobs-carpenter",
+      "word": "carpenter",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-carpenter"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "jobs-painter",
+      "word": "painter",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-painter"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "jobs-artist",
+      "word": "artist",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-artist"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "jobs-musician",
+      "word": "musician",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-musician"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "jobs-singer",
+      "word": "singer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-singer"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "jobs-dancer",
+      "word": "dancer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-dancer"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "jobs-actor",
+      "word": "actor",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-actor"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "jobs-photographer",
+      "word": "photographer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-photographer"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "jobs-journalist",
+      "word": "journalist",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-journalist"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "jobs-writer",
+      "word": "writer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-writer"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "jobs-librarian",
+      "word": "librarian",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-librarian"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "jobs-scientist",
+      "word": "scientist",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-scientist"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "jobs-dentist",
+      "word": "dentist",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-dentist"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "jobs-veterinarian",
+      "word": "veterinarian",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-veterinarian"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "jobs-mail-carrier",
+      "word": "mail carrier",
+      "art": {
+        "kind": "illustration",
+        "illustration": "jobs-mail-carrier"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部377张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部409张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -16,6 +16,7 @@ import drinks from "../data/flashcards/drinks.json";
 import food from "../data/flashcards/food.json";
 import fruits from "../data/flashcards/fruits.json";
 import furniture from "../data/flashcards/furniture.json";
+import jobs from "../data/flashcards/jobs.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import marineAnimals from "../data/flashcards/marine-animals.json";
 import school from "../data/flashcards/school.json";
@@ -111,6 +112,10 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "marine-animals-coral", "marine-animals-clownfish", "marine-animals-angelfish", "marine-animals-pufferfish",
   "marine-animals-swordfish", "marine-animals-eel", "marine-animals-flying-fish", "marine-animals-sea-snake",
   "marine-animals-horseshoe-crab", "marine-animals-krill", "marine-animals-sea-cucumber", "marine-animals-hermit-crab",
+  "jobs-teacher", "jobs-doctor", "jobs-nurse", "jobs-firefighter", "jobs-police-officer", "jobs-chef", "jobs-baker", "jobs-farmer",
+  "jobs-pilot", "jobs-flight-attendant", "jobs-astronaut", "jobs-sailor", "jobs-fisherman", "jobs-construction-worker", "jobs-electrician", "jobs-plumber",
+  "jobs-mechanic", "jobs-carpenter", "jobs-painter", "jobs-artist", "jobs-musician", "jobs-singer", "jobs-dancer", "jobs-actor",
+  "jobs-photographer", "jobs-journalist", "jobs-writer", "jobs-librarian", "jobs-scientist", "jobs-dentist", "jobs-veterinarian", "jobs-mail-carrier",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -181,13 +186,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部377张组合Emoji已替换且20类仍为640张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals };
+  it("全部409张组合Emoji已替换且21类仍为672张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals, jobs };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(640);
+    expect(cards).toHaveLength(672);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(377);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(409);
   });
 });

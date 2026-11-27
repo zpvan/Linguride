@@ -57,6 +57,12 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it("职业名称使用带冠词的例句", () => {
+    expect(buildFlashcardSpeechText("jobs", "police officer")).toBe(
+      "police officer, police officer, police officer. This is a police officer."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."

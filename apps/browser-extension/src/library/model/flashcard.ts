@@ -24,6 +24,7 @@ export const FLASHCARD_CATEGORY_IDS = [
   "bicycle-parts",
   "weather",
   "marine-animals",
+  "jobs",
 ] as const;
 export type FlashcardCategoryId = (typeof FLASHCARD_CATEGORY_IDS)[number];
 
@@ -81,6 +82,7 @@ export const FLASHCARD_CATEGORY_META: Record<
   "bicycle-parts": { name: "自行车零部件", emoji: "🚲" },
   weather: { name: "天气气候", emoji: "🌦️" },
   "marine-animals": { name: "海洋动物", emoji: "🐋" },
+  jobs: { name: "职业与工作", emoji: "💼" },
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
