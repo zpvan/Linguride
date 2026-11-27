@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="sports-taekwondo-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fdba74"/><stop offset="1" stop-color="#ea580c"/></linearGradient>
+    <filter id="sports-taekwondo-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter>
+  </defs>
+  <g filter="url(#sports-taekwondo-shadow)"><circle cx="32" cy="17" r="10" fill="#f4b183"/><path d="M28 29 18 52l19 7 13-17M29 55 17 81M37 58l24-24M57 32l20-6" fill="none" stroke="#f4b183" stroke-width="7" stroke-linecap="round"/><path d="M66 21h25v33H66Z" fill="#1f2937" stroke="#020617" stroke-width="2"/><path d="M71 27h15v21H71Z" fill="#f8fafc"/><path d="M42 33c8 3 13 8 16 14" fill="none" stroke="#f97316" stroke-width="3"/></g>
+</svg>

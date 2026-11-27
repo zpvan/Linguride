@@ -27,6 +27,7 @@ const CATEGORY_BACKGROUNDS: Record<FlashcardCategoryId, [string, string]> = {
   appliances: ["#f0f0f5", "#d5d5e2"],
   kitchen: ["#fff0e1", "#ffcfbf"],
   bathroom: ["#e2f4ff", "#b9dcf5"],
+  sports: ["#fff7ed", "#fed7aa"],
 };
 
 export interface FlashcardHomeHandlers {

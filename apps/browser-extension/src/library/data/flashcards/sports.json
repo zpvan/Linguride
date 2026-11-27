@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "sports",
+  "cards": [
+    {
+      "id": "sports-soccer",
+      "word": "soccer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-soccer"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "sports-basketball",
+      "word": "basketball",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-basketball"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "sports-volleyball",
+      "word": "volleyball",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-volleyball"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "sports-tennis",
+      "word": "tennis",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-tennis"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "sports-table-tennis",
+      "word": "table tennis",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-table-tennis"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "sports-badminton",
+      "word": "badminton",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-badminton"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "sports-baseball",
+      "word": "baseball",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-baseball"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "sports-rugby",
+      "word": "rugby",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-rugby"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "sports-golf",
+      "word": "golf",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-golf"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "sports-handball",
+      "word": "handball",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-handball"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "sports-field-hockey",
+      "word": "field hockey",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-field-hockey"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "sports-ice-hockey",
+      "word": "ice hockey",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-ice-hockey"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "sports-water-polo",
+      "word": "water polo",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-water-polo"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "sports-swimming",
+      "word": "swimming",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-swimming"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "sports-diving",
+      "word": "diving",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-diving"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "sports-rowing",
+      "word": "rowing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-rowing"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "sports-sailing",
+      "word": "sailing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-sailing"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "sports-surfing",
+      "word": "surfing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-surfing"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "sports-gymnastics",
+      "word": "gymnastics",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-gymnastics"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "sports-marathon",
+      "word": "marathon",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-marathon"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "sports-cycling",
+      "word": "cycling",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-cycling"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "sports-equestrian",
+      "word": "equestrian",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-equestrian"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "sports-fencing",
+      "word": "fencing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-fencing"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "sports-boxing",
+      "word": "boxing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-boxing"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "sports-judo",
+      "word": "judo",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-judo"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "sports-taekwondo",
+      "word": "taekwondo",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-taekwondo"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "sports-archery",
+      "word": "archery",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-archery"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "sports-shooting",
+      "word": "shooting",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-shooting"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "sports-weightlifting",
+      "word": "weightlifting",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-weightlifting"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "sports-skiing",
+      "word": "skiing",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-skiing"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "sports-snowboarding",
+      "word": "snowboarding",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-snowboarding"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "sports-curling",
+      "word": "curling",
+      "art": {
+        "kind": "illustration",
+        "illustration": "sports-curling"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    }
+  ]
+}

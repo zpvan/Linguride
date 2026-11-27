@@ -49,6 +49,7 @@ export function buildFlashcardSpeechText(
       }
       return `${repeated} This is ${NOUN_PHRASE_OVERRIDES[word] ?? `${article} ${word}`}.`;
     case "colors":
+    case "sports":
       return `${repeated} This is ${word}.`;
     case "actions":
       return `${repeated} I can ${word}.`;

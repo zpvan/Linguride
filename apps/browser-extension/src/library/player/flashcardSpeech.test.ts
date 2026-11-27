@@ -31,6 +31,12 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it("运动项目使用不带冠词的例句", () => {
+    expect(buildFlashcardSpeechText("sports", "table tennis")).toBe(
+      "table tennis, table tennis, table tennis. This is table tennis."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."

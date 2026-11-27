@@ -18,6 +18,7 @@ import furniture from "../data/flashcards/furniture.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
+import sports from "../data/flashcards/sports.json";
 import toys from "../data/flashcards/toys.json";
 import transport from "../data/flashcards/transport.json";
 import vegetables from "../data/flashcards/vegetables.json";
@@ -26,6 +27,7 @@ import { dailyExpansion } from "./__fixtures__/flashcardDailyExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
 import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
 import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
+import { sportsExpansion } from "./__fixtures__/flashcardSportsExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -90,6 +92,19 @@ describe("第四批家居与交通认图卡片", () => {
     expect(allDecks).toHaveLength(16);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(512);
+  });
+});
+
+describe("第五批运动赛事认图卡片", () => {
+  it("运动赛事分类包含 32 张且总数为 544", () => {
+    expectExpansion(sports, "sports", sportsExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports,
+    ];
+    expect(allDecks).toHaveLength(17);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(544);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {

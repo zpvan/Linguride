@@ -114,11 +114,11 @@ describe("isFlashcardDeck", () => {
 });
 
 describe("FLASHCARD_CATEGORY_META", () => {
-  it("按固定顺序覆盖十六个分类", () => {
+  it("按固定顺序覆盖十七个分类", () => {
     expect(FLASHCARD_CATEGORY_IDS).toEqual([
       "animals", "shapes", "colors", "actions", "transport", "fruits",
       "vegetables", "food", "drinks", "clothing", "school", "toys",
-      "furniture", "appliances", "kitchen", "bathroom",
+      "furniture", "appliances", "kitchen", "bathroom", "sports",
     ]);
     for (const id of FLASHCARD_CATEGORY_IDS) {
       expect(FLASHCARD_CATEGORY_META[id].name).toBeTruthy();

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="sports-field-hockey-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#86efac"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
+    <filter id="sports-field-hockey-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter>
+  </defs>
+  <g filter="url(#sports-field-hockey-shadow)"><path d="M29 11c22 7 33 26 23 47L37 84c-4 11-19 6-15-4l15-25" fill="none" stroke="#92400e" stroke-width="6" stroke-linecap="round"/><circle cx="70" cy="68" r="14" fill="#f8fafc" stroke="#64748b" stroke-width="2"/><path d="M7 89c21-8 51-8 86 0" fill="none" stroke="#16a34a" stroke-width="4"/><path d="M26 20c7 3 12 9 13 16" fill="none" stroke="#fde68a" stroke-width="2"/></g>
+</svg>

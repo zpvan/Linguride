@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部249张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部281张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -18,6 +18,7 @@ import furniture from "../data/flashcards/furniture.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
+import sports from "../data/flashcards/sports.json";
 import toys from "../data/flashcards/toys.json";
 import transport from "../data/flashcards/transport.json";
 import vegetables from "../data/flashcards/vegetables.json";
@@ -81,6 +82,12 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "appliances-toaster", "appliances-electric-kettle", "appliances-coffee-maker", "appliances-fan", "appliances-air-conditioner",
   "appliances-heater", "appliances-humidifier", "appliances-water-dispenser", "appliances-air-purifier",
   "appliances-vacuum-cleaner", "appliances-iron", "appliances-hair-dryer", "appliances-electric-shaver", "appliances-sewing-machine",
+  "sports-soccer", "sports-basketball", "sports-volleyball", "sports-tennis", "sports-table-tennis", "sports-badminton",
+  "sports-baseball", "sports-rugby", "sports-golf", "sports-handball", "sports-field-hockey", "sports-ice-hockey",
+  "sports-water-polo", "sports-swimming", "sports-diving", "sports-rowing", "sports-sailing", "sports-surfing",
+  "sports-gymnastics", "sports-marathon", "sports-cycling", "sports-equestrian", "sports-fencing", "sports-boxing",
+  "sports-judo", "sports-taekwondo", "sports-archery", "sports-shooting", "sports-weightlifting", "sports-skiing",
+  "sports-snowboarding", "sports-curling",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -151,13 +158,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部249张组合Emoji已替换且16类仍为512张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom };
+  it("全部281张组合Emoji已替换且17类仍为544张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(512);
+    expect(cards).toHaveLength(544);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(249);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(281);
   });
 });
