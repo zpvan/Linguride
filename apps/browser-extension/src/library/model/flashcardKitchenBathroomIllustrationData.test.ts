@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部281张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部313张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -9,6 +9,7 @@ import actions from "../data/flashcards/actions.json";
 import animals from "../data/flashcards/animals.json";
 import appliances from "../data/flashcards/appliances.json";
 import bathroom from "../data/flashcards/bathroom.json";
+import bicycleParts from "../data/flashcards/bicycle-parts.json";
 import clothing from "../data/flashcards/clothing.json";
 import colors from "../data/flashcards/colors.json";
 import drinks from "../data/flashcards/drinks.json";
@@ -88,6 +89,12 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "sports-gymnastics", "sports-marathon", "sports-cycling", "sports-equestrian", "sports-fencing", "sports-boxing",
   "sports-judo", "sports-taekwondo", "sports-archery", "sports-shooting", "sports-weightlifting", "sports-skiing",
   "sports-snowboarding", "sports-curling",
+  "bicycle-parts-frame", "bicycle-parts-fork", "bicycle-parts-handlebar", "bicycle-parts-grip", "bicycle-parts-saddle", "bicycle-parts-seatpost",
+  "bicycle-parts-wheel", "bicycle-parts-tire", "bicycle-parts-inner-tube", "bicycle-parts-rim", "bicycle-parts-spoke", "bicycle-parts-hub",
+  "bicycle-parts-chain", "bicycle-parts-chainring", "bicycle-parts-crank-arm", "bicycle-parts-pedal", "bicycle-parts-cassette", "bicycle-parts-derailleur",
+  "bicycle-parts-gear-shifter", "bicycle-parts-brake-lever", "bicycle-parts-brake-caliper", "bicycle-parts-brake-pad", "bicycle-parts-brake-cable", "bicycle-parts-headset",
+  "bicycle-parts-stem", "bicycle-parts-kickstand", "bicycle-parts-mudguard", "bicycle-parts-chain-guard", "bicycle-parts-bell", "bicycle-parts-water-bottle-cage",
+  "bicycle-parts-front-light", "bicycle-parts-reflector",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -158,13 +165,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部281张组合Emoji已替换且17类仍为544张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports };
+  it("全部313张组合Emoji已替换且18类仍为576张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(544);
+    expect(cards).toHaveLength(576);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(281);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(313);
   });
 });

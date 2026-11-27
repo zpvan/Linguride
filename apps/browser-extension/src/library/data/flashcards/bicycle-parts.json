@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "bicycle-parts",
+  "cards": [
+    {
+      "id": "bicycle-parts-frame",
+      "word": "frame",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-frame"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-fork",
+      "word": "fork",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-fork"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-handlebar",
+      "word": "handlebar",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-handlebar"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-grip",
+      "word": "grip",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-grip"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "bicycle-parts-saddle",
+      "word": "saddle",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-saddle"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-seatpost",
+      "word": "seatpost",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-seatpost"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-wheel",
+      "word": "wheel",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-wheel"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-tire",
+      "word": "tire",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-tire"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-inner-tube",
+      "word": "inner tube",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-inner-tube"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-rim",
+      "word": "rim",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-rim"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-spoke",
+      "word": "spoke",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-spoke"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-hub",
+      "word": "hub",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-hub"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-chain",
+      "word": "chain",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-chain"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-chainring",
+      "word": "chainring",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-chainring"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "bicycle-parts-crank-arm",
+      "word": "crank arm",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-crank-arm"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-pedal",
+      "word": "pedal",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-pedal"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "bicycle-parts-cassette",
+      "word": "cassette",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-cassette"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-derailleur",
+      "word": "derailleur",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-derailleur"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-gear-shifter",
+      "word": "gear shifter",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-gear-shifter"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "bicycle-parts-brake-lever",
+      "word": "brake lever",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-brake-lever"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "bicycle-parts-brake-caliper",
+      "word": "brake caliper",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-brake-caliper"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-brake-pad",
+      "word": "brake pad",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-brake-pad"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-brake-cable",
+      "word": "brake cable",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-brake-cable"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-headset",
+      "word": "headset",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-headset"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-stem",
+      "word": "stem",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-stem"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-kickstand",
+      "word": "kickstand",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-kickstand"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "bicycle-parts-mudguard",
+      "word": "mudguard",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-mudguard"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "bicycle-parts-chain-guard",
+      "word": "chain guard",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-chain-guard"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "bicycle-parts-bell",
+      "word": "bell",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-bell"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "bicycle-parts-water-bottle-cage",
+      "word": "water bottle cage",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-water-bottle-cage"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "bicycle-parts-front-light",
+      "word": "front light",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-front-light"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "bicycle-parts-reflector",
+      "word": "reflector",
+      "art": {
+        "kind": "illustration",
+        "illustration": "bicycle-parts-reflector"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    }
+  ]
+}

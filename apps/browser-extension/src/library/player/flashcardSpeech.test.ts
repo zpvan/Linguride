@@ -37,6 +37,12 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it("自行车零部件使用名词例句", () => {
+    expect(buildFlashcardSpeechText("bicycle-parts", "water bottle cage")).toBe(
+      "water bottle cage, water bottle cage, water bottle cage. This is a water bottle cage."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."

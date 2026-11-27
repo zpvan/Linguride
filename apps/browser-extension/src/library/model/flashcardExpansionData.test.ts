@@ -9,6 +9,7 @@ import actions from "../data/flashcards/actions.json";
 import animals from "../data/flashcards/animals.json";
 import appliances from "../data/flashcards/appliances.json";
 import bathroom from "../data/flashcards/bathroom.json";
+import bicycleParts from "../data/flashcards/bicycle-parts.json";
 import clothing from "../data/flashcards/clothing.json";
 import colors from "../data/flashcards/colors.json";
 import drinks from "../data/flashcards/drinks.json";
@@ -26,6 +27,7 @@ import { basicExpansion } from "./__fixtures__/flashcardBasicExpansion";
 import { dailyExpansion } from "./__fixtures__/flashcardDailyExpansion";
 import type { ExpansionEntry } from "./__fixtures__/flashcardExpansionTypes";
 import { foodExpansion } from "./__fixtures__/flashcardFoodExpansion";
+import { bicyclePartsExpansion } from "./__fixtures__/flashcardBicyclePartsExpansion";
 import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
 import { sportsExpansion } from "./__fixtures__/flashcardSportsExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
@@ -105,6 +107,19 @@ describe("第五批运动赛事认图卡片", () => {
     expect(allDecks).toHaveLength(17);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(544);
+  });
+});
+
+describe("第六批自行车零部件认图卡片", () => {
+  it("自行车零部件分类包含 32 张且总数为 576", () => {
+    expectExpansion(bicycleParts, "bicycle-parts", bicyclePartsExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, bicycleParts,
+    ];
+    expect(allDecks).toHaveLength(18);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(576);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {
