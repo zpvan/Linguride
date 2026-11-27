@@ -51,6 +51,12 @@ describe("buildFlashcardSpeechText", () => {
     expect(buildFlashcardSpeechText("weather", word)).toBe(expected);
   });
 
+  it("海洋动物使用带冠词的例句", () => {
+    expect(buildFlashcardSpeechText("marine-animals", "orca")).toBe(
+      "orca, orca, orca. This is an orca."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."

@@ -17,6 +17,7 @@ import food from "../data/flashcards/food.json";
 import fruits from "../data/flashcards/fruits.json";
 import furniture from "../data/flashcards/furniture.json";
 import kitchen from "../data/flashcards/kitchen.json";
+import marineAnimals from "../data/flashcards/marine-animals.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
 import sports from "../data/flashcards/sports.json";
@@ -32,6 +33,7 @@ import { bicyclePartsExpansion } from "./__fixtures__/flashcardBicyclePartsExpan
 import { homeExpansion } from "./__fixtures__/flashcardHomeExpansion";
 import { sportsExpansion } from "./__fixtures__/flashcardSportsExpansion";
 import { weatherExpansion } from "./__fixtures__/flashcardWeatherExpansion";
+import { marineAnimalsExpansion } from "./__fixtures__/flashcardMarineAnimalsExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -135,6 +137,19 @@ describe("第七批天气气候认图卡片", () => {
     expect(allDecks).toHaveLength(19);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(608);
+  });
+});
+
+describe("第八批海洋动物认图卡片", () => {
+  it("海洋动物分类包含 32 张且总数为 640", () => {
+    expectExpansion(marineAnimals, "marine-animals", marineAnimalsExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, bicycleParts, weather, marineAnimals,
+    ];
+    expect(allDecks).toHaveLength(20);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(640);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {

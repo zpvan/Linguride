@@ -54,6 +54,7 @@ export function buildFlashcardSpeechText(
     case "kitchen":
     case "bathroom":
     case "bicycle-parts":
+    case "marine-animals":
       if (UNCOUNTABLE_WORDS[category]?.has(word)) {
         return `${repeated} This is ${word}.`;
       }

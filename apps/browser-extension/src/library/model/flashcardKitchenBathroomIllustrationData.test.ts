@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部345张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部377张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -17,6 +17,7 @@ import food from "../data/flashcards/food.json";
 import fruits from "../data/flashcards/fruits.json";
 import furniture from "../data/flashcards/furniture.json";
 import kitchen from "../data/flashcards/kitchen.json";
+import marineAnimals from "../data/flashcards/marine-animals.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
 import sports from "../data/flashcards/sports.json";
@@ -102,6 +103,14 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "weather-ice", "weather-dew", "weather-hot", "weather-cold", "weather-warm", "weather-cool",
   "weather-humid", "weather-dry", "weather-drought", "weather-flood", "weather-heat-wave", "weather-monsoon",
   "weather-tropical-climate", "weather-polar-climate",
+  "marine-animals-shark", "marine-animals-hammerhead-shark", "marine-animals-ray", "marine-animals-jellyfish",
+  "marine-animals-starfish", "marine-animals-seahorse", "marine-animals-sea-turtle", "marine-animals-seal",
+  "marine-animals-sea-lion", "marine-animals-walrus", "marine-animals-sea-otter", "marine-animals-manatee",
+  "marine-animals-beluga", "marine-animals-narwhal", "marine-animals-orca", "marine-animals-squid",
+  "marine-animals-cuttlefish", "marine-animals-nautilus", "marine-animals-sea-urchin", "marine-animals-sea-anemone",
+  "marine-animals-coral", "marine-animals-clownfish", "marine-animals-angelfish", "marine-animals-pufferfish",
+  "marine-animals-swordfish", "marine-animals-eel", "marine-animals-flying-fish", "marine-animals-sea-snake",
+  "marine-animals-horseshoe-crab", "marine-animals-krill", "marine-animals-sea-cucumber", "marine-animals-hermit-crab",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -172,13 +181,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部345张组合Emoji已替换且19类仍为608张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather };
+  it("全部377张组合Emoji已替换且20类仍为640张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(608);
+    expect(cards).toHaveLength(640);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(345);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(377);
   });
 });

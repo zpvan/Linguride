@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "marine-animals",
+  "cards": [
+    {
+      "id": "marine-animals-shark",
+      "word": "shark",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-shark"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "marine-animals-hammerhead-shark",
+      "word": "hammerhead shark",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-hammerhead-shark"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "marine-animals-ray",
+      "word": "ray",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-ray"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "marine-animals-jellyfish",
+      "word": "jellyfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-jellyfish"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "marine-animals-starfish",
+      "word": "starfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-starfish"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "marine-animals-seahorse",
+      "word": "seahorse",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-seahorse"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-turtle",
+      "word": "sea turtle",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-turtle"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "marine-animals-seal",
+      "word": "seal",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-seal"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-lion",
+      "word": "sea lion",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-lion"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "marine-animals-walrus",
+      "word": "walrus",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-walrus"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-otter",
+      "word": "sea otter",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-otter"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "marine-animals-manatee",
+      "word": "manatee",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-manatee"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "marine-animals-beluga",
+      "word": "beluga",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-beluga"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "marine-animals-narwhal",
+      "word": "narwhal",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-narwhal"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "marine-animals-orca",
+      "word": "orca",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-orca"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "marine-animals-squid",
+      "word": "squid",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-squid"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "marine-animals-cuttlefish",
+      "word": "cuttlefish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-cuttlefish"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "marine-animals-nautilus",
+      "word": "nautilus",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-nautilus"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-urchin",
+      "word": "sea urchin",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-urchin"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-anemone",
+      "word": "sea anemone",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-anemone"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "marine-animals-coral",
+      "word": "coral",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-coral"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "marine-animals-clownfish",
+      "word": "clownfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-clownfish"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "marine-animals-angelfish",
+      "word": "angelfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-angelfish"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "marine-animals-pufferfish",
+      "word": "pufferfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-pufferfish"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "marine-animals-swordfish",
+      "word": "swordfish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-swordfish"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "marine-animals-eel",
+      "word": "eel",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-eel"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "marine-animals-flying-fish",
+      "word": "flying fish",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-flying-fish"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-snake",
+      "word": "sea snake",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-snake"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "marine-animals-horseshoe-crab",
+      "word": "horseshoe crab",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-horseshoe-crab"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "marine-animals-krill",
+      "word": "krill",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-krill"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "marine-animals-sea-cucumber",
+      "word": "sea cucumber",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-sea-cucumber"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "marine-animals-hermit-crab",
+      "word": "hermit crab",
+      "art": {
+        "kind": "illustration",
+        "illustration": "marine-animals-hermit-crab"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    }
+  ]
+}
