@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="music-synthesizer-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7dd3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient><filter id="music-synthesizer-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
+  <g filter="url(#music-synthesizer-shadow)"><path d="M8 28h84v52H8Z" fill="#2563eb" stroke="#1e40af" stroke-width="2"/><path d="M16 49h68v24H16Z" fill="#f8fafc"/><path d="M23 49v24M34 49v24M45 49v24M56 49v24M67 49v24M78 49v24" fill="none" stroke="#475569" stroke-width="2"/><path d="M27 49h7v14h-7ZM38 49h7v14h-7ZM49 49h7v14h-7ZM60 49h7v14h-7ZM71 49h7v14h-7Z" fill="#1f2937"/><circle cx="24" cy="38" r="4" fill="#facc15"/><circle cx="38" cy="38" r="4" fill="#f97316"/><path d="M54 35h26" fill="none" stroke="#7dd3fc" stroke-width="3"/></g>
+</svg>

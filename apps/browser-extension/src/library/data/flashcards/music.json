@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "music",
+  "cards": [
+    {
+      "id": "music-piano",
+      "word": "piano",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-piano"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-guitar",
+      "word": "guitar",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-guitar"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "music-violin",
+      "word": "violin",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-violin"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-cello",
+      "word": "cello",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-cello"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-harp",
+      "word": "harp",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-harp"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-drum",
+      "word": "drum",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-drum"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "music-drum-kit",
+      "word": "drum kit",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-drum-kit"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-tambourine",
+      "word": "tambourine",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-tambourine"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-xylophone",
+      "word": "xylophone",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-xylophone"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "music-maracas",
+      "word": "maracas",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-maracas"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "music-trumpet",
+      "word": "trumpet",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-trumpet"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-trombone",
+      "word": "trombone",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-trombone"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-french-horn",
+      "word": "french horn",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-french-horn"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-saxophone",
+      "word": "saxophone",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-saxophone"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-flute",
+      "word": "flute",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-flute"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-clarinet",
+      "word": "clarinet",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-clarinet"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-oboe",
+      "word": "oboe",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-oboe"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-recorder",
+      "word": "recorder",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-recorder"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-harmonica",
+      "word": "harmonica",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-harmonica"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-accordion",
+      "word": "accordion",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-accordion"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "music-ukulele",
+      "word": "ukulele",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-ukulele"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "music-banjo",
+      "word": "banjo",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-banjo"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-cymbals",
+      "word": "cymbals",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-cymbals"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "music-microphone",
+      "word": "microphone",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-microphone"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-headphones",
+      "word": "headphones",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-headphones"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "music-speaker",
+      "word": "speaker",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-speaker"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-sheet-music",
+      "word": "sheet music",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-sheet-music"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "music-metronome",
+      "word": "metronome",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-metronome"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "music-turntable",
+      "word": "turntable",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-turntable"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "music-synthesizer",
+      "word": "synthesizer",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-synthesizer"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "music-conductor",
+      "word": "conductor",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-conductor"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "music-music-note",
+      "word": "music note",
+      "art": {
+        "kind": "illustration",
+        "illustration": "music-music-note"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    }
+  ]
+}

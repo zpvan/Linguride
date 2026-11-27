@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="music-violin-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6a15d"/><stop offset="1" stop-color="#92400e"/></linearGradient><filter id="music-violin-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
+  <g filter="url(#music-violin-shadow)"><path d="M50 15c-14-6-20 6-10 16-14 3-17 18-7 23-11 15 2 31 16 22 14 9 27-7 16-22 10-5 7-20-7-23 10-10 4-22-10-16Z" fill="#92400e" stroke="#78350f" stroke-width="2"/><path d="M49 13v70M44 35h12M42 59h16" fill="none" stroke="#d6a15d" stroke-width="2"/><path d="M17 81 84 12" fill="none" stroke="#334155" stroke-width="2"/><path d="M30 34c-7 2-8 10-3 14M65 55c7 2 8 10 3 14" fill="none" stroke="#f3eadf" stroke-width="2"/></g>
+</svg>

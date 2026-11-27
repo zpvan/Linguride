@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="music-metronome-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6a15d"/><stop offset="1" stop-color="#92400e"/></linearGradient><filter id="music-metronome-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
+  <g filter="url(#music-metronome-shadow)"><path d="M31 17h38l16 69H15Z" fill="#d6a15d" stroke="#78350f" stroke-width="2"/><path d="M42 30h16v34H42Z" fill="#f8fafc" stroke="#92400e" stroke-width="2"/><path d="M50 65 66 18" fill="none" stroke="#334155" stroke-width="3"/><circle cx="64" cy="25" r="5" fill="#64748b"/><path d="M32 80h36M27 86h46" fill="none" stroke="#78350f" stroke-width="2"/><path d="M38 44h8M40 52h6" fill="none" stroke="#92400e" stroke-width="2"/></g>
+</svg>

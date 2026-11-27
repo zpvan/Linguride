@@ -11,6 +11,7 @@ const UNCOUNTABLE_WORDS: Partial<Record<FlashcardCategoryId, ReadonlySet<string>
   vegetables: new Set(["broccoli", "cauliflower", "lettuce", "spinach", "kale", "celery", "asparagus", "corn", "garlic", "ginger", "bok choy"]),
   school: new Set(["chalk", "paper", "glue", "tape"]),
   bathroom: new Set(["toilet paper", "toothpaste", "mouthwash", "shampoo", "conditioner", "body wash", "hand soap", "sanitizer", "lotion", "cream", "shaving cream"]),
+  music: new Set(["sheet music"]),
 };
 
 const WEATHER_ADJECTIVES = new Set([
@@ -56,6 +57,7 @@ export function buildFlashcardSpeechText(
     case "bicycle-parts":
     case "marine-animals":
     case "jobs":
+    case "music":
       if (UNCOUNTABLE_WORDS[category]?.has(word)) {
         return `${repeated} This is ${word}.`;
       }

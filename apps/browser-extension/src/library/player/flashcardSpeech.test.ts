@@ -63,6 +63,13 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it.each([
+    ["french horn", "french horn, french horn, french horn. This is a french horn."],
+    ["sheet music", "sheet music, sheet music, sheet music. This is sheet music."],
+  ] as const)("音乐分类使用正确名词句式：%s", (word, expected) => {
+    expect(buildFlashcardSpeechText("music", word)).toBe(expected);
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."
