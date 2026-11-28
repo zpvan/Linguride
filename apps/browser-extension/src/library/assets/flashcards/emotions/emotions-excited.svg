@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="emotions-excited-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fdba74"/><stop offset="1" stop-color="#ea580c"/></linearGradient><filter id="emotions-excited-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
-  <g filter="url(#emotions-excited-shadow)"><path d="M28 33c5-6 11-6 15-1M57 33c5-6 11-6 15-1M29 54c10 20 32 20 42 0Z" fill="#ef4444" stroke="#92400e" stroke-width="2"/><path d="M37 60h26" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="m15 20 3 7 7 3-7 3-3 7-3-7-7-3 7-3ZM82 13l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#f97316"/></g>
-</svg>

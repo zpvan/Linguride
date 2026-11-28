@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部505张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部473张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -129,12 +129,6 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "places-gym", "places-airport", "places-train-station", "places-bus-stop", "places-harbor", "places-gas-station",
   "places-parking-lot", "places-pharmacy", "places-church", "places-mosque", "places-temple", "places-factory",
   "places-office", "places-city-hall",
-  "emotions-happy", "emotions-sad", "emotions-angry", "emotions-surprised", "emotions-scared", "emotions-tired",
-  "emotions-excited", "emotions-nervous", "emotions-calm", "emotions-relaxed", "emotions-proud", "emotions-confident",
-  "emotions-shy", "emotions-embarrassed", "emotions-bored", "emotions-curious", "emotions-confused", "emotions-worried",
-  "emotions-stressed", "emotions-frustrated", "emotions-disappointed", "emotions-jealous", "emotions-grateful", "emotions-hopeful",
-  "emotions-cheerful", "emotions-silly", "emotions-playful", "emotions-lonely", "emotions-loved", "emotions-safe",
-  "emotions-brave", "emotions-guilty",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -205,13 +199,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部505张组合Emoji已替换且24类仍为768张", () => {
+  it("全部473张组合Emoji已替换且24类仍为768张", () => {
     const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals, jobs, music, places, emotions };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
     expect(cards).toHaveLength(768);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(505);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(473);
   });
 });

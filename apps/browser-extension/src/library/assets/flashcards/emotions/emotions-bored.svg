@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="emotions-bored-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2e8f0"/><stop offset="1" stop-color="#64748b"/></linearGradient><filter id="emotions-bored-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
-  <g filter="url(#emotions-bored-shadow)"><path d="M28 40h14M58 40h14M32 66h36" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/><path d="M29 29c5-2 11-2 15 0M56 29c5-2 11-2 15 0M38 56h24" fill="none" stroke="#92400e" stroke-width="2.5"/></g>
-</svg>

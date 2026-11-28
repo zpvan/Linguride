@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs><linearGradient id="emotions-hopeful-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fde047"/><stop offset="1" stop-color="#d97706"/></linearGradient><filter id="emotions-hopeful-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
-  <g filter="url(#emotions-hopeful-shadow)"><path d="M28 38c5-6 11-6 15-1M58 38c5-6 11-6 15-1M32 58c8 14 28 14 36 0" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/><circle cx="35" cy="37" r="2" fill="#92400e"/><circle cx="65" cy="37" r="2" fill="#92400e"/><path d="M28 24c5-4 11-5 16-2M55 24c5-4 11-5 16-2" fill="none" stroke="#92400e" stroke-width="2.5"/><path d="m79 10 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#facc15"/></g>
-</svg>
