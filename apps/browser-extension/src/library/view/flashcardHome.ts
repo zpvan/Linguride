@@ -33,6 +33,7 @@ const CATEGORY_BACKGROUNDS: Record<FlashcardCategoryId, [string, string]> = {
   "marine-animals": ["#e0f2fe", "#bae6fd"],
   jobs: ["#fef3c7", "#fde68a"],
   music: ["#faf5ff", "#e9d5ff"],
+  places: ["#eff6ff", "#dbeafe"],
 };
 
 export interface FlashcardHomeHandlers {

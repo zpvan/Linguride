@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "places",
+  "cards": [
+    {
+      "id": "places-hospital",
+      "word": "hospital",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-hospital"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "places-bank",
+      "word": "bank",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-bank"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "places-library",
+      "word": "library",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-library"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "places-post-office",
+      "word": "post office",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-post-office"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-fire-station",
+      "word": "fire station",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-fire-station"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-police-station",
+      "word": "police station",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-police-station"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "places-supermarket",
+      "word": "supermarket",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-supermarket"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-restaurant",
+      "word": "restaurant",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-restaurant"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-cafe",
+      "word": "cafe",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-cafe"
+      },
+      "background": [
+        "#f3eadf",
+        "#dfc3a5"
+      ]
+    },
+    {
+      "id": "places-bakery",
+      "word": "bakery",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-bakery"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "places-hotel",
+      "word": "hotel",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-hotel"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "places-theater",
+      "word": "theater",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-theater"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "places-museum",
+      "word": "museum",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-museum"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "places-zoo",
+      "word": "zoo",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-zoo"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-park",
+      "word": "park",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-park"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-playground",
+      "word": "playground",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-playground"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "places-swimming-pool",
+      "word": "swimming pool",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-swimming-pool"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "places-stadium",
+      "word": "stadium",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-stadium"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-gym",
+      "word": "gym",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-gym"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "places-airport",
+      "word": "airport",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-airport"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "places-train-station",
+      "word": "train station",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-train-station"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "places-bus-stop",
+      "word": "bus stop",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-bus-stop"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-harbor",
+      "word": "harbor",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-harbor"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "places-gas-station",
+      "word": "gas station",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-gas-station"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-parking-lot",
+      "word": "parking lot",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-parking-lot"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "places-pharmacy",
+      "word": "pharmacy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-pharmacy"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-church",
+      "word": "church",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-church"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "places-mosque",
+      "word": "mosque",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-mosque"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "places-temple",
+      "word": "temple",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-temple"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "places-factory",
+      "word": "factory",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-factory"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "places-office",
+      "word": "office",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-office"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "places-city-hall",
+      "word": "city hall",
+      "art": {
+        "kind": "illustration",
+        "illustration": "places-city-hall"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    }
+  ]
+}

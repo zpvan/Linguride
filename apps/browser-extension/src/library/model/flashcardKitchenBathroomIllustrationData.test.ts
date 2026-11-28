@@ -1,6 +1,6 @@
 /**
  * @file flashcardKitchenBathroomIllustrationData.test.ts
- * @description 厨房、浴室SVG资源检查与全部441张定制插画完成度验证
+ * @description 厨房、浴室SVG资源检查与全部473张定制插画完成度验证
  */
 
 import { describe, expect, it } from "vitest";
@@ -20,6 +20,7 @@ import jobs from "../data/flashcards/jobs.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import marineAnimals from "../data/flashcards/marine-animals.json";
 import music from "../data/flashcards/music.json";
+import places from "../data/flashcards/places.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
 import sports from "../data/flashcards/sports.json";
@@ -121,6 +122,12 @@ const EXPECTED_ILLUSTRATION_IDS = new Set([
   "music-xylophone", "music-maracas", "music-trumpet", "music-trombone", "music-french-horn", "music-saxophone", "music-flute", "music-clarinet",
   "music-oboe", "music-recorder", "music-harmonica", "music-accordion", "music-ukulele", "music-banjo", "music-cymbals", "music-microphone",
   "music-headphones", "music-speaker", "music-sheet-music", "music-metronome", "music-turntable", "music-synthesizer", "music-conductor", "music-music-note",
+  "places-hospital", "places-bank", "places-library", "places-post-office", "places-fire-station", "places-police-station",
+  "places-supermarket", "places-restaurant", "places-cafe", "places-bakery", "places-hotel", "places-theater",
+  "places-museum", "places-zoo", "places-park", "places-playground", "places-swimming-pool", "places-stadium",
+  "places-gym", "places-airport", "places-train-station", "places-bus-stop", "places-harbor", "places-gas-station",
+  "places-parking-lot", "places-pharmacy", "places-church", "places-mosque", "places-temple", "places-factory",
+  "places-office", "places-city-hall",
 ]);
 
 function expectSafeSvg(svg: string, cardId: string): void {
@@ -191,13 +198,13 @@ describe("厨房与浴室定制 SVG", () => {
     }
   });
 
-  it("全部441张组合Emoji已替换且22类仍为704张", () => {
-    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals, jobs, music };
+  it("全部473张组合Emoji已替换且23类仍为736张", () => {
+    const allDecks = { animals, shapes, colors, actions, transport, fruits, vegetables, food, drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, "bicycle-parts": bicycleParts, weather, "marine-animals": marineAnimals, jobs, music, places };
     const cards = Object.values(allDecks).flatMap((deck) => deck.cards);
-    expect(cards).toHaveLength(704);
+    expect(cards).toHaveLength(736);
     expect(Object.values(allDecks).every((deck) => deck.cards.length === 32)).toBe(true);
     expect(cards.filter((card) => card.art.kind === "illustration").map((card) => card.id).sort())
       .toEqual([...EXPECTED_ILLUSTRATION_IDS].sort());
-    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(441);
+    expect(EXPECTED_ILLUSTRATION_IDS.size).toBe(473);
   });
 });

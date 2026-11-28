@@ -20,6 +20,7 @@ import jobs from "../data/flashcards/jobs.json";
 import kitchen from "../data/flashcards/kitchen.json";
 import marineAnimals from "../data/flashcards/marine-animals.json";
 import music from "../data/flashcards/music.json";
+import places from "../data/flashcards/places.json";
 import school from "../data/flashcards/school.json";
 import shapes from "../data/flashcards/shapes.json";
 import sports from "../data/flashcards/sports.json";
@@ -38,6 +39,7 @@ import { weatherExpansion } from "./__fixtures__/flashcardWeatherExpansion";
 import { marineAnimalsExpansion } from "./__fixtures__/flashcardMarineAnimalsExpansion";
 import { jobsExpansion } from "./__fixtures__/flashcardJobsExpansion";
 import { musicExpansion } from "./__fixtures__/flashcardMusicExpansion";
+import { placesExpansion } from "./__fixtures__/flashcardPlacesExpansion";
 import { isFlashcardDeck, type FlashcardCategoryId } from "./flashcard";
 
 function expectExpansion(
@@ -180,6 +182,19 @@ describe("第十批乐器与音乐认图卡片", () => {
     expect(allDecks).toHaveLength(22);
     for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
     expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(704);
+  });
+});
+
+describe("第十一批城市与社区场所认图卡片", () => {
+  it("城市与社区场所分类包含 32 张且总数为 736", () => {
+    expectExpansion(places, "places", placesExpansion);
+    const allDecks = [
+      animals, shapes, colors, actions, transport, fruits, vegetables, food,
+      drinks, clothing, school, toys, furniture, appliances, kitchen, bathroom, sports, bicycleParts, weather, marineAnimals, jobs, music, places,
+    ];
+    expect(allDecks).toHaveLength(23);
+    for (const deck of allDecks) expect(deck.cards).toHaveLength(32);
+    expect(allDecks.reduce((total, deck) => total + deck.cards.length, 0)).toBe(736);
   });
 
   it("颜色不再包含难以区分的米白和蓝绿色近义色卡", () => {

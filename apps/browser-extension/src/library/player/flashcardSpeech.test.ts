@@ -70,6 +70,12 @@ describe("buildFlashcardSpeechText", () => {
     expect(buildFlashcardSpeechText("music", word)).toBe(expected);
   });
 
+  it("地点名称使用带冠词的例句", () => {
+    expect(buildFlashcardSpeechText("places", "airport")).toBe(
+      "airport, airport, airport. This is an airport."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."
