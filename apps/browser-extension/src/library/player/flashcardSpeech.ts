@@ -63,6 +63,8 @@ export function buildFlashcardSpeechText(
         return `${repeated} This is ${word}.`;
       }
       return `${repeated} This is ${NOUN_PHRASE_OVERRIDES[word] ?? `${article} ${word}`}.`;
+    case "emotions":
+      return `${repeated} I feel ${word}.`;
     case "weather":
       if (WEATHER_ADJECTIVES.has(word)) return `${repeated} It is ${word}.`;
       if (WEATHER_COUNTABLE_NOUNS.has(word)) return `${repeated} This is ${article} ${word}.`;

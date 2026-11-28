@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "id": "emotions",
+  "cards": [
+    {
+      "id": "emotions-happy",
+      "word": "happy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-happy"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "emotions-sad",
+      "word": "sad",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-sad"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "emotions-angry",
+      "word": "angry",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-angry"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-surprised",
+      "word": "surprised",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-surprised"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "emotions-scared",
+      "word": "scared",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-scared"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "emotions-tired",
+      "word": "tired",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-tired"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "emotions-excited",
+      "word": "excited",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-excited"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-nervous",
+      "word": "nervous",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-nervous"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "emotions-calm",
+      "word": "calm",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-calm"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "emotions-relaxed",
+      "word": "relaxed",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-relaxed"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "emotions-proud",
+      "word": "proud",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-proud"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-confident",
+      "word": "confident",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-confident"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-shy",
+      "word": "shy",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-shy"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "emotions-embarrassed",
+      "word": "embarrassed",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-embarrassed"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "emotions-bored",
+      "word": "bored",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-bored"
+      },
+      "background": [
+        "#f0f0f5",
+        "#d5d5e2"
+      ]
+    },
+    {
+      "id": "emotions-curious",
+      "word": "curious",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-curious"
+      },
+      "background": [
+        "#e0f7fa",
+        "#b2ebf2"
+      ]
+    },
+    {
+      "id": "emotions-confused",
+      "word": "confused",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-confused"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "emotions-worried",
+      "word": "worried",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-worried"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    },
+    {
+      "id": "emotions-stressed",
+      "word": "stressed",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-stressed"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-frustrated",
+      "word": "frustrated",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-frustrated"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-disappointed",
+      "word": "disappointed",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-disappointed"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "emotions-jealous",
+      "word": "jealous",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-jealous"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "emotions-grateful",
+      "word": "grateful",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-grateful"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "emotions-hopeful",
+      "word": "hopeful",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-hopeful"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "emotions-cheerful",
+      "word": "cheerful",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-cheerful"
+      },
+      "background": [
+        "#fff8d9",
+        "#f3e2a4"
+      ]
+    },
+    {
+      "id": "emotions-silly",
+      "word": "silly",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-silly"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-playful",
+      "word": "playful",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-playful"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-lonely",
+      "word": "lonely",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-lonely"
+      },
+      "background": [
+        "#e2f4ff",
+        "#b9dcf5"
+      ]
+    },
+    {
+      "id": "emotions-loved",
+      "word": "loved",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-loved"
+      },
+      "background": [
+        "#fff0f5",
+        "#f6c9da"
+      ]
+    },
+    {
+      "id": "emotions-safe",
+      "word": "safe",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-safe"
+      },
+      "background": [
+        "#e5f8ed",
+        "#bce6cc"
+      ]
+    },
+    {
+      "id": "emotions-brave",
+      "word": "brave",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-brave"
+      },
+      "background": [
+        "#fff0e1",
+        "#ffcfbf"
+      ]
+    },
+    {
+      "id": "emotions-guilty",
+      "word": "guilty",
+      "art": {
+        "kind": "illustration",
+        "illustration": "emotions-guilty"
+      },
+      "background": [
+        "#f0e6ff",
+        "#d6c1f5"
+      ]
+    }
+  ]
+}

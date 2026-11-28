@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="emotions-cheerful-main" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fde047"/><stop offset="1" stop-color="#d97706"/></linearGradient><filter id="emotions-cheerful-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#334155" flood-opacity=".18"/></filter></defs>
+  <g filter="url(#emotions-cheerful-shadow)"><path d="M29 36c5-6 11-6 15-1M58 36c5-6 11-6 15-1M30 53c9 19 31 19 40 0Z" fill="#ef4444" stroke="#92400e" stroke-width="2"/><path d="M38 60h24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="29" cy="59" r="6" fill="#f9a8d4" opacity=".7"/><circle cx="71" cy="59" r="6" fill="#f9a8d4" opacity=".7"/></g>
+</svg>

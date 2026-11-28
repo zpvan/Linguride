@@ -76,6 +76,12 @@ describe("buildFlashcardSpeechText", () => {
     );
   });
 
+  it("情绪使用 I feel 例句", () => {
+    expect(buildFlashcardSpeechText("emotions", "happy")).toBe(
+      "happy, happy, happy. I feel happy."
+    );
+  });
+
   it("动作使用 I can 例句", () => {
     expect(buildFlashcardSpeechText("actions", "run")).toBe(
       "run, run, run. I can run."

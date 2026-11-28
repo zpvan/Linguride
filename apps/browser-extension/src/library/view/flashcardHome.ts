@@ -34,6 +34,7 @@ const CATEGORY_BACKGROUNDS: Record<FlashcardCategoryId, [string, string]> = {
   jobs: ["#fef3c7", "#fde68a"],
   music: ["#faf5ff", "#e9d5ff"],
   places: ["#eff6ff", "#dbeafe"],
+  emotions: ["#fff7ed", "#fed7aa"],
 };
 
 export interface FlashcardHomeHandlers {
